@@ -6,7 +6,7 @@ var searchData=
   ['read',['read',['../classEBzip2.html#a8abf51390949138d76783d949d9fabe4',1,'EBzip2::read()'],['../classESocket_1_1TCP_1_1Talker.html#ad4b68e850d7e48377060cf52759496af',1,'ESocket::TCP::Talker::read()']]],
   ['readdata',['readData',['../classECircularBuffer.html#a17a08de23dee0ea2bba52164580cbf1d',1,'ECircularBuffer']]],
   ['readline',['readLine',['../classEBzip2.html#a92ce7a2f6ee04515cfd1f5a2e8f6d25a',1,'EBzip2']]],
-  ['readme_2emd',['README.md',['../README_8md.html',1,'']]],
+  ['readme2_2emd',['README2.md',['../README2_8md.html',1,'']]],
   ['readonly',['ReadOnly',['../classEQueueBase.html#adf83a626534ef857ba365cef9778e7f0a194979163884a705c853900fa8d7db3d',1,'EQueueBase::ReadOnly()'],['../etevent_8h.html#a1a7c05eed44a6827c9ffd40fdd92fd50a131fb182a881796e7606ed6da27f1197',1,'ReadOnly():&#160;etevent.h']]],
   ['readopen',['readOpen',['../classEBzip2.html#a16db492a88e88e81c942108a436c60b4',1,'EBzip2']]],
   ['readwrite',['ReadWrite',['../classEQueueBase.html#adf83a626534ef857ba365cef9778e7f0a46c41a76bf9b8b691bfc455215367602',1,'EQueueBase::ReadWrite()'],['../etevent_8h.html#a1a7c05eed44a6827c9ffd40fdd92fd50a70a2a84088d405a2e3f1e3accaa16723',1,'ReadWrite():&#160;etevent.h']]],
