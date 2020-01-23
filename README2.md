@@ -121,14 +121,23 @@ sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnut
 ```
 ***Clone the project, install the dependencies (via configure), build the static library and install.***
 ```sh
-$ git clone https://github.com/brianwaters3/FoundationTools.git epctools
+$ git clone https://github.com/brianwaters3/epctools.git epctools
 $ cd epctools
-$ git checkout sprint
 $ ./configure
 $ make
 $ sudo make install
 ```
   
+<a name="configuration"></a>
+# Configuration
+  
+<a name="configuration-command-line"></a>
+## Command Line
+
+<a name="configuration-file"></a>
+## Configuration File
+
+
 <a  name="feature-overview"></a>
 # Feature Overview
 <a  name="feature-overview-public-private"></a>
@@ -1492,6 +1501,7 @@ ELogger::log(LOG_STATS).minor("Hello {} from the test2 log!!", "World");
 
 <a  name="feature-overview-dns"></a>
 ## DNS
+
 
 <a  name="feature-overview-dns-cache"></a>
 ### DNS Cache
