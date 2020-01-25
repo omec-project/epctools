@@ -76,15 +76,15 @@ Contents</h1>
 <li>
 <a href="#installation">Installation</a> </li>
 <li>
+<a href="#feature-overview">Feature Overview</a> <ol>
+<li>
 <a href="#configuration">Configuration</a> <ol>
 <li>
-<a href="#configuration-command-line">Command Line</a> </li>
-<li>
 <a href="#configuration-file">Configuration File</a> </li>
+<li>
+<a href="#configuration-command-line">Command Line</a> </li>
 </ol>
 </li>
-<li>
-<a href="#feature-overview">Feature Overview</a> <ol>
 <li>
 <a href="#feature-overview-public-private">Public vs. Private</a> </li>
 <li>
@@ -229,18 +229,132 @@ Installation</h1>
 <div class="line">$ ./configure</div>
 <div class="line">$ make</div>
 <div class="line">$ sudo make install</div>
-</div><!-- fragment --><p><a class="anchor" id="configuration"></a> </p>
+</div><!-- fragment --><p><a class="anchor" id="feature-overview"></a> </p>
 <h1><a class="anchor" id="autotoc_md13"></a>
-Configuration</h1>
-<p><a class="anchor" id="configuration-command-line"></a> </p>
-<h2><a class="anchor" id="autotoc_md14"></a>
-Command Line</h2>
-<p><a class="anchor" id="configuration-file"></a> </p>
-<h2><a class="anchor" id="autotoc_md15"></a>
-Configuration File</h2>
-<p><a class="anchor" id="feature-overview"></a> </p>
-<h1><a class="anchor" id="autotoc_md16"></a>
 Feature Overview</h1>
+<p><a class="anchor" id="configuration"></a> </p>
+<h2><a class="anchor" id="autotoc_md14"></a>
+Configuration</h2>
+<p><em><b><a class="el" href="classEpcTools.html" title="The primary class used to initialize/uninitialize EpcTools.">EpcTools</a></b></em> is configured via a JSON configuration file. Additionally, application specific configuration items may be defined in the same JSON configuration file and also on the command line. The options contained in JSON configuration file(s) and command line arguments can be accessed via an instance of <a class="el" href="classEGetOpt.html">EGetOpt</a>.</p>
+<p><a class="anchor" id="configuration-file"></a> </p>
+<h3><a class="anchor" id="autotoc_md15"></a>
+Configuration File</h3>
+<p>Multiple JSON configuration files can be loaded by <a class="el" href="classEGetOpt.html">EGetOpt</a>. <br  />
+ <b>Sample JSON Configuration File</b> </p><div class="fragment"><div class="line">{</div>
+<div class="line">    &quot;EpcApplication&quot;: {</div>
+<div class="line">        &quot;freeDiameter&quot;: {</div>
+<div class="line">            &quot;configfile&quot;: &quot;conf/epc_app_client.conf&quot;,</div>
+<div class="line">            &quot;originhost&quot;: &quot;epcapp_client.localdomain&quot;,</div>
+<div class="line">            &quot;originrealm&quot;: &quot;localdomain&quot;,</div>
+<div class="line">            &quot;peerhost&quot;: &quot;epcappserver.localdomain&quot;,</div>
+<div class="line">            &quot;peerport&quot;: 30868,</div>
+<div class="line">            &quot;peerip&quot;: &quot;10.0.2.15&quot;</div>
+<div class="line">        },</div>
+<div class="line">        &quot;role&quot;: &quot;client&quot;,</div>
+<div class="line">        &quot;cliport&quot;: 9080</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>These JSON configuration parameters can be loaded and access by <a class="el" href="classEGetOpt.html">EGetOpt</a> as follows:</p>
+<div class="fragment"><div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>  *argv[])</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classEGetOpt.html">EGetOpt</a> opt;</div>
+<div class="line">    <a class="code" href="classEString.html">EString</a> optfile;</div>
+<div class="line">      </div>
+<div class="line">    <span class="keywordflow">try</span></div>
+<div class="line">    {</div>
+<div class="line">        <span class="comment">// load a configuration file</span></div>
+<div class="line">        opt.<a class="code" href="classEGetOpt.html#a2cdd38746dcacdf53d016a50289e24a6">loadFile</a>(<span class="stringliteral">&quot;conf/epc_app_server.json&quot;</span>);</div>
+<div class="line">        </div>
+<div class="line">        <span class="comment">// the second argument is the value that will be returned if the parameter is not found</span></div>
+<div class="line">        std::cout &lt;&lt; opt.<a class="code" href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">get</a>(<span class="stringliteral">&quot;/EpcApplication/freeDiameter/configfile&quot;</span>, <span class="stringliteral">&quot;not_found&quot;</span>) &lt;&lt; std::endl;</div>
+<div class="line">        std::cout &lt;&lt; opt.<a class="code" href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">get</a>(<span class="stringliteral">&quot;/EpcApplication/freeDiameter/originhost&quot;</span>, <span class="stringliteral">&quot;not_found&quot;</span>) &lt;&lt; std::endl;</div>
+<div class="line">        std::cout &lt;&lt; opt.<a class="code" href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">get</a>(<span class="stringliteral">&quot;/EpcApplication/freeDiameter/originrealm&quot;</span>, <span class="stringliteral">&quot;not_found&quot;</span>) &lt;&lt; std::endl;</div>
+<div class="line">        std::cout &lt;&lt; opt.<a class="code" href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">get</a>(<span class="stringliteral">&quot;/EpcApplication/freeDiameter/peerhost&quot;</span>, <span class="stringliteral">&quot;not_found&quot;</span>) &lt;&lt; std::endl;</div>
+<div class="line">        std::cout &lt;&lt; opt.<a class="code" href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">get</a>(<span class="stringliteral">&quot;/EpcApplication/freeDiameter/peerport&quot;</span>, 1234) &lt;&lt; std::endl;</div>
+<div class="line">        std::cout &lt;&lt; opt.<a class="code" href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">get</a>(<span class="stringliteral">&quot;/EpcApplication/freeDiameter/peerip&quot;</span>, <span class="stringliteral">&quot;not_found&quot;</span>) &lt;&lt; std::endl;</div>
+<div class="line">        std::cout &lt;&lt; opt.<a class="code" href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">get</a>(<span class="stringliteral">&quot;/EpcApplication/role&quot;</span>, <span class="stringliteral">&quot;not_found&quot;</span>) &lt;&lt; std::endl;</div>
+<div class="line">        std::cout &lt;&lt; opt.<a class="code" href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">get</a>(<span class="stringliteral">&quot;/EpcApplication/cliport/&quot;</span>, 4321) &lt;&lt; std::endl;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">catch</span>(<span class="keyword">const</span> std::exception&amp; e)</div>
+<div class="line">    {</div>
+<div class="line">        std::cerr &lt;&lt; e.what() &lt;&lt; <span class="charliteral">&#39;\n&#39;</span>;</div>
+<div class="line">        <span class="keywordflow">return</span>  1;</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+</div><!-- fragment --><p><a class="anchor" id="configuration-command-line"></a> </p>
+<h3><a class="anchor" id="autotoc_md16"></a>
+Command Line</h3>
+<p>Command line options can be accessed by defining and loading the options using <a class="el" href="classEGetOpt.html">EGetOpt</a>. The two different types of command line arguments are named and positional.</p>
+<p>Named arguments have a short and/or long name, a data type and may have an optional or required parameter. An example of a short and long name of an argument are "-f" and "--file". Named arguments can be present in any order in the command line (they can even be intermixed with positional arguments).</p>
+<p>A positional argument is a string argument that is referenced by a zero based index.</p>
+<p>Here is an example command line and the associated JSON representation of those arguments stored by <a class="el" href="classEGetOpt.html">EGetOpt</a>:</p>
+<div class="fragment"><div class="line">$ ./bin/epc_app -f conf/epc_app_server.json --print arg1 arg2 3 4 arg5</div>
+</div><!-- fragment --><div class="fragment"><div class="line">{</div>
+<div class="line">    &quot;cmdline&quot;: {</div>
+<div class="line">        &quot;program&quot;: &quot;./bin/epc_app&quot;,</div>
+<div class="line">        &quot;raw&quot;: [</div>
+<div class="line">            &quot;./bin/epc_app&quot;,</div>
+<div class="line">            &quot;-f&quot;,</div>
+<div class="line">            &quot;conf/epc_app_server.json&quot;,</div>
+<div class="line">            &quot;--print&quot;,</div>
+<div class="line">            &quot;arg1&quot;,</div>
+<div class="line">            &quot;arg2&quot;,</div>
+<div class="line">            &quot;3&quot;,</div>
+<div class="line">            &quot;4&quot;,</div>
+<div class="line">            &quot;arg5&quot;</div>
+<div class="line">        ],</div>
+<div class="line">        &quot;args&quot;: [</div>
+<div class="line">            &quot;arg1&quot;,</div>
+<div class="line">            &quot;arg2&quot;,</div>
+<div class="line">            &quot;3&quot;,</div>
+<div class="line">            &quot;4&quot;,</div>
+<div class="line">            &quot;arg5&quot;</div>
+<div class="line">        ],</div>
+<div class="line">        &quot;-f&quot;: &quot;conf/epc_app_server.json&quot;,</div>
+<div class="line">        &quot;--print&quot;: true</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p> Here is a corresponding code example parsing and accessing command line arguments: </p><div class="fragment"><div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>  *argv[])</div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="structEGetOpt_1_1Option.html">EGetOpt::Option</a> options[] = {</div>
+<div class="line">        {<span class="stringliteral">&quot;-h&quot;</span>, <span class="stringliteral">&quot;--help&quot;</span>, <a class="code" href="classEGetOpt.html#ad9e954c679c0c23a70dc67539876f9eea915d3f72218d564fb3c51a2d02784e6d">EGetOpt::no_argument</a>, <a class="code" href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5a0b3b4dd30b6b0868a0a0bf720c60136f">EGetOpt::dtNone</a>},</div>
+<div class="line">        {<span class="stringliteral">&quot;-f&quot;</span>, <span class="stringliteral">&quot;--file&quot;</span>, <a class="code" href="classEGetOpt.html#ad9e954c679c0c23a70dc67539876f9eea4e484f4b46faf0e8d2712a14087bb494">EGetOpt::required_argument</a>, <a class="code" href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5a4c5bbfa8ae59b10e28b648eaf3039265">EGetOpt::dtString</a>},</div>
+<div class="line">        {<span class="stringliteral">&quot;-p&quot;</span>, <span class="stringliteral">&quot;--print&quot;</span>, <a class="code" href="classEGetOpt.html#ad9e954c679c0c23a70dc67539876f9eea915d3f72218d564fb3c51a2d02784e6d">EGetOpt::no_argument</a>, <a class="code" href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5aaef316de10f5737160a30a8a02f8211c">EGetOpt::dtBool</a>},</div>
+<div class="line">        {<span class="stringliteral">&quot;&quot;</span>, <span class="stringliteral">&quot;&quot;</span>, <a class="code" href="classEGetOpt.html#ad9e954c679c0c23a70dc67539876f9eea915d3f72218d564fb3c51a2d02784e6d">EGetOpt::no_argument</a>, <a class="code" href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5a0b3b4dd30b6b0868a0a0bf720c60136f">EGetOpt::dtNone</a>},</div>
+<div class="line">    };</div>
+<div class="line">      </div>
+<div class="line">    <a class="code" href="classEGetOpt.html">EGetOpt</a> opt;</div>
+<div class="line">    <a class="code" href="classEString.html">EString</a> optfile;</div>
+<div class="line">      </div>
+<div class="line">    <span class="keywordflow">try</span></div>
+<div class="line">    {</div>
+<div class="line">        opt.<a class="code" href="classEGetOpt.html#acf035f3e4bddbb4f4ef63c05e525af2f">loadCmdLine</a>(argc, argv, options);</div>
+<div class="line">        <span class="keywordflow">if</span> (opt.<a class="code" href="classEGetOpt.html#ae38885648ab68337f86a54a29384f87a">getCmdLine</a>(<span class="stringliteral">&quot;-h,--help&quot;</span>,<span class="keyword">false</span>))</div>
+<div class="line">        {</div>
+<div class="line">            usage();</div>
+<div class="line">            <span class="keywordflow">return</span>  0;</div>
+<div class="line">        }</div>
+<div class="line">          </div>
+<div class="line">        optfile.<a class="code" href="classEString.html#a320dce9f0bdcbf80118db0d623e176e1">format</a>(<span class="stringliteral">&quot;%s.json&quot;</span>, argv[0]);</div>
+<div class="line">        <span class="keywordflow">if</span> (<a class="code" href="classEUtility.html#a3f7d8c79a89f3694018a5f6f9bb7ced0">EUtility::file_exists</a>(optfile))</div>
+<div class="line">            opt.<a class="code" href="classEGetOpt.html#a2cdd38746dcacdf53d016a50289e24a6">loadFile</a>(optfile);</div>
+<div class="line">        optfile = opt.<a class="code" href="classEGetOpt.html#ae38885648ab68337f86a54a29384f87a">getCmdLine</a>( <span class="stringliteral">&quot;-f,--file&quot;</span>, <span class="stringliteral">&quot;__unknown__&quot;</span> );</div>
+<div class="line">        <span class="keywordflow">if</span> (<a class="code" href="classEUtility.html#a3f7d8c79a89f3694018a5f6f9bb7ced0">EUtility::file_exists</a>(optfile))</div>
+<div class="line">            opt.<a class="code" href="classEGetOpt.html#a2cdd38746dcacdf53d016a50289e24a6">loadFile</a>(optfile);</div>
+<div class="line">        <span class="keywordflow">if</span> (opt.<a class="code" href="classEGetOpt.html#ae38885648ab68337f86a54a29384f87a">getCmdLine</a>( <span class="stringliteral">&quot;-p,--print&quot;</span>, <span class="keyword">false</span>))</div>
+<div class="line">            opt.<a class="code" href="classEGetOpt.html#a1545ad2f720b632d5768e77bb287cc0d">print</a>();</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">catch</span>(<span class="keyword">const</span> std::exception&amp; e)</div>
+<div class="line">    {</div>
+<div class="line">        std::cerr &lt;&lt; e.what() &lt;&lt; <span class="charliteral">&#39;\n&#39;</span>;</div>
+<div class="line">        <span class="keywordflow">return</span>  1;</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>See <a class="el" href="classEGetOpt.html">EGetOpt</a> for more information.</p>
 <p><a class="anchor" id="feature-overview-public-private"></a> </p>
 <h2><a class="anchor" id="autotoc_md17"></a>
 Public vs. Private</h2>
@@ -1427,23 +1541,38 @@ Code</h4>
 <h4><a class="anchor" id="autotoc_md45"></a>
 Sink Sets</h4>
 <p>A sink set defines a set of outputs or sinks. Once defined, a sink set is then associated with a log. If the same sink set is associated with more than one log, then each of the associated logs will have their log messages written to the same sinks.</p>
-<p><b>Sink Types</b> | Class | Parameters | Description | | ----&mdash; | --&mdash; | -----------------&mdash; | :--------&mdash; | | <a class="el" href="classELoggerSinkSyslog.html">ELoggerSinkSyslog</a> | loglevel<br  />
-pattern | Message will be written to syslog. | | <a class="el" href="classELoggerSinkStdout.html">ELoggerSinkStdout</a> | loglevel<br  />
-pattern | Message will be written to the standard output (stdout) file handle. | | <a class="el" href="classELoggerSinkStderr.html">ELoggerSinkStderr</a> | loglevel<br  />
-pattern | Message will be written to the standard error (stderr) file handle. | | <a class="el" href="classELoggerSinkBasicFile.html">ELoggerSinkBasicFile</a> | loglevel<br  />
+<p><b>Sink Types</b> </p><table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Class  </th><th class="markdownTableHeadNone">Parameters  </th><th class="markdownTableHeadLeft">Description   </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="classELoggerSinkSyslog.html">ELoggerSinkSyslog</a>  </td><td class="markdownTableBodyNone">loglevel<br  />
+pattern  </td><td class="markdownTableBodyLeft">Message will be written to syslog.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><a class="el" href="classELoggerSinkStdout.html">ELoggerSinkStdout</a>  </td><td class="markdownTableBodyNone">loglevel<br  />
+pattern  </td><td class="markdownTableBodyLeft">Message will be written to the standard output (stdout) file handle.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="classELoggerSinkStderr.html">ELoggerSinkStderr</a>  </td><td class="markdownTableBodyNone">loglevel<br  />
+pattern  </td><td class="markdownTableBodyLeft">Message will be written to the standard error (stderr) file handle.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><a class="el" href="classELoggerSinkBasicFile.html">ELoggerSinkBasicFile</a>  </td><td class="markdownTableBodyNone">loglevel<br  />
 pattern<br  />
 filename<br  />
-truncate | Message will be written to a file. If the <b>truncate</b> flag is true, then the file will be truncated at startup. | | <a class="el" href="classELoggerSinkRotatingFile.html">ELoggerSinkRotatingFile</a> | loglevel<br  />
+truncate  </td><td class="markdownTableBodyLeft">Message will be written to a file. If the <b>truncate</b> flag is true, then the file will be truncated at startup.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="classELoggerSinkRotatingFile.html">ELoggerSinkRotatingFile</a>  </td><td class="markdownTableBodyNone">loglevel<br  />
 pattern<br  />
 filename<br  />
 max_size_mb<br  />
 max_files<br  />
-rotate_on_open | Message will be written to a series of files. When a file reaches the maximum file size defined by <b>max_size_mb</b>, the next file in the series will be opened and written to. <a class="el" href="classELogger.html" title="Defines a logger.">ELogger</a> will keep a maximum of <b>max_files</b> previous log files (including the current file).| | <a class="el" href="classELoggerSinkDailyFile.html">ELoggerSinkDailyFile</a> | loglevel<br  />
+rotate_on_open  </td><td class="markdownTableBodyLeft">Message will be written to a series of files. When a file reaches the maximum file size defined by <b>max_size_mb</b>, the next file in the series will be opened and written to. <a class="el" href="classELogger.html" title="Defines a logger.">ELogger</a> will keep a maximum of <b>max_files</b> previous log files (including the current file).   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><a class="el" href="classELoggerSinkDailyFile.html">ELoggerSinkDailyFile</a>  </td><td class="markdownTableBodyNone">loglevel<br  />
 pattern<br  />
 filename<br  />
 truncate<br  />
 rollover_hour<br  />
-rollover_minute | Message will be written to a file. When the hour and minute specified by <b>rollover_hour</b> and <b>rollover_minute</b> are reached, the current log file will be closed and a new log file will be opened. The system date and time will be appended to the log file name. |</p>
+rollover_minute  </td><td class="markdownTableBodyLeft">Message will be written to a file. When the hour and minute specified by <b>rollover_hour</b> and <b>rollover_minute</b> are reached, the current log file will be closed and a new log file will be opened. The system date and time will be appended to the log file name.   </td></tr>
+</table>
 <p><a class="anchor" id="feature-overview-logging-configuration-logs"></a> </p>
 <h4><a class="anchor" id="autotoc_md46"></a>
 Logs</h4>
@@ -1569,6 +1698,7 @@ Circular Buffer</h3>
 </div><!-- contents -->
 <div class="ttc" id="aclassEThreadEventTimer_html"><div class="ttname"><a href="classEThreadEventTimer.html">EThreadEventTimer</a></div><div class="ttdoc">Thread timer class.</div><div class="ttdef"><b>Definition:</b> etevent.h:852</div></div>
 <div class="ttc" id="aclassEThreadEvent_html_a3003651d73c57459305d073e0f1ad389"><div class="ttname"><a href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">EThreadEvent::onInit</a></div><div class="ttdeci">virtual Void onInit()</div><div class="ttdoc">Called in the context of the thread when the EM_INIT event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1182</div></div>
+<div class="ttc" id="aclassEGetOpt_html_ae8a83370799c1a12d423360b34486aa5a4c5bbfa8ae59b10e28b648eaf3039265"><div class="ttname"><a href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5a4c5bbfa8ae59b10e28b648eaf3039265">EGetOpt::dtString</a></div><div class="ttdoc">string</div><div class="ttdef"><b>Definition:</b> egetopt.h:51</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a230c9b28843f770b7cbe41c573516603"><div class="ttname"><a href="classEThreadEventMessageBase.html#a230c9b28843f770b7cbe41c573516603">EThreadEventMessageBase::data</a></div><div class="ttdeci">T &amp; data()</div><div class="ttdoc">Retrieves the data portion of the message.</div><div class="ttdef"><b>Definition:</b> etevent.h:233</div></div>
 <div class="ttc" id="aclassEThreadQueuePublic_html"><div class="ttname"><a href="classEThreadQueuePublic.html">EThreadQueuePublic</a></div><div class="ttdoc">Definition of a public event thread message queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:566</div></div>
 <div class="ttc" id="aclassESocket_1_1Thread_html"><div class="ttname"><a href="classESocket_1_1Thread.html">ESocket::Thread</a></div><div class="ttdoc">The socket thread base class. An event based thread class capable of surfacing socket events.</div><div class="ttdef"><b>Definition:</b> esocket.h:1440</div></div>
@@ -1589,6 +1719,7 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html">ESocket::TCP::Listener</a></div><div class="ttdoc">Listens for incoming TCP/IP connections.</div><div class="ttdef"><b>Definition:</b> esocket.h:921</div></div>
 <div class="ttc" id="aclassEThreadMessage_html"><div class="ttname"><a href="classEThreadMessage.html">EThreadMessage</a></div><div class="ttdoc">An event message that is to be sent to a thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:266</div></div>
 <div class="ttc" id="aclassEThreadEventTimer_html_a4b28f46b10c8164212e2713976f196b1"><div class="ttname"><a href="classEThreadEventTimer.html#a4b28f46b10c8164212e2713976f196b1">EThreadEventTimer::getId</a></div><div class="ttdeci">Long getId()</div><div class="ttdoc">Returns the unique timer id.</div><div class="ttdef"><b>Definition:</b> etevent.h:976</div></div>
+<div class="ttc" id="aclassEGetOpt_html_ae38885648ab68337f86a54a29384f87a"><div class="ttname"><a href="classEGetOpt.html#ae38885648ab68337f86a54a29384f87a">EGetOpt::getCmdLine</a></div><div class="ttdeci">Long getCmdLine(cpStr path, Long def) const</div><div class="ttdoc">Returns the value of the specified command line argument as a 32-bit integer.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:302</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html_aab7b01e9913284bd9af3d8d510ef892d"><div class="ttname"><a href="classEThreadEventMessageDataBase.html#aab7b01e9913284bd9af3d8d510ef892d">EThreadEventMessageDataBase::setVoidPtr</a></div><div class="ttdeci">virtual Void setVoidPtr(pVoid p)=0</div><div class="ttdoc">Sets the void pointer.</div></div>
 <div class="ttc" id="aetevent_8h_html_a1fbc3aa077e4e82c9f1fa82d32653273"><div class="ttname"><a href="etevent_8h.html#a1fbc3aa077e4e82c9f1fa82d32653273">ON_MESSAGE</a></div><div class="ttdeci">#define ON_MESSAGE(id, memberFxn)</div><div class="ttdoc">Defines an invidual event handler.</div><div class="ttdef"><b>Definition:</b> etevent.h:818</div></div>
 <div class="ttc" id="aclassEThreadEvent_html_adbdfea9c7c873363a05241dd166fa65b"><div class="ttname"><a href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">EThreadEvent::sendMessage</a></div><div class="ttdeci">Bool sendMessage(UInt message, Bool wait=True)</div><div class="ttdoc">Sends event message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1082</div></div>
@@ -1598,21 +1729,27 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassEMutexPrivate_html"><div class="ttname"><a href="classEMutexPrivate.html">EMutexPrivate</a></div><div class="ttdoc">A private mutex (the mutex data is allocated from either the heap or stack).</div><div class="ttdef"><b>Definition:</b> esynch.h:175</div></div>
 <div class="ttc" id="aclassEThreadEvent_html"><div class="ttname"><a href="classEThreadEvent.html">EThreadEvent</a></div><div class="ttdoc">base class for EThreadPrivate and EThreadPublic</div><div class="ttdef"><b>Definition:</b> etevent.h:1040</div></div>
 <div class="ttc" id="aclassELoggerSinkSet_html_a388a73618efe1cacb7e7481555040411"><div class="ttname"><a href="classELoggerSinkSet.html#a388a73618efe1cacb7e7481555040411">ELoggerSinkSet::addSink</a></div><div class="ttdeci">Void addSink(std::shared_ptr&lt; ELoggerSink &gt; &amp;sink)</div><div class="ttdoc">Adds a sink to the sink set.</div><div class="ttdef"><b>Definition:</b> elogger.h:474</div></div>
+<div class="ttc" id="aclassEGetOpt_html_ad9e954c679c0c23a70dc67539876f9eea915d3f72218d564fb3c51a2d02784e6d"><div class="ttname"><a href="classEGetOpt.html#ad9e954c679c0c23a70dc67539876f9eea915d3f72218d564fb3c51a2d02784e6d">EGetOpt::no_argument</a></div><div class="ttdoc">no argument required</div><div class="ttdef"><b>Definition:</b> egetopt.h:38</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_ab3fbfcfbd4fc5378966ad4362779006c"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#ab3fbfcfbd4fc5378966ad4362779006c">ESocket::TCP::Talker::onClose</a></div><div class="ttdeci">virtual Void onClose()</div><div class="ttdoc">Called when the socket has been closed.</div><div class="ttdef"><b>Definition:</b> esocket.h:750</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html"><div class="ttname"><a href="classEThreadEventMessageBase.html">EThreadEventMessageBase</a></div><div class="ttdoc">A template class that all event message classes should derive from.</div><div class="ttdef"><b>Definition:</b> etevent.h:206</div></div>
 <div class="ttc" id="aclassEThreadEvent_html_a18fbce94b1fdc44d69cac2ca712fb90e"><div class="ttname"><a href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">EThreadEvent::onQuit</a></div><div class="ttdeci">virtual Void onQuit()</div><div class="ttdoc">Called in the context of the thread when the EM_QUIT event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1186</div></div>
+<div class="ttc" id="aclassEGetOpt_html_ad9e954c679c0c23a70dc67539876f9eea4e484f4b46faf0e8d2712a14087bb494"><div class="ttname"><a href="classEGetOpt.html#ad9e954c679c0c23a70dc67539876f9eea4e484f4b46faf0e8d2712a14087bb494">EGetOpt::required_argument</a></div><div class="ttdoc">an argument is required</div><div class="ttdef"><b>Definition:</b> egetopt.h:40</div></div>
+<div class="ttc" id="astructEGetOpt_1_1Option_html"><div class="ttname"><a href="structEGetOpt_1_1Option.html">EGetOpt::Option</a></div><div class="ttdoc">Describes the defined command line arguments.</div><div class="ttdef"><b>Definition:</b> egetopt.h:67</div></div>
 <div class="ttc" id="aetevent_8h_html_a0c8d25bf6492235c4f7f47ee387698ae"><div class="ttname"><a href="etevent_8h.html#a0c8d25bf6492235c4f7f47ee387698ae">BEGIN_MESSAGE_MAP</a></div><div class="ttdeci">#define BEGIN_MESSAGE_MAP(theClass, baseClass)</div><div class="ttdoc">Begins the message map declaration.</div><div class="ttdef"><b>Definition:</b> etevent.h:803</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_a23c48944af233184985d92c0b155d5ae"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#a23c48944af233184985d92c0b155d5ae">ESocket::TCP::Talker::Talker</a></div><div class="ttdeci">Talker(Thread&lt; TQueue, TMessage &gt; &amp;thread, Int bufsize=2097152)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> esocket.h:548</div></div>
 <div class="ttc" id="aclassESocket_1_1UDP_html_a7853433bb2daa353e88263ac62d9e04f"><div class="ttname"><a href="classESocket_1_1UDP.html#a7853433bb2daa353e88263ac62d9e04f">ESocket::UDP::onError</a></div><div class="ttdeci">virtual Void onError()</div><div class="ttdoc">Called when an error is detected on this socket.</div><div class="ttdef"><b>Definition:</b> esocket.h:1261</div></div>
+<div class="ttc" id="aclassEGetOpt_html"><div class="ttname"><a href="classEGetOpt.html">EGetOpt</a></div><div class="ttdef"><b>Definition:</b> egetopt.h:31</div></div>
 <div class="ttc" id="aclassEThreadEventTimer_html_ab95bdb5c96b1ebe5662785282584dbab"><div class="ttname"><a href="classEThreadEventTimer.html#ab95bdb5c96b1ebe5662785282584dbab">EThreadEventTimer::setInterval</a></div><div class="ttdeci">Void setInterval(Long interval)</div><div class="ttdoc">sets the timer interval</div><div class="ttdef"><b>Definition:</b> etevent.h:964</div></div>
 <div class="ttc" id="aclassERWLock_html"><div class="ttname"><a href="classERWLock.html">ERWLock</a></div><div class="ttdoc">Encapsulates a read-write lock object.</div><div class="ttdef"><b>Definition:</b> esynch.h:507</div></div>
 <div class="ttc" id="anamespaceESocket_html_a24cc0ce3fc2469d0913def48e8a7f4dd"><div class="ttname"><a href="namespaceESocket.html#a24cc0ce3fc2469d0913def48e8a7f4dd">ESocket::UdpPrivate</a></div><div class="ttdeci">UDP&lt; EThreadQueuePrivate&lt; EThreadMessage &gt;, EThreadMessage &gt; UdpPrivate</div><div class="ttdef"><b>Definition:</b> esocket.h:1875</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html">ESocket::TCP::Talker</a></div><div class="ttdoc">A TCP socket class capabile of sending and receiving data.</div><div class="ttdef"><b>Definition:</b> esocket.h:540</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_af4e3b0929084c49301d32a115dcde8bf"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#af4e3b0929084c49301d32a115dcde8bf">ESocket::TCP::Talker::getLocalPort</a></div><div class="ttdeci">UShort getLocalPort() const</div><div class="ttdoc">Retrieves the port associated with the local socket.</div><div class="ttdef"><b>Definition:</b> esocket.h:574</div></div>
 <div class="ttc" id="aclassEMutexPublic_html"><div class="ttname"><a href="classEMutexPublic.html">EMutexPublic</a></div><div class="ttdoc">A public mutex (the mutex data is located in shared memory).</div><div class="ttdef"><b>Definition:</b> esynch.h:223</div></div>
+<div class="ttc" id="aclassEGetOpt_html_acf035f3e4bddbb4f4ef63c05e525af2f"><div class="ttname"><a href="classEGetOpt.html#acf035f3e4bddbb4f4ef63c05e525af2f">EGetOpt::loadCmdLine</a></div><div class="ttdeci">Void loadCmdLine(Int argc, pStr *argv, const EGetOpt::Option *options)</div><div class="ttdoc">Parses and loads the command line arguments.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:613</div></div>
 <div class="ttc" id="aclassETimer_html"><div class="ttname"><a href="classETimer.html">ETimer</a></div><div class="ttdoc">Implements a stopwatch style timer.</div><div class="ttdef"><b>Definition:</b> etimer.h:26</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html_a2f9b721b8075770566ca000626d2f03f"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html#a2f9b721b8075770566ca000626d2f03f">ESocket::TCP::Listener::onClose</a></div><div class="ttdeci">virtual Void onClose()</div><div class="ttdoc">Called when this socket is closed.</div><div class="ttdef"><b>Definition:</b> esocket.h:1033</div></div>
 <div class="ttc" id="aclassESharedMemory_html_affda2d92d4ba4506b196d7c266b777ad"><div class="ttname"><a href="classESharedMemory.html#affda2d92d4ba4506b196d7c266b777ad">ESharedMemory::getDataPtr</a></div><div class="ttdeci">pVoid getDataPtr()</div><div class="ttdoc">Retrieves a pointer to the first location of the shated memory.</div><div class="ttdef"><b>Definition:</b> eshmem.h:65</div></div>
+<div class="ttc" id="aclassEUtility_html_a3f7d8c79a89f3694018a5f6f9bb7ced0"><div class="ttname"><a href="classEUtility.html#a3f7d8c79a89f3694018a5f6f9bb7ced0">EUtility::file_exists</a></div><div class="ttdeci">static Bool file_exists(cpStr fn)</div><div class="ttdoc">Determines if the supplied file exists.</div><div class="ttdef"><b>Definition:</b> eutil.h:102</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_aaf7cb01536df66dcf51bb34db1a4dd69"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#aaf7cb01536df66dcf51bb34db1a4dd69">ESocket::TCP::Talker::write</a></div><div class="ttdeci">Void write(pUChar src, Int len)</div><div class="ttdoc">Writes data to the socket. This is a thread safe method.</div><div class="ttdef"><b>Definition:</b> esocket.h:706</div></div>
 <div class="ttc" id="aclassESharedMemory_html_ad231d66f0e4d22240690008d6131cff7"><div class="ttname"><a href="classESharedMemory.html#ad231d66f0e4d22240690008d6131cff7">ESharedMemory::init</a></div><div class="ttdeci">Void init(cpStr file, Int id, Int size)</div><div class="ttdoc">Initializes this shared memory object. This method is called by the parameterized constructor.</div><div class="ttdef"><b>Definition:</b> eshmem.cpp:109</div></div>
 <div class="ttc" id="aclassEMutexPublic_html_ab18eafe10a216cffb94fe4dd68bac0da"><div class="ttname"><a href="classEMutexPublic.html#ab18eafe10a216cffb94fe4dd68bac0da">EMutexPublic::mutexId</a></div><div class="ttdeci">Int mutexId()</div><div class="ttdoc">Retrieves the mutex ID associated with this public mutex.</div><div class="ttdef"><b>Definition:</b> esynch.h:253</div></div>
@@ -1623,7 +1760,10 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassEThreadEventTimer_html_a6c65cb3297ebc6b37d0aaf8b38445ece"><div class="ttname"><a href="classEThreadEventTimer.html#a6c65cb3297ebc6b37d0aaf8b38445ece">EThreadEventTimer::setOneShot</a></div><div class="ttdeci">Void setOneShot(Bool oneshot)</div><div class="ttdoc">sets the type of timer</div><div class="ttdef"><b>Definition:</b> etevent.h:969</div></div>
 <div class="ttc" id="aclassELogger_html_a1c628d5920ebdcc9593ac1413be45a94"><div class="ttname"><a href="classELogger.html#a1c628d5920ebdcc9593ac1413be45a94">ELogger::createSinkSet</a></div><div class="ttdeci">static ELoggerSinkSet &amp; createSinkSet(Int sinkid)</div><div class="ttdoc">Manually creates a sink set.</div><div class="ttdef"><b>Definition:</b> elogger.cpp:291</div></div>
 <div class="ttc" id="aclassESocket_1_1UDP_html_abb7c08416e17e054fdb1c2af9f18e54c"><div class="ttname"><a href="classESocket_1_1UDP.html#abb7c08416e17e054fdb1c2af9f18e54c">ESocket::UDP::write</a></div><div class="ttdeci">Void write(const Address &amp;to, pVoid src, Int len)</div><div class="ttdoc">Sends data to the specified recipient address.</div><div class="ttdef"><b>Definition:</b> esocket.h:1195</div></div>
+<div class="ttc" id="aclassEGetOpt_html_ae8a83370799c1a12d423360b34486aa5aaef316de10f5737160a30a8a02f8211c"><div class="ttname"><a href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5aaef316de10f5737160a30a8a02f8211c">EGetOpt::dtBool</a></div><div class="ttdoc">boolean</div><div class="ttdef"><b>Definition:</b> egetopt.h:63</div></div>
+<div class="ttc" id="aclassEGetOpt_html_a6158a901a426b724a2990a7f70d89c82"><div class="ttname"><a href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">EGetOpt::get</a></div><div class="ttdeci">Long get(cpStr path, Long def) const</div><div class="ttdoc">Returns the value of the specified configuration value as a 32-bit integer.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:455</div></div>
 <div class="ttc" id="aclassERDLock_html"><div class="ttname"><a href="classERDLock.html">ERDLock</a></div><div class="ttdoc">Request a read lock for the specified read-write lock object.</div><div class="ttdef"><b>Definition:</b> esynch.h:535</div></div>
+<div class="ttc" id="aclassEGetOpt_html_a1545ad2f720b632d5768e77bb287cc0d"><div class="ttname"><a href="classEGetOpt.html#a1545ad2f720b632d5768e77bb287cc0d">EGetOpt::print</a></div><div class="ttdeci">Void print() const</div><div class="ttdoc">Prints the current loaded values (command line and file).</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:297</div></div>
 <div class="ttc" id="aclassESemaphorePrivate_html"><div class="ttname"><a href="classESemaphorePrivate.html">ESemaphorePrivate</a></div><div class="ttdoc">Represents a private semaphore, the semaphore data is allocated from either the stack or heap.</div><div class="ttdef"><b>Definition:</b> esynch.h:382</div></div>
 <div class="ttc" id="aclassETime_html_a7c794038cc4ca2f0c9cffbf9e5a2bbee"><div class="ttname"><a href="classETime.html#a7c794038cc4ca2f0c9cffbf9e5a2bbee">ETime::Format</a></div><div class="ttdeci">Void Format(EString &amp;dest, cpStr fmt, Bool local)</div><div class="ttdoc">Formats the date/time value as specified by the format string.</div><div class="ttdef"><b>Definition:</b> etime.cpp:1158</div></div>
 <div class="ttc" id="aclassELogger_html_a94a47d71f929233a7100d573732e3cd9"><div class="ttname"><a href="classELogger.html#a94a47d71f929233a7100d573732e3cd9">ELogger::log</a></div><div class="ttdeci">static ELogger &amp; log(Int logid)</div><div class="ttdoc">Retrieves the requested ELogger object.</div><div class="ttdef"><b>Definition:</b> elogger.h:135</div></div>
@@ -1641,11 +1781,14 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassEThreadBasic_html"><div class="ttname"><a href="classEThreadBasic.html">EThreadBasic</a></div><div class="ttdoc">An abstract class that represents contains the threadProc() that will be run in a separate thread.</div><div class="ttdef"><b>Definition:</b> etbasic.h:53</div></div>
 <div class="ttc" id="aetevent_8h_html_ae52a1e808bcf6220acbef40e8351b8e7"><div class="ttname"><a href="etevent_8h.html#ae52a1e808bcf6220acbef40e8351b8e7">END_MESSAGE_MAP</a></div><div class="ttdeci">#define END_MESSAGE_MAP()</div><div class="ttdoc">Ends the message map declaration.</div><div class="ttdef"><b>Definition:</b> etevent.h:822</div></div>
 <div class="ttc" id="aetevent_8h_html_a3e0395c0f948348673c39d06c8bd12bf"><div class="ttname"><a href="etevent_8h.html#a3e0395c0f948348673c39d06c8bd12bf">DECLARE_MESSAGE_MAP</a></div><div class="ttdeci">#define DECLARE_MESSAGE_MAP()</div><div class="ttdoc">Inserts message map declarations into the thread class.</div><div class="ttdef"><b>Definition:</b> etevent.h:793</div></div>
+<div class="ttc" id="aclassEString_html_a320dce9f0bdcbf80118db0d623e176e1"><div class="ttname"><a href="classEString.html#a320dce9f0bdcbf80118db0d623e176e1">EString::format</a></div><div class="ttdeci">EString &amp; format(cpChar pszFormat,...)</div><div class="ttdoc">Sets the value to the string using a &quot;printf&quot; style format string and arguments.</div><div class="ttdef"><b>Definition:</b> estring.cpp:38</div></div>
 <div class="ttc" id="aclassESocket_1_1Base_html_ab9d8e6493e00ee44723d9e62a879052c"><div class="ttname"><a href="classESocket_1_1Base.html#ab9d8e6493e00ee44723d9e62a879052c">ESocket::Base::getThread</a></div><div class="ttdeci">Thread&lt; TQueue, TMessage &gt; &amp; getThread()</div><div class="ttdoc">Retrieves the socket thread that this socket is associated with.</div><div class="ttdef"><b>Definition:</b> esocket.h:333</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html_a1477b6dd6c8da334612db807d9c22f75"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html#a1477b6dd6c8da334612db807d9c22f75">ESocket::TCP::Listener::onError</a></div><div class="ttdeci">virtual Void onError()</div><div class="ttdoc">Called when an error is detected on this socket.</div><div class="ttdef"><b>Definition:</b> esocket.h:1039</div></div>
 <div class="ttc" id="aclassEString_html"><div class="ttname"><a href="classEString.html">EString</a></div><div class="ttdoc">String class.</div><div class="ttdef"><b>Definition:</b> estring.h:30</div></div>
 <div class="ttc" id="aclassEThreadEvent_html_ad9c48af1f8f68bc7631c547ff2f31757"><div class="ttname"><a href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757">EThreadEvent::quit</a></div><div class="ttdeci">Void quit()</div><div class="ttdoc">Posts the quit message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1149</div></div>
+<div class="ttc" id="aclassEGetOpt_html_a2cdd38746dcacdf53d016a50289e24a6"><div class="ttname"><a href="classEGetOpt.html#a2cdd38746dcacdf53d016a50289e24a6">EGetOpt::loadFile</a></div><div class="ttdeci">Void loadFile(cpStr filename)</div><div class="ttdoc">Parses and loads configuration values from the specified JSON file.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:748</div></div>
 <div class="ttc" id="anamespaceESocket_1_1TCP_html_af194efe40cc3fd2948342f083b8b42e2"><div class="ttname"><a href="namespaceESocket_1_1TCP.html#af194efe40cc3fd2948342f083b8b42e2">ESocket::TCP::ListenerPrivate</a></div><div class="ttdeci">Listener&lt; EThreadQueuePrivate&lt; EThreadMessage &gt;, EThreadMessage &gt; ListenerPrivate</div><div class="ttdef"><b>Definition:</b> esocket.h:1872</div></div>
+<div class="ttc" id="aclassEGetOpt_html_ae8a83370799c1a12d423360b34486aa5a0b3b4dd30b6b0868a0a0bf720c60136f"><div class="ttname"><a href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5a0b3b4dd30b6b0868a0a0bf720c60136f">EGetOpt::dtNone</a></div><div class="ttdoc">no argument</div><div class="ttdef"><b>Definition:</b> egetopt.h:49</div></div>
 <div class="ttc" id="aclassEError_html"><div class="ttname"><a href="classEError.html">EError</a></div><div class="ttdoc">The base class for exceptions derived from std::exception.</div><div class="ttdef"><b>Definition:</b> eerror.h:92</div></div>
 <div class="ttc" id="aclassEEvent_html_affcbd4245ade48e1973cfd785e2e9f93"><div class="ttname"><a href="classEEvent.html#affcbd4245ade48e1973cfd785e2e9f93">EEvent::set</a></div><div class="ttdeci">Void set()</div><div class="ttdoc">Sets the event.</div><div class="ttdef"><b>Definition:</b> esynch.cpp:671</div></div>
 <div class="ttc" id="aclassESocket_1_1Base_html"><div class="ttname"><a href="classESocket_1_1Base.html">ESocket::Base</a></div><div class="ttdoc">The base socket class.</div><div class="ttdef"><b>Definition:</b> esocket.h:317</div></div>

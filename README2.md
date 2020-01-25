@@ -8,14 +8,14 @@
 <ol>
 	<li>[Dependencies](#dependencies)</li>
 	<li>[Installation](#installation)</li>
-	<li>[Configuration](#configuration)
-		<ol>
-			<li>[Command Line](#configuration-command-line)</li>
-			<li>[Configuration File](#configuration-file)</li>
-		</ol>
-	</li>
 	<li>[Feature Overview](#feature-overview)
 		<ol>
+			<li>[Configuration](#configuration)
+				<ol>
+					<li>[Configuration File](#configuration-file)</li>
+					<li>[Command Line](#configuration-command-line)</li>
+				</ol>
+			</li>
 			<li>[Public vs. Private](#feature-overview-public-private)</li>
 			<li>[Shared Memory](#feature-overview-shared-memory)</li>
 			<li>[Threads](#feature-overview-threads)
@@ -128,18 +128,152 @@ $ make
 $ sudo make install
 ```
   
-<a name="configuration"></a>
-# Configuration
-  
-<a name="configuration-command-line"></a>
-## Command Line
-
-<a name="configuration-file"></a>
-## Configuration File
-
-
 <a  name="feature-overview"></a>
 # Feature Overview
+<a name="configuration"></a>
+## Configuration
+***EpcTools*** is configured via a JSON configuration file.  Additionally, application specific configuration items may be defined in the same JSON configuration file and also on the command line.  The options contained in JSON configuration file(s) and command line arguments can be accessed via an instance of [EGetOpt](@ref EGetOpt).
+  
+<a name="configuration-file"></a>
+### Configuration File
+Multiple JSON configuration files can be loaded by [EGetOpt](@ref EGetOpt).  
+
+**Sample JSON Configuration File**
+```json
+{
+	"EpcApplication": {
+		"freeDiameter": {
+			"configfile": "conf/epc_app_client.conf",
+			"originhost": "epcapp_client.localdomain",
+			"originrealm": "localdomain",
+			"peerhost": "epcappserver.localdomain",
+			"peerport": 30868,
+			"peerip": "10.0.2.15"
+		},
+		"role": "client",
+		"cliport": 9080
+	}
+}
+```
+ 
+ These JSON configuration parameters can be loaded and access by [EGetOpt](@ref EGetOpt) as follows:
+
+```cpp
+int main(int argc, char  *argv[])
+{
+	EGetOpt opt;
+	EString optfile;
+	  
+	try
+	{
+		// load a configuration file
+		opt.loadFile("conf/epc_app_server.json");
+		
+		// the second argument is the value that will be returned if the parameter is not found
+		std::cout << opt.get("/EpcApplication/freeDiameter/configfile", "not_found") << std::endl;
+		std::cout << opt.get("/EpcApplication/freeDiameter/originhost", "not_found") << std::endl;
+		std::cout << opt.get("/EpcApplication/freeDiameter/originrealm", "not_found") << std::endl;
+		std::cout << opt.get("/EpcApplication/freeDiameter/peerhost", "not_found") << std::endl;
+		std::cout << opt.get("/EpcApplication/freeDiameter/peerport", 1234) << std::endl;
+		std::cout << opt.get("/EpcApplication/freeDiameter/peerip", "not_found") << std::endl;
+		std::cout << opt.get("/EpcApplication/role", "not_found") << std::endl;
+		std::cout << opt.get("/EpcApplication/cliport/", 4321) << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		return  1;
+	}
+
+	return 0;
+}
+```
+ 
+<a name="configuration-command-line"></a>
+### Command Line
+Command line options can be accessed by defining and loading the options using [EGetOpt](@ref EGetOpt).  The two different types of command line arguments are named and positional.
+
+Named arguments have a short and/or long name, a data type and may have an optional or required parameter.  An example of a short and long name of an argument are  "-f" and "--file".  Named arguments can be present in any order in the command line (they can even be intermixed with positional arguments).
+
+A positional argument is a string argument that is referenced by a zero based index.
+
+Here is an example command line and the associated JSON representation of those arguments stored by [EGetOpt](@ref EGetOpt):
+
+```bash
+$ ./bin/epc_app -f conf/epc_app_server.json --print arg1 arg2 3 4 arg5
+```
+
+```json
+{
+    "cmdline": {
+        "program": "./bin/epc_app",
+        "raw": [
+            "./bin/epc_app",
+            "-f",
+            "conf/epc_app_server.json",
+            "--print",
+            "arg1",
+            "arg2",
+            "3",
+            "4",
+            "arg5"
+        ],
+        "args": [
+            "arg1",
+            "arg2",
+            "3",
+            "4",
+            "arg5"
+        ],
+        "-f": "conf/epc_app_server.json",
+        "--print": true
+    }
+}
+```
+Here is a corresponding code example parsing and accessing command line arguments:
+```cpp
+int main(int argc, char  *argv[])
+{
+	EGetOpt::Option options[] = {
+		{"-h", "--help", EGetOpt::no_argument, EGetOpt::dtNone},
+		{"-f", "--file", EGetOpt::required_argument, EGetOpt::dtString},
+		{"-p", "--print", EGetOpt::no_argument, EGetOpt::dtBool},
+		{"", "", EGetOpt::no_argument, EGetOpt::dtNone},
+	};
+	  
+	EGetOpt opt;
+	EString optfile;
+	  
+	try
+	{
+		opt.loadCmdLine(argc, argv, options);
+		if (opt.getCmdLine("-h,--help",false))
+		{
+			usage();
+			return  0;
+		}
+		  
+		optfile.format("%s.json", argv[0]);
+		if (EUtility::file_exists(optfile))
+			opt.loadFile(optfile);
+		optfile = opt.getCmdLine( "-f,--file", "__unknown__" );
+		if (EUtility::file_exists(optfile))
+			opt.loadFile(optfile);
+		if (opt.getCmdLine( "-p,--print", false))
+			opt.print();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		return  1;
+	}
+
+	return 0;
+}
+```
+
+See [EGetOpt](@ref EGetOpt) for more information.
+
 <a  name="feature-overview-public-private"></a>
 ## Public vs. Private
 For some classes, ***EpcTools*** supports the concept of public classes and private. A public class/object is one that can be accessed from a different process, while a private class/object can only be accessed from within the current process. This is achieved by storing the data associated with the public object in shared memory, thereby giving access to the public objects to any process.
@@ -1429,7 +1563,7 @@ A sink set defines a set of outputs or sinks.  Once defined, a sink set is then 
 
 **Sink Types**
 | Class | Parameters | Description |
-| ------- | ----- | -------------------- | :----------- |
+| ------- | ----- | :----------- |
 | [ELoggerSinkSyslog](@ref ELoggerSinkSyslog) | loglevel<br>pattern | Message will be written to syslog. |
 | [ELoggerSinkStdout](@ref ELoggerSinkStdout) | loglevel<br>pattern | Message will be written to the standard output (stdout) file handle. |
 | [ELoggerSinkStderr](@ref ELoggerSinkStderr) | loglevel<br>pattern | Message will be written to the standard error (stderr) file handle. |
