@@ -168,7 +168,11 @@ Contents</h1>
 <li>
 <a href="#feature-overview-dns-cache">Cache</a> </li>
 <li>
+<a href="#feature-overview-dns-queries">Queries</a> </li>
+<li>
 <a href="#feature-overview-dns-epc-node-discovery">EPC Node Discovery</a> </li>
+<li>
+<a href="#feature-overview-dns-node-colocation">Node Colocation</a> </li>
 <li>
 <a href="#feature-overview-dns-diameter-s-naptr">Diameter S-NAPTR</a> </li>
 </ol>
@@ -240,7 +244,8 @@ Configuration</h2>
 <h3><a class="anchor" id="autotoc_md15"></a>
 Configuration File</h3>
 <p>Multiple JSON configuration files can be loaded by <a class="el" href="classEGetOpt.html">EGetOpt</a>. <br  />
- <b>Sample JSON Configuration File</b> </p><div class="fragment"><div class="line">{</div>
+</p>
+<p><b>Sample JSON Configuration File</b> </p><div class="fragment"><div class="line">{</div>
 <div class="line">    &quot;EpcApplication&quot;: {</div>
 <div class="line">        &quot;freeDiameter&quot;: {</div>
 <div class="line">            &quot;configfile&quot;: &quot;conf/epc_app_client.conf&quot;,</div>
@@ -780,7 +785,8 @@ Pack/Unpack</h3>
 <h2><a class="anchor" id="autotoc_md32"></a>
 Synchronization</h2>
 <p><em><b><a class="el" href="classEpcTools.html" title="The primary class used to initialize/uninitialize EpcTools.">EpcTools</a></b></em> supports several synchronization mechanisms which can be used to synchronize operations in multiple threads and processes. <br  />
- </p><table class="markdownTable">
+</p>
+<table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Type  </th><th class="markdownTableHeadLeft">Private  </th><th class="markdownTableHeadLeft">Public   </th></tr>
 <tr class="markdownTableRowOdd">
@@ -987,7 +993,8 @@ Socket Communications</h2>
 <h3><a class="anchor" id="autotoc_md38"></a>
 Socket Thread</h3>
 <p><a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> is derived from <a class="el" href="classEThreadEvent.html">EThreadEvent</a> and has a custom message pump and dispatcher to identify and process socket events for sockets that are registered with the socket thread. The message pump function utilizes <code>select()</code> to detect when a socket can be read from, written to or when an error has occurred. These events are then dispatched to appropriate callback methods depending on the role and state of the socket. <br  />
- In addition to processing socket events <a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> is also capable of processing standard event messages. See <a href="#feature-overview-threads-event-thread">Event Thread</a> for more information.</p>
+</p>
+<p>In addition to processing socket events <a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> is also capable of processing standard event messages. See <a href="#feature-overview-threads-event-thread">Event Thread</a> for more information.</p>
 <p>Since <a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> is derived from <a class="el" href="classEThreadEvent.html">EThreadEvent</a>, <a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> supports either a public or a private event message queue with the option of either <a class="el" href="classEThreadMessage.html">EThreadMessage</a> or a custom event thread message.</p>
 <p><b>Example Socket Thread</b> </p><div class="fragment"><div class="line"><span class="keyword">class  </span>TcpWorker : <span class="keyword">public</span>  <a class="code" href="classESocket_1_1Thread.html">ESocket::ThreadPrivate</a></div>
 <div class="line">{</div>
@@ -1643,56 +1650,220 @@ DNS</h2>
 <p><a class="anchor" id="feature-overview-dns-cache"></a> </p>
 <h3><a class="anchor" id="autotoc_md50"></a>
 DNS Cache</h3>
-<p><a class="anchor" id="feature-overview-dns-epc-node-discovery"></a> </p>
+<p>A <a class="el" href="namespaceDNS.html">DNS</a> Cache, represented by <a class="el" href="classDNS_1_1Cache.html">DNS::Cache</a>, is defined as one or more <a class="el" href="namespaceDNS.html">DNS</a> servers that can provide access to the same information. This set of <a class="el" href="namespaceDNS.html">DNS</a> servers is represented by a cache identifier, a unique integer. Accessing the cache instance, <a class="el" href="classDNS_1_1Cache.html#a651dac5179ee4e53dbe1ae4896dd41d3">DNS::Cache::getInstance()</a>, will create the <a class="el" href="namespaceDNS.html">DNS</a> cache if it does not already exist.</p>
+<p>The first step in preparing a <a class="el" href="namespaceDNS.html">DNS</a> cache for use is to configure the global settings as it relates to refreshing entries in the cache based on their TTL (time to live). Queries that have been previously processed by a <a class="el" href="namespaceDNS.html">DNS</a> cache are refreshed prior to their expiration time. This ensures that if the same query is executed that the results will come from the cache instead of having to wait for the query to be sent to a <a class="el" href="namespaceDNS.html">DNS</a> server. The refresh process occurs in the background.</p>
+<div class="fragment"><div class="line"><a class="code" href="classDNS_1_1Cache.html#ae2be30116662b904388fc43bf89e0ca0">DNS::Cache::setRefreshConcurrent</a>( 2 );</div>
+<div class="line"><a class="code" href="classDNS_1_1Cache.html#a788644ad9ee654b1d4ca3a9400e2f9e7">DNS::Cache::setRefreshPercent</a>( 70 );</div>
+<div class="line"><a class="code" href="classDNS_1_1Cache.html#aeb2cb3ea28f9abd22d2aafc0f4104262">DNS::Cache::setRefreshInterval</a>( 60000 ); <span class="comment">// 60 seconds</span></div>
+</div><!-- fragment --><p><b>Settings</b> </p><table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Method  </th><th class="markdownTableHeadLeft">Description   </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classDNS_1_1Cache.html#ae2be30116662b904388fc43bf89e0ca0">DNS::Cache::setRefreshConcurrent()</a>  </td><td class="markdownTableBodyLeft">The maximum of refresh <a class="el" href="namespaceDNS.html">DNS</a> queries that will run concurrently. This is a throttling mechanism to ensure that not all refresh queries are submitted at exactly the same time.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classDNS_1_1Cache.html#a788644ad9ee654b1d4ca3a9400e2f9e7">DNS::Cache::setRefreshPercent()</a>  </td><td class="markdownTableBodyLeft">This percentage indicates when a cached <a class="el" href="namespaceDNS.html">DNS</a> query will be eligible to be refreshed as a percentage of it's TTL (time to live).   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classDNS_1_1Cache.html#aeb2cb3ea28f9abd22d2aafc0f4104262">DNS::Cache::setRefreshInterval()</a>  </td><td class="markdownTableBodyLeft">This duration, in milliseconds, defines how often the system will check to see of there are any cached <a class="el" href="namespaceDNS.html">DNS</a> queries that are eligible to be refreshed.   </td></tr>
+</table>
+<p>Once these global <a class="el" href="classDNS_1_1Cache.html">DNS::Cache</a> settings have been configured, a <a class="el" href="namespaceDNS.html">DNS</a> cache is configured by adding the named servers to the <a class="el" href="namespaceDNS.html">DNS</a> cache.</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#define NS_OPS 1</span></div>
+<div class="line">...</div>
+<div class="line">DNS::Cache::getInstance(NS_OPS).addNamedServer(<span class="stringliteral">&quot;192.168.3.154&quot;</span>);</div>
+<div class="line"><a class="code" href="classDNS_1_1Cache.html#a4f3e48e7596f08c4a7c845571ac25164">DNS::Cache::getInstance</a>(NS_OPS).<a class="code" href="classDNS_1_1Cache.html#a1c685ea7cbf5b8ab60e7223a21e087ae">addNamedServer</a>(<span class="stringliteral">&quot;192.168.3.155&quot;</span>);</div>
+<div class="line"><a class="code" href="classDNS_1_1Cache.html#a4f3e48e7596f08c4a7c845571ac25164">DNS::Cache::getInstance</a>(NS_OPS).<a class="code" href="classDNS_1_1Cache.html#a1c685ea7cbf5b8ab60e7223a21e087ae">addNamedServer</a>(<span class="stringliteral">&quot;192.168.3.156&quot;</span>);</div>
+<div class="line"><a class="code" href="classDNS_1_1Cache.html#a4f3e48e7596f08c4a7c845571ac25164">DNS::Cache::getInstance</a>(NS_OPS).<a class="code" href="classDNS_1_1Cache.html#a47de773c1f31fd2436af7b4503664e3c">applyNamedServers</a>();</div>
+<div class="line">...</div>
+</div><!-- fragment --><p>In this case, three <a class="el" href="namespaceDNS.html">DNS</a> servers have been defined to provide access to the same information. The underlying <a class="el" href="namespaceDNS.html">DNS</a> library, <a href="[https://c-ares.haxx.se/](https://c-ares.haxx.se/)">c-ares</a>, handles when a query is sent to a specific <a class="el" href="namespaceDNS.html">DNS</a> server.</p>
+<p><a class="el" href="classDNS_1_1Cache.html">DNS::Cache</a> provides a feature that will periodically save the <a class="el" href="namespaceDNS.html">DNS</a> queries that are in the <a class="el" href="namespaceDNS.html">DNS</a> cache (only the query, not the result) to a file. This file can then be loaded at startup to "prime" the cache.</p>
+<div class="fragment"><div class="line">...</div>
+<div class="line">DNS::Cache::getInstance(NS_OPS).initSaveQueries(<span class="stringliteral">&quot;ops_queries.json&quot;</span>, 10000);</div>
+<div class="line"><span class="keywordflow">try</span></div>
+<div class="line">{</div>
+<div class="line">    <a class="code" href="classDNS_1_1Cache.html#a4f3e48e7596f08c4a7c845571ac25164">DNS::Cache::getInstance</a>(NS_OPS).<a class="code" href="classDNS_1_1Cache.html#a3e0464482d38ff888e59abfd4efd1580">loadQueries</a>(<span class="stringliteral">&quot;ops_queries.json&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line"><span class="keywordflow">catch</span>(<span class="keyword">const</span> std::exception&amp; e)</div>
+<div class="line">{</div>
+<div class="line">    std::cerr &lt;&lt; e.what() &lt;&lt; <span class="charliteral">&#39;\n&#39;</span>;</div>
+<div class="line">}</div>
+<div class="line">...</div>
+</div><!-- fragment --><p><a class="anchor" id="feature-overview-dns-queries"></a> </p>
 <h3><a class="anchor" id="autotoc_md51"></a>
-EPC Node Discovery</h3>
-<p><a class="anchor" id="feature-overview-dns-diameter-s-naptr"></a> </p>
+DNS Queries</h3>
+<p><a class="el" href="namespaceDNS.html">DNS</a> queries can be submitted either synchronously or asynchronously via a <a class="el" href="namespaceDNS.html">DNS</a> cache object <a class="el" href="classDNS_1_1Cache.html#a651dac5179ee4e53dbe1ae4896dd41d3">DNS::Cache::getInstance()</a>. The query will first check to see if there is an unexpired result in the cache. If the query is in the cache and the results have not expired, the query results will be immediately returned to the caller. If not, the query is sent to a <a class="el" href="namespaceDNS.html">DNS</a> server to be processed. When the results are received, the cache is updated and the result is forwarded to the caller.</p>
+<p><b>Synchronous <a class="el" href="namespaceDNS.html">DNS</a> Query</b> A synchronous <a class="el" href="namespaceDNS.html">DNS</a> query will wait for the query to be processed before returning. Depending on the configuration, this can take several seconds, so care should be taken. A <a class="el" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a>, which is a shared pointer to a <a class="el" href="classDNS_1_1Query.html">DNS::Query</a> object, is returned. From this pointer, the results of the query can be accessed.</p>
+<p><b>Example Synchronous <a class="el" href="namespaceDNS.html">DNS</a> Query</b> </p><div class="fragment"><div class="line">Bool cachehit = <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>; <span class="comment">// indicates if the query response came from the cache</span></div>
+<div class="line"><a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a> q = <a class="code" href="classDNS_1_1Cache.html#a4f3e48e7596f08c4a7c845571ac25164">DNS::Cache::getInstance</a>(NS_OPS).<a class="code" href="classDNS_1_1Cache.html#ae81c17af7bc8660d5e3bc56b526fce8e">query</a>(ns_t_naptr,</div>
+<div class="line">    <span class="stringliteral">&quot;tac-lb01.tac-hb01.tac.epc.mnc120.mcc310.3gppnetwork.org&quot;</span>, cachehit);</div>
+<div class="line">q-&gt;dump(); <span class="comment">// prints the contents of the Query object, including the results</span></div>
+</div><!-- fragment --><p><b>Asynchronous <a class="el" href="namespaceDNS.html">DNS</a> Query</b></p>
+<p>An asynchronous <a class="el" href="namespaceDNS.html">DNS</a> query functions essentially the same, except that a callback function is called with the <a class="el" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a> containing the results instead of returning the <a class="el" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a>. The callback function is defined as follows:</p>
+<div class="fragment"><div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> <span class="keyword">typedef</span> Void(*CachedDNSQueryCallback)(<a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> q, Bool cacheHit, <span class="keyword">const</span> Void *data);</div>
+</div><!-- fragment --><p> If the query results will can be obtained from the cache, the callback function will be called from the same thread that submitted the query. Otherwise, the callback function will be called from a different thread.</p>
+<p><b>Example Asynchronous <a class="el" href="namespaceDNS.html">DNS</a> Query</b> </p><div class="fragment"><div class="line"><span class="keywordtype">void</span> dnscb(<a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a> q, <span class="keywordtype">bool</span> cacheHit, <span class="keyword">const</span> <span class="keywordtype">void</span> *data)</div>
+<div class="line">{</div>
+<div class="line">    <span class="comment">// data is an opaque pointer that was defined when the query issued</span></div>
+<div class="line">    <span class="comment">// for example, data could point to an EThreadPrivate derived object</span></div>
+<div class="line">    <span class="comment">//    that we can post an thread event message to</span></div>
+<div class="line">    std::cout</div>
+<div class="line">        &lt;&lt; (q-&gt;getError() ? <span class="stringliteral">&quot; FAILED&quot;</span>:<span class="stringliteral">&quot; SUCCEEDED&quot;</span>)</div>
+<div class="line">        &lt;&lt; <span class="stringliteral">&quot; cachehit=&quot;</span></div>
+<div class="line">        &lt;&lt; (cacheHit?<span class="stringliteral">&quot;true&quot;</span>:<span class="stringliteral">&quot;false&quot;</span>)</div>
+<div class="line">        &lt;&lt; <span class="stringliteral">&quot; using callback&quot;</span></div>
+<div class="line">        &lt;&lt; std::endl;</div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line">...</div>
+<div class="line">    <a class="code" href="classDNS_1_1Cache.html#a4f3e48e7596f08c4a7c845571ac25164">DNS::Cache::getInstance</a>(NS_OPS).<a class="code" href="classDNS_1_1Cache.html#ae81c17af7bc8660d5e3bc56b526fce8e">query</a>(ns_t_naptr,</div>
+<div class="line">        <span class="stringliteral">&quot;tac-lb01.tac-hb01.tac.epc.mnc120.mcc310.3gppnetwork.org&quot;</span>,dnscb,myThread);</div>
+<div class="line">...</div>
+</div><!-- fragment --><p><a class="anchor" id="feature-overview-dns-epc-node-discovery"></a> </p>
 <h3><a class="anchor" id="autotoc_md52"></a>
+EPC Node Discovery</h3>
+<p><a href="https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1702">3GPP TS 29.303</a> defines the procedures for EPC node discovery and selection. <em><b><a class="el" href="classEpcTools.html" title="The primary class used to initialize/uninitialize EpcTools.">EpcTools</a></b></em> supports the process as it relates to <a class="el" href="namespaceDNS.html">DNS</a> in the <a class="el" href="namespaceEPCDNS.html" title="The namespace for the TS 29.303 related DNS functions.">EPCDNS</a> namespace. This support includes the construction of node names in <a class="el" href="classEPCDNS_1_1Utility.html">EPCDNS::Utility</a>, various node selection wrappers and colocation determination.</p>
+<p><b>Supported Node Names</b> </p><table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Node  </th><th class="markdownTableHeadLeft">Example   </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">Home Network  </td><td class="markdownTableBodyLeft"><code>mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">Home Network Gprs  </td><td class="markdownTableBodyLeft"><code>mnc990.mcc311.gprs</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">TAI FQDN  </td><td class="markdownTableBodyLeft"><code>tac-lb0A.tac-hb1B.tac.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">MME FQDN  </td><td class="markdownTableBodyLeft"><code>mmec0A.mmegi1B.mme.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">MME Pool FQDN  </td><td class="markdownTableBodyLeft"><code>mmegi1B.mme.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">RAI FQDN  </td><td class="markdownTableBodyLeft"><code>rac01AB.lac23CD.rac.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">RNC FQDN  </td><td class="markdownTableBodyLeft"><code>rnc01AB.rnc.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">SGSN FQDN  </td><td class="markdownTableBodyLeft"><code>nri01AB.rac23CD.lac45EF.rac.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">EPC Nodes Domain FQDN  </td><td class="markdownTableBodyLeft"><code>node.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">EPC Node FQDN  </td><td class="markdownTableBodyLeft"><code>nodename.node.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">Non-Emergency ePDG OI FQDN  </td><td class="markdownTableBodyLeft"><code>epdg.epc.mnc990.mcc311.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">Non-Emergency ePDG TAI FQDN  </td><td class="markdownTableBodyLeft"><code>tac-lb0A.tac-hb1B.tac.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">Non-Emergency ePDG LAC FQDN  </td><td class="markdownTableBodyLeft"><code>lac01AB.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">Non-Emergency ePDG Visited Country FQDN  </td><td class="markdownTableBodyLeft"><code>epdg.epc.mcc311.visited-country.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">Emergency ePDG OI FQDN  </td><td class="markdownTableBodyLeft"><code>sos.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">Emergency ePDG TAI FQDN  </td><td class="markdownTableBodyLeft"><code>tac-lb0A.tac-hb1B.tac.sos.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">Emergency ePDG LAC FQDN  </td><td class="markdownTableBodyLeft"><code>lac01AB.sos.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">Emergency ePDG Visited Country FQDN  </td><td class="markdownTableBodyLeft"><code>sos.epdg.epc.mcc311.visited-country.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">Global eNodeB ID  </td><td class="markdownTableBodyLeft"><code>enb.12AB.enb.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">Local Home Network FQDN  </td><td class="markdownTableBodyLeft"><code>lhn.mynetwork.lhn.epc.mcc311.visited-country.pub.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">EPC  </td><td class="markdownTableBodyLeft"><code>epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">APN FQDN  </td><td class="markdownTableBodyLeft"><code>apn1.apn.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">APN  </td><td class="markdownTableBodyLeft"><code>apn1.apn.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">Diameter FQDN  </td><td class="markdownTableBodyLeft"><code>diameter.epc.mnc990.mcc311.3gppnetwork.org</code>   </td></tr>
+</table>
+<p><b>Node Selection Wrappers</b> </p><table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Node Selector  </th><th class="markdownTableHeadLeft">Description   </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classEPCDNS_1_1ENodeBUPFNodeSelector.html">EPCDNS::ENodeBUPFNodeSelector</a>  </td><td class="markdownTableBodyLeft">Used to identify a set of UPF's associated with an eNodeB. This is used by the NGIC-RTC SGW-C to identify SGW-U's that have been associated with a specific eNodeB.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classEPCDNS_1_1EpcNodeSelector.html">EPCDNS::EpcNodeSelector</a>  </td><td class="markdownTableBodyLeft">Used for general EPC node selection based on the node name.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classEPCDNS_1_1MMENodeSelector.html">EPCDNS::MMENodeSelector</a>  </td><td class="markdownTableBodyLeft">Used to identify the MME using the MME code using the MME group identifier.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classEPCDNS_1_1PGWNodeSelector.html">EPCDNS::PGWNodeSelector</a>  </td><td class="markdownTableBodyLeft">Used by the SGW-C to identify a list of SGW-C's that can provide access to the requested APN.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classEPCDNS_1_1PGWUPFNodeSelector.html">EPCDNS::PGWNodeSelector</a>  </td><td class="markdownTableBodyLeft">Used by the PGW-C to identify a list of PGW-U's by querying for the APN associated with the bearer.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classEPCDNS_1_1SGWNodeSelector.html">EPCDNS::SGWNodeSelector</a>  </td><td class="markdownTableBodyLeft">Used by the MME to identify a list of SGW-C's querying for the TAI FQDN supporting an x_3gpp_sgw service or by issuing a Node query looking for a specific node that supports the x_3gpp_sgw service.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classEPCDNS_1_1SGWUPFNodeSelector.html">EPCDNS::SGWUPFNodeSelector</a>  </td><td class="markdownTableBodyLeft">Used by the SGW-C to identify a list of SGW-U's by querying for the TAI FQDN supporting an x_3gpp_upf service or by issuing a Node query for the eNodeB that supports the x_3gpp_upf service.   </td></tr>
+</table>
+<p>See <a class="el" href="namespaceEPCDNS.html#a1a1ce3b28564c5bab7da910f7deadad1">EPCDNS::AppServiceEnum</a> for a list of supported services. See <a class="el" href="namespaceEPCDNS.html#ae03529998f35494078eb89a7e7e234d1">EPCDNS::AppProtocolEnum</a> for a list of supported protocols.</p>
+<p><a class="anchor" id="feature-overview-dns-node-colocation"></a> </p>
+<h3><a class="anchor" id="autotoc_md53"></a>
+Node Colocation</h3>
+<p>Node colocation is used to order two sets of nodes based on topological distance, closest to furthest. For example, you might want to find an SGW-U that is as close as possible to a particular eNodeB. Colocation is your answer. The process takes two <a class="el" href="classEPCDNS_1_1NodeSelectorResult.html">EPCDNS::NodeSelectorResult</a> objects which each contain a list of candidates and compares each element in the first <a class="el" href="classEPCDNS_1_1NodeSelectorResult.html">EPCDNS::NodeSelectorResult</a> object to each element in the seconds <a class="el" href="classEPCDNS_1_1NodeSelectorResult.html">EPCDNS::NodeSelectorResult</a> and calculates a score based on the <b>topon</b> node names. Once complete, the process returns a list of pairs of nodes comprising all combinations of both lists ordered by score, closest to furthest.</p>
+<p>See <a href="https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1702">3GPP TS 29.303</a> for more information on <b>topon</b>, <b>topoff</b> and <b>colocation</b> (Appendix C-4).</p>
+<p><b>Colocation Example</b> </p><div class="fragment"><div class="line"><span class="preprocessor">#define NS_APP 2</span></div>
+<div class="line">...</div>
+<div class="line">EPCDNS::ENodeBUPFNodeSelector s1( <span class="stringliteral">&quot;0001&quot;</span>, <span class="stringliteral">&quot;120&quot;</span>, <span class="stringliteral">&quot;310&quot;</span> );</div>
+<div class="line">s1.setNamedServerID(NS_APP);</div>
+<div class="line">s1.addDesiredProtocol( <a class="code" href="namespaceEPCDNS.html#a9342407c49fe0b6a9612fed8e51f2d90ac0af35cebaee6964f6635f8b50f6bdfb">EPC::UPFAppProtocolEnum::upf_x_sxa</a> );</div>
+<div class="line">s1.addDesiredNetworkCapability( <span class="stringliteral">&quot;lbo&quot;</span> );</div>
+<div class="line">s1.process();</div>
+<div class="line">s1.dump();</div>
+<div class="line"> </div>
+<div class="line">EPC::PGWUPFNodeSelector s2( <span class="stringliteral">&quot;apn1&quot;</span>, <span class="stringliteral">&quot;120&quot;</span>, <span class="stringliteral">&quot;310&quot;</span> );</div>
+<div class="line">s2.setNamedServerID(NS_APP);</div>
+<div class="line">s2.addDesiredProtocol( <a class="code" href="namespaceEPCDNS.html#a9342407c49fe0b6a9612fed8e51f2d90a17786ffff8236112de48747dba289ba7">EPC::UPFAppProtocolEnum::upf_x_sxb</a> );</div>
+<div class="line">s2.addDesiredNetworkCapability( <span class="stringliteral">&quot;lbo&quot;</span> );</div>
+<div class="line">s2.process();</div>
+<div class="line">s2.dump();</div>
+<div class="line"> </div>
+<div class="line"><a class="code" href="classEPCDNS_1_1ColocatedCandidateList.html">EPCDNS::ColocatedCandidateList</a> ccl( s1.getResults(), s2.getResults() );</div>
+<div class="line">ccl.<a class="code" href="classEPCDNS_1_1ColocatedCandidateList.html#a13e5a7be8b6686f013c2dd5005cde27a">dump</a>();</div>
+</div><!-- fragment --><p><a class="anchor" id="feature-overview-dns-diameter-s-naptr"></a> </p>
+<h3><a class="anchor" id="autotoc_md54"></a>
 Diameter S-NAPTR</h3>
+<p><a href="https://tools.ietf.org/html/rfc6408">RFC 6408</a> defines how <a class="el" href="namespaceDNS.html">DNS</a> can be used to locate hosts that support specific <a class="el" href="namespaceDNS.html">DNS</a> applications. The <a class="el" href="namespaceEPCDNS.html">EPCDNS</a> contains <a class="el" href="classEPCDNS_1_1DiameterSelector.html">DiameterSelector</a> which is used to locate diameter applications in <a class="el" href="namespaceDNS.html">DNS</a>. After setting the realm, application and protocol, <a class="el" href="classEPCDNS_1_1DiameterSelector.html#ac54f6f2ffb3b453492c8d26ada9afa17">DiameterSelector.process()</a> will return a list of <a class="el" href="classEPCDNS_1_1DiameterNaptr.html">DiameterNaptr</a> objects representing the nodes that support the requested application and protocol.</p>
+<p>Refer to <a class="el" href="namespaceEPCDNS.html#ae38cedd2ac88e50be1a09c871ccfbd17">DiameterApplicationEnum</a> for a list of supported applications. <br  />
+ Refer to <a class="el" href="namespaceEPCDNS.html#a28954380b48f08776a2a9444678bb713">DiameterProtocolEnum</a> for a list of supported protocols.</p>
 <p><a class="anchor" id="feature-overview-rest-server"></a> </p>
-<h2><a class="anchor" id="autotoc_md53"></a>
+<h2><a class="anchor" id="autotoc_md55"></a>
 REST Server</h2>
 <p><a class="anchor" id="feature-overview-freediameter"></a> </p>
-<h2><a class="anchor" id="autotoc_md54"></a>
+<h2><a class="anchor" id="autotoc_md56"></a>
 freeDiameter</h2>
 <p><a class="anchor" id="feature-overview-statistics"></a> </p>
-<h2><a class="anchor" id="autotoc_md55"></a>
+<h2><a class="anchor" id="autotoc_md57"></a>
 Interface Statistics</h2>
 <p><a class="anchor" id="feature-overview-timer-pool"></a> </p>
-<h2><a class="anchor" id="autotoc_md56"></a>
+<h2><a class="anchor" id="autotoc_md58"></a>
 Timer Pool</h2>
 <p><a class="anchor" id="feature-overview-miscellaneous"></a> </p>
-<h2><a class="anchor" id="autotoc_md57"></a>
+<h2><a class="anchor" id="autotoc_md59"></a>
 Miscellaneous</h2>
 <p><a class="anchor" id="feature-overview-miscellaneous-string"></a> </p>
-<h3><a class="anchor" id="autotoc_md58"></a>
+<h3><a class="anchor" id="autotoc_md60"></a>
 String</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-utilities"></a> </p>
-<h3><a class="anchor" id="autotoc_md59"></a>
+<h3><a class="anchor" id="autotoc_md61"></a>
 Utilities</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-time"></a> </p>
-<h3><a class="anchor" id="autotoc_md60"></a>
+<h3><a class="anchor" id="autotoc_md62"></a>
 Time</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-timer"></a> </p>
-<h3><a class="anchor" id="autotoc_md61"></a>
+<h3><a class="anchor" id="autotoc_md63"></a>
 Timer</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-path"></a> </p>
-<h3><a class="anchor" id="autotoc_md62"></a>
+<h3><a class="anchor" id="autotoc_md64"></a>
 Path</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-directory"></a> </p>
-<h3><a class="anchor" id="autotoc_md63"></a>
+<h3><a class="anchor" id="autotoc_md65"></a>
 Directory</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-error"></a> </p>
-<h3><a class="anchor" id="autotoc_md64"></a>
+<h3><a class="anchor" id="autotoc_md66"></a>
 Error</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-hash"></a> </p>
-<h3><a class="anchor" id="autotoc_md65"></a>
+<h3><a class="anchor" id="autotoc_md67"></a>
 Hash</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-bzip2"></a> </p>
-<h3><a class="anchor" id="autotoc_md66"></a>
+<h3><a class="anchor" id="autotoc_md68"></a>
 BZip2</h3>
 <p><a class="anchor" id="feature-overview-miscellaneous-circular-buffer"></a> </p>
-<h3><a class="anchor" id="autotoc_md67"></a>
+<h3><a class="anchor" id="autotoc_md69"></a>
 Circular Buffer</h3>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
@@ -1709,6 +1880,7 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_a2a2e9f2861837116aff0c3c96656afdb"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#a2a2e9f2861837116aff0c3c96656afdb">ESocket::TCP::Talker::getRemotePort</a></div><div class="ttdeci">UShort getRemotePort() const</div><div class="ttdoc">Retrieves the port associated with the remote socket.</div><div class="ttdef"><b>Definition:</b> esocket.h:609</div></div>
 <div class="ttc" id="aclassELogger_html_a3b04b024d3ba2c8ca119e4ff5cc2f6a7"><div class="ttname"><a href="classELogger.html#a3b04b024d3ba2c8ca119e4ff5cc2f6a7">ELogger::startup</a></div><div class="ttdeci">Void startup(cpStr format, const Args &amp;... args)</div><div class="ttdoc">Writes a startup message to this logger.</div><div class="ttdef"><b>Definition:</b> elogger.h:169</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html_abb5e0d65fddbc44cfcfdbc6d8404ca97"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html#abb5e0d65fddbc44cfcfdbc6d8404ca97">ESocket::TCP::Listener::~Listener</a></div><div class="ttdeci">virtual ~Listener()</div><div class="ttdoc">Class destructor.</div><div class="ttdef"><b>Definition:</b> esocket.h:965</div></div>
+<div class="ttc" id="aclassDNS_1_1Cache_html_a47de773c1f31fd2436af7b4503664e3c"><div class="ttname"><a href="classDNS_1_1Cache.html#a47de773c1f31fd2436af7b4503664e3c">DNS::Cache::applyNamedServers</a></div><div class="ttdeci">Void applyNamedServers()</div><div class="ttdoc">Updates the named servers as a set in the underlying c-ares library.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:461</div></div>
 <div class="ttc" id="aclassELogger_html_a7656e745ab38929f87ec9a50e355ab3d"><div class="ttname"><a href="classELogger.html#a7656e745ab38929f87ec9a50e355ab3d">ELogger::setLogLevel</a></div><div class="ttdeci">Void setLogLevel(LogLevel lvl)</div><div class="ttdoc">Assign a log level for this logger. Any log messages lower than the specified log level will not be w...</div><div class="ttdef"><b>Definition:</b> elogger.h:191</div></div>
 <div class="ttc" id="aclassEEvent_html"><div class="ttname"><a href="classEEvent.html">EEvent</a></div><div class="ttdoc">An object that can be waited on to be set in another thread.</div><div class="ttdef"><b>Definition:</b> esynch.h:616</div></div>
 <div class="ttc" id="aclassETime_html_a18dad5deae22bfe316cad3171daca59c"><div class="ttname"><a href="classETime.html#a18dad5deae22bfe316cad3171daca59c">ETime::Now</a></div><div class="ttdeci">static ETime Now()</div><div class="ttdoc">Retrieves the current time.</div><div class="ttdef"><b>Definition:</b> etime.cpp:1148</div></div>
@@ -1718,13 +1890,16 @@ Circular Buffer</h3>
 <div class="ttc" id="aebase_8h_html_add3ca9eefe3b5b754426f51d3043e579"><div class="ttname"><a href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a></div><div class="ttdeci">#define True</div><div class="ttdoc">True.</div><div class="ttdef"><b>Definition:</b> ebase.h:25</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html">ESocket::TCP::Listener</a></div><div class="ttdoc">Listens for incoming TCP/IP connections.</div><div class="ttdef"><b>Definition:</b> esocket.h:921</div></div>
 <div class="ttc" id="aclassEThreadMessage_html"><div class="ttname"><a href="classEThreadMessage.html">EThreadMessage</a></div><div class="ttdoc">An event message that is to be sent to a thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:266</div></div>
+<div class="ttc" id="aclassDNS_1_1Cache_html_a4f3e48e7596f08c4a7c845571ac25164"><div class="ttname"><a href="classDNS_1_1Cache.html#a4f3e48e7596f08c4a7c845571ac25164">DNS::Cache::getInstance</a></div><div class="ttdeci">static Cache &amp; getInstance()</div><div class="ttdoc">Retrieves/creates the default Cache instance.</div><div class="ttdef"><b>Definition:</b> dnscache.h:203</div></div>
 <div class="ttc" id="aclassEThreadEventTimer_html_a4b28f46b10c8164212e2713976f196b1"><div class="ttname"><a href="classEThreadEventTimer.html#a4b28f46b10c8164212e2713976f196b1">EThreadEventTimer::getId</a></div><div class="ttdeci">Long getId()</div><div class="ttdoc">Returns the unique timer id.</div><div class="ttdef"><b>Definition:</b> etevent.h:976</div></div>
 <div class="ttc" id="aclassEGetOpt_html_ae38885648ab68337f86a54a29384f87a"><div class="ttname"><a href="classEGetOpt.html#ae38885648ab68337f86a54a29384f87a">EGetOpt::getCmdLine</a></div><div class="ttdeci">Long getCmdLine(cpStr path, Long def) const</div><div class="ttdoc">Returns the value of the specified command line argument as a 32-bit integer.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:302</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html_aab7b01e9913284bd9af3d8d510ef892d"><div class="ttname"><a href="classEThreadEventMessageDataBase.html#aab7b01e9913284bd9af3d8d510ef892d">EThreadEventMessageDataBase::setVoidPtr</a></div><div class="ttdeci">virtual Void setVoidPtr(pVoid p)=0</div><div class="ttdoc">Sets the void pointer.</div></div>
 <div class="ttc" id="aetevent_8h_html_a1fbc3aa077e4e82c9f1fa82d32653273"><div class="ttname"><a href="etevent_8h.html#a1fbc3aa077e4e82c9f1fa82d32653273">ON_MESSAGE</a></div><div class="ttdeci">#define ON_MESSAGE(id, memberFxn)</div><div class="ttdoc">Defines an invidual event handler.</div><div class="ttdef"><b>Definition:</b> etevent.h:818</div></div>
 <div class="ttc" id="aclassEThreadEvent_html_adbdfea9c7c873363a05241dd166fa65b"><div class="ttname"><a href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">EThreadEvent::sendMessage</a></div><div class="ttdeci">Bool sendMessage(UInt message, Bool wait=True)</div><div class="ttdoc">Sends event message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1082</div></div>
+<div class="ttc" id="aclassDNS_1_1Cache_html_aeb2cb3ea28f9abd22d2aafc0f4104262"><div class="ttname"><a href="classDNS_1_1Cache.html#aeb2cb3ea28f9abd22d2aafc0f4104262">DNS::Cache::setRefreshInterval</a></div><div class="ttdeci">static long setRefreshInterval(long interval)</div><div class="ttdoc">Assigns the refresh interval.</div><div class="ttdef"><b>Definition:</b> dnscache.h:228</div></div>
 <div class="ttc" id="aclassEMutexPublic_html_ab7ba904a8f25286d03118efaee635e84"><div class="ttname"><a href="classEMutexPublic.html#ab7ba904a8f25286d03118efaee635e84">EMutexPublic::attach</a></div><div class="ttdeci">Void attach(Int mutexid)</div><div class="ttdoc">Associates this public mutex object with the mutex ID located in shared memory.</div><div class="ttdef"><b>Definition:</b> esynch.cpp:425</div></div>
 <div class="ttc" id="aclassEThreadEvent_html_acc26ee3ebe6b5a0e18477c39c01b3c3a"><div class="ttname"><a href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a">EThreadEvent::onTimer</a></div><div class="ttdeci">virtual Void onTimer(EThreadEventTimer *ptimer)</div><div class="ttdoc">Called in the context of the thread when th EM_TIMER event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1197</div></div>
+<div class="ttc" id="aclassDNS_1_1Cache_html_a788644ad9ee654b1d4ca3a9400e2f9e7"><div class="ttname"><a href="classDNS_1_1Cache.html#a788644ad9ee654b1d4ca3a9400e2f9e7">DNS::Cache::setRefreshPercent</a></div><div class="ttdeci">static int setRefreshPercent(int percent)</div><div class="ttdoc">Assigns the refresh percentage value.</div><div class="ttdef"><b>Definition:</b> dnscache.h:220</div></div>
 <div class="ttc" id="aclassELogger_html_a22fb57bad0e9b0ead993bf7dfb3d3968a17c9da6fdf1a7e126bf4a5ac16fe830e"><div class="ttname"><a href="classELogger.html#a22fb57bad0e9b0ead993bf7dfb3d3968a17c9da6fdf1a7e126bf4a5ac16fe830e">ELogger::eMinor</a></div><div class="ttdoc">Minor.</div><div class="ttdef"><b>Definition:</b> elogger.h:93</div></div>
 <div class="ttc" id="aclassEMutexPrivate_html"><div class="ttname"><a href="classEMutexPrivate.html">EMutexPrivate</a></div><div class="ttdoc">A private mutex (the mutex data is allocated from either the heap or stack).</div><div class="ttdef"><b>Definition:</b> esynch.h:175</div></div>
 <div class="ttc" id="aclassEThreadEvent_html"><div class="ttname"><a href="classEThreadEvent.html">EThreadEvent</a></div><div class="ttdoc">base class for EThreadPrivate and EThreadPublic</div><div class="ttdef"><b>Definition:</b> etevent.h:1040</div></div>
@@ -1763,10 +1938,14 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassEGetOpt_html_ae8a83370799c1a12d423360b34486aa5aaef316de10f5737160a30a8a02f8211c"><div class="ttname"><a href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5aaef316de10f5737160a30a8a02f8211c">EGetOpt::dtBool</a></div><div class="ttdoc">boolean</div><div class="ttdef"><b>Definition:</b> egetopt.h:63</div></div>
 <div class="ttc" id="aclassEGetOpt_html_a6158a901a426b724a2990a7f70d89c82"><div class="ttname"><a href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">EGetOpt::get</a></div><div class="ttdeci">Long get(cpStr path, Long def) const</div><div class="ttdoc">Returns the value of the specified configuration value as a 32-bit integer.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:455</div></div>
 <div class="ttc" id="aclassERDLock_html"><div class="ttname"><a href="classERDLock.html">ERDLock</a></div><div class="ttdoc">Request a read lock for the specified read-write lock object.</div><div class="ttdef"><b>Definition:</b> esynch.h:535</div></div>
+<div class="ttc" id="aclassEPCDNS_1_1ColocatedCandidateList_html_a13e5a7be8b6686f013c2dd5005cde27a"><div class="ttname"><a href="classEPCDNS_1_1ColocatedCandidateList.html#a13e5a7be8b6686f013c2dd5005cde27a">EPCDNS::ColocatedCandidateList::dump</a></div><div class="ttdeci">Void dump(const char *prefix=&quot;&quot;)</div><div class="ttdoc">Prints the contents of this object.</div><div class="ttdef"><b>Definition:</b> epcdns.h:1407</div></div>
 <div class="ttc" id="aclassEGetOpt_html_a1545ad2f720b632d5768e77bb287cc0d"><div class="ttname"><a href="classEGetOpt.html#a1545ad2f720b632d5768e77bb287cc0d">EGetOpt::print</a></div><div class="ttdeci">Void print() const</div><div class="ttdoc">Prints the current loaded values (command line and file).</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:297</div></div>
 <div class="ttc" id="aclassESemaphorePrivate_html"><div class="ttname"><a href="classESemaphorePrivate.html">ESemaphorePrivate</a></div><div class="ttdoc">Represents a private semaphore, the semaphore data is allocated from either the stack or heap.</div><div class="ttdef"><b>Definition:</b> esynch.h:382</div></div>
+<div class="ttc" id="aclassEPCDNS_1_1ColocatedCandidateList_html"><div class="ttname"><a href="classEPCDNS_1_1ColocatedCandidateList.html">EPCDNS::ColocatedCandidateList</a></div><div class="ttdoc">A list of colocated candidates.</div><div class="ttdef"><b>Definition:</b> epcdns.h:1395</div></div>
 <div class="ttc" id="aclassETime_html_a7c794038cc4ca2f0c9cffbf9e5a2bbee"><div class="ttname"><a href="classETime.html#a7c794038cc4ca2f0c9cffbf9e5a2bbee">ETime::Format</a></div><div class="ttdeci">Void Format(EString &amp;dest, cpStr fmt, Bool local)</div><div class="ttdoc">Formats the date/time value as specified by the format string.</div><div class="ttdef"><b>Definition:</b> etime.cpp:1158</div></div>
 <div class="ttc" id="aclassELogger_html_a94a47d71f929233a7100d573732e3cd9"><div class="ttname"><a href="classELogger.html#a94a47d71f929233a7100d573732e3cd9">ELogger::log</a></div><div class="ttdeci">static ELogger &amp; log(Int logid)</div><div class="ttdoc">Retrieves the requested ELogger object.</div><div class="ttdef"><b>Definition:</b> elogger.h:135</div></div>
+<div class="ttc" id="aclassDNS_1_1Cache_html_a1c685ea7cbf5b8ab60e7223a21e087ae"><div class="ttname"><a href="classDNS_1_1Cache.html#a1c685ea7cbf5b8ab60e7223a21e087ae">DNS::Cache::addNamedServer</a></div><div class="ttdeci">Void addNamedServer(const char *address, int udp_port=53, int tcp_port=53)</div><div class="ttdoc">Adds a named server to this DNS cache object.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:451</div></div>
+<div class="ttc" id="aclassDNS_1_1Cache_html_ae81c17af7bc8660d5e3bc56b526fce8e"><div class="ttname"><a href="classDNS_1_1Cache.html#ae81c17af7bc8660d5e3bc56b526fce8e">DNS::Cache::query</a></div><div class="ttdeci">QueryPtr query(ns_type rtype, const std::string &amp;domain, Bool &amp;cacheHit, Bool ignorecache=false)</div><div class="ttdoc">Performs a DNS query synchronously.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:466</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_ac5052fac32b4e46a1d0fec4afeb5fcb6"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#ac5052fac32b4e46a1d0fec4afeb5fcb6">ESocket::TCP::Talker::~Talker</a></div><div class="ttdeci">virtual ~Talker()</div><div class="ttdoc">Class destrucor.</div><div class="ttdef"><b>Definition:</b> esocket.h:557</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_af8b8e2fc6259ff340b5b274105ac9060"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#af8b8e2fc6259ff340b5b274105ac9060">ESocket::TCP::Talker::bytesPending</a></div><div class="ttdeci">Int bytesPending()</div><div class="ttdoc">Retrieves the number of bytes in the receive buffer.</div><div class="ttdef"><b>Definition:</b> esocket.h:682</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html"><div class="ttname"><a href="classEThreadEventMessageDataBase.html">EThreadEventMessageDataBase</a></div><div class="ttdoc">The base class that all event message data objects should be derived from.</div><div class="ttdef"><b>Definition:</b> etevent.h:56</div></div>
@@ -1781,10 +1960,13 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassEThreadBasic_html"><div class="ttname"><a href="classEThreadBasic.html">EThreadBasic</a></div><div class="ttdoc">An abstract class that represents contains the threadProc() that will be run in a separate thread.</div><div class="ttdef"><b>Definition:</b> etbasic.h:53</div></div>
 <div class="ttc" id="aetevent_8h_html_ae52a1e808bcf6220acbef40e8351b8e7"><div class="ttname"><a href="etevent_8h.html#ae52a1e808bcf6220acbef40e8351b8e7">END_MESSAGE_MAP</a></div><div class="ttdeci">#define END_MESSAGE_MAP()</div><div class="ttdoc">Ends the message map declaration.</div><div class="ttdef"><b>Definition:</b> etevent.h:822</div></div>
 <div class="ttc" id="aetevent_8h_html_a3e0395c0f948348673c39d06c8bd12bf"><div class="ttname"><a href="etevent_8h.html#a3e0395c0f948348673c39d06c8bd12bf">DECLARE_MESSAGE_MAP</a></div><div class="ttdeci">#define DECLARE_MESSAGE_MAP()</div><div class="ttdoc">Inserts message map declarations into the thread class.</div><div class="ttdef"><b>Definition:</b> etevent.h:793</div></div>
+<div class="ttc" id="aclassDNS_1_1Cache_html_a3e0464482d38ff888e59abfd4efd1580"><div class="ttname"><a href="classDNS_1_1Cache.html#a3e0464482d38ff888e59abfd4efd1580">DNS::Cache::loadQueries</a></div><div class="ttdeci">Void loadQueries(const char *qfn)</div><div class="ttdoc">Executes the DNS queries at startup from the suppoied file.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:503</div></div>
+<div class="ttc" id="aclassDNS_1_1Cache_html_ae2be30116662b904388fc43bf89e0ca0"><div class="ttname"><a href="classDNS_1_1Cache.html#ae2be30116662b904388fc43bf89e0ca0">DNS::Cache::setRefreshConcurrent</a></div><div class="ttdeci">static unsigned int setRefreshConcurrent(unsigned int concur)</div><div class="ttdoc">Sets the maximum number of conncurrent DNS queries that can be performed while refreshing the DNS cac...</div><div class="ttdef"><b>Definition:</b> dnscache.h:212</div></div>
 <div class="ttc" id="aclassEString_html_a320dce9f0bdcbf80118db0d623e176e1"><div class="ttname"><a href="classEString.html#a320dce9f0bdcbf80118db0d623e176e1">EString::format</a></div><div class="ttdeci">EString &amp; format(cpChar pszFormat,...)</div><div class="ttdoc">Sets the value to the string using a &quot;printf&quot; style format string and arguments.</div><div class="ttdef"><b>Definition:</b> estring.cpp:38</div></div>
 <div class="ttc" id="aclassESocket_1_1Base_html_ab9d8e6493e00ee44723d9e62a879052c"><div class="ttname"><a href="classESocket_1_1Base.html#ab9d8e6493e00ee44723d9e62a879052c">ESocket::Base::getThread</a></div><div class="ttdeci">Thread&lt; TQueue, TMessage &gt; &amp; getThread()</div><div class="ttdoc">Retrieves the socket thread that this socket is associated with.</div><div class="ttdef"><b>Definition:</b> esocket.h:333</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html_a1477b6dd6c8da334612db807d9c22f75"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html#a1477b6dd6c8da334612db807d9c22f75">ESocket::TCP::Listener::onError</a></div><div class="ttdeci">virtual Void onError()</div><div class="ttdoc">Called when an error is detected on this socket.</div><div class="ttdef"><b>Definition:</b> esocket.h:1039</div></div>
 <div class="ttc" id="aclassEString_html"><div class="ttname"><a href="classEString.html">EString</a></div><div class="ttdoc">String class.</div><div class="ttdef"><b>Definition:</b> estring.h:30</div></div>
+<div class="ttc" id="anamespaceEPCDNS_html_a9342407c49fe0b6a9612fed8e51f2d90ac0af35cebaee6964f6635f8b50f6bdfb"><div class="ttname"><a href="namespaceEPCDNS.html#a9342407c49fe0b6a9612fed8e51f2d90ac0af35cebaee6964f6635f8b50f6bdfb">EPCDNS::upf_x_sxa</a></div><div class="ttdoc">x-sxa</div><div class="ttdef"><b>Definition:</b> epcdns.h:298</div></div>
 <div class="ttc" id="aclassEThreadEvent_html_ad9c48af1f8f68bc7631c547ff2f31757"><div class="ttname"><a href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757">EThreadEvent::quit</a></div><div class="ttdeci">Void quit()</div><div class="ttdoc">Posts the quit message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1149</div></div>
 <div class="ttc" id="aclassEGetOpt_html_a2cdd38746dcacdf53d016a50289e24a6"><div class="ttname"><a href="classEGetOpt.html#a2cdd38746dcacdf53d016a50289e24a6">EGetOpt::loadFile</a></div><div class="ttdeci">Void loadFile(cpStr filename)</div><div class="ttdoc">Parses and loads configuration values from the specified JSON file.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:748</div></div>
 <div class="ttc" id="anamespaceESocket_1_1TCP_html_af194efe40cc3fd2948342f083b8b42e2"><div class="ttname"><a href="namespaceESocket_1_1TCP.html#af194efe40cc3fd2948342f083b8b42e2">ESocket::TCP::ListenerPrivate</a></div><div class="ttdeci">Listener&lt; EThreadQueuePrivate&lt; EThreadMessage &gt;, EThreadMessage &gt; ListenerPrivate</div><div class="ttdef"><b>Definition:</b> esocket.h:1872</div></div>
@@ -1794,10 +1976,12 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassESocket_1_1Base_html"><div class="ttname"><a href="classESocket_1_1Base.html">ESocket::Base</a></div><div class="ttdoc">The base socket class.</div><div class="ttdef"><b>Definition:</b> esocket.h:317</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_a1f2208e942a66964cc5be4ca1e172aa6"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#a1f2208e942a66964cc5be4ca1e172aa6">ESocket::TCP::Talker::onConnect</a></div><div class="ttdeci">virtual Void onConnect()</div><div class="ttdoc">Called when a connection has been established.</div><div class="ttdef"><b>Definition:</b> esocket.h:746</div></div>
 <div class="ttc" id="aebase_8h_html_a2017da1a7bf300a2d47bae722cec5e70"><div class="ttname"><a href="ebase_8h.html#a2017da1a7bf300a2d47bae722cec5e70">epctime_t</a></div><div class="ttdeci">long long int epctime_t</div><div class="ttdoc">time typedef</div><div class="ttdef"><b>Definition:</b> ebase.h:34</div></div>
+<div class="ttc" id="anamespaceDNS_html_aba0490320a5daa94b1852f3eac56882e"><div class="ttname"><a href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a></div><div class="ttdeci">std::shared_ptr&lt; Query &gt; QueryPtr</div><div class="ttdoc">A typedef to std::shared_ptr&lt;Query&gt;.</div><div class="ttdef"><b>Definition:</b> dnsquery.h:40</div></div>
 <div class="ttc" id="aclassELogger_html_a16b8ce5b92cfcb542abe981e481e2b77"><div class="ttname"><a href="classELogger.html#a16b8ce5b92cfcb542abe981e481e2b77">ELogger::sinkSet</a></div><div class="ttdeci">static ELoggerSinkSet &amp; sinkSet(Int sinkid)</div><div class="ttdoc">Retrieves the requested sink set object.</div><div class="ttdef"><b>Definition:</b> elogger.h:147</div></div>
 <div class="ttc" id="anamespaceESocket_1_1TCP_html_a6ba05fd575a2c8260b8a447ca63cb2d5"><div class="ttname"><a href="namespaceESocket_1_1TCP.html#a6ba05fd575a2c8260b8a447ca63cb2d5">ESocket::TCP::TalkerPrivate</a></div><div class="ttdeci">Talker&lt; EThreadQueuePrivate&lt; EThreadMessage &gt;, EThreadMessage &gt; TalkerPrivate</div><div class="ttdef"><b>Definition:</b> esocket.h:1870</div></div>
 <div class="ttc" id="aclassESocket_1_1Address_html"><div class="ttname"><a href="classESocket_1_1Address.html">ESocket::Address</a></div><div class="ttdoc">Encapsulates a sockaddr_storage structure that represents a socket address.</div><div class="ttdef"><b>Definition:</b> esocket.h:143</div></div>
 <div class="ttc" id="aclassESocket_1_1UDP_html"><div class="ttname"><a href="classESocket_1_1UDP.html">ESocket::UDP</a></div><div class="ttdoc">A UDP socket class capabile of sending and receiving data.</div><div class="ttdef"><b>Definition:</b> esocket.h:1074</div></div>
+<div class="ttc" id="anamespaceEPCDNS_html_a9342407c49fe0b6a9612fed8e51f2d90a17786ffff8236112de48747dba289ba7"><div class="ttname"><a href="namespaceEPCDNS.html#a9342407c49fe0b6a9612fed8e51f2d90a17786ffff8236112de48747dba289ba7">EPCDNS::upf_x_sxb</a></div><div class="ttdoc">x-sxb</div><div class="ttdef"><b>Definition:</b> epcdns.h:300</div></div>
 <div class="ttc" id="aclassELoggerSink_html"><div class="ttname"><a href="classELoggerSink.html">ELoggerSink</a></div><div class="ttdoc">Represents a logger output sink.</div><div class="ttdef"><b>Definition:</b> elogger.h:239</div></div>
 <div class="ttc" id="aclassEMutexLock_html"><div class="ttname"><a href="classEMutexLock.html">EMutexLock</a></div><div class="ttdoc">Acquires and holds a lock on the specified mutex.</div><div class="ttdef"><b>Definition:</b> esynch.h:133</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html_ae5e39611743cf6dfac413e6a8d4f67bf"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html#ae5e39611743cf6dfac413e6a8d4f67bf">ESocket::TCP::Listener::createSocket</a></div><div class="ttdeci">Talker&lt; TQueue, TMessage &gt; * createSocket()</div><div class="ttdoc">Called to create a talking socket when a incoming connection is received.</div><div class="ttdef"><b>Definition:</b> esocket.h:1028</div></div>

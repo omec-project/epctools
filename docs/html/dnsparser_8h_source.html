@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.16"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>EpcTools: /home/vagrant/share/code/epctools/include/epc/dnsparser.h Source File</title>
+<title>EpcTools: /Users/kn240740/share/code/epctools/include/epc/dnsparser.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -145,7 +145,7 @@ $(function() {
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;   <span class="keyword">class </span>Parser</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;   {</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;   <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      Parser( QueryPtr &amp;q, <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *rdata, <span class="keywordtype">int</span> rlen );</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      Parser( <a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> &amp;q, <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *rdata, <span class="keywordtype">int</span> rlen );</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      <span class="keywordtype">void</span> parse();</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
@@ -166,7 +166,7 @@ $(function() {
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;      <span class="keywordtype">void</span> parseDomainName( <a class="code" href="classEString.html">EString</a> &amp;dn );</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;      <span class="keywordtype">void</span> parseCharacterString( <a class="code" href="classEString.html">EString</a> &amp;cs );</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;      QueryPtr m_query;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;      <a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> m_query;</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;      MessageBuffer m_data;</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;      <span class="keywordtype">int</span> m_qdcount;</div>
@@ -229,6 +229,7 @@ $(function() {
 <div class="ttc" id="adnsquery_8h_html"><div class="ttname"><a href="dnsquery_8h.html">dnsquery.h</a></div><div class="ttdoc">Contains the definition of the DNS query related classes.</div></div>
 <div class="ttc" id="anamespaceDNS_html"><div class="ttname"><a href="namespaceDNS.html">DNS</a></div><div class="ttdef"><b>Definition:</b> dnscache.h:33</div></div>
 <div class="ttc" id="aclassEString_html"><div class="ttname"><a href="classEString.html">EString</a></div><div class="ttdoc">String class.</div><div class="ttdef"><b>Definition:</b> estring.h:30</div></div>
+<div class="ttc" id="anamespaceDNS_html_aba0490320a5daa94b1852f3eac56882e"><div class="ttname"><a href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a></div><div class="ttdeci">std::shared_ptr&lt; Query &gt; QueryPtr</div><div class="ttdoc">A typedef to std::shared_ptr&lt;Query&gt;.</div><div class="ttdef"><b>Definition:</b> dnsquery.h:40</div></div>
 <div class="ttc" id="aestring_8h_html"><div class="ttname"><a href="estring_8h.html">estring.h</a></div><div class="ttdoc">Encapsulates and extends a std::string object.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

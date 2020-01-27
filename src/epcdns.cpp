@@ -264,6 +264,7 @@ EString Utility::nonemergency_epdg_tai_fqdn( const char *lb, const char *hb, con
     .append( ".tac.epdg.epc." )
     .APPEND_MNC( mnc )
     .APPEND_MCC( mcc )
+    .append( "pub." )
     .APPEND_3GPPNETWORK;
 
    return s;

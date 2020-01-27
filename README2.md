@@ -70,7 +70,9 @@
 			<li>[DNS](#feature-overview-dns)
 				<ol>
 					<li>[Cache](#feature-overview-dns-cache)</li>
+					<li>[Queries](#feature-overview-dns-queries)</li>
 					<li>[EPC Node Discovery](#feature-overview-dns-epc-node-discovery)</li>
+					<li>[Node Colocation](#feature-overview-dns-node-colocation)</li>
 					<li>[Diameter S-NAPTR](#feature-overview-dns-diameter-s-naptr)</li>
 				</ol>
 			</li>
@@ -1635,16 +1637,182 @@ ELogger::log(LOG_STATS).minor("Hello {} from the test2 log!!", "World");
 
 <a  name="feature-overview-dns"></a>
 ## DNS
-
-
 <a  name="feature-overview-dns-cache"></a>
 ### DNS Cache
+A DNS Cache, represented by [DNS::Cache](@ref DNS::Cache), is defined as one or more DNS servers that can provide access to the same information.  This set of DNS servers is represented by a cache identifier, a unique integer.  Accessing the cache instance, [DNS::Cache::getInstance()](@ref DNS::Cache::getInstance), will create the DNS cache if it does not already exist.
+
+The first step in preparing a DNS cache for use is to configure the global settings as it relates to refreshing entries in the cache based on their TTL (time to live).  Queries that have been previously processed by a DNS cache are refreshed prior to their expiration time.  This ensures that if the same query is executed that the results will come from the cache instead of having to wait for the query to be sent to a DNS server.  The refresh process occurs in the background. 
+
+```cpp
+DNS::Cache::setRefreshConcurrent( 2 );
+DNS::Cache::setRefreshPercent( 70 );
+DNS::Cache::setRefreshInterval( 60000 ); // 60 seconds
+ ```
+
+**Settings**
+| Method | Description |
+| :--------- | :----------- |
+| [DNS::Cache::setRefreshConcurrent()](@ref DNS::Cache::setRefreshConcurrent) | The maximum of refresh DNS queries that will run concurrently.  This is a throttling mechanism to ensure that not all refresh queries are submitted at exactly the same time. |
+| [DNS::Cache::setRefreshPercent()](@ref DNS::Cache::setRefreshPercent) | This percentage indicates when a cached DNS query will be eligible to be refreshed as a percentage of it's TTL (time to live). |
+| [DNS::Cache::setRefreshInterval()](@ref DNS::Cache::setRefreshInterval) | This duration, in milliseconds, defines how often the system will check to see of there are any cached DNS queries that are eligible to be refreshed. |
+
+Once these global [DNS::Cache](@ref DNS::Cache) settings have been configured, a DNS cache is configured by adding the named servers to the DNS cache.
+
+```cpp
+#define NS_OPS 1
+...
+DNS::Cache::getInstance(NS_OPS).addNamedServer("192.168.3.154");
+DNS::Cache::getInstance(NS_OPS).addNamedServer("192.168.3.155");
+DNS::Cache::getInstance(NS_OPS).addNamedServer("192.168.3.156");
+DNS::Cache::getInstance(NS_OPS).applyNamedServers();
+...
+ ```
+
+In this case, three DNS servers have been defined to provide access to the same information.  The underlying DNS library, [c-ares]([https://c-ares.haxx.se/](https://c-ares.haxx.se/)), handles when a query is sent to a specific DNS server. 
+
+[DNS::Cache](@ref DNS::Cache) provides a feature that will periodically save the DNS queries that are in the DNS cache (only the query, not the result) to a file.  This file can then be loaded at startup to "prime" the cache.
+
+```cpp
+...
+DNS::Cache::getInstance(NS_OPS).initSaveQueries("ops_queries.json", 10000);
+try
+{
+	DNS::Cache::getInstance(NS_OPS).loadQueries("ops_queries.json");
+}
+catch(const std::exception& e)
+{
+	std::cerr << e.what() << '\n';
+}
+...
+ ```
+
+<a  name="feature-overview-dns-queries"></a>
+### DNS Queries
+
+DNS queries can be submitted either synchronously or asynchronously via a DNS cache object [DNS::Cache::getInstance()](@ref DNS::Cache::getInstance).  The query will first check to see if there is an unexpired result in the cache.  If the query is in the cache and the results have not expired, the query results will be immediately returned to the caller.  If not, the query is sent to a DNS server to be processed.  When the results are received, the cache is updated and the result is forwarded to the caller.
+
+**Synchronous DNS Query**
+A synchronous DNS query will wait for the query to be processed before returning.  Depending on the configuration, this can take several seconds, so care should be taken.  A [DNS::QueryPtr](@ref DNS::QueryPtr), which is a shared pointer to a [DNS::Query](@ref DNS::Query) object, is returned.  From this pointer, the results of the query can be accessed.
+
+**Example Synchronous DNS Query**
+```cpp
+Bool cachehit = False; // indicates if the query response came from the cache
+DNS::QueryPtr q = DNS::Cache::getInstance(NS_OPS).query(ns_t_naptr,
+	"tac-lb01.tac-hb01.tac.epc.mnc120.mcc310.3gppnetwork.org", cachehit);
+q->dump(); // prints the contents of the Query object, including the results
+```
+
+**Asynchronous DNS Query**
+
+An asynchronous DNS query functions essentially the same, except that a callback function is called with the [DNS::QueryPtr](@ref DNS::QueryPtr) containing the results instead of returning the [DNS::QueryPtr](@ref DNS::QueryPtr).  The callback function is defined as follows:
+
+```cpp
+extern "C" typedef Void(*CachedDNSQueryCallback)(QueryPtr q, Bool cacheHit, const Void *data);
+```
+If the query results will can be obtained from the cache, the callback function will be called from the same thread that submitted the query.  Otherwise, the callback function will be called from a different thread.
+
+**Example Asynchronous DNS Query**
+```cpp
+void dnscb(DNS::QueryPtr q, bool cacheHit, const void *data)
+{
+	// data is an opaque pointer that was defined when the query issued
+	// for example, data could point to an EThreadPrivate derived object
+	//    that we can post an thread event message to
+	std::cout
+		<< (q->getError() ? " FAILED":" SUCCEEDED")
+		<< " cachehit="
+		<< (cacheHit?"true":"false")
+		<< " using callback"
+		<< std::endl;
+}
+
+...
+	DNS::Cache::getInstance(NS_OPS).query(ns_t_naptr,
+		"tac-lb01.tac-hb01.tac.epc.mnc120.mcc310.3gppnetwork.org",dnscb,myThread);
+...
+```
 
 <a  name="feature-overview-dns-epc-node-discovery"></a>
 ### EPC Node Discovery
+[3GPP TS 29.303](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1702) defines the procedures for EPC node discovery and selection.  ***EpcTools*** supports the process as it relates to DNS in the EPCDNS namespace.  This support includes the construction of node names in [EPCDNS::Utility](@ref EPCDNS::Utility), various node selection wrappers and colocation determination.
+
+**Supported Node Names**
+| Node  | Example |
+| :--------- | :----------- |
+| Home Network | `mnc990.mcc311.3gppnetwork.org` |
+| Home Network Gprs | `mnc990.mcc311.gprs` |
+| TAI FQDN | `tac-lb0A.tac-hb1B.tac.epc.mnc990.mcc311.3gppnetwork.org` |
+| MME FQDN | `mmec0A.mmegi1B.mme.epc.mnc990.mcc311.3gppnetwork.org` |
+| MME Pool FQDN | `mmegi1B.mme.epc.mnc990.mcc311.3gppnetwork.org` |
+| RAI FQDN | `rac01AB.lac23CD.rac.epc.mnc990.mcc311.3gppnetwork.org` |
+| RNC FQDN | `rnc01AB.rnc.epc.mnc990.mcc311.3gppnetwork.org` |
+| SGSN FQDN | `nri01AB.rac23CD.lac45EF.rac.epc.mnc990.mcc311.3gppnetwork.org` |
+| EPC Nodes Domain FQDN | `node.epc.mnc990.mcc311.3gppnetwork.org` |
+| EPC Node FQDN | `nodename.node.epc.mnc990.mcc311.3gppnetwork.org` |
+| Non-Emergency ePDG OI FQDN | `epdg.epc.mnc990.mcc311.pub.3gppnetwork.org` |
+| Non-Emergency ePDG TAI FQDN | `tac-lb0A.tac-hb1B.tac.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org` |
+| Non-Emergency ePDG LAC FQDN | `lac01AB.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org` |
+| Non-Emergency ePDG Visited Country FQDN | `epdg.epc.mcc311.visited-country.pub.3gppnetwork.org` |
+| Emergency ePDG OI FQDN | `sos.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org` |
+| Emergency ePDG TAI FQDN | `tac-lb0A.tac-hb1B.tac.sos.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org` |
+| Emergency ePDG LAC FQDN | `lac01AB.sos.epdg.epc.mnc990.mcc311.pub.3gppnetwork.org` |
+| Emergency ePDG Visited Country FQDN | `sos.epdg.epc.mcc311.visited-country.pub.3gppnetwork.org` |
+| Global eNodeB ID | `enb.12AB.enb.epc.mnc990.mcc311.3gppnetwork.org` |
+| Local Home Network FQDN | `lhn.mynetwork.lhn.epc.mcc311.visited-country.pub.3gppnetwork.org` |
+| EPC | `epc.mnc990.mcc311.3gppnetwork.org` |
+| APN FQDN | `apn1.apn.epc.mnc990.mcc311.3gppnetwork.org` |
+| APN | `apn1.apn.mnc990.mcc311.3gppnetwork.org` |
+| Diameter FQDN | `diameter.epc.mnc990.mcc311.3gppnetwork.org` |
+
+**Node Selection Wrappers**
+| Node Selector | Description |
+| :--------- | :----------- |
+| [EPCDNS::ENodeBUPFNodeSelector](@ref EPCDNS::ENodeBUPFNodeSelector) | Used to identify a set of UPF's associated with an eNodeB.  This is used by the NGIC-RTC SGW-C to identify SGW-U's that have been associated with a specific eNodeB. |
+| [EPCDNS::EpcNodeSelector](@ref EPCDNS::EpcNodeSelector) | Used for general EPC node selection based on the node name. |
+| [EPCDNS::MMENodeSelector](@ref EPCDNS::MMENodeSelector) | Used to identify the MME using the MME code using the MME group identifier. |
+| [EPCDNS::PGWNodeSelector](@ref EPCDNS::PGWNodeSelector) | Used by the SGW-C to identify a list of SGW-C's that can provide access to the requested APN. |
+| [EPCDNS::PGWNodeSelector](@ref EPCDNS::PGWUPFNodeSelector) | Used by the PGW-C to identify a list of PGW-U's by querying for the APN associated with the bearer. |
+| [EPCDNS::SGWNodeSelector](@ref EPCDNS::SGWNodeSelector) | Used by the MME to identify a list of SGW-C's querying for the TAI FQDN supporting an x_3gpp_sgw service or by issuing a Node query looking for a specific node that supports the x_3gpp_sgw service. |
+| [EPCDNS::SGWUPFNodeSelector](@ref EPCDNS::SGWUPFNodeSelector) | Used by the SGW-C to identify a list of SGW-U's by querying for the TAI FQDN supporting an x_3gpp_upf service or by issuing a Node query for the eNodeB that supports the x_3gpp_upf service. |
+
+See [EPCDNS::AppServiceEnum](@ref EPCDNS::AppServiceEnum) for a list of supported services.
+See [EPCDNS::AppProtocolEnum](@ref EPCDNS::AppProtocolEnum) for a list of supported protocols.
+
+<a  name="feature-overview-dns-node-colocation"></a>
+### Node Colocation
+Node colocation is used to order two sets of nodes based on topological distance, closest to furthest.  For example, you might want to find an SGW-U that is as close as possible to a particular eNodeB.  Colocation is your answer.  The process takes two [EPCDNS::NodeSelectorResult](@ref EPCDNS::NodeSelectorResult) objects which each contain a list of candidates and compares each element in the first [EPCDNS::NodeSelectorResult](@ref EPCDNS::NodeSelectorResult) object to each element in the seconds [EPCDNS::NodeSelectorResult](@ref EPCDNS::NodeSelectorResult) and calculates a score based on the **topon** node names.  Once complete, the process returns a list of pairs of nodes comprising all combinations of both lists ordered by score, closest to furthest.
+
+See [3GPP TS 29.303](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1702) for more information on **topon**, **topoff** and **colocation** (Appendix C-4).
+
+**Colocation Example**
+```cpp
+#define NS_APP 2
+...
+EPCDNS::ENodeBUPFNodeSelector s1( "0001", "120", "310" );
+s1.setNamedServerID(NS_APP);
+s1.addDesiredProtocol( EPC::UPFAppProtocolEnum::upf_x_sxa );
+s1.addDesiredNetworkCapability( "lbo" );
+s1.process();
+s1.dump();
+
+EPC::PGWUPFNodeSelector s2( "apn1", "120", "310" );
+s2.setNamedServerID(NS_APP);
+s2.addDesiredProtocol( EPC::UPFAppProtocolEnum::upf_x_sxb );
+s2.addDesiredNetworkCapability( "lbo" );
+s2.process();
+s2.dump();
+
+EPCDNS::ColocatedCandidateList ccl( s1.getResults(), s2.getResults() );
+ccl.dump();
+```
 
 <a  name="feature-overview-dns-diameter-s-naptr"></a>
 ### Diameter S-NAPTR
+[RFC 6408](https://tools.ietf.org/html/rfc6408) defines how DNS can be used to locate hosts that support specific DNS applications.  The [EPCDNS](@ref EPCDNS) contains [DiameterSelector](@ref EPCDNS::DiameterSelector) which is used to locate diameter applications in DNS.  After setting the realm, application and protocol, [DiameterSelector.process()](@ref EPCDNS::DiameterSelector::process) will return a list of [DiameterNaptr](@ref EPCDNS::DiameterNaptr) objects representing the nodes that support the requested application and protocol.
+
+Refer to [DiameterApplicationEnum](@ref EPCDNS::DiameterApplicationEnum) for a list of supported applications.
+<br>
+Refer to [DiameterProtocolEnum](@ref EPCDNS::DiameterProtocolEnum) for a list of supported protocols.
 
 <a  name="feature-overview-rest-server"></a>
 ## REST Server

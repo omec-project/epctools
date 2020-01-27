@@ -42,8 +42,9 @@ namespace DNS
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
-   /// @cond DOXYGEN_EXCLUDE
+   /// @brief A typedef to std::shared_ptr<Query>.
    typedef std::shared_ptr<Query> QueryPtr;
+   /// @cond DOXYGEN_EXCLUDE
    typedef std::map<QueryCacheKey, QueryPtr> QueryCache;
    extern "C" typedef Void(*CachedDNSQueryCallback)(QueryPtr q, Bool cacheHit, const Void *data);
    /// @endcond

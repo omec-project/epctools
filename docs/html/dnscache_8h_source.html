@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.16"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>EpcTools: /home/vagrant/share/code/epctools/include/epc/dnscache.h Source File</title>
+<title>EpcTools: /Users/kn240740/share/code/epctools/include/epc/dnscache.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -173,7 +173,7 @@ $(function() {
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;   <span class="keyword">protected</span>:</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;      ares_channel getChannel() { <span class="keywordflow">return</span> m_channel; }</div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;      Void beginQuery( QueryPtr &amp;q );</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;      Void beginQuery( <a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> &amp;q );</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;      Void endQuery();</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;   <span class="keyword">private</span>:</div>
@@ -220,7 +220,7 @@ $(function() {
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160; </div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;   <span class="keyword">private</span>:</div>
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;      CacheRefresher();</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;      <span class="keyword">static</span> Void callback( QueryPtr q, Bool cacheHit, <span class="keyword">const</span> Void *data );</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;      <span class="keyword">static</span> Void callback( <a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> q, Bool cacheHit, <span class="keyword">const</span> Void *data );</div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;      Void _submitQueries( std::list&lt;QueryCacheKey&gt; &amp;keys );</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;      Void _refreshQueries();</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;      Void _saveQueries();</div>
@@ -266,7 +266,7 @@ $(function() {
 <div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;      Void <a class="code" href="classDNS_1_1Cache.html#a743c947936008ce299599cbaea037a25">removeNamedServer</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *address);</div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;      Void <a class="code" href="classDNS_1_1Cache.html#a47de773c1f31fd2436af7b4503664e3c">applyNamedServers</a>();</div>
 <div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160; </div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;      QueryPtr <a class="code" href="classDNS_1_1Cache.html#ae81c17af7bc8660d5e3bc56b526fce8e">query</a>( ns_type rtype, <span class="keyword">const</span> std::string &amp;domain, Bool &amp;cacheHit, Bool ignorecache=<span class="keyword">false</span> );</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;      <a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> <a class="code" href="classDNS_1_1Cache.html#ae81c17af7bc8660d5e3bc56b526fce8e">query</a>( ns_type rtype, <span class="keyword">const</span> std::string &amp;domain, Bool &amp;cacheHit, Bool ignorecache=<span class="keyword">false</span> );</div>
 <div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;      Void <a class="code" href="classDNS_1_1Cache.html#ae81c17af7bc8660d5e3bc56b526fce8e">query</a>( ns_type rtype, <span class="keyword">const</span> std::string &amp;domain, CachedDNSQueryCallback cb, <span class="keyword">const</span> Void *data=NULL, Bool ignorecache=<span class="keyword">false</span> );</div>
 <div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160; </div>
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;      Void <a class="code" href="classDNS_1_1Cache.html#a3e0464482d38ff888e59abfd4efd1580">loadQueries</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *qfn);</div>
@@ -280,9 +280,9 @@ $(function() {
 <div class="line"><a name="l00277"></a><span class="lineno"><a class="line" href="classDNS_1_1Cache.html#a22fd986a4ddd6e0217f256062f0ece2b">  277</a></span>&#160;      <span class="keywordtype">long</span> <a class="code" href="classDNS_1_1Cache.html#a22fd986a4ddd6e0217f256062f0ece2b">resetNewQueryCount</a>() { <span class="keywordflow">return</span> <a class="code" href="eatomic_8h.html#ae7e467dc008880df7f1435c967797c64">atomic_swap</a>(m_newquerycnt, 0); }</div>
 <div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160; </div>
 <div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;   <span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;      Void updateCache( QueryPtr q );</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;      QueryPtr lookupQuery( ns_type rtype, <span class="keyword">const</span> std::string &amp;domain );</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;      QueryPtr lookupQuery( QueryCacheKey &amp;qck );</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;      Void updateCache( <a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> q );</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;      <a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> lookupQuery( ns_type rtype, <span class="keyword">const</span> std::string &amp;domain );</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;      <a class="code" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a> lookupQuery( QueryCacheKey &amp;qck );</div>
 <div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160; </div>
 <div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;      Void identifyExpired( std::list&lt;QueryCacheKey&gt; &amp;keys, <span class="keywordtype">int</span> percent );</div>
 <div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;      Void getCacheKeys( std::list&lt;QueryCacheKey&gt; &amp;keys );</div>
@@ -340,6 +340,7 @@ $(function() {
 <div class="ttc" id="anamespaceDNS_html"><div class="ttname"><a href="namespaceDNS.html">DNS</a></div><div class="ttdef"><b>Definition:</b> dnscache.h:33</div></div>
 <div class="ttc" id="aclassDNS_1_1Cache_html_ad2c352e0cda58bdfcf859900025bddcf"><div class="ttname"><a href="classDNS_1_1Cache.html#ad2c352e0cda58bdfcf859900025bddcf">DNS::Cache::~Cache</a></div><div class="ttdeci">~Cache()</div><div class="ttdoc">Class destructor.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:395</div></div>
 <div class="ttc" id="aclassEString_html"><div class="ttname"><a href="classEString.html">EString</a></div><div class="ttdoc">String class.</div><div class="ttdef"><b>Definition:</b> estring.h:30</div></div>
+<div class="ttc" id="anamespaceDNS_html_aba0490320a5daa94b1852f3eac56882e"><div class="ttname"><a href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a></div><div class="ttdeci">std::shared_ptr&lt; Query &gt; QueryPtr</div><div class="ttdoc">A typedef to std::shared_ptr&lt;Query&gt;.</div><div class="ttdef"><b>Definition:</b> dnsquery.h:40</div></div>
 <div class="ttc" id="aclassDNS_1_1Cache_html_a743c947936008ce299599cbaea037a25"><div class="ttname"><a href="classDNS_1_1Cache.html#a743c947936008ce299599cbaea037a25">DNS::Cache::removeNamedServer</a></div><div class="ttdeci">Void removeNamedServer(const char *address)</div><div class="ttdoc">Removes the specified named server from this DNS cache.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:456</div></div>
 <div class="ttc" id="aclassDNS_1_1Cache_html_ae00745727ef12eaa509bccdb13a883b4"><div class="ttname"><a href="classDNS_1_1Cache.html#ae00745727ef12eaa509bccdb13a883b4">DNS::Cache::getRefreshPercent</a></div><div class="ttdeci">static int getRefreshPercent()</div><div class="ttdoc">Retrieves the current refresh percentage value.</div><div class="ttdef"><b>Definition:</b> dnscache.h:216</div></div>
 <!-- start footer part -->
