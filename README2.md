@@ -76,23 +76,11 @@
 					<li>[Diameter S-NAPTR](#feature-overview-dns-diameter-s-naptr)</li>
 				</ol>
 			</li>
-			<li>[REST Server](#feature-overview-rest-server)</li>
+			<li>[Management Interface (REST)](#feature-overview-management-interface-rest)</li>
 			<li>[freeDiameter](#feature-overview-freediameter)</li>
 			<li>[Interface Statistics](#feature-overview-statistics)</li>
 			<li>[Timer Pool](#feature-overview-timer-pool)</li>
-			<li>[Miscellaneous](#feature-overview-miscellaneous)
-				<ol>
-					<li>[String](#feature-overview-miscellaneous-string)</li>
-					<li>[Utilities](#feature-overview-miscellaneous-utilities)</li>
-					<li>[Time](#feature-overview-miscellaneous-time)</li>
-					<li>[Timer](#feature-overview-miscellaneous-timer)</li>
-					<li> [Path](#feature-overview-miscellaneous-path)</li>
-					<li>[Directory](#feature-overview-miscellaneous-directory)</li>
-					<li> [Error](#feature-overview-miscellaneous-error)</li>
-					<li>[Hash](#feature-overview-miscellaneous-hash)</li>
-					<li>[BZip2](#feature-overview-miscellaneous-bzip2)</li>
-					<li>[Circular Buffer](#feature-overview-miscellaneous-circular-buffer)</li>
-				</ol>
+			<li>[Miscellaneous Classes](#feature-overview-miscellaneous-classes)
 			</li>
 		</ol>
 	</li>
@@ -1814,8 +1802,170 @@ Refer to [DiameterApplicationEnum](@ref EPCDNS::DiameterApplicationEnum) for a l
 <br>
 Refer to [DiameterProtocolEnum](@ref EPCDNS::DiameterProtocolEnum) for a list of supported protocols.
 
-<a  name="feature-overview-rest-server"></a>
-## REST Server
+<a  name="feature-overview-management-interface-rest"></a>
+## Management Interface (REST)
+[EManagementEndpoint](@ref EManagementEndpoint) and [EManagementHandler](@ref EManagementHandler) are classes that implement a REST server for the purpose of providing a management interface which can be used to retrieve run-time statistics or set run-time configuration values.  The REST server is built using [pistache](http://pistache.io/).  EManagementEndpoint](@ref EManagementEndpoint) represents the REST server and classes derived from [EManagementHandler](@ref EManagementHandler) process the individual REST requests.
+
+To add a handler, perform the following steps:
+1. Derive a class from [EManagementHandler](@ref EManagementHandler)
+2. In the derived classes constructor, define the HTTP method and route associated with the handler.
+3. Overload the [process()](@ref EManagementHandler::process) to process the request.
+
+**NOTE**: The reference to the [ELogger](@ref ELogger) object passed in to the [EManagementHandler](@ref EManagementHandler) constructor will be called each time the handler is accessed recording the time, user name and operation that was performed.  The user name is obtained from a custom header that is required when submitting a request.
+
+**Example Initialization**
+```cpp
+// intialize the CLI, listen on port 1234 for all interfaces
+m_cliep = new EManagementEndpoint(1234);
+
+m_statsget = new CliStatsGet( ELogger::log(LOG_AUDIT) );
+m_cliep->registerHandler( *m_statsget );
+
+m_statsresetput = new CliStatsResetPut( ELogger::log(LOG_AUDIT) );
+m_cliep->registerHandler( *m_statsresetput );
+
+m_cliep->start();
+```
+
+**Example GET Handler**
+This handler returns the current statistics stored in [EStatistics](@ref EStatistics).
+```cpp
+class CliStatsGet : public EManagementHandler
+{
+public:
+	CliStatsGet(ELogger &audit)
+		: EManagementHandler( EManagementHandler::HttpMethod::httpGet, "/statistics", audit )
+	{
+	}
+
+	virtual Void process(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter &response)
+	{
+		RAPIDJSON_NAMESPACE::Document doc;
+		RAPIDJSON_NAMESPACE::Document::AllocatorType &allocator( doc.GetAllocator() );
+
+		doc.SetObject();
+		doc.AddMember( "reporttime", RAPIDJSON_NAMESPACE::Value().SetString(ETime::Now().Format("%Y-%m-%dT%H:%M:%S.%0",True),allocator), allocator );
+
+		RAPIDJSON_NAMESPACE::Value interfaces(RAPIDJSON_NAMESPACE::kArrayType);
+		for (auto &ifc : EStatistics::getInterfaces())
+		{
+			RAPIDJSON_NAMESPACE::Value interface(RAPIDJSON_NAMESPACE::kObjectType);
+
+			interface.AddMember( "name", RAPIDJSON_NAMESPACE::Value().SetString(ifc.second.getName(),allocator), allocator );
+			switch (ifc.second.getProtocol())
+			{
+				case EStatistics::ProtocolType::diameter: { interface.AddMember ("protocol", RAPIDJSON_NAMESPACE::Value().SetString("diameter"), allocator); break; }
+				case EStatistics::ProtocolType::gtpv2c: { interface.AddMember ("protocol", RAPIDJSON_NAMESPACE::Value().SetString("gtpv2c"), allocator); break; }
+				case EStatistics::ProtocolType::gtpv1u: { interface.AddMember ("protocol", RAPIDJSON_NAMESPACE::Value().SetString("gtpv1u"), allocator); break; }
+				case EStatistics::ProtocolType::pfcp: { interface.AddMember ("protocol", RAPIDJSON_NAMESPACE::Value().SetString("pfcp"), allocator); break; }
+			}
+
+			RAPIDJSON_NAMESPACE::Value peers(RAPIDJSON_NAMESPACE::kArrayType);
+			for (auto &p : ifc.second.getPeers() )
+			{
+				RAPIDJSON_NAMESPACE::Value peer(RAPIDJSON_NAMESPACE::kObjectType);
+
+				RAPIDJSON_NAMESPACE::Value address(RAPIDJSON_NAMESPACE::kObjectType);
+				switch (ifc.second.getProtocol())
+				{
+					case EStatistics::ProtocolType::diameter: { address.AddMember ("diameterid", RAPIDJSON_NAMESPACE::Value().SetString(p.second.getName(),allocator), allocator); break; }
+					case EStatistics::ProtocolType::gtpv2c: { address.AddMember ("ipv4", RAPIDJSON_NAMESPACE::Value().SetString(p.second.getName(),allocator), allocator); break; }
+					case EStatistics::ProtocolType::gtpv1u: { address.AddMember ("ipv4", RAPIDJSON_NAMESPACE::Value().SetString(p.second.getName(),allocator), allocator); break; }
+					case EStatistics::ProtocolType::pfcp: { address.AddMember ("ipv4", RAPIDJSON_NAMESPACE::Value().SetString(p.second.getName(),allocator), allocator); break; }
+				}
+				peer.AddMember( "address", address, allocator );
+
+				peer.AddMember( "lastactivity", RAPIDJSON_NAMESPACE::Value().SetString(p.second.getLastActivity().Format("%Y-%m-%dT%H:%M:%S.%0",True),allocator), allocator );
+				  
+				RAPIDJSON_NAMESPACE::Value messages(RAPIDJSON_NAMESPACE::kArrayType);
+				for ( auto &m : p.second.getMessageStats() )
+				{
+					Bool nonzero = False;
+
+					RAPIDJSON_NAMESPACE::Value msgstats(RAPIDJSON_NAMESPACE::kObjectType);
+
+					msgstats.AddMember( "type", RAPIDJSON_NAMESPACE::Value().SetString(m.second.getName().c_str(),allocator), allocator);
+
+					if (m.second.getRequestSentErrors()) { msgstats.AddMember("rqst_send_errors", m.second.getRequestSentErrors(), allocator); nonzero = True; }
+					if (m.second.getRequestReceivedErrors()) { msgstats.AddMember("rqst_rcvd_errors", m.second.getRequestReceivedErrors(), allocator); nonzero = True; }
+					if (m.second.getRequestSentOk()) { msgstats.AddMember("rqst_send_ok", m.second.getRequestSentOk(), allocator); nonzero = True; }
+					if (m.second.getRequestReceivedOk()) { msgstats.AddMember("rqst_rcvd_ok", m.second.getRequestReceivedOk(), allocator); nonzero = True; }
+					if (m.second.getResponseSentErrors()) { msgstats.AddMember("resp_send_errors", m.second.getResponseSentErrors(), allocator); nonzero = True; }
+					if (m.second.getResponseReceivedErrors()) { msgstats.AddMember("resp_rcvd_errors", m.second.getResponseReceivedErrors(), allocator); nonzero = True; }
+					if (m.second.getResponseSentOkAccepted()) { msgstats.AddMember("resp_send_ok_accept", m.second.getResponseSentOkAccepted(), allocator); nonzero = True; }
+					if (m.second.getResponseSentOkRejected()) { msgstats.AddMember("resp_send_ok_reject", m.second.getResponseSentOkRejected(), allocator); nonzero = True; }
+					if (m.second.getResponseReceivedOkAccepted()) { msgstats.AddMember("resp_rcvd_ok_accept", m.second.getResponseReceivedOkAccepted(), allocator); nonzero = True; }
+					if (m.second.getResponseReceivedOkRejected()) { msgstats.AddMember("resp_rcvd_ok_reject", m.second.getResponseReceivedOkRejected(), allocator); nonzero = True; }
+
+					if (nonzero)
+						messages.PushBack( msgstats, allocator );
+				}
+
+				peer.AddMember( "messages", messages, allocator );
+				peers.PushBack( peer, allocator );
+			}
+
+			interface.AddMember( "peers", peers, allocator );
+			interfaces.PushBack( interface, allocator );
+		}
+		  
+		doc.AddMember( "interfaces", interfaces, allocator );
+
+		RAPIDJSON_NAMESPACE::StringBuffer buf;
+		RAPIDJSON_NAMESPACE::Writer<RAPIDJSON_NAMESPACE::StringBuffer> writer( buf );
+		doc.Accept( writer );
+
+		response.send( Pistache::Http::Code::Ok, buf.GetString() );
+	}
+
+private:
+	CliStatsGet();
+};
+```
+
+**Example PUT Handler**
+This handler sets the current message counts to zero that are stored in [EStatistics](@ref EStatistics).
+```cpp
+class CliStatsResetPut : public EManagementHandler
+{
+public:
+	CliStatsResetPut(ELogger &audit)
+		: EManagementHandler( EManagementHandler::HttpMethod::httpPut, "/statistics", audit )
+	{
+	}
+
+	virtual Void process(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter &response)
+	{
+		EStatistics::reset();
+		response.send( Pistache::Http::Code::Ok );
+	}
+
+private:
+	CliStatsResetPut();
+};
+```
+
+**Example Handler Calls**
+```bash
+$ curl -i -H "X-User-Name: brian" -H "Content-Type: application/json" http://localhost:9081/statistics
+HTTP/1.1 200 OK
+Connection: Keep-Alive
+Content-Length: 398
+
+{"reporttime":"2020-01-28T17:13:49.860","interfaces":[{"name":"SWm","protocol":"diameter","peers":[{"address":{"diameterid":"epcappclient.localdomain"},"lastactivity":"2020-01-27T16:04:14.716","messages":[{"type":"Diameter-EAP-Request","rqst_rcvd_ok":3},{"type":"AA-Answer","resp_send_ok_accept":1},{"type":"Diameter-EAP-Answer","resp_send_ok_accept":3},{"type":"AA-Request","rqst_rcvd_ok":1}]}]}]}
+
+$ curl -i -X PUT -H "X-User-Name: brian" http://localhost:9081/statistics
+HTTP/1.1 200 OK
+Connection: Keep-Alive
+Content-Length: 0
+
+$ curl -i -H "X-User-Name: brian" -H "Content-Type: application/json" http://localhost:9081/statistics
+HTTP/1.1 200 OK
+Connection: Keep-Alive
+Content-Length: 211
+
+{"reporttime":"2020-01-28T17:16:48.300","interfaces":[{"name":"SWm","protocol":"diameter","peers":[{"address":{"diameterid":"epcappclient.localdomain"},"lastactivity":"2020-01-27T16:04:14.716","messages":[]}]}]}
+```
 
 <a  name="feature-overview-freediameter"></a>
 ## freeDiameter
@@ -1826,35 +1976,18 @@ Refer to [DiameterProtocolEnum](@ref EPCDNS::DiameterProtocolEnum) for a list of
 <a  name="feature-overview-timer-pool"></a>
 ## Timer Pool
 
-<a  name="feature-overview-miscellaneous"></a>
-## Miscellaneous
+<a  name="feature-overview-miscellaneous-classes"></a>
+## Miscellaneous Classes
+| Class | Description |
+| :--------- | :----------- |
+| [EString](@ref EString) | Derived from std::string, [EString](@ref EString) adds additional string functionality  including [format()](@ref EString::format), [tolower()](@ref EString::tolower), [toupper()](@ref EString::toupper), [ltrim()](@ref EString::ltrim), [rtrim()](@ref EString::rtrim), [trim()](@ref EString::trim), [replaceAll()](@ref EString::replaceAll) and [replaceAllCopy()](@ref EString::replaceAllCopy). |
+| [EUtility](@ref EUtility) | General functionality that did not warrant a separate class.  Static methods include [indexOf](@ref EUtility::indexOf), [indexOfAny()](@ref EUtility::indexOfAny), [lastIndexOfAny()](@ref EUtility::lastIndexOfAny), [split()](@ref EUtility::split), [replaceAll()](@ref EUtility::replaceAll), [replaceAllCopy()](@ref EUtility::replaceAllCopy), [string_format()](@ref EUtility::string_format), [copy_file()](@ref EUtility::copy_file), [delete_file()](@ref EUtility::delete_file), [file_exists()](@ref EUtility::file_exists), [currentTime()](@ref EUtility::currentTime). |
+| [ETime](@ref ETime) | Used for storing and manipulating the date and time. |
+| [ETimer](@ref ETimer) | A stopwatch like timer that can measure durations in milliseconds or microseconds. |
+| [EPath](@ref EPath) | A class for manipulating file and directory names. |
+| [EDirectory](@ref EDirectory) | A class for accessing files in a directory. |
+| [EError](@ref EError) | An exception object that extends std::exception. |
+| [EHash](@ref EHash) | Calculates a hash value for a string or byte array. |
+| [EBzip2](@ref EBzip2) | Writes and reads bzip compressed files. |
+| [ECircularBuffer](@ref ECircularBuffer) | Implements a thread safe circular buffer over a byte array. |
 
-<a  name="feature-overview-miscellaneous-string"></a>
-### String
-
-<a  name="feature-overview-miscellaneous-utilities"></a>
-### Utilities
-
-<a  name="feature-overview-miscellaneous-time"></a>
-### Time
-
-<a  name="feature-overview-miscellaneous-timer"></a>
-### Timer
-
-<a  name="feature-overview-miscellaneous-path"></a>
-### Path
-
-<a  name="feature-overview-miscellaneous-directory"></a>
-### Directory
-
-<a  name="feature-overview-miscellaneous-error"></a>
-### Error
-
-<a  name="feature-overview-miscellaneous-hash"></a>
-### Hash
-
-<a  name="feature-overview-miscellaneous-bzip2"></a>
-### BZip2
-
-<a  name="feature-overview-miscellaneous-circular-buffer"></a>
-### Circular Buffer

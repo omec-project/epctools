@@ -178,7 +178,7 @@ Contents</h1>
 </ol>
 </li>
 <li>
-<a href="#feature-overview-rest-server">REST Server</a> </li>
+<a href="#feature-overview-management-interface-rest">Management Interface (REST)</a> </li>
 <li>
 <a href="#feature-overview-freediameter">freeDiameter</a> </li>
 <li>
@@ -186,29 +186,7 @@ Contents</h1>
 <li>
 <a href="#feature-overview-timer-pool">Timer Pool</a> </li>
 <li>
-<a href="#feature-overview-miscellaneous">Miscellaneous</a> <ol>
-<li>
-<a href="#feature-overview-miscellaneous-string">String</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-utilities">Utilities</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-time">Time</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-timer">Timer</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-path">Path</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-directory">Directory</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-error">Error</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-hash">Hash</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-bzip2">BZip2</a> </li>
-<li>
-<a href="#feature-overview-miscellaneous-circular-buffer">Circular Buffer</a> </li>
-</ol>
-</li>
+<a href="#feature-overview-miscellaneous-classes">Miscellaneous Classes</a>  </li>
 </ol>
 </li>
 </ol>
@@ -244,8 +222,7 @@ Configuration</h2>
 <h3><a class="anchor" id="autotoc_md15"></a>
 Configuration File</h3>
 <p>Multiple JSON configuration files can be loaded by <a class="el" href="classEGetOpt.html">EGetOpt</a>. <br  />
-</p>
-<p><b>Sample JSON Configuration File</b> </p><div class="fragment"><div class="line">{</div>
+ <b>Sample JSON Configuration File</b> </p><div class="fragment"><div class="line">{</div>
 <div class="line">    &quot;EpcApplication&quot;: {</div>
 <div class="line">        &quot;freeDiameter&quot;: {</div>
 <div class="line">            &quot;configfile&quot;: &quot;conf/epc_app_client.conf&quot;,</div>
@@ -785,8 +762,7 @@ Pack/Unpack</h3>
 <h2><a class="anchor" id="autotoc_md32"></a>
 Synchronization</h2>
 <p><em><b><a class="el" href="classEpcTools.html" title="The primary class used to initialize/uninitialize EpcTools.">EpcTools</a></b></em> supports several synchronization mechanisms which can be used to synchronize operations in multiple threads and processes. <br  />
-</p>
-<table class="markdownTable">
+ </p><table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Type  </th><th class="markdownTableHeadLeft">Private  </th><th class="markdownTableHeadLeft">Public   </th></tr>
 <tr class="markdownTableRowOdd">
@@ -993,8 +969,7 @@ Socket Communications</h2>
 <h3><a class="anchor" id="autotoc_md38"></a>
 Socket Thread</h3>
 <p><a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> is derived from <a class="el" href="classEThreadEvent.html">EThreadEvent</a> and has a custom message pump and dispatcher to identify and process socket events for sockets that are registered with the socket thread. The message pump function utilizes <code>select()</code> to detect when a socket can be read from, written to or when an error has occurred. These events are then dispatched to appropriate callback methods depending on the role and state of the socket. <br  />
-</p>
-<p>In addition to processing socket events <a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> is also capable of processing standard event messages. See <a href="#feature-overview-threads-event-thread">Event Thread</a> for more information.</p>
+ In addition to processing socket events <a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> is also capable of processing standard event messages. See <a href="#feature-overview-threads-event-thread">Event Thread</a> for more information.</p>
 <p>Since <a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> is derived from <a class="el" href="classEThreadEvent.html">EThreadEvent</a>, <a class="el" href="classESocket_1_1Thread.html">ESocket::Thread</a> supports either a public or a private event message queue with the option of either <a class="el" href="classEThreadMessage.html">EThreadMessage</a> or a custom event thread message.</p>
 <p><b>Example Socket Thread</b> </p><div class="fragment"><div class="line"><span class="keyword">class  </span>TcpWorker : <span class="keyword">public</span>  <a class="code" href="classESocket_1_1Thread.html">ESocket::ThreadPrivate</a></div>
 <div class="line">{</div>
@@ -1820,10 +1795,153 @@ Diameter S-NAPTR</h3>
 <p><a href="https://tools.ietf.org/html/rfc6408">RFC 6408</a> defines how <a class="el" href="namespaceDNS.html">DNS</a> can be used to locate hosts that support specific <a class="el" href="namespaceDNS.html">DNS</a> applications. The <a class="el" href="namespaceEPCDNS.html">EPCDNS</a> contains <a class="el" href="classEPCDNS_1_1DiameterSelector.html">DiameterSelector</a> which is used to locate diameter applications in <a class="el" href="namespaceDNS.html">DNS</a>. After setting the realm, application and protocol, <a class="el" href="classEPCDNS_1_1DiameterSelector.html#ac54f6f2ffb3b453492c8d26ada9afa17">DiameterSelector.process()</a> will return a list of <a class="el" href="classEPCDNS_1_1DiameterNaptr.html">DiameterNaptr</a> objects representing the nodes that support the requested application and protocol.</p>
 <p>Refer to <a class="el" href="namespaceEPCDNS.html#ae38cedd2ac88e50be1a09c871ccfbd17">DiameterApplicationEnum</a> for a list of supported applications. <br  />
  Refer to <a class="el" href="namespaceEPCDNS.html#a28954380b48f08776a2a9444678bb713">DiameterProtocolEnum</a> for a list of supported protocols.</p>
-<p><a class="anchor" id="feature-overview-rest-server"></a> </p>
+<p><a class="anchor" id="feature-overview-management-interface-rest"></a> </p>
 <h2><a class="anchor" id="autotoc_md55"></a>
-REST Server</h2>
-<p><a class="anchor" id="feature-overview-freediameter"></a> </p>
+Management Interface (REST)</h2>
+<p><a class="el" href="classEManagementEndpoint.html">EManagementEndpoint</a> and <a class="el" href="classEManagementHandler.html">EManagementHandler</a> are classes that implement a REST server for the purpose of providing a management interface which can be used to retrieve run-time statistics or set run-time configuration values. The REST server is built using <a href="http://pistache.io/">pistache</a>. <a class="el" href="classEManagementEndpoint.html" title="Implemts the HTTP server endpoint.">EManagementEndpoint</a>](<a class="el" href="classEManagementEndpoint.html">EManagementEndpoint</a>) represents the REST server and classes derived from <a class="el" href="classEManagementHandler.html">EManagementHandler</a> process the individual REST requests.</p>
+<p>To add a handler, perform the following steps:</p><ol type="1">
+<li>Derive a class from <a class="el" href="classEManagementHandler.html">EManagementHandler</a></li>
+<li>In the derived classes constructor, define the HTTP method and route associated with the handler.</li>
+<li>Overload the <a class="el" href="classEManagementHandler.html#a4ffb3842d986ccfe8f076844872d93c7">process()</a> to process the request.</li>
+</ol>
+<p><b>NOTE</b>: The reference to the <a class="el" href="classELogger.html">ELogger</a> object passed in to the <a class="el" href="classEManagementHandler.html">EManagementHandler</a> constructor will be called each time the handler is accessed recording the time, user name and operation that was performed. The user name is obtained from a custom header that is required when submitting a request.</p>
+<p><b>Example Initialization</b> </p><div class="fragment"><div class="line"><span class="comment">// intialize the CLI, listen on port 1234 for all interfaces</span></div>
+<div class="line">m_cliep = <span class="keyword">new</span> <a class="code" href="classEManagementEndpoint.html">EManagementEndpoint</a>(1234);</div>
+<div class="line"> </div>
+<div class="line">m_statsget = <span class="keyword">new</span> CliStatsGet( <a class="code" href="classELogger.html#a94a47d71f929233a7100d573732e3cd9">ELogger::log</a>(LOG_AUDIT) );</div>
+<div class="line">m_cliep-&gt;registerHandler( *m_statsget );</div>
+<div class="line"> </div>
+<div class="line">m_statsresetput = <span class="keyword">new</span> CliStatsResetPut( <a class="code" href="classELogger.html#a94a47d71f929233a7100d573732e3cd9">ELogger::log</a>(LOG_AUDIT) );</div>
+<div class="line">m_cliep-&gt;registerHandler( *m_statsresetput );</div>
+<div class="line"> </div>
+<div class="line">m_cliep-&gt;start();</div>
+</div><!-- fragment --><p><b>Example GET Handler</b> This handler returns the current statistics stored in <a class="el" href="classEStatistics.html">EStatistics</a>. </p><div class="fragment"><div class="line"><span class="keyword">class </span>CliStatsGet : <span class="keyword">public</span> <a class="code" href="classEManagementHandler.html">EManagementHandler</a></div>
+<div class="line">{</div>
+<div class="line"><span class="keyword">public</span>:</div>
+<div class="line">    CliStatsGet(<a class="code" href="classELogger.html">ELogger</a> &amp;audit)</div>
+<div class="line">        : <a class="code" href="classEManagementHandler.html">EManagementHandler</a>( <a class="code" href="classEManagementHandler.html">EManagementHandler</a>::HttpMethod::httpGet, <span class="stringliteral">&quot;/statistics&quot;</span>, audit )</div>
+<div class="line">    {</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    <span class="keyword">virtual</span> Void <a class="code" href="classEManagementHandler.html#a4ffb3842d986ccfe8f076844872d93c7">process</a>(<span class="keyword">const</span> Pistache::Http::Request&amp; request, Pistache::Http::ResponseWriter &amp;response)</div>
+<div class="line">    {</div>
+<div class="line">        RAPIDJSON_NAMESPACE::Document doc;</div>
+<div class="line">        RAPIDJSON_NAMESPACE::Document::AllocatorType &amp;allocator( doc.GetAllocator() );</div>
+<div class="line"> </div>
+<div class="line">        doc.SetObject();</div>
+<div class="line">        doc.AddMember( <span class="stringliteral">&quot;reporttime&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(<a class="code" href="classETime.html#a18dad5deae22bfe316cad3171daca59c">ETime::Now</a>().Format(<span class="stringliteral">&quot;%Y-%m-%dT%H:%M:%S.%0&quot;</span>,<a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>),allocator), allocator );</div>
+<div class="line"> </div>
+<div class="line">        RAPIDJSON_NAMESPACE::Value interfaces(RAPIDJSON_NAMESPACE::kArrayType);</div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;ifc : <a class="code" href="classEStatistics.html#a001deafe916c830bd1c01994af35f4c1">EStatistics::getInterfaces</a>())</div>
+<div class="line">        {</div>
+<div class="line">            RAPIDJSON_NAMESPACE::Value interface(RAPIDJSON_NAMESPACE::kObjectType);</div>
+<div class="line"> </div>
+<div class="line">            interface.AddMember( <span class="stringliteral">&quot;name&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(ifc.second.getName(),allocator), allocator );</div>
+<div class="line">            <span class="keywordflow">switch</span> (ifc.second.getProtocol())</div>
+<div class="line">            {</div>
+<div class="line">                <span class="keywordflow">case</span> <a class="code" href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201a35f16dc084a53860f5cb3962107d5378">EStatistics::ProtocolType::diameter</a>: { interface.AddMember (<span class="stringliteral">&quot;protocol&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(<span class="stringliteral">&quot;diameter&quot;</span>), allocator); <span class="keywordflow">break</span>; }</div>
+<div class="line">                <span class="keywordflow">case</span> <a class="code" href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201adbc0c5628e752a4d82ae813db26ddccd">EStatistics::ProtocolType::gtpv2c</a>: { interface.AddMember (<span class="stringliteral">&quot;protocol&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(<span class="stringliteral">&quot;gtpv2c&quot;</span>), allocator); <span class="keywordflow">break</span>; }</div>
+<div class="line">                <span class="keywordflow">case</span> <a class="code" href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201ad1a0426a844b462d4c0af2928bee64c2">EStatistics::ProtocolType::gtpv1u</a>: { interface.AddMember (<span class="stringliteral">&quot;protocol&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(<span class="stringliteral">&quot;gtpv1u&quot;</span>), allocator); <span class="keywordflow">break</span>; }</div>
+<div class="line">                <span class="keywordflow">case</span> <a class="code" href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201adb636e1622edd7e74d1c1ad3c203c67b">EStatistics::ProtocolType::pfcp</a>: { interface.AddMember (<span class="stringliteral">&quot;protocol&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(<span class="stringliteral">&quot;pfcp&quot;</span>), allocator); <span class="keywordflow">break</span>; }</div>
+<div class="line">            }</div>
+<div class="line"> </div>
+<div class="line">            RAPIDJSON_NAMESPACE::Value peers(RAPIDJSON_NAMESPACE::kArrayType);</div>
+<div class="line">            <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;p : ifc.second.getPeers() )</div>
+<div class="line">            {</div>
+<div class="line">                RAPIDJSON_NAMESPACE::Value peer(RAPIDJSON_NAMESPACE::kObjectType);</div>
+<div class="line"> </div>
+<div class="line">                RAPIDJSON_NAMESPACE::Value address(RAPIDJSON_NAMESPACE::kObjectType);</div>
+<div class="line">                <span class="keywordflow">switch</span> (ifc.second.getProtocol())</div>
+<div class="line">                {</div>
+<div class="line">                    <span class="keywordflow">case</span> <a class="code" href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201a35f16dc084a53860f5cb3962107d5378">EStatistics::ProtocolType::diameter</a>: { address.AddMember (<span class="stringliteral">&quot;diameterid&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(p.second.getName(),allocator), allocator); <span class="keywordflow">break</span>; }</div>
+<div class="line">                    <span class="keywordflow">case</span> <a class="code" href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201adbc0c5628e752a4d82ae813db26ddccd">EStatistics::ProtocolType::gtpv2c</a>: { address.AddMember (<span class="stringliteral">&quot;ipv4&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(p.second.getName(),allocator), allocator); <span class="keywordflow">break</span>; }</div>
+<div class="line">                    <span class="keywordflow">case</span> <a class="code" href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201ad1a0426a844b462d4c0af2928bee64c2">EStatistics::ProtocolType::gtpv1u</a>: { address.AddMember (<span class="stringliteral">&quot;ipv4&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(p.second.getName(),allocator), allocator); <span class="keywordflow">break</span>; }</div>
+<div class="line">                    <span class="keywordflow">case</span> <a class="code" href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201adb636e1622edd7e74d1c1ad3c203c67b">EStatistics::ProtocolType::pfcp</a>: { address.AddMember (<span class="stringliteral">&quot;ipv4&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(p.second.getName(),allocator), allocator); <span class="keywordflow">break</span>; }</div>
+<div class="line">                }</div>
+<div class="line">                peer.AddMember( <span class="stringliteral">&quot;address&quot;</span>, address, allocator );</div>
+<div class="line"> </div>
+<div class="line">                peer.AddMember( <span class="stringliteral">&quot;lastactivity&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(p.second.getLastActivity().Format(<span class="stringliteral">&quot;%Y-%m-%dT%H:%M:%S.%0&quot;</span>,<a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>),allocator), allocator );</div>
+<div class="line">                  </div>
+<div class="line">                RAPIDJSON_NAMESPACE::Value messages(RAPIDJSON_NAMESPACE::kArrayType);</div>
+<div class="line">                <span class="keywordflow">for</span> ( <span class="keyword">auto</span> &amp;m : p.second.getMessageStats() )</div>
+<div class="line">                {</div>
+<div class="line">                    Bool nonzero = <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>;</div>
+<div class="line"> </div>
+<div class="line">                    RAPIDJSON_NAMESPACE::Value msgstats(RAPIDJSON_NAMESPACE::kObjectType);</div>
+<div class="line"> </div>
+<div class="line">                    msgstats.AddMember( <span class="stringliteral">&quot;type&quot;</span>, RAPIDJSON_NAMESPACE::Value().SetString(m.second.getName().c_str(),allocator), allocator);</div>
+<div class="line"> </div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getRequestSentErrors()) { msgstats.AddMember(<span class="stringliteral">&quot;rqst_send_errors&quot;</span>, m.second.getRequestSentErrors(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getRequestReceivedErrors()) { msgstats.AddMember(<span class="stringliteral">&quot;rqst_rcvd_errors&quot;</span>, m.second.getRequestReceivedErrors(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getRequestSentOk()) { msgstats.AddMember(<span class="stringliteral">&quot;rqst_send_ok&quot;</span>, m.second.getRequestSentOk(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getRequestReceivedOk()) { msgstats.AddMember(<span class="stringliteral">&quot;rqst_rcvd_ok&quot;</span>, m.second.getRequestReceivedOk(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getResponseSentErrors()) { msgstats.AddMember(<span class="stringliteral">&quot;resp_send_errors&quot;</span>, m.second.getResponseSentErrors(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getResponseReceivedErrors()) { msgstats.AddMember(<span class="stringliteral">&quot;resp_rcvd_errors&quot;</span>, m.second.getResponseReceivedErrors(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getResponseSentOkAccepted()) { msgstats.AddMember(<span class="stringliteral">&quot;resp_send_ok_accept&quot;</span>, m.second.getResponseSentOkAccepted(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getResponseSentOkRejected()) { msgstats.AddMember(<span class="stringliteral">&quot;resp_send_ok_reject&quot;</span>, m.second.getResponseSentOkRejected(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getResponseReceivedOkAccepted()) { msgstats.AddMember(<span class="stringliteral">&quot;resp_rcvd_ok_accept&quot;</span>, m.second.getResponseReceivedOkAccepted(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line">                    <span class="keywordflow">if</span> (m.second.getResponseReceivedOkRejected()) { msgstats.AddMember(<span class="stringliteral">&quot;resp_rcvd_ok_reject&quot;</span>, m.second.getResponseReceivedOkRejected(), allocator); nonzero = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>; }</div>
+<div class="line"> </div>
+<div class="line">                    <span class="keywordflow">if</span> (nonzero)</div>
+<div class="line">                        messages.PushBack( msgstats, allocator );</div>
+<div class="line">                }</div>
+<div class="line"> </div>
+<div class="line">                peer.AddMember( <span class="stringliteral">&quot;messages&quot;</span>, messages, allocator );</div>
+<div class="line">                peers.PushBack( peer, allocator );</div>
+<div class="line">            }</div>
+<div class="line"> </div>
+<div class="line">            interface.AddMember( <span class="stringliteral">&quot;peers&quot;</span>, peers, allocator );</div>
+<div class="line">            interfaces.PushBack( interface, allocator );</div>
+<div class="line">        }</div>
+<div class="line">          </div>
+<div class="line">        doc.AddMember( <span class="stringliteral">&quot;interfaces&quot;</span>, interfaces, allocator );</div>
+<div class="line"> </div>
+<div class="line">        RAPIDJSON_NAMESPACE::StringBuffer buf;</div>
+<div class="line">        RAPIDJSON_NAMESPACE::Writer&lt;RAPIDJSON_NAMESPACE::StringBuffer&gt; writer( buf );</div>
+<div class="line">        doc.Accept( writer );</div>
+<div class="line"> </div>
+<div class="line">        response.send( Pistache::Http::Code::Ok, buf.GetString() );</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">private</span>:</div>
+<div class="line">    CliStatsGet();</div>
+<div class="line">};</div>
+</div><!-- fragment --><p><b>Example PUT Handler</b> This handler sets the current message counts to zero that are stored in <a class="el" href="classEStatistics.html">EStatistics</a>. </p><div class="fragment"><div class="line"><span class="keyword">class </span>CliStatsResetPut : <span class="keyword">public</span> <a class="code" href="classEManagementHandler.html">EManagementHandler</a></div>
+<div class="line">{</div>
+<div class="line"><span class="keyword">public</span>:</div>
+<div class="line">    CliStatsResetPut(<a class="code" href="classELogger.html">ELogger</a> &amp;audit)</div>
+<div class="line">        : <a class="code" href="classEManagementHandler.html">EManagementHandler</a>( <a class="code" href="classEManagementHandler.html">EManagementHandler</a>::HttpMethod::httpPut, <span class="stringliteral">&quot;/statistics&quot;</span>, audit )</div>
+<div class="line">    {</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    <span class="keyword">virtual</span> Void <a class="code" href="classEManagementHandler.html#a4ffb3842d986ccfe8f076844872d93c7">process</a>(<span class="keyword">const</span> Pistache::Http::Request&amp; request, Pistache::Http::ResponseWriter &amp;response)</div>
+<div class="line">    {</div>
+<div class="line">        <a class="code" href="classEStatistics.html#afea33d5e78dd724f073b66b8d0913abf">EStatistics::reset</a>();</div>
+<div class="line">        response.send( Pistache::Http::Code::Ok );</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">private</span>:</div>
+<div class="line">    CliStatsResetPut();</div>
+<div class="line">};</div>
+</div><!-- fragment --><p><b>Example Handler Calls</b> </p><div class="fragment"><div class="line">$ curl -i -H &quot;X-User-Name: brian&quot; -H &quot;Content-Type: application/json&quot; http://localhost:9081/statistics</div>
+<div class="line">HTTP/1.1 200 OK</div>
+<div class="line">Connection: Keep-Alive</div>
+<div class="line">Content-Length: 398</div>
+<div class="line"> </div>
+<div class="line">{&quot;reporttime&quot;:&quot;2020-01-28T17:13:49.860&quot;,&quot;interfaces&quot;:[{&quot;name&quot;:&quot;SWm&quot;,&quot;protocol&quot;:&quot;diameter&quot;,&quot;peers&quot;:[{&quot;address&quot;:{&quot;diameterid&quot;:&quot;epcappclient.localdomain&quot;},&quot;lastactivity&quot;:&quot;2020-01-27T16:04:14.716&quot;,&quot;messages&quot;:[{&quot;type&quot;:&quot;Diameter-EAP-Request&quot;,&quot;rqst_rcvd_ok&quot;:3},{&quot;type&quot;:&quot;AA-Answer&quot;,&quot;resp_send_ok_accept&quot;:1},{&quot;type&quot;:&quot;Diameter-EAP-Answer&quot;,&quot;resp_send_ok_accept&quot;:3},{&quot;type&quot;:&quot;AA-Request&quot;,&quot;rqst_rcvd_ok&quot;:1}]}]}]}</div>
+<div class="line"> </div>
+<div class="line">$ curl -i -X PUT -H &quot;X-User-Name: brian&quot; http://localhost:9081/statistics</div>
+<div class="line">HTTP/1.1 200 OK</div>
+<div class="line">Connection: Keep-Alive</div>
+<div class="line">Content-Length: 0</div>
+<div class="line"> </div>
+<div class="line">$ curl -i -H &quot;X-User-Name: brian&quot; -H &quot;Content-Type: application/json&quot; http://localhost:9081/statistics</div>
+<div class="line">HTTP/1.1 200 OK</div>
+<div class="line">Connection: Keep-Alive</div>
+<div class="line">Content-Length: 211</div>
+<div class="line"> </div>
+<div class="line">{&quot;reporttime&quot;:&quot;2020-01-28T17:16:48.300&quot;,&quot;interfaces&quot;:[{&quot;name&quot;:&quot;SWm&quot;,&quot;protocol&quot;:&quot;diameter&quot;,&quot;peers&quot;:[{&quot;address&quot;:{&quot;diameterid&quot;:&quot;epcappclient.localdomain&quot;},&quot;lastactivity&quot;:&quot;2020-01-27T16:04:14.716&quot;,&quot;messages&quot;:[]}]}]}</div>
+</div><!-- fragment --><p><a class="anchor" id="feature-overview-freediameter"></a> </p>
 <h2><a class="anchor" id="autotoc_md56"></a>
 freeDiameter</h2>
 <p><a class="anchor" id="feature-overview-statistics"></a> </p>
@@ -1832,48 +1950,44 @@ Interface Statistics</h2>
 <p><a class="anchor" id="feature-overview-timer-pool"></a> </p>
 <h2><a class="anchor" id="autotoc_md58"></a>
 Timer Pool</h2>
-<p><a class="anchor" id="feature-overview-miscellaneous"></a> </p>
+<p><a class="anchor" id="feature-overview-miscellaneous-classes"></a> </p>
 <h2><a class="anchor" id="autotoc_md59"></a>
-Miscellaneous</h2>
-<p><a class="anchor" id="feature-overview-miscellaneous-string"></a> </p>
-<h3><a class="anchor" id="autotoc_md60"></a>
-String</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-utilities"></a> </p>
-<h3><a class="anchor" id="autotoc_md61"></a>
-Utilities</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-time"></a> </p>
-<h3><a class="anchor" id="autotoc_md62"></a>
-Time</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-timer"></a> </p>
-<h3><a class="anchor" id="autotoc_md63"></a>
-Timer</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-path"></a> </p>
-<h3><a class="anchor" id="autotoc_md64"></a>
-Path</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-directory"></a> </p>
-<h3><a class="anchor" id="autotoc_md65"></a>
-Directory</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-error"></a> </p>
-<h3><a class="anchor" id="autotoc_md66"></a>
-Error</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-hash"></a> </p>
-<h3><a class="anchor" id="autotoc_md67"></a>
-Hash</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-bzip2"></a> </p>
-<h3><a class="anchor" id="autotoc_md68"></a>
-BZip2</h3>
-<p><a class="anchor" id="feature-overview-miscellaneous-circular-buffer"></a> </p>
-<h3><a class="anchor" id="autotoc_md69"></a>
-Circular Buffer</h3>
+Miscellaneous Classes</h2>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Class  </th><th class="markdownTableHeadLeft">Description   </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classEString.html">EString</a>  </td><td class="markdownTableBodyLeft">Derived from std::string, <a class="el" href="classEString.html">EString</a> adds additional string functionality including <a class="el" href="classEString.html#a320dce9f0bdcbf80118db0d623e176e1">format()</a>, <a class="el" href="classEString.html#a9d6babf402e62294f1f012a0a77a6fc1">tolower()</a>, <a class="el" href="classEString.html#a2c07071cfda4e2ff12eadcc30148970e">toupper()</a>, <a class="el" href="classEString.html#a64da598a2073ebdbec47bd70d3f7e153">ltrim()</a>, <a class="el" href="classEString.html#aec62cbea1ed4f596926765ef91681af7">rtrim()</a>, <a class="el" href="classEString.html#ae4511c6559c58985cd3a2adab71f3971">trim()</a>, <a class="el" href="classEString.html#a2d3d96ab171697b6939d91c70ee868c6">replaceAll()</a> and <a class="el" href="classEString.html#a2c4c0920ed9afc84f25fddbce595a42d">replaceAllCopy()</a>.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classEUtility.html">EUtility</a>  </td><td class="markdownTableBodyLeft">General functionality that did not warrant a separate class. Static methods include <a class="el" href="classEUtility.html#a944fdd4bde5dcf2d0adc570e0f3c1b52">indexOf</a>, <a class="el" href="classEUtility.html#a565fb5cc0eea3d8292ba7e5a1122c0cd">indexOfAny()</a>, <a class="el" href="classEUtility.html#a8df7cc94aed8b0280efa09fc7e17da50">lastIndexOfAny()</a>, <a class="el" href="classEUtility.html#a866fd3da386083d3b0a822cf674490e3">split()</a>, <a class="el" href="classEUtility.html#a06d09ed5c6f844c0244ce1d6fcc68e1b">replaceAll()</a>, <a class="el" href="classEUtility.html#a8d4c5289980107c5622b29078db7b54a">replaceAllCopy()</a>, <a class="el" href="classEUtility.html#a20e1f771586bfe809ef2fe6582fcbb05">string_format()</a>, <a class="el" href="classEUtility.html#a9a5a99531cd26237a7adb16dd95f4f49">copy_file()</a>, <a class="el" href="classEUtility.html#a3bf11be84572d26a3747446707fc075d">delete_file()</a>, <a class="el" href="classEUtility.html#a3f7d8c79a89f3694018a5f6f9bb7ced0">file_exists()</a>, <a class="el" href="classEUtility.html#a4edb2b40da4ccde3f06253b4294b21e2">currentTime()</a>.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classETime.html">ETime</a>  </td><td class="markdownTableBodyLeft">Used for storing and manipulating the date and time.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classETimer.html">ETimer</a>  </td><td class="markdownTableBodyLeft">A stopwatch like timer that can measure durations in milliseconds or microseconds.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classEPath.html">EPath</a>  </td><td class="markdownTableBodyLeft">A class for manipulating file and directory names.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classEDirectory.html">EDirectory</a>  </td><td class="markdownTableBodyLeft">A class for accessing files in a directory.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classEError.html">EError</a>  </td><td class="markdownTableBodyLeft">An exception object that extends std::exception.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classEHash.html">EHash</a>  </td><td class="markdownTableBodyLeft">Calculates a hash value for a string or byte array.   </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><a class="el" href="classEBzip2.html">EBzip2</a>  </td><td class="markdownTableBodyLeft">Writes and reads bzip compressed files.   </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><a class="el" href="classECircularBuffer.html">ECircularBuffer</a>  </td><td class="markdownTableBodyLeft">Implements a thread safe circular buffer over a byte array.   </td></tr>
+</table>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 <div class="ttc" id="aclassEThreadEventTimer_html"><div class="ttname"><a href="classEThreadEventTimer.html">EThreadEventTimer</a></div><div class="ttdoc">Thread timer class.</div><div class="ttdef"><b>Definition:</b> etevent.h:852</div></div>
+<div class="ttc" id="aclassEManagementEndpoint_html"><div class="ttname"><a href="classEManagementEndpoint.html">EManagementEndpoint</a></div><div class="ttdoc">Implemts the HTTP server endpoint.</div><div class="ttdef"><b>Definition:</b> emgmt.h:130</div></div>
 <div class="ttc" id="aclassEThreadEvent_html_a3003651d73c57459305d073e0f1ad389"><div class="ttname"><a href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">EThreadEvent::onInit</a></div><div class="ttdeci">virtual Void onInit()</div><div class="ttdoc">Called in the context of the thread when the EM_INIT event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1182</div></div>
 <div class="ttc" id="aclassEGetOpt_html_ae8a83370799c1a12d423360b34486aa5a4c5bbfa8ae59b10e28b648eaf3039265"><div class="ttname"><a href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5a4c5bbfa8ae59b10e28b648eaf3039265">EGetOpt::dtString</a></div><div class="ttdoc">string</div><div class="ttdef"><b>Definition:</b> egetopt.h:51</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a230c9b28843f770b7cbe41c573516603"><div class="ttname"><a href="classEThreadEventMessageBase.html#a230c9b28843f770b7cbe41c573516603">EThreadEventMessageBase::data</a></div><div class="ttdeci">T &amp; data()</div><div class="ttdoc">Retrieves the data portion of the message.</div><div class="ttdef"><b>Definition:</b> etevent.h:233</div></div>
 <div class="ttc" id="aclassEThreadQueuePublic_html"><div class="ttname"><a href="classEThreadQueuePublic.html">EThreadQueuePublic</a></div><div class="ttdoc">Definition of a public event thread message queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:566</div></div>
 <div class="ttc" id="aclassESocket_1_1Thread_html"><div class="ttname"><a href="classESocket_1_1Thread.html">ESocket::Thread</a></div><div class="ttdoc">The socket thread base class. An event based thread class capable of surfacing socket events.</div><div class="ttdef"><b>Definition:</b> esocket.h:1440</div></div>
 <div class="ttc" id="aclassELogger_html_a22fb57bad0e9b0ead993bf7dfb3d3968a1f0f01a3b5937718bea0102b7048dd26"><div class="ttname"><a href="classELogger.html#a22fb57bad0e9b0ead993bf7dfb3d3968a1f0f01a3b5937718bea0102b7048dd26">ELogger::eDebug</a></div><div class="ttdoc">Debug.</div><div class="ttdef"><b>Definition:</b> elogger.h:87</div></div>
+<div class="ttc" id="aclassEStatistics_html_af0c90a6321515dc102a560fea68e2201adbc0c5628e752a4d82ae813db26ddccd"><div class="ttname"><a href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201adbc0c5628e752a4d82ae813db26ddccd">EStatistics::ProtocolType::gtpv2c</a></div></div>
 <div class="ttc" id="aclassETimer_html_a83ddc450e6e02c4528c967ac07f0c155"><div class="ttname"><a href="classETimer.html#a83ddc450e6e02c4528c967ac07f0c155">ETimer::MilliSeconds</a></div><div class="ttdeci">epctime_t MilliSeconds(Bool bRestart=False)</div><div class="ttdoc">Retrieves the current value of the timer in milliseconds.</div><div class="ttdef"><b>Definition:</b> etimer.cpp:81</div></div>
 <div class="ttc" id="aclassEThreadBasic_html_a2af11d0367222ca518151c21f543a6ec"><div class="ttname"><a href="classEThreadBasic.html#a2af11d0367222ca518151c21f543a6ec">EThreadBasic::threadProc</a></div><div class="ttdeci">virtual Dword threadProc(pVoid arg)=0</div><div class="ttdoc">Function that will be called in a separate thread.</div></div>
 <div class="ttc" id="aclassELogger_html_a22fb57bad0e9b0ead993bf7dfb3d3968a70c3ea4d2caebd12b06270bb858acb61"><div class="ttname"><a href="classELogger.html#a22fb57bad0e9b0ead993bf7dfb3d3968a70c3ea4d2caebd12b06270bb858acb61">ELogger::eStartup</a></div><div class="ttdoc">Startup.</div><div class="ttdef"><b>Definition:</b> elogger.h:91</div></div>
@@ -1924,6 +2038,7 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassETimer_html"><div class="ttname"><a href="classETimer.html">ETimer</a></div><div class="ttdoc">Implements a stopwatch style timer.</div><div class="ttdef"><b>Definition:</b> etimer.h:26</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html_a2f9b721b8075770566ca000626d2f03f"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html#a2f9b721b8075770566ca000626d2f03f">ESocket::TCP::Listener::onClose</a></div><div class="ttdeci">virtual Void onClose()</div><div class="ttdoc">Called when this socket is closed.</div><div class="ttdef"><b>Definition:</b> esocket.h:1033</div></div>
 <div class="ttc" id="aclassESharedMemory_html_affda2d92d4ba4506b196d7c266b777ad"><div class="ttname"><a href="classESharedMemory.html#affda2d92d4ba4506b196d7c266b777ad">ESharedMemory::getDataPtr</a></div><div class="ttdeci">pVoid getDataPtr()</div><div class="ttdoc">Retrieves a pointer to the first location of the shated memory.</div><div class="ttdef"><b>Definition:</b> eshmem.h:65</div></div>
+<div class="ttc" id="aclassELogger_html"><div class="ttname"><a href="classELogger.html">ELogger</a></div><div class="ttdoc">Defines a logger.</div><div class="ttdef"><b>Definition:</b> elogger.h:78</div></div>
 <div class="ttc" id="aclassEUtility_html_a3f7d8c79a89f3694018a5f6f9bb7ced0"><div class="ttname"><a href="classEUtility.html#a3f7d8c79a89f3694018a5f6f9bb7ced0">EUtility::file_exists</a></div><div class="ttdeci">static Bool file_exists(cpStr fn)</div><div class="ttdoc">Determines if the supplied file exists.</div><div class="ttdef"><b>Definition:</b> eutil.h:102</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_aaf7cb01536df66dcf51bb34db1a4dd69"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#aaf7cb01536df66dcf51bb34db1a4dd69">ESocket::TCP::Talker::write</a></div><div class="ttdeci">Void write(pUChar src, Int len)</div><div class="ttdoc">Writes data to the socket. This is a thread safe method.</div><div class="ttdef"><b>Definition:</b> esocket.h:706</div></div>
 <div class="ttc" id="aclassESharedMemory_html_ad231d66f0e4d22240690008d6131cff7"><div class="ttname"><a href="classESharedMemory.html#ad231d66f0e4d22240690008d6131cff7">ESharedMemory::init</a></div><div class="ttdeci">Void init(cpStr file, Int id, Int size)</div><div class="ttdoc">Initializes this shared memory object. This method is called by the parameterized constructor.</div><div class="ttdef"><b>Definition:</b> eshmem.cpp:109</div></div>
@@ -1935,6 +2050,7 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassEThreadEventTimer_html_a6c65cb3297ebc6b37d0aaf8b38445ece"><div class="ttname"><a href="classEThreadEventTimer.html#a6c65cb3297ebc6b37d0aaf8b38445ece">EThreadEventTimer::setOneShot</a></div><div class="ttdeci">Void setOneShot(Bool oneshot)</div><div class="ttdoc">sets the type of timer</div><div class="ttdef"><b>Definition:</b> etevent.h:969</div></div>
 <div class="ttc" id="aclassELogger_html_a1c628d5920ebdcc9593ac1413be45a94"><div class="ttname"><a href="classELogger.html#a1c628d5920ebdcc9593ac1413be45a94">ELogger::createSinkSet</a></div><div class="ttdeci">static ELoggerSinkSet &amp; createSinkSet(Int sinkid)</div><div class="ttdoc">Manually creates a sink set.</div><div class="ttdef"><b>Definition:</b> elogger.cpp:291</div></div>
 <div class="ttc" id="aclassESocket_1_1UDP_html_abb7c08416e17e054fdb1c2af9f18e54c"><div class="ttname"><a href="classESocket_1_1UDP.html#abb7c08416e17e054fdb1c2af9f18e54c">ESocket::UDP::write</a></div><div class="ttdeci">Void write(const Address &amp;to, pVoid src, Int len)</div><div class="ttdoc">Sends data to the specified recipient address.</div><div class="ttdef"><b>Definition:</b> esocket.h:1195</div></div>
+<div class="ttc" id="aclassEStatistics_html_a001deafe916c830bd1c01994af35f4c1"><div class="ttname"><a href="classEStatistics.html#a001deafe916c830bd1c01994af35f4c1">EStatistics::getInterfaces</a></div><div class="ttdeci">static InterfaceMap &amp; getInterfaces()</div><div class="ttdoc">Retrieves the interface collection.</div><div class="ttdef"><b>Definition:</b> estats.h:520</div></div>
 <div class="ttc" id="aclassEGetOpt_html_ae8a83370799c1a12d423360b34486aa5aaef316de10f5737160a30a8a02f8211c"><div class="ttname"><a href="classEGetOpt.html#ae8a83370799c1a12d423360b34486aa5aaef316de10f5737160a30a8a02f8211c">EGetOpt::dtBool</a></div><div class="ttdoc">boolean</div><div class="ttdef"><b>Definition:</b> egetopt.h:63</div></div>
 <div class="ttc" id="aclassEGetOpt_html_a6158a901a426b724a2990a7f70d89c82"><div class="ttname"><a href="classEGetOpt.html#a6158a901a426b724a2990a7f70d89c82">EGetOpt::get</a></div><div class="ttdeci">Long get(cpStr path, Long def) const</div><div class="ttdoc">Returns the value of the specified configuration value as a 32-bit integer.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:455</div></div>
 <div class="ttc" id="aclassERDLock_html"><div class="ttname"><a href="classERDLock.html">ERDLock</a></div><div class="ttdoc">Request a read lock for the specified read-write lock object.</div><div class="ttdef"><b>Definition:</b> esynch.h:535</div></div>
@@ -1945,8 +2061,10 @@ Circular Buffer</h3>
 <div class="ttc" id="aclassETime_html_a7c794038cc4ca2f0c9cffbf9e5a2bbee"><div class="ttname"><a href="classETime.html#a7c794038cc4ca2f0c9cffbf9e5a2bbee">ETime::Format</a></div><div class="ttdeci">Void Format(EString &amp;dest, cpStr fmt, Bool local)</div><div class="ttdoc">Formats the date/time value as specified by the format string.</div><div class="ttdef"><b>Definition:</b> etime.cpp:1158</div></div>
 <div class="ttc" id="aclassELogger_html_a94a47d71f929233a7100d573732e3cd9"><div class="ttname"><a href="classELogger.html#a94a47d71f929233a7100d573732e3cd9">ELogger::log</a></div><div class="ttdeci">static ELogger &amp; log(Int logid)</div><div class="ttdoc">Retrieves the requested ELogger object.</div><div class="ttdef"><b>Definition:</b> elogger.h:135</div></div>
 <div class="ttc" id="aclassDNS_1_1Cache_html_a1c685ea7cbf5b8ab60e7223a21e087ae"><div class="ttname"><a href="classDNS_1_1Cache.html#a1c685ea7cbf5b8ab60e7223a21e087ae">DNS::Cache::addNamedServer</a></div><div class="ttdeci">Void addNamedServer(const char *address, int udp_port=53, int tcp_port=53)</div><div class="ttdoc">Adds a named server to this DNS cache object.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:451</div></div>
+<div class="ttc" id="aclassEManagementHandler_html_a4ffb3842d986ccfe8f076844872d93c7"><div class="ttname"><a href="classEManagementHandler.html#a4ffb3842d986ccfe8f076844872d93c7">EManagementHandler::process</a></div><div class="ttdeci">virtual Void process(const Pistache::Http::Request &amp;request, Pistache::Http::ResponseWriter &amp;response)=0</div><div class="ttdoc">Pure virtual method that will be called by handler() to perform the processing.</div></div>
 <div class="ttc" id="aclassDNS_1_1Cache_html_ae81c17af7bc8660d5e3bc56b526fce8e"><div class="ttname"><a href="classDNS_1_1Cache.html#ae81c17af7bc8660d5e3bc56b526fce8e">DNS::Cache::query</a></div><div class="ttdeci">QueryPtr query(ns_type rtype, const std::string &amp;domain, Bool &amp;cacheHit, Bool ignorecache=false)</div><div class="ttdoc">Performs a DNS query synchronously.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:466</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_ac5052fac32b4e46a1d0fec4afeb5fcb6"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#ac5052fac32b4e46a1d0fec4afeb5fcb6">ESocket::TCP::Talker::~Talker</a></div><div class="ttdeci">virtual ~Talker()</div><div class="ttdoc">Class destrucor.</div><div class="ttdef"><b>Definition:</b> esocket.h:557</div></div>
+<div class="ttc" id="aclassEStatistics_html_afea33d5e78dd724f073b66b8d0913abf"><div class="ttname"><a href="classEStatistics.html#afea33d5e78dd724f073b66b8d0913abf">EStatistics::reset</a></div><div class="ttdeci">static Void reset()</div><div class="ttdoc">Sets the message counters to zero for all interfaces, peers and messages.</div><div class="ttdef"><b>Definition:</b> estats.cpp:42</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_af8b8e2fc6259ff340b5b274105ac9060"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#af8b8e2fc6259ff340b5b274105ac9060">ESocket::TCP::Talker::bytesPending</a></div><div class="ttdeci">Int bytesPending()</div><div class="ttdoc">Retrieves the number of bytes in the receive buffer.</div><div class="ttdef"><b>Definition:</b> esocket.h:682</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html"><div class="ttname"><a href="classEThreadEventMessageDataBase.html">EThreadEventMessageDataBase</a></div><div class="ttdoc">The base class that all event message data objects should be derived from.</div><div class="ttdef"><b>Definition:</b> etevent.h:56</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Talker_html_aa2ee361ebd7638ae4a2c2a3c1dc44f39"><div class="ttname"><a href="classESocket_1_1TCP_1_1Talker.html#aa2ee361ebd7638ae4a2c2a3c1dc44f39">ESocket::TCP::Talker::onReceive</a></div><div class="ttdeci">virtual Void onReceive()</div><div class="ttdoc">Called when data has been received.</div><div class="ttdef"><b>Definition:</b> esocket.h:742</div></div>
@@ -1961,12 +2079,15 @@ Circular Buffer</h3>
 <div class="ttc" id="aetevent_8h_html_ae52a1e808bcf6220acbef40e8351b8e7"><div class="ttname"><a href="etevent_8h.html#ae52a1e808bcf6220acbef40e8351b8e7">END_MESSAGE_MAP</a></div><div class="ttdeci">#define END_MESSAGE_MAP()</div><div class="ttdoc">Ends the message map declaration.</div><div class="ttdef"><b>Definition:</b> etevent.h:822</div></div>
 <div class="ttc" id="aetevent_8h_html_a3e0395c0f948348673c39d06c8bd12bf"><div class="ttname"><a href="etevent_8h.html#a3e0395c0f948348673c39d06c8bd12bf">DECLARE_MESSAGE_MAP</a></div><div class="ttdeci">#define DECLARE_MESSAGE_MAP()</div><div class="ttdoc">Inserts message map declarations into the thread class.</div><div class="ttdef"><b>Definition:</b> etevent.h:793</div></div>
 <div class="ttc" id="aclassDNS_1_1Cache_html_a3e0464482d38ff888e59abfd4efd1580"><div class="ttname"><a href="classDNS_1_1Cache.html#a3e0464482d38ff888e59abfd4efd1580">DNS::Cache::loadQueries</a></div><div class="ttdeci">Void loadQueries(const char *qfn)</div><div class="ttdoc">Executes the DNS queries at startup from the suppoied file.</div><div class="ttdef"><b>Definition:</b> dnscache.cpp:503</div></div>
+<div class="ttc" id="aclassEStatistics_html_af0c90a6321515dc102a560fea68e2201ad1a0426a844b462d4c0af2928bee64c2"><div class="ttname"><a href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201ad1a0426a844b462d4c0af2928bee64c2">EStatistics::ProtocolType::gtpv1u</a></div></div>
+<div class="ttc" id="aclassEManagementHandler_html"><div class="ttname"><a href="classEManagementHandler.html">EManagementHandler</a></div><div class="ttdoc">Pure virtual base class for an administrative management interface handler.</div><div class="ttdef"><b>Definition:</b> emgmt.h:70</div></div>
 <div class="ttc" id="aclassDNS_1_1Cache_html_ae2be30116662b904388fc43bf89e0ca0"><div class="ttname"><a href="classDNS_1_1Cache.html#ae2be30116662b904388fc43bf89e0ca0">DNS::Cache::setRefreshConcurrent</a></div><div class="ttdeci">static unsigned int setRefreshConcurrent(unsigned int concur)</div><div class="ttdoc">Sets the maximum number of conncurrent DNS queries that can be performed while refreshing the DNS cac...</div><div class="ttdef"><b>Definition:</b> dnscache.h:212</div></div>
 <div class="ttc" id="aclassEString_html_a320dce9f0bdcbf80118db0d623e176e1"><div class="ttname"><a href="classEString.html#a320dce9f0bdcbf80118db0d623e176e1">EString::format</a></div><div class="ttdeci">EString &amp; format(cpChar pszFormat,...)</div><div class="ttdoc">Sets the value to the string using a &quot;printf&quot; style format string and arguments.</div><div class="ttdef"><b>Definition:</b> estring.cpp:38</div></div>
 <div class="ttc" id="aclassESocket_1_1Base_html_ab9d8e6493e00ee44723d9e62a879052c"><div class="ttname"><a href="classESocket_1_1Base.html#ab9d8e6493e00ee44723d9e62a879052c">ESocket::Base::getThread</a></div><div class="ttdeci">Thread&lt; TQueue, TMessage &gt; &amp; getThread()</div><div class="ttdoc">Retrieves the socket thread that this socket is associated with.</div><div class="ttdef"><b>Definition:</b> esocket.h:333</div></div>
 <div class="ttc" id="aclassESocket_1_1TCP_1_1Listener_html_a1477b6dd6c8da334612db807d9c22f75"><div class="ttname"><a href="classESocket_1_1TCP_1_1Listener.html#a1477b6dd6c8da334612db807d9c22f75">ESocket::TCP::Listener::onError</a></div><div class="ttdeci">virtual Void onError()</div><div class="ttdoc">Called when an error is detected on this socket.</div><div class="ttdef"><b>Definition:</b> esocket.h:1039</div></div>
 <div class="ttc" id="aclassEString_html"><div class="ttname"><a href="classEString.html">EString</a></div><div class="ttdoc">String class.</div><div class="ttdef"><b>Definition:</b> estring.h:30</div></div>
 <div class="ttc" id="anamespaceEPCDNS_html_a9342407c49fe0b6a9612fed8e51f2d90ac0af35cebaee6964f6635f8b50f6bdfb"><div class="ttname"><a href="namespaceEPCDNS.html#a9342407c49fe0b6a9612fed8e51f2d90ac0af35cebaee6964f6635f8b50f6bdfb">EPCDNS::upf_x_sxa</a></div><div class="ttdoc">x-sxa</div><div class="ttdef"><b>Definition:</b> epcdns.h:298</div></div>
+<div class="ttc" id="aclassEStatistics_html_af0c90a6321515dc102a560fea68e2201a35f16dc084a53860f5cb3962107d5378"><div class="ttname"><a href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201a35f16dc084a53860f5cb3962107d5378">EStatistics::ProtocolType::diameter</a></div></div>
 <div class="ttc" id="aclassEThreadEvent_html_ad9c48af1f8f68bc7631c547ff2f31757"><div class="ttname"><a href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757">EThreadEvent::quit</a></div><div class="ttdeci">Void quit()</div><div class="ttdoc">Posts the quit message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1149</div></div>
 <div class="ttc" id="aclassEGetOpt_html_a2cdd38746dcacdf53d016a50289e24a6"><div class="ttname"><a href="classEGetOpt.html#a2cdd38746dcacdf53d016a50289e24a6">EGetOpt::loadFile</a></div><div class="ttdeci">Void loadFile(cpStr filename)</div><div class="ttdoc">Parses and loads configuration values from the specified JSON file.</div><div class="ttdef"><b>Definition:</b> egetopt.cpp:748</div></div>
 <div class="ttc" id="anamespaceESocket_1_1TCP_html_af194efe40cc3fd2948342f083b8b42e2"><div class="ttname"><a href="namespaceESocket_1_1TCP.html#af194efe40cc3fd2948342f083b8b42e2">ESocket::TCP::ListenerPrivate</a></div><div class="ttdeci">Listener&lt; EThreadQueuePrivate&lt; EThreadMessage &gt;, EThreadMessage &gt; ListenerPrivate</div><div class="ttdef"><b>Definition:</b> esocket.h:1872</div></div>
@@ -1979,6 +2100,7 @@ Circular Buffer</h3>
 <div class="ttc" id="anamespaceDNS_html_aba0490320a5daa94b1852f3eac56882e"><div class="ttname"><a href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">DNS::QueryPtr</a></div><div class="ttdeci">std::shared_ptr&lt; Query &gt; QueryPtr</div><div class="ttdoc">A typedef to std::shared_ptr&lt;Query&gt;.</div><div class="ttdef"><b>Definition:</b> dnsquery.h:40</div></div>
 <div class="ttc" id="aclassELogger_html_a16b8ce5b92cfcb542abe981e481e2b77"><div class="ttname"><a href="classELogger.html#a16b8ce5b92cfcb542abe981e481e2b77">ELogger::sinkSet</a></div><div class="ttdeci">static ELoggerSinkSet &amp; sinkSet(Int sinkid)</div><div class="ttdoc">Retrieves the requested sink set object.</div><div class="ttdef"><b>Definition:</b> elogger.h:147</div></div>
 <div class="ttc" id="anamespaceESocket_1_1TCP_html_a6ba05fd575a2c8260b8a447ca63cb2d5"><div class="ttname"><a href="namespaceESocket_1_1TCP.html#a6ba05fd575a2c8260b8a447ca63cb2d5">ESocket::TCP::TalkerPrivate</a></div><div class="ttdeci">Talker&lt; EThreadQueuePrivate&lt; EThreadMessage &gt;, EThreadMessage &gt; TalkerPrivate</div><div class="ttdef"><b>Definition:</b> esocket.h:1870</div></div>
+<div class="ttc" id="aclassEStatistics_html_af0c90a6321515dc102a560fea68e2201adb636e1622edd7e74d1c1ad3c203c67b"><div class="ttname"><a href="classEStatistics.html#af0c90a6321515dc102a560fea68e2201adb636e1622edd7e74d1c1ad3c203c67b">EStatistics::ProtocolType::pfcp</a></div></div>
 <div class="ttc" id="aclassESocket_1_1Address_html"><div class="ttname"><a href="classESocket_1_1Address.html">ESocket::Address</a></div><div class="ttdoc">Encapsulates a sockaddr_storage structure that represents a socket address.</div><div class="ttdef"><b>Definition:</b> esocket.h:143</div></div>
 <div class="ttc" id="aclassESocket_1_1UDP_html"><div class="ttname"><a href="classESocket_1_1UDP.html">ESocket::UDP</a></div><div class="ttdoc">A UDP socket class capabile of sending and receiving data.</div><div class="ttdef"><b>Definition:</b> esocket.h:1074</div></div>
 <div class="ttc" id="anamespaceEPCDNS_html_a9342407c49fe0b6a9612fed8e51f2d90a17786ffff8236112de48747dba289ba7"><div class="ttname"><a href="namespaceEPCDNS.html#a9342407c49fe0b6a9612fed8e51f2d90a17786ffff8236112de48747dba289ba7">EPCDNS::upf_x_sxb</a></div><div class="ttdoc">x-sxb</div><div class="ttdef"><b>Definition:</b> epcdns.h:300</div></div>

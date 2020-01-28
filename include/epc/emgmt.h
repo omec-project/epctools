@@ -135,7 +135,7 @@ public:
    /// @param thrds the number of threads that will process requests.
    EManagementEndpoint(uint16_t port, size_t thrds=1);
    /// @brief Class constructor.
-   /// @param addr the IP Address to listen for requests on (all IP addresses).
+   /// @param addr the IP Address to listen for requests on.
    /// @param thrds the number of threads that will process requests.
    EManagementEndpoint(Pistache::Address &addr, size_t thrds=1);
 
