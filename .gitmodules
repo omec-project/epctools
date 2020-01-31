@@ -10,9 +10,6 @@
 [submodule "modules/pistache"]
 	path = modules/pistache
 	url = https://github.com/oktal/pistache.git
-[submodule "modules/freeDiameter"]
-	path = modules/freeDiameter
-	url = https://gerrit.opencord.org/freeDiameter-old
 [submodule "modules/bzip2"]
 	path = modules/bzip2
 	url = http://sourceware.org/git/bzip2.git
