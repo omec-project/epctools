@@ -13,7 +13,7 @@ var searchData=
   ['registerhandler',['registerHandler',['../classFDApplication.html#adf2ad9cc2735535711e4d21ee12f42c4',1,'FDApplication::registerHandler()'],['../classEManagementEndpoint.html#ae20803a7bab4d8f3e283dd882fff1dcc',1,'EManagementEndpoint::registerHandler()']]],
   ['registerhook',['registerHook',['../classFDHook.html#a105342fcdd0ef3314fad090fe533c5f7',1,'FDHook']]],
   ['registersocket',['registerSocket',['../classESocket_1_1Thread.html#ad02a0bca22f362d2300f236ede2dd39f',1,'ESocket::Thread']]],
-  ['registertimer',['registerTimer',['../classETimerPool.html#ae6f25a9f27a55931811e7f2a2da33d28',1,'ETimerPool']]],
+  ['registertimer',['registerTimer',['../classETimerPool.html#adc6159dcf045147c11e90f8c09328f08',1,'ETimerPool::registerTimer(LongLong ms, _EThreadEventMessageBase *msg, _EThreadEventBase &amp;thread)'],['../classETimerPool.html#a06698e19cccef3a7088f7e4040fcce79',1,'ETimerPool::registerTimer(LongLong ms, ETimerPoolExpirationCallback func, pVoid data)']]],
   ['removeinterface',['removeInterface',['../classEStatistics.html#ad2ae265bead0425a0d03821036ab4ff9',1,'EStatistics']]],
   ['removenamedserver',['removeNamedServer',['../classDNS_1_1Cache.html#a743c947936008ce299599cbaea037a25',1,'DNS::Cache']]],
   ['removepeer',['removePeer',['../classEStatistics_1_1Interface.html#ab3dceb7162618ae6b83be5ca378cf7a3',1,'EStatistics::Interface']]],
