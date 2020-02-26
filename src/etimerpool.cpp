@@ -65,16 +65,32 @@ ETimerPool::~ETimerPool()
 {
 }
 
-ULong ETimerPool::registerTimer(LongLong ms, const _EThreadEventMessageBase &msg, _EThreadEventBase &thread)
+ULong ETimerPool::registerTimer(LongLong ms, _EThreadEventMessageBase *msg, _EThreadEventBase &thread)
 {
    EMutexLock l(m_mutex);
+   ExpirationInfo info( thread, msg );
+   ULong id = _registerTimer( ms, info );
+   info.clear();
+   return id;
+}
 
+ULong ETimerPool::registerTimer(LongLong ms, ETimerPoolExpirationCallback func, pVoid data)
+{
+   EMutexLock l(m_mutex);
+   ExpirationInfo info( func, data );
+   ULong id = _registerTimer( ms, info );
+   info.clear();
+   return id;
+}
+
+ULong ETimerPool::_registerTimer(LongLong ms, const ETimerPool::ExpirationInfo &info)
+{
    ExpirationTime et(ms, getRounding());
    ExpirationTimeEntryPtr etep;
    EntryPtr ep;
 
    // create the entry pointer
-   ep = std::make_shared<Entry>(assignNextId(), et, msg, thread);
+   ep = std::make_shared<Entry>(assignNextId(), et, info);
 
    // see if the expiration time already exists
    auto srch = m_etmap.find( et.getExpireTime() );
@@ -334,7 +350,15 @@ Void ETimerPool::Timer::stop()
 /// @cond DOXYGEN_EXCLUDE
 Void ETimerPool::Entry::notify()
 {
-   m_thread._sendMessage( m_msg );
+   switch (m_info.type)
+   {
+      case ETimerPool::ExpirationInfoType::Thread:
+         m_info.u.thrd.thread->_sendMessage( *m_info.u.thrd.msg );
+         break;
+      case ETimerPool::ExpirationInfoType::Callback:
+         (m_info.u.cb.func)( getId(), m_info.u.cb.data );
+         break;
+   }
 }
 /// @endcond
 

@@ -2334,6 +2334,11 @@ public:
    DECLARE_MESSAGE_MAP()
 };
 
+Void timerpoolcallback(ULong id, pVoid data)
+{
+   std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " - timerpoolcallback for " << id << " - data " << (int64_t)data << std::endl << std::flush;
+}
+
 BEGIN_MESSAGE_MAP(TimerPoolTestThread, EThreadPrivate)
    ON_MESSAGE(EM_TIMERPOOLTEST1, TimerPoolTestThread::userFunc1)
    ON_MESSAGE(EM_TIMERPOOLTEST2, TimerPoolTestThread::userFunc2)
@@ -2366,16 +2371,18 @@ Void timerpooltest()
 
    ETime now;
    std::cout << "Starting registrations at tv_sec=" << now.getTimeVal().tv_sec << " tv_usec=" << now.getTimeVal().tv_usec << std::endl << std::flush;
-   ULong id1 = ETimerPool::Instance().registerTimer(1000, EThreadMessage(EM_TIMERPOOLTEST1,11111111111111), t);
+   ULong id1 = ETimerPool::Instance().registerTimer(1000, new EThreadMessage(EM_TIMERPOOLTEST1,11111111111111), t);
    std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " registered timer " << id1 << " for 1000ms" << std::endl << std::flush;
    ETimerPool::Instance().dump();
-   ULong id2 = ETimerPool::Instance().registerTimer(2500, EThreadMessage(EM_TIMERPOOLTEST2,22222222222222), t);
+   ULong id2 = ETimerPool::Instance().registerTimer(2500, new EThreadMessage(EM_TIMERPOOLTEST2,22222222222222), t);
    std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " registered timer " << id2 << " for 2500ms" << std::endl << std::flush;
    ETimerPool::Instance().dump();
-   ULong id3 = ETimerPool::Instance().registerTimer(4123, EThreadMessage(EM_TIMERPOOLTEST3,33333333333333), t);
+   // ULong id3 = ETimerPool::Instance().registerTimer(4123, new EThreadMessage(EM_TIMERPOOLTEST3,33333333333333), t);
+   ULong id3 = ETimerPool::Instance().registerTimer(4123, timerpoolcallback, (pVoid)33333333333333);
    std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " registered timer " << id3 << " for 4123ms" << std::endl << std::flush;
    ETimerPool::Instance().dump();
-   ULong id4 = ETimerPool::Instance().registerTimer(1000, EThreadMessage(EM_TIMERPOOLTEST4,44444444444444), t);
+   // ULong id4 = ETimerPool::Instance().registerTimer(1000, new EThreadMessage(EM_TIMERPOOLTEST4,44444444444444), t);
+   ULong id4 = ETimerPool::Instance().registerTimer(1000, timerpoolcallback, (pVoid)44444444444444);
    std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " registered timer " << id4 << " for 1000ms" << std::endl << std::flush;
    ETimerPool::Instance().dump();
    now = ETime::Now();
@@ -2387,16 +2394,18 @@ Void timerpooltest()
 
    now = ETime::Now();
    std::cout << "Starting registrations at tv_sec=" << now.getTimeVal().tv_sec << " tv_usec=" << now.getTimeVal().tv_usec << std::endl;
-   id1 = ETimerPool::Instance().registerTimer(1000, EThreadMessage(EM_TIMERPOOLTEST1,11111111111111), t);
+   id1 = ETimerPool::Instance().registerTimer(1000, new EThreadMessage(EM_TIMERPOOLTEST1,11111111111111), t);
    std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " registered timer " << id1 << " for 1000ms" << std::endl << std::flush;
    ETimerPool::Instance().dump();
-   id2 = ETimerPool::Instance().registerTimer(2500, EThreadMessage(EM_TIMERPOOLTEST2,22222222222222), t);
+   id2 = ETimerPool::Instance().registerTimer(2500, new EThreadMessage(EM_TIMERPOOLTEST2,22222222222222), t);
    std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " registered timer " << id2 << " for 2500ms" << std::endl << std::flush;
    ETimerPool::Instance().dump();
-   id3 = ETimerPool::Instance().registerTimer(4123, EThreadMessage(EM_TIMERPOOLTEST3,33333333333333), t);
+   // id3 = ETimerPool::Instance().registerTimer(4123, new EThreadMessage(EM_TIMERPOOLTEST3,33333333333333), t);
+   id3 = ETimerPool::Instance().registerTimer(4123, timerpoolcallback, (pVoid)33333333333333);
    std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " registered timer " << id3 << " for 4123ms" << std::endl << std::flush;
    ETimerPool::Instance().dump();
-   id4 = ETimerPool::Instance().registerTimer(1000, EThreadMessage(EM_TIMERPOOLTEST4,44444444444444), t);
+   // id4 = ETimerPool::Instance().registerTimer(1000, new EThreadMessage(EM_TIMERPOOLTEST4,44444444444444), t);
+   id4 = ETimerPool::Instance().registerTimer(1000, timerpoolcallback, (pVoid)44444444444444);
    std::cout << ETime::Now().Format("%Y-%m-%d %H:%M:%S.%0", True) << " registered timer " << id4 << " for 1000ms" << std::endl << std::flush;
    ETimerPool::Instance().dump();
    now = ETime::Now();

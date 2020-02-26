@@ -31,6 +31,9 @@
 DECLARE_ERROR_ADVANCED(ETimerPoolError_CreatingTimer);
 DECLARE_ERROR_ADVANCED(ETimerPoolError_TimerSetTimeFailed);
 
+/// @brief Defines the timer expiration callback function.
+typedef Void (*ETimerPoolExpirationCallback)(ULong timerid, pVoid data);
+
 class ETimerPool
 {
 protected:
@@ -112,7 +115,13 @@ public:
    /// @param msg the thread message to post when the timer expires.
    /// @param thread the thread to post the message to when the timer expires.
    /// @return the ID for this timer.
-   ULong registerTimer(LongLong ms, const _EThreadEventMessageBase &msg, _EThreadEventBase &thread);
+   ULong registerTimer(LongLong ms, _EThreadEventMessageBase *msg, _EThreadEventBase &thread);
+   /// @brief Registers an expiration timer.
+   /// @param ms the length of the timer in milliseconds.
+   /// @param func a callback function pointer that will be called when the timer expires.
+   /// @param data a void pointer that will be included as a parameter to the expiration callback function.
+   /// @return the ID for this timer.
+   ULong registerTimer(LongLong ms, ETimerPoolExpirationCallback func, pVoid data);
    /// @brief Unregisters an expiration timer.
    /// @param timerid the ID of the timer to unregister (returned by registerTimer).
    /// @return a reference to the ETimerPool object.
@@ -212,28 +221,116 @@ protected:
    
    /////////////////////////////////////////////////////////////////////////////
 
+   enum class ExpirationInfoType
+   {
+      Unknown,
+      Callback,
+      Thread
+   };
+
+   struct ExpirationInfo
+   {
+      ExpirationInfo()
+      {
+         type = ExpirationInfoType::Unknown;
+         memset(&u, 0, sizeof(u));
+      }
+
+      ExpirationInfo(_EThreadEventBase &thread, _EThreadEventMessageBase *msg)
+      {
+         type = ExpirationInfoType::Thread;
+         u.thrd.thread = &thread;
+         u.thrd.msg = msg;
+      }
+
+      ExpirationInfo(ETimerPoolExpirationCallback func, pVoid data)
+      {
+         type = ExpirationInfoType::Callback;
+         u.cb.func = func;
+         u.cb.data = data;
+      }
+
+      ExpirationInfo(const ExpirationInfo &src)
+      {
+         *this = src;
+      }
+
+      ~ExpirationInfo()
+      {
+         switch (type)
+         {
+            case ExpirationInfoType::Thread:
+               if (u.thrd.msg)
+                  delete u.thrd.msg;
+               break;
+            case ExpirationInfoType::Callback:
+               break;
+         }
+      }
+
+      ExpirationInfo &operator=(const ExpirationInfo &info)
+      {
+         type = info.type;
+         switch (type)
+         {
+            case ExpirationInfoType::Thread:
+               u.thrd.thread = info.u.thrd.thread;
+               u.thrd.msg = info.u.thrd.msg;
+               break;
+            case ExpirationInfoType::Callback:
+               u.cb.func = info.u.cb.func;
+               u.cb.data = info.u.cb.data;
+               break;
+            default:
+               memcpy(&u, &info.u, sizeof(u));
+               break;
+         }
+
+         return *this;
+      }
+
+      ExpirationInfo &clear()
+      {
+         type = ExpirationInfoType::Unknown;
+         memset(&u, 0, sizeof(u));
+         return *this;
+      }
+
+      ExpirationInfoType type;
+      union ExpirationInfoUnion
+      {
+         struct
+         {
+            _EThreadEventBase *thread;
+            _EThreadEventMessageBase *msg;
+         } thrd;
+         struct
+         {
+            ETimerPoolExpirationCallback func;
+            pVoid data;
+         } cb;         
+      } u;
+   };
+   
    class Entry
    {
    public:
-      Entry(ULong id, ExpirationTime &exptm, const _EThreadEventMessageBase &msg, _EThreadEventBase &thread)
+      Entry(ULong id, ExpirationTime &exptm, const ExpirationInfo &info)
          : m_id( id ),
            m_exptm( exptm ),
-           m_msg( msg ),
-           m_thread( thread )
+           m_info( info )
       {
       }
       Entry(const Entry &e)
          : m_id( e.m_id ),
            m_exptm( e.m_exptm ),
-           m_msg( e.m_msg ),
-           m_thread( e.m_thread )
+           m_info( e.m_info )
       {
       }
 
-      ULong getId()                                { return m_id; }
-      const _EThreadEventMessageBase &getMessage() { return m_msg; }
-      _EThreadEventBase &getThread()               { return m_thread; }
-      ExpirationTime &getExpirationTime()          { return m_exptm; }
+      ULong getId()                       { return m_id; }
+      ExpirationInfo &getExpirationInfo() { return m_info; }
+      ExpirationTime &getExpirationTime() { return m_exptm; }
 
       Void notify();
 
@@ -242,8 +339,7 @@ protected:
 
       ULong m_id;
       ExpirationTime m_exptm;
-      _EThreadEventMessageBase m_msg;
-      _EThreadEventBase &m_thread;
+      ExpirationInfo m_info;
    };
 
    class ExpirationTimeEntry
@@ -339,6 +435,7 @@ protected:
 private:
    static ETimerPool *m_instance;
 
+   ULong _registerTimer(LongLong ms, const ETimerPool::ExpirationInfo &info);
    ULong assignNextId();
    ETimerPool &removeExpirationTimeEntry(ETimerPool::ExpirationTimeEntryPtr &etep);
 
