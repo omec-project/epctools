@@ -115,23 +115,20 @@ cpStr EDirectory::getFirstEntry(cpStr pDirectory, cpStr pFileMask)
 
 cpStr EDirectory::getNextEntry()
 {
-   struct dirent de;
    struct dirent *pde;
    cpStr pMask = mFileMask.c_str();
 
    while (True)
    {
-      Int result = readdir_r(mHandle, &de, &pde);
-      if (result)
-         throw EDirectoryError_GetNextEntry(result);
+      pde = readdir(mHandle);
       if (!pde)
       {
          mFileName = "";
          break;
       }
-      if (match(de.d_name, pMask))
+      if (match(pde->d_name, pMask))
       {
-         mFileName = de.d_name;
+         mFileName = pde->d_name;
          break;
       }
    }
