@@ -836,6 +836,7 @@ class _EThreadEventBase
 public:
    virtual Bool _sendMessage(const _EThreadEventMessageBase &msg, Bool wait = True)
    {
+      return False;
    }
    virtual Void _destroyMessage(_EThreadEventMessageBase *msg)
    {

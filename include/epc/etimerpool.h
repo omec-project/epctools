@@ -395,6 +395,8 @@ protected:
             // remove the entry
             it = m_map.erase( it );
          }
+
+	 return *this;
       }
 
    private:
