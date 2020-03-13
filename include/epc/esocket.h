@@ -1656,7 +1656,13 @@ namespace ESocket
 
       static const typename EThreadEvent<TQueue,TMessage>::msgmap_t *GetThisMessageMap()
       {
-         return NULL;
+         static const typename EThreadEvent<TQueue,TMessage>::msgentry_t _msgEntries[] =
+         {
+            {0, (typename EThreadEvent<TQueue,TMessage>::msgfxn_t)NULL}
+         };
+         static const typename EThreadEvent<TQueue,TMessage>::msgmap_t msgMap =
+            {&EThreadEvent<TQueue,TMessage>::GetThisMessageMap, &_msgEntries[0]};
+         return &msgMap;
       }
       /// @endcond
 

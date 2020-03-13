@@ -1852,6 +1852,13 @@ public:
 
    Void onTimer(EThreadEventTimer *pTimer);
 
+   Void myHandler(EThreadMessage &msg)
+   {
+      std::cout << "UdpWorker::myHandler() - example event handler in socket thread" << std::endl << std::endl << std::flush;
+   }
+
+   DECLARE_MESSAGE_MAP()
+
 private:
    EString m_localip;
    UShort m_localport;
@@ -1861,6 +1868,11 @@ private:
    UdpSocket *m_socket;
    EThreadEventTimer m_timer;
 };
+
+#define EM_UDPWORKER_1 (EM_USER + 1)
+BEGIN_MESSAGE_MAP(UdpWorker, ESocket::ThreadPrivate)
+   ON_MESSAGE(EM_UDPWORKER_1, UdpWorker::myHandler)
+END_MESSAGE_MAP()
 
 class UdpSocket : public ESocket::UdpPrivate
 {
@@ -1963,6 +1975,8 @@ Void UdpWorker::onInit()
    m_timer.setOneShot(False);
    initTimer(m_timer);
    m_timer.start();
+
+   sendMessage(EThreadMessage(EM_UDPWORKER_1));
 }
 
 Void UdpWorker::onQuit()
