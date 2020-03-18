@@ -636,425 +636,426 @@ $(function() {
 <div class="line"><a name="l00836"></a><span class="lineno">  836</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00837"></a><span class="lineno"><a class="line" href="class__EThreadEventBase.html#a66dffb624164130a9b097324b69136b3">  837</a></span>&#160;   <span class="keyword">virtual</span> Bool <a class="code" href="class__EThreadEventBase.html#a66dffb624164130a9b097324b69136b3">_sendMessage</a>(<span class="keyword">const</span> <a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> &amp;msg, Bool wait = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
 <div class="line"><a name="l00838"></a><span class="lineno">  838</span>&#160;   {</div>
-<div class="line"><a name="l00839"></a><span class="lineno">  839</span>&#160;   }</div>
-<div class="line"><a name="l00840"></a><span class="lineno"><a class="line" href="class__EThreadEventBase.html#ac3f8ea70ea9793720900c801076f3558">  840</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="class__EThreadEventBase.html#ac3f8ea70ea9793720900c801076f3558">_destroyMessage</a>(<a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *msg)</div>
-<div class="line"><a name="l00841"></a><span class="lineno">  841</span>&#160;   {</div>
-<div class="line"><a name="l00842"></a><span class="lineno">  842</span>&#160;      <span class="keyword">delete</span> msg;</div>
-<div class="line"><a name="l00843"></a><span class="lineno">  843</span>&#160;   }</div>
-<div class="line"><a name="l00844"></a><span class="lineno">  844</span>&#160;};</div>
-<div class="line"><a name="l00845"></a><span class="lineno">  845</span>&#160; </div>
-<div class="line"><a name="l00852"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html">  852</a></span>&#160;<span class="keyword">class </span><a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a> : <span class="keyword">public</span> <a class="code" href="classEStatic.html">EStatic</a></div>
-<div class="line"><a name="l00853"></a><span class="lineno">  853</span>&#160;{</div>
-<div class="line"><a name="l00854"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#ad5f72ab97d50b9fbcff4711a8a6c23ff">  854</a></span>&#160;   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classEThreadEventTimer.html#ad5f72ab97d50b9fbcff4711a8a6c23ff">EThreadEventTimerHandler</a>;</div>
-<div class="line"><a name="l00855"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#ab3fee708b871181cbbd8e30ba8661014">  855</a></span>&#160;   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TQueue, <span class="keyword">class</span> TMessage&gt; <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classEThreadEvent.html">EThreadEvent</a>;</div>
-<div class="line"><a name="l00856"></a><span class="lineno">  856</span>&#160; </div>
-<div class="line"><a name="l00858"></a><span class="lineno">  858</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00859"></a><span class="lineno">  859</span>&#160;   Void <a class="code" href="classEStatic.html#ab3947f34fddb06841dea3a79dbaeff27">init</a>(<a class="code" href="class__EThreadEventBase.html">_EThreadEventBase</a> *thread, <a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *msg)</div>
-<div class="line"><a name="l00860"></a><span class="lineno">  860</span>&#160;   {</div>
-<div class="line"><a name="l00861"></a><span class="lineno">  861</span>&#160;      m_thread = thread;</div>
-<div class="line"><a name="l00862"></a><span class="lineno">  862</span>&#160;      m_msg = msg;</div>
-<div class="line"><a name="l00863"></a><span class="lineno">  863</span>&#160; </div>
-<div class="line"><a name="l00864"></a><span class="lineno">  864</span>&#160;      <span class="keyword">struct </span>sigevent sev = {};</div>
-<div class="line"><a name="l00865"></a><span class="lineno">  865</span>&#160;      sev.sigev_notify = SIGEV_SIGNAL;</div>
-<div class="line"><a name="l00866"></a><span class="lineno">  866</span>&#160;      sev.sigev_signo = SIGRTMIN;</div>
-<div class="line"><a name="l00867"></a><span class="lineno">  867</span>&#160;      sev.sigev_value.sival_ptr = <span class="keyword">this</span>;</div>
-<div class="line"><a name="l00868"></a><span class="lineno">  868</span>&#160;      <span class="keywordflow">if</span> (timer_create(CLOCK_REALTIME, &amp;sev, &amp;m_timer) == -1)</div>
-<div class="line"><a name="l00869"></a><span class="lineno">  869</span>&#160;         <span class="keywordflow">throw</span> EThreadTimerError_UnableToInitialize();</div>
-<div class="line"><a name="l00870"></a><span class="lineno">  870</span>&#160;   }</div>
-<div class="line"><a name="l00872"></a><span class="lineno">  872</span>&#160; </div>
-<div class="line"><a name="l00873"></a><span class="lineno">  873</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00875"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a4411e3b8364be51ec52436df826d17c7">  875</a></span>&#160;   <a class="code" href="classEThreadEventTimer.html#a4411e3b8364be51ec52436df826d17c7">EThreadEventTimer</a>()</div>
-<div class="line"><a name="l00876"></a><span class="lineno">  876</span>&#160;   {</div>
-<div class="line"><a name="l00877"></a><span class="lineno">  877</span>&#160;      <span class="comment">// assign the id</span></div>
-<div class="line"><a name="l00878"></a><span class="lineno">  878</span>&#160;      m_id = <a class="code" href="eatomic_8h.html#a9ad8c41fa90cf160f025c573812e7071">atomic_inc</a>(m_nextid);</div>
-<div class="line"><a name="l00879"></a><span class="lineno">  879</span>&#160;      m_thread = NULL;</div>
-<div class="line"><a name="l00880"></a><span class="lineno">  880</span>&#160;      m_msg = NULL;</div>
-<div class="line"><a name="l00881"></a><span class="lineno">  881</span>&#160;      m_interval = 0;</div>
-<div class="line"><a name="l00882"></a><span class="lineno">  882</span>&#160;      m_oneshot = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>;</div>
-<div class="line"><a name="l00883"></a><span class="lineno">  883</span>&#160;      m_timer = NULL;</div>
-<div class="line"><a name="l00884"></a><span class="lineno">  884</span>&#160;   }</div>
-<div class="line"><a name="l00890"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#aef23da9557897000b797a9a98b7fee72">  890</a></span>&#160;   <a class="code" href="classEThreadEventTimer.html#aef23da9557897000b797a9a98b7fee72">EThreadEventTimer</a>(Long milliseconds, Bool oneshot = <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>)</div>
-<div class="line"><a name="l00891"></a><span class="lineno">  891</span>&#160;   {</div>
-<div class="line"><a name="l00892"></a><span class="lineno">  892</span>&#160;      <span class="comment">// assign the id</span></div>
-<div class="line"><a name="l00893"></a><span class="lineno">  893</span>&#160;      m_id = <a class="code" href="eatomic_8h.html#a9ad8c41fa90cf160f025c573812e7071">atomic_inc</a>(m_nextid);</div>
-<div class="line"><a name="l00894"></a><span class="lineno">  894</span>&#160;      m_thread = NULL;</div>
-<div class="line"><a name="l00895"></a><span class="lineno">  895</span>&#160;      m_msg = NULL;</div>
-<div class="line"><a name="l00896"></a><span class="lineno">  896</span>&#160;      m_interval = milliseconds;</div>
-<div class="line"><a name="l00897"></a><span class="lineno">  897</span>&#160;      m_oneshot = oneshot;</div>
-<div class="line"><a name="l00898"></a><span class="lineno">  898</span>&#160;      m_timer = NULL;</div>
-<div class="line"><a name="l00899"></a><span class="lineno">  899</span>&#160;   }      </div>
-<div class="line"><a name="l00900"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a3c6794f2c16a6d39f258c3352fab8cb7">  900</a></span>&#160;   <a class="code" href="classEThreadEventTimer.html#a3c6794f2c16a6d39f258c3352fab8cb7">~EThreadEventTimer</a>()</div>
-<div class="line"><a name="l00901"></a><span class="lineno">  901</span>&#160;   {</div>
-<div class="line"><a name="l00902"></a><span class="lineno">  902</span>&#160;      <a class="code" href="classEThreadEventTimer.html#a54bdc9f9ea342f6664ecd79d1070fff7">destroy</a>();</div>
-<div class="line"><a name="l00903"></a><span class="lineno">  903</span>&#160;   }</div>
-<div class="line"><a name="l00909"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a54bdc9f9ea342f6664ecd79d1070fff7">  909</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#a54bdc9f9ea342f6664ecd79d1070fff7">destroy</a>()</div>
-<div class="line"><a name="l00910"></a><span class="lineno">  910</span>&#160;   {</div>
-<div class="line"><a name="l00911"></a><span class="lineno">  911</span>&#160;      <span class="keywordflow">if</span> (m_timer != NULL)</div>
-<div class="line"><a name="l00912"></a><span class="lineno">  912</span>&#160;      {</div>
-<div class="line"><a name="l00913"></a><span class="lineno">  913</span>&#160;         <a class="code" href="classEThreadEventTimer.html#a3bbf0266c29648bbb5c4d16978f3bd58">stop</a>();</div>
-<div class="line"><a name="l00914"></a><span class="lineno">  914</span>&#160;         timer_delete(m_timer);</div>
-<div class="line"><a name="l00915"></a><span class="lineno">  915</span>&#160;         m_timer = NULL;</div>
-<div class="line"><a name="l00916"></a><span class="lineno">  916</span>&#160;      }</div>
-<div class="line"><a name="l00917"></a><span class="lineno">  917</span>&#160;      <span class="keywordflow">if</span> (m_msg)</div>
-<div class="line"><a name="l00918"></a><span class="lineno">  918</span>&#160;      {</div>
-<div class="line"><a name="l00919"></a><span class="lineno">  919</span>&#160;         <span class="keywordflow">if</span> (m_thread)</div>
-<div class="line"><a name="l00920"></a><span class="lineno">  920</span>&#160;            m_thread-&gt;<a class="code" href="class__EThreadEventBase.html#ac3f8ea70ea9793720900c801076f3558">_destroyMessage</a>(m_msg);</div>
-<div class="line"><a name="l00921"></a><span class="lineno">  921</span>&#160;         <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00922"></a><span class="lineno">  922</span>&#160;            <span class="keyword">delete</span> m_msg;</div>
-<div class="line"><a name="l00923"></a><span class="lineno">  923</span>&#160;         m_msg = NULL;</div>
-<div class="line"><a name="l00924"></a><span class="lineno">  924</span>&#160;      }</div>
-<div class="line"><a name="l00925"></a><span class="lineno">  925</span>&#160;      m_thread = NULL;</div>
-<div class="line"><a name="l00926"></a><span class="lineno">  926</span>&#160;   }</div>
-<div class="line"><a name="l00932"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#afe96e27e5031ae396f1f66160fb9e0ad">  932</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#afe96e27e5031ae396f1f66160fb9e0ad">start</a>()</div>
-<div class="line"><a name="l00933"></a><span class="lineno">  933</span>&#160;   {</div>
-<div class="line"><a name="l00934"></a><span class="lineno">  934</span>&#160;      <span class="keywordflow">if</span> (m_timer == NULL)</div>
-<div class="line"><a name="l00935"></a><span class="lineno">  935</span>&#160;         <span class="keywordflow">throw</span> EThreadTimerError_NotInitialized();</div>
-<div class="line"><a name="l00936"></a><span class="lineno">  936</span>&#160; </div>
-<div class="line"><a name="l00937"></a><span class="lineno">  937</span>&#160;      <span class="keyword">struct </span>itimerspec its;</div>
-<div class="line"><a name="l00938"></a><span class="lineno">  938</span>&#160;      its.it_value.tv_sec = m_interval / 1000;              <span class="comment">// seconds</span></div>
-<div class="line"><a name="l00939"></a><span class="lineno">  939</span>&#160;      its.it_value.tv_nsec = (m_interval % 1000) * 1000000; <span class="comment">// nano-seconds</span></div>
-<div class="line"><a name="l00940"></a><span class="lineno">  940</span>&#160;      its.it_interval.tv_sec = m_oneshot ? 0 : its.it_value.tv_sec;</div>
-<div class="line"><a name="l00941"></a><span class="lineno">  941</span>&#160;      its.it_interval.tv_nsec = m_oneshot ? 0 : its.it_value.tv_nsec;</div>
-<div class="line"><a name="l00942"></a><span class="lineno">  942</span>&#160;      <span class="keywordflow">if</span> (timer_settime(m_timer, 0, &amp;its, NULL) == -1)</div>
-<div class="line"><a name="l00943"></a><span class="lineno">  943</span>&#160;         <span class="keywordflow">throw</span> EThreadTimerError_UnableToStart();</div>
-<div class="line"><a name="l00944"></a><span class="lineno">  944</span>&#160;   }</div>
-<div class="line"><a name="l00946"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a3bbf0266c29648bbb5c4d16978f3bd58">  946</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#a3bbf0266c29648bbb5c4d16978f3bd58">stop</a>()</div>
-<div class="line"><a name="l00947"></a><span class="lineno">  947</span>&#160;   {</div>
-<div class="line"><a name="l00948"></a><span class="lineno">  948</span>&#160;      <span class="keywordflow">if</span> (m_timer != NULL)</div>
-<div class="line"><a name="l00949"></a><span class="lineno">  949</span>&#160;      {</div>
-<div class="line"><a name="l00950"></a><span class="lineno">  950</span>&#160;         <span class="keyword">struct </span>itimerspec its;</div>
-<div class="line"><a name="l00951"></a><span class="lineno">  951</span>&#160;         its.it_value.tv_sec = 0;  <span class="comment">// seconds</span></div>
-<div class="line"><a name="l00952"></a><span class="lineno">  952</span>&#160;         its.it_value.tv_nsec = 0; <span class="comment">// nano-seconds</span></div>
-<div class="line"><a name="l00953"></a><span class="lineno">  953</span>&#160;         its.it_interval.tv_sec = its.it_value.tv_sec;</div>
-<div class="line"><a name="l00954"></a><span class="lineno">  954</span>&#160;         its.it_interval.tv_nsec = its.it_value.tv_nsec;</div>
-<div class="line"><a name="l00955"></a><span class="lineno">  955</span>&#160;         timer_settime(m_timer, 0, &amp;its, NULL);</div>
-<div class="line"><a name="l00956"></a><span class="lineno">  956</span>&#160;      }</div>
-<div class="line"><a name="l00957"></a><span class="lineno">  957</span>&#160;   }</div>
-<div class="line"><a name="l00959"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a0167846e1333014011df17ffd326cecc">  959</a></span>&#160;   Long <a class="code" href="classEThreadEventTimer.html#a0167846e1333014011df17ffd326cecc">getInterval</a>() { <span class="keywordflow">return</span> m_interval; }</div>
-<div class="line"><a name="l00964"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#ab95bdb5c96b1ebe5662785282584dbab">  964</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#ab95bdb5c96b1ebe5662785282584dbab">setInterval</a>(Long interval) { m_interval = interval; }</div>
-<div class="line"><a name="l00969"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a6c65cb3297ebc6b37d0aaf8b38445ece">  969</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#a6c65cb3297ebc6b37d0aaf8b38445ece">setOneShot</a>(Bool oneshot) { m_oneshot = oneshot; }</div>
-<div class="line"><a name="l00976"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a4b28f46b10c8164212e2713976f196b1">  976</a></span>&#160;   Long <a class="code" href="classEThreadEventTimer.html#a4b28f46b10c8164212e2713976f196b1">getId</a>() { <span class="keywordflow">return</span> m_id; }</div>
-<div class="line"><a name="l00983"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#ad96b998c0429667bb6dcb23701cf9b16">  983</a></span>&#160;   Bool <a class="code" href="classEThreadEventTimer.html#ad96b998c0429667bb6dcb23701cf9b16">isInitialized</a>() { <span class="keywordflow">return</span> m_timer != NULL; }</div>
-<div class="line"><a name="l00984"></a><span class="lineno">  984</span>&#160; </div>
-<div class="line"><a name="l00985"></a><span class="lineno">  985</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00987"></a><span class="lineno">  987</span>&#160;   <span class="keyword">static</span> <span class="keywordtype">void</span> _timerHandler(<span class="keywordtype">int</span> signo, siginfo_t *pinfo, <span class="keywordtype">void</span> *pcontext)</div>
-<div class="line"><a name="l00988"></a><span class="lineno">  988</span>&#160;   {</div>
-<div class="line"><a name="l00989"></a><span class="lineno">  989</span>&#160;      <a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a> *timer = (<a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a>*)pinfo-&gt;si_value.sival_ptr;</div>
-<div class="line"><a name="l00990"></a><span class="lineno">  990</span>&#160;      if (timer)</div>
-<div class="line"><a name="l00991"></a><span class="lineno">  991</span>&#160;      {</div>
-<div class="line"><a name="l00992"></a><span class="lineno">  992</span>&#160;         timer-&gt;m_thread-&gt;<a class="code" href="class__EThreadEventBase.html#a66dffb624164130a9b097324b69136b3">_sendMessage</a>(*timer-&gt;m_msg);</div>
-<div class="line"><a name="l00993"></a><span class="lineno">  993</span>&#160;      }</div>
-<div class="line"><a name="l00994"></a><span class="lineno">  994</span>&#160;   }</div>
-<div class="line"><a name="l00996"></a><span class="lineno">  996</span>&#160; </div>
-<div class="line"><a name="l00997"></a><span class="lineno">  997</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00998"></a><span class="lineno">  998</span>&#160;   <span class="keyword">static</span> Long m_nextid;</div>
-<div class="line"><a name="l00999"></a><span class="lineno">  999</span>&#160; </div>
-<div class="line"><a name="l01000"></a><span class="lineno"> 1000</span>&#160;   Long m_id;</div>
-<div class="line"><a name="l01001"></a><span class="lineno"> 1001</span>&#160;   <a class="code" href="class__EThreadEventBase.html">_EThreadEventBase</a> *m_thread;</div>
-<div class="line"><a name="l01002"></a><span class="lineno"> 1002</span>&#160;   <a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *m_msg;</div>
-<div class="line"><a name="l01003"></a><span class="lineno"> 1003</span>&#160;   Bool m_oneshot;</div>
-<div class="line"><a name="l01004"></a><span class="lineno"> 1004</span>&#160;   Long m_interval;</div>
-<div class="line"><a name="l01005"></a><span class="lineno"> 1005</span>&#160;   timer_t m_timer;</div>
-<div class="line"><a name="l01006"></a><span class="lineno"> 1006</span>&#160;};</div>
-<div class="line"><a name="l01007"></a><span class="lineno"> 1007</span>&#160; </div>
-<div class="line"><a name="l01009"></a><span class="lineno"> 1009</span>&#160;<span class="keyword">class </span>EThreadEventTimerHandler : <a class="code" href="classEStatic.html">EStatic</a></div>
-<div class="line"><a name="l01010"></a><span class="lineno"> 1010</span>&#160;{</div>
-<div class="line"><a name="l01011"></a><span class="lineno"> 1011</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l01012"></a><span class="lineno"> 1012</span>&#160;   EThreadEventTimerHandler() {}</div>
-<div class="line"><a name="l01013"></a><span class="lineno"> 1013</span>&#160;   ~EThreadEventTimerHandler() {}</div>
-<div class="line"><a name="l01014"></a><span class="lineno"> 1014</span>&#160; </div>
-<div class="line"><a name="l01015"></a><span class="lineno"> 1015</span>&#160;   <span class="keyword">virtual</span> Int <a class="code" href="classEStatic.html#ab2b11db81892082623f89d5152015c97">getInitType</a>() { <span class="keywordflow">return</span> STATIC_INIT_TYPE_THREADS; }</div>
-<div class="line"><a name="l01016"></a><span class="lineno"> 1016</span>&#160;   Void <a class="code" href="classEStatic.html#ab3947f34fddb06841dea3a79dbaeff27">init</a>(<a class="code" href="classEGetOpt.html">EGetOpt</a> &amp;options)</div>
-<div class="line"><a name="l01017"></a><span class="lineno"> 1017</span>&#160;   {</div>
-<div class="line"><a name="l01018"></a><span class="lineno"> 1018</span>&#160;      <span class="keyword">struct </span>sigaction sa;</div>
-<div class="line"><a name="l01019"></a><span class="lineno"> 1019</span>&#160;      sa.sa_flags = SA_SIGINFO;</div>
-<div class="line"><a name="l01020"></a><span class="lineno"> 1020</span>&#160;      sa.sa_sigaction = EThreadEventTimer::_timerHandler;</div>
-<div class="line"><a name="l01021"></a><span class="lineno"> 1021</span>&#160;      sigemptyset(&amp;sa.sa_mask);</div>
-<div class="line"><a name="l01022"></a><span class="lineno"> 1022</span>&#160;      <span class="keywordtype">int</span> signo = SIGRTMIN;</div>
-<div class="line"><a name="l01023"></a><span class="lineno"> 1023</span>&#160;      <span class="keywordflow">if</span> (sigaction(signo, &amp;sa, NULL) == -1)</div>
-<div class="line"><a name="l01024"></a><span class="lineno"> 1024</span>&#160;         <span class="keywordflow">throw</span> EThreadTimerError_UnableToRegisterTimerHandler();</div>
-<div class="line"><a name="l01025"></a><span class="lineno"> 1025</span>&#160;   }</div>
-<div class="line"><a name="l01026"></a><span class="lineno"> 1026</span>&#160;   Void <a class="code" href="classEStatic.html#a5084cb094db936249865154e5a66da66">uninit</a>()</div>
-<div class="line"><a name="l01027"></a><span class="lineno"> 1027</span>&#160;   {</div>
-<div class="line"><a name="l01028"></a><span class="lineno"> 1028</span>&#160;   }</div>
-<div class="line"><a name="l01029"></a><span class="lineno"> 1029</span>&#160;};</div>
-<div class="line"><a name="l01031"></a><span class="lineno"> 1031</span>&#160; </div>
-<div class="line"><a name="l01039"></a><span class="lineno"> 1039</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> TQueue, <span class="keyword">class</span> TMessage&gt;</div>
-<div class="line"><a name="l01040"></a><span class="lineno"><a class="line" href="classEThreadEvent.html"> 1040</a></span>&#160;<span class="keyword">class </span><a class="code" href="classEThreadEvent.html">EThreadEvent</a> : <span class="keyword">public</span> <a class="code" href="classEThreadBasic.html">EThreadBasic</a>, <span class="keyword">public</span> <a class="code" href="class__EThreadEventBase.html">_EThreadEventBase</a></div>
-<div class="line"><a name="l01041"></a><span class="lineno"> 1041</span>&#160;{</div>
-<div class="line"><a name="l01042"></a><span class="lineno"> 1042</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l01044"></a><span class="lineno"> 1044</span>&#160;   <span class="keyword">typedef</span> Void (<a class="code" href="classEThreadEvent.html">EThreadEvent</a>::*msgfxn_t)(TMessage &amp;);</div>
-<div class="line"><a name="l01045"></a><span class="lineno"> 1045</span>&#160;   <span class="keyword">typedef</span> <span class="keyword">struct</span></div>
-<div class="line"><a name="l01046"></a><span class="lineno"> 1046</span>&#160;   {</div>
-<div class="line"><a name="l01047"></a><span class="lineno"> 1047</span>&#160;      UInt     nMessage; <span class="comment">// message</span></div>
-<div class="line"><a name="l01048"></a><span class="lineno"> 1048</span>&#160;      msgfxn_t pFn; <span class="comment">// routine to call (or special value)</span></div>
-<div class="line"><a name="l01049"></a><span class="lineno"> 1049</span>&#160;   } msgentry_t;</div>
-<div class="line"><a name="l01050"></a><span class="lineno"> 1050</span>&#160; </div>
-<div class="line"><a name="l01051"></a><span class="lineno"> 1051</span>&#160;   <span class="keyword">struct </span>msgmap_t</div>
-<div class="line"><a name="l01052"></a><span class="lineno"> 1052</span>&#160;   {</div>
-<div class="line"><a name="l01053"></a><span class="lineno"> 1053</span>&#160;      <span class="keyword">const</span> msgmap_t *(*pfnGetBaseMap)();</div>
-<div class="line"><a name="l01054"></a><span class="lineno"> 1054</span>&#160;      <span class="keyword">const</span> msgentry_t *lpEntries;</div>
-<div class="line"><a name="l01055"></a><span class="lineno"> 1055</span>&#160;   };</div>
-<div class="line"><a name="l01057"></a><span class="lineno"> 1057</span>&#160; </div>
-<div class="line"><a name="l01059"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a41b03009493fc1f10b8a60f112655868"> 1059</a></span>&#160;   <a class="code" href="classEThreadEvent.html#a41b03009493fc1f10b8a60f112655868">EThreadEvent</a>()</div>
-<div class="line"><a name="l01060"></a><span class="lineno"> 1060</span>&#160;      : <a class="code" href="classEThreadBasic.html">EThreadBasic</a>(),</div>
-<div class="line"><a name="l01061"></a><span class="lineno"> 1061</span>&#160;        m_tid(-1),</div>
-<div class="line"><a name="l01062"></a><span class="lineno"> 1062</span>&#160;        m_arg(NULL),</div>
-<div class="line"><a name="l01063"></a><span class="lineno"> 1063</span>&#160;        m_stacksize(0),</div>
-<div class="line"><a name="l01064"></a><span class="lineno"> 1064</span>&#160;        m_suspendCnt(0),</div>
-<div class="line"><a name="l01065"></a><span class="lineno"> 1065</span>&#160;        m_suspendSem(0)</div>
-<div class="line"><a name="l01066"></a><span class="lineno"> 1066</span>&#160;   {</div>
-<div class="line"><a name="l01067"></a><span class="lineno"> 1067</span>&#160;   }</div>
-<div class="line"><a name="l01069"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16"> 1069</a></span>&#160;   <a class="code" href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">~EThreadEvent</a>()</div>
-<div class="line"><a name="l01070"></a><span class="lineno"> 1070</span>&#160;   {</div>
-<div class="line"><a name="l01071"></a><span class="lineno"> 1071</span>&#160;   }</div>
-<div class="line"><a name="l01072"></a><span class="lineno"> 1072</span>&#160; </div>
-<div class="line"><a name="l01082"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b"> 1082</a></span>&#160;   Bool <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>(UInt message, Bool wait = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
-<div class="line"><a name="l01083"></a><span class="lineno"> 1083</span>&#160;   {</div>
-<div class="line"><a name="l01084"></a><span class="lineno"> 1084</span>&#160;      TMessage msg(message);</div>
-<div class="line"><a name="l01085"></a><span class="lineno"> 1085</span>&#160;      Bool result = m_queue.push(msg, wait);</div>
-<div class="line"><a name="l01086"></a><span class="lineno"> 1086</span>&#160;      <span class="keywordflow">if</span> (result)</div>
-<div class="line"><a name="l01087"></a><span class="lineno"> 1087</span>&#160;         <a class="code" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a>();</div>
-<div class="line"><a name="l01088"></a><span class="lineno"> 1088</span>&#160;      <span class="keywordflow">return</span> result;</div>
-<div class="line"><a name="l01089"></a><span class="lineno"> 1089</span>&#160;   }</div>
-<div class="line"><a name="l01100"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#af4f8883d8f7d39e2bdae6d2d9c3a978f"> 1100</a></span>&#160;   Bool <a class="code" href="classEThreadEvent.html#af4f8883d8f7d39e2bdae6d2d9c3a978f">sendMessage</a>(UInt message, pVoid voidptr, Bool wait = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
-<div class="line"><a name="l01101"></a><span class="lineno"> 1101</span>&#160;   {</div>
-<div class="line"><a name="l01102"></a><span class="lineno"> 1102</span>&#160;      TMessage msg(message);</div>
-<div class="line"><a name="l01103"></a><span class="lineno"> 1103</span>&#160;      msg.setVoidPtr(voidptr);</div>
-<div class="line"><a name="l01104"></a><span class="lineno"> 1104</span>&#160;      Bool result = m_queue.push(msg, wait);</div>
-<div class="line"><a name="l01105"></a><span class="lineno"> 1105</span>&#160;      <span class="keywordflow">if</span> (result)</div>
-<div class="line"><a name="l01106"></a><span class="lineno"> 1106</span>&#160;         <a class="code" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a>();</div>
-<div class="line"><a name="l01107"></a><span class="lineno"> 1107</span>&#160;      <span class="keywordflow">return</span> result;</div>
-<div class="line"><a name="l01108"></a><span class="lineno"> 1108</span>&#160;   }</div>
-<div class="line"><a name="l01117"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a137ee8f23161ffb90386e620c56b5eb5"> 1117</a></span>&#160;   Bool <a class="code" href="classEThreadEvent.html#a137ee8f23161ffb90386e620c56b5eb5">sendMessage</a>(<span class="keyword">const</span> TMessage &amp;msg, Bool wait = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
-<div class="line"><a name="l01118"></a><span class="lineno"> 1118</span>&#160;   {</div>
-<div class="line"><a name="l01119"></a><span class="lineno"> 1119</span>&#160;      Bool result = m_queue.push(msg, wait);</div>
-<div class="line"><a name="l01120"></a><span class="lineno"> 1120</span>&#160;      <span class="keywordflow">if</span> (result)</div>
-<div class="line"><a name="l01121"></a><span class="lineno"> 1121</span>&#160;         <a class="code" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a>();</div>
-<div class="line"><a name="l01122"></a><span class="lineno"> 1122</span>&#160;      <span class="keywordflow">return</span> result;</div>
-<div class="line"><a name="l01123"></a><span class="lineno"> 1123</span>&#160;   }</div>
-<div class="line"><a name="l01124"></a><span class="lineno"> 1124</span>&#160; </div>
-<div class="line"><a name="l01133"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#abd80672a331041d46982c9c7f873cdc1"> 1133</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#abd80672a331041d46982c9c7f873cdc1">init</a>(Short appId, UShort threadId, pVoid arg, Int queueSize = 16384, Bool suspended = <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>, Dword stackSize = 0)</div>
-<div class="line"><a name="l01134"></a><span class="lineno"> 1134</span>&#160;   {</div>
-<div class="line"><a name="l01135"></a><span class="lineno"> 1135</span>&#160;      m_appId = appId;</div>
-<div class="line"><a name="l01136"></a><span class="lineno"> 1136</span>&#160;      m_threadId = threadId;</div>
-<div class="line"><a name="l01137"></a><span class="lineno"> 1137</span>&#160;      m_queueSize = queueSize;</div>
-<div class="line"><a name="l01138"></a><span class="lineno"> 1138</span>&#160;      m_stacksize = stackSize;</div>
-<div class="line"><a name="l01139"></a><span class="lineno"> 1139</span>&#160; </div>
-<div class="line"><a name="l01140"></a><span class="lineno"> 1140</span>&#160;      <span class="keywordtype">long</span> <span class="keywordtype">id</span> = m_appId * 10000 + m_threadId;</div>
-<div class="line"><a name="l01141"></a><span class="lineno"> 1141</span>&#160; </div>
-<div class="line"><a name="l01142"></a><span class="lineno"> 1142</span>&#160;      m_queue.init(m_queueSize, <span class="keywordtype">id</span>, <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>, <a class="code" href="etevent_8h.html#a1a7c05eed44a6827c9ffd40fdd92fd50a70a2a84088d405a2e3f1e3accaa16723">EThreadQueueMode::ReadWrite</a>);</div>
-<div class="line"><a name="l01143"></a><span class="lineno"> 1143</span>&#160; </div>
-<div class="line"><a name="l01144"></a><span class="lineno"> 1144</span>&#160;      <span class="keywordflow">if</span> (!suspended)</div>
-<div class="line"><a name="l01145"></a><span class="lineno"> 1145</span>&#160;         <a class="code" href="classEThreadEvent.html#af9ae2e35cf18f57e7fa799c1e43a42a3">start</a>();</div>
-<div class="line"><a name="l01146"></a><span class="lineno"> 1146</span>&#160;   }</div>
-<div class="line"><a name="l01147"></a><span class="lineno"> 1147</span>&#160; </div>
-<div class="line"><a name="l01149"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757"> 1149</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757">quit</a>()</div>
-<div class="line"><a name="l01150"></a><span class="lineno"> 1150</span>&#160;   {</div>
-<div class="line"><a name="l01151"></a><span class="lineno"> 1151</span>&#160;      <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>(<a class="code" href="etevent_8h.html#a9033464dedda10c0e9518393262912a0">EM_QUIT</a>);</div>
-<div class="line"><a name="l01152"></a><span class="lineno"> 1152</span>&#160;   }</div>
-<div class="line"><a name="l01154"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#af9ae2e35cf18f57e7fa799c1e43a42a3"> 1154</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#af9ae2e35cf18f57e7fa799c1e43a42a3">start</a>()</div>
-<div class="line"><a name="l01155"></a><span class="lineno"> 1155</span>&#160;   {</div>
-<div class="line"><a name="l01156"></a><span class="lineno"> 1156</span>&#160;      <span class="keywordflow">if</span> (!<a class="code" href="classEThreadBasic.html#a0c6b0ae9e2a8c7550442efa1d589ac6c">isInitialized</a>())</div>
-<div class="line"><a name="l01157"></a><span class="lineno"> 1157</span>&#160;      {</div>
-<div class="line"><a name="l01158"></a><span class="lineno"> 1158</span>&#160;         <a class="code" href="classEThreadBasic.html#a51261a61fc5d83f67c41efd37c436a20">EThreadBasic::init</a>(m_arg, m_stacksize);</div>
-<div class="line"><a name="l01159"></a><span class="lineno"> 1159</span>&#160;         <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>(<a class="code" href="etevent_8h.html#a12a88eebdfeaddbbf3d9cdc3e45335a5">EM_INIT</a>);</div>
-<div class="line"><a name="l01160"></a><span class="lineno"> 1160</span>&#160;      }</div>
-<div class="line"><a name="l01161"></a><span class="lineno"> 1161</span>&#160;   }</div>
-<div class="line"><a name="l01170"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a951ebb6aa1c4f060e45272d1aeb80562"> 1170</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#a951ebb6aa1c4f060e45272d1aeb80562">suspend</a>()</div>
-<div class="line"><a name="l01171"></a><span class="lineno"> 1171</span>&#160;   {</div>
-<div class="line"><a name="l01172"></a><span class="lineno"> 1172</span>&#160;      <span class="keywordflow">if</span> (<a class="code" href="eatomic_8h.html#a9ad8c41fa90cf160f025c573812e7071">atomic_inc</a>(m_suspendCnt) == 1)</div>
-<div class="line"><a name="l01173"></a><span class="lineno"> 1173</span>&#160;         <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>(<a class="code" href="etevent_8h.html#a70b0f6950c221ec7091e2c42ce9e53df">EM_SUSPEND</a>);</div>
-<div class="line"><a name="l01174"></a><span class="lineno"> 1174</span>&#160;   }</div>
-<div class="line"><a name="l01176"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#aa1f46a5c4d47de47cc81899998b1f73d"> 1176</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#aa1f46a5c4d47de47cc81899998b1f73d">resume</a>()</div>
-<div class="line"><a name="l01177"></a><span class="lineno"> 1177</span>&#160;   {</div>
-<div class="line"><a name="l01178"></a><span class="lineno"> 1178</span>&#160;      <span class="keywordflow">if</span> (<a class="code" href="eatomic_8h.html#afd446c349676294a955ad8837ade6cbf">atomic_dec</a>(m_suspendCnt) == 0)</div>
-<div class="line"><a name="l01179"></a><span class="lineno"> 1179</span>&#160;         m_suspendSem.<a class="code" href="classESemaphoreBase.html#a292bce693b058f636c74c9b6eb3ba226">Increment</a>();</div>
-<div class="line"><a name="l01180"></a><span class="lineno"> 1180</span>&#160;   }</div>
-<div class="line"><a name="l01182"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389"> 1182</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">onInit</a>()</div>
-<div class="line"><a name="l01183"></a><span class="lineno"> 1183</span>&#160;   {</div>
-<div class="line"><a name="l01184"></a><span class="lineno"> 1184</span>&#160;   }</div>
-<div class="line"><a name="l01186"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e"> 1186</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">onQuit</a>()</div>
-<div class="line"><a name="l01187"></a><span class="lineno"> 1187</span>&#160;   {</div>
-<div class="line"><a name="l01188"></a><span class="lineno"> 1188</span>&#160;   }</div>
-<div class="line"><a name="l01190"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a8e005870b9f594bfea391b03030d38bd"> 1190</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#a8e005870b9f594bfea391b03030d38bd">onSuspend</a>()</div>
-<div class="line"><a name="l01191"></a><span class="lineno"> 1191</span>&#160;   {</div>
-<div class="line"><a name="l01192"></a><span class="lineno"> 1192</span>&#160;   }</div>
-<div class="line"><a name="l01197"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a"> 1197</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a">onTimer</a>(<a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a> *ptimer)</div>
-<div class="line"><a name="l01198"></a><span class="lineno"> 1198</span>&#160;   {</div>
-<div class="line"><a name="l01199"></a><span class="lineno"> 1199</span>&#160;   }</div>
-<div class="line"><a name="l01203"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#ad9dbc8444a26b5865c399f5a075daf2c"> 1203</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#ad9dbc8444a26b5865c399f5a075daf2c">initTimer</a>(<a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a> &amp;t)</div>
-<div class="line"><a name="l01204"></a><span class="lineno"> 1204</span>&#160;   {</div>
-<div class="line"><a name="l01205"></a><span class="lineno"> 1205</span>&#160;      TMessage *msg = <span class="keyword">new</span> TMessage(<a class="code" href="etevent_8h.html#a62c7f861374d2d4f3935e48f316e4077">EM_TIMER</a>);</div>
-<div class="line"><a name="l01206"></a><span class="lineno"> 1206</span>&#160;      msg-&gt;setVoidPtr(&amp;t);</div>
-<div class="line"><a name="l01207"></a><span class="lineno"> 1207</span>&#160;      t.<a class="code" href="classEStatic.html#ab3947f34fddb06841dea3a79dbaeff27">init</a>(<span class="keyword">this</span>, msg);</div>
-<div class="line"><a name="l01208"></a><span class="lineno"> 1208</span>&#160;   }</div>
-<div class="line"><a name="l01210"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a86b422b60d0271bb677e902dc6942a9d"> 1210</a></span>&#160;   <a class="code" href="classESemaphoreData.html">ESemaphoreData</a> &amp;<a class="code" href="classEThreadEvent.html#a86b422b60d0271bb677e902dc6942a9d">getMsgSemaphore</a>()</div>
-<div class="line"><a name="l01211"></a><span class="lineno"> 1211</span>&#160;   {</div>
-<div class="line"><a name="l01212"></a><span class="lineno"> 1212</span>&#160;      <span class="keywordflow">return</span> m_queue.semMsgs();</div>
-<div class="line"><a name="l01213"></a><span class="lineno"> 1213</span>&#160;   }</div>
-<div class="line"><a name="l01214"></a><span class="lineno"> 1214</span>&#160; </div>
-<div class="line"><a name="l01215"></a><span class="lineno"> 1215</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l01217"></a><span class="lineno"> 1217</span>&#160;   <span class="keyword">virtual</span> <span class="keyword">const</span> msgmap_t *GetMessageMap()<span class="keyword"> const</span></div>
-<div class="line"><a name="l01218"></a><span class="lineno"> 1218</span>&#160;<span class="keyword">   </span>{</div>
-<div class="line"><a name="l01219"></a><span class="lineno"> 1219</span>&#160;      <span class="keywordflow">return</span> GetThisMessageMap();</div>
-<div class="line"><a name="l01220"></a><span class="lineno"> 1220</span>&#160;   }</div>
-<div class="line"><a name="l01221"></a><span class="lineno"> 1221</span>&#160;   <span class="keyword">static</span> <span class="keyword">const</span> msgmap_t *GetThisMessageMap()</div>
-<div class="line"><a name="l01222"></a><span class="lineno"> 1222</span>&#160;   {</div>
-<div class="line"><a name="l01223"></a><span class="lineno"> 1223</span>&#160;      <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a name="l01224"></a><span class="lineno"> 1224</span>&#160;   }</div>
-<div class="line"><a name="l01225"></a><span class="lineno"> 1225</span>&#160;   <span class="keywordtype">int</span> *getBumpPipe()</div>
-<div class="line"><a name="l01226"></a><span class="lineno"> 1226</span>&#160;   {</div>
-<div class="line"><a name="l01227"></a><span class="lineno"> 1227</span>&#160;      <span class="keywordflow">return</span> m_queue.getBumpPipe();</div>
-<div class="line"><a name="l01228"></a><span class="lineno"> 1228</span>&#160;   }</div>
-<div class="line"><a name="l01230"></a><span class="lineno"> 1230</span>&#160; </div>
-<div class="line"><a name="l01236"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5"> 1236</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a>()</div>
-<div class="line"><a name="l01237"></a><span class="lineno"> 1237</span>&#160;   {</div>
-<div class="line"><a name="l01238"></a><span class="lineno"> 1238</span>&#160;   }</div>
-<div class="line"><a name="l01253"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1"> 1253</a></span>&#160;   Bool <a class="code" href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">pumpMessage</a>(TMessage &amp;msg, Bool wait = <span class="keyword">true</span>)</div>
-<div class="line"><a name="l01254"></a><span class="lineno"> 1254</span>&#160;   {</div>
-<div class="line"><a name="l01255"></a><span class="lineno"> 1255</span>&#160;      Bool bMsg = m_queue.pop(msg, wait);</div>
-<div class="line"><a name="l01256"></a><span class="lineno"> 1256</span>&#160;      <span class="keywordflow">if</span> (bMsg)</div>
-<div class="line"><a name="l01257"></a><span class="lineno"> 1257</span>&#160;         dispatch(msg);</div>
-<div class="line"><a name="l01258"></a><span class="lineno"> 1258</span>&#160; </div>
-<div class="line"><a name="l01259"></a><span class="lineno"> 1259</span>&#160;      <span class="keywordflow">return</span> bMsg;</div>
-<div class="line"><a name="l01260"></a><span class="lineno"> 1260</span>&#160;   }</div>
-<div class="line"><a name="l01269"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#abbed57739b0fda9afb16370947795e5b"> 1269</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#abbed57739b0fda9afb16370947795e5b">pumpMessages</a>()</div>
-<div class="line"><a name="l01270"></a><span class="lineno"> 1270</span>&#160;   {</div>
-<div class="line"><a name="l01271"></a><span class="lineno"> 1271</span>&#160;      TMessage msg;</div>
-<div class="line"><a name="l01272"></a><span class="lineno"> 1272</span>&#160; </div>
-<div class="line"><a name="l01273"></a><span class="lineno"> 1273</span>&#160;      <span class="keywordflow">try</span></div>
-<div class="line"><a name="l01274"></a><span class="lineno"> 1274</span>&#160;      {</div>
-<div class="line"><a name="l01275"></a><span class="lineno"> 1275</span>&#160;         <span class="keywordflow">while</span> (<a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
-<div class="line"><a name="l01276"></a><span class="lineno"> 1276</span>&#160;         {</div>
-<div class="line"><a name="l01277"></a><span class="lineno"> 1277</span>&#160;            <span class="keywordflow">if</span> (<a class="code" href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">pumpMessage</a>(msg))</div>
-<div class="line"><a name="l01278"></a><span class="lineno"> 1278</span>&#160;            {</div>
-<div class="line"><a name="l01279"></a><span class="lineno"> 1279</span>&#160;               <span class="keywordflow">if</span> (msg.getMessageId() == <a class="code" href="etevent_8h.html#a9033464dedda10c0e9518393262912a0">EM_QUIT</a>)</div>
-<div class="line"><a name="l01280"></a><span class="lineno"> 1280</span>&#160;                  <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01281"></a><span class="lineno"> 1281</span>&#160;               <span class="keywordflow">if</span> (msg.getMessageId() == <a class="code" href="etevent_8h.html#a70b0f6950c221ec7091e2c42ce9e53df">EM_SUSPEND</a>)</div>
-<div class="line"><a name="l01282"></a><span class="lineno"> 1282</span>&#160;                  m_suspendSem.<a class="code" href="classESemaphoreBase.html#a4517a1a12b12ca7fe182e77b0532dc5a">Decrement</a>();</div>
-<div class="line"><a name="l01283"></a><span class="lineno"> 1283</span>&#160;            }</div>
-<div class="line"><a name="l01284"></a><span class="lineno"> 1284</span>&#160;         }</div>
-<div class="line"><a name="l01285"></a><span class="lineno"> 1285</span>&#160;      }</div>
-<div class="line"><a name="l01286"></a><span class="lineno"> 1286</span>&#160;      <span class="keywordflow">catch</span> (<a class="code" href="classEError.html">EError</a> &amp;e)</div>
-<div class="line"><a name="l01287"></a><span class="lineno"> 1287</span>&#160;      {</div>
-<div class="line"><a name="l01288"></a><span class="lineno"> 1288</span>&#160;         <span class="comment">//std::cout &lt;&lt; &quot;t1 - &quot; &lt;&lt; e.Name() &lt;&lt; std::endl;</span></div>
-<div class="line"><a name="l01289"></a><span class="lineno"> 1289</span>&#160;         <span class="keywordflow">throw</span>;</div>
-<div class="line"><a name="l01290"></a><span class="lineno"> 1290</span>&#160;      }</div>
-<div class="line"><a name="l01291"></a><span class="lineno"> 1291</span>&#160;      <span class="keywordflow">catch</span> (...)</div>
-<div class="line"><a name="l01292"></a><span class="lineno"> 1292</span>&#160;      {</div>
-<div class="line"><a name="l01293"></a><span class="lineno"> 1293</span>&#160;         <span class="keywordflow">throw</span>;</div>
-<div class="line"><a name="l01294"></a><span class="lineno"> 1294</span>&#160;      }</div>
-<div class="line"><a name="l01295"></a><span class="lineno"> 1295</span>&#160;   }</div>
-<div class="line"><a name="l01303"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#af85952b8195e5ad54c284dec2397a0c3"> 1303</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#af85952b8195e5ad54c284dec2397a0c3">defaultMessageHandler</a>(TMessage &amp;msg)</div>
-<div class="line"><a name="l01304"></a><span class="lineno"> 1304</span>&#160;   {</div>
-<div class="line"><a name="l01305"></a><span class="lineno"> 1305</span>&#160;   }</div>
-<div class="line"><a name="l01308"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#afdcb2283e3167255ba178aa69dccf6c4"> 1308</a></span>&#160;   pid_t <a class="code" href="classEThreadEvent.html#afdcb2283e3167255ba178aa69dccf6c4">getThreadId</a>()</div>
-<div class="line"><a name="l01309"></a><span class="lineno"> 1309</span>&#160;   {</div>
-<div class="line"><a name="l01310"></a><span class="lineno"> 1310</span>&#160;      <span class="keywordflow">if</span> (m_tid == -1)</div>
-<div class="line"><a name="l01311"></a><span class="lineno"> 1311</span>&#160;         m_tid = syscall(SYS_gettid);</div>
-<div class="line"><a name="l01312"></a><span class="lineno"> 1312</span>&#160;      <span class="keywordflow">return</span> m_tid;</div>
-<div class="line"><a name="l01313"></a><span class="lineno"> 1313</span>&#160;   }</div>
-<div class="line"><a name="l01314"></a><span class="lineno"> 1314</span>&#160; </div>
-<div class="line"><a name="l01315"></a><span class="lineno"> 1315</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l01316"></a><span class="lineno"> 1316</span>&#160;   Dword threadProc(pVoid arg)</div>
-<div class="line"><a name="l01317"></a><span class="lineno"> 1317</span>&#160;   {</div>
-<div class="line"><a name="l01318"></a><span class="lineno"> 1318</span>&#160;      <a class="code" href="classEThreadEvent.html#abbed57739b0fda9afb16370947795e5b">pumpMessages</a>();</div>
-<div class="line"><a name="l01319"></a><span class="lineno"> 1319</span>&#160;      <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l01320"></a><span class="lineno"> 1320</span>&#160;   }</div>
-<div class="line"><a name="l01321"></a><span class="lineno"> 1321</span>&#160; </div>
-<div class="line"><a name="l01322"></a><span class="lineno"> 1322</span>&#160;   Bool dispatch(TMessage &amp;msg)</div>
-<div class="line"><a name="l01323"></a><span class="lineno"> 1323</span>&#160;   {</div>
-<div class="line"><a name="l01324"></a><span class="lineno"> 1324</span>&#160;      Bool res = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>;</div>
-<div class="line"><a name="l01325"></a><span class="lineno"> 1325</span>&#160;      Bool keepgoing = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>;</div>
-<div class="line"><a name="l01326"></a><span class="lineno"> 1326</span>&#160;      <span class="keyword">const</span> msgmap_t *pMap;</div>
-<div class="line"><a name="l01327"></a><span class="lineno"> 1327</span>&#160;      <span class="keyword">const</span> msgentry_t *pEntries;</div>
-<div class="line"><a name="l01328"></a><span class="lineno"> 1328</span>&#160; </div>
-<div class="line"><a name="l01329"></a><span class="lineno"> 1329</span>&#160;      <span class="keywordflow">if</span> (msg.getMessageId() &gt;= <a class="code" href="etevent_8h.html#aabfd2690d041c127d98c3dbc964b30ae">EM_USER</a>)</div>
-<div class="line"><a name="l01330"></a><span class="lineno"> 1330</span>&#160;      {</div>
-<div class="line"><a name="l01331"></a><span class="lineno"> 1331</span>&#160;         <span class="comment">// interate through each map</span></div>
-<div class="line"><a name="l01332"></a><span class="lineno"> 1332</span>&#160;         <span class="keywordflow">for</span> (pMap = GetMessageMap(); keepgoing &amp;&amp; pMap &amp;&amp; pMap-&gt;pfnGetBaseMap != NULL; pMap = (*pMap-&gt;pfnGetBaseMap)())</div>
-<div class="line"><a name="l01333"></a><span class="lineno"> 1333</span>&#160;         {</div>
-<div class="line"><a name="l01334"></a><span class="lineno"> 1334</span>&#160;            <span class="comment">// interate through each entry for the map</span></div>
-<div class="line"><a name="l01335"></a><span class="lineno"> 1335</span>&#160;            <span class="keywordflow">for</span> (pEntries = pMap-&gt;lpEntries; pEntries-&gt;nMessage; pEntries++)</div>
-<div class="line"><a name="l01336"></a><span class="lineno"> 1336</span>&#160;            {</div>
-<div class="line"><a name="l01337"></a><span class="lineno"> 1337</span>&#160;               <span class="keywordflow">if</span> (pEntries-&gt;nMessage == msg.getMessageId())</div>
-<div class="line"><a name="l01338"></a><span class="lineno"> 1338</span>&#160;               {</div>
-<div class="line"><a name="l01339"></a><span class="lineno"> 1339</span>&#160;                  (this-&gt;*pEntries-&gt;pFn)(msg);</div>
-<div class="line"><a name="l01340"></a><span class="lineno"> 1340</span>&#160;                  keepgoing = <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>;</div>
-<div class="line"><a name="l01341"></a><span class="lineno"> 1341</span>&#160;                  <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01342"></a><span class="lineno"> 1342</span>&#160;               }</div>
-<div class="line"><a name="l01343"></a><span class="lineno"> 1343</span>&#160;            }</div>
-<div class="line"><a name="l01344"></a><span class="lineno"> 1344</span>&#160;         }</div>
-<div class="line"><a name="l01345"></a><span class="lineno"> 1345</span>&#160; </div>
-<div class="line"><a name="l01346"></a><span class="lineno"> 1346</span>&#160;         <span class="keywordflow">if</span> (pMap == NULL)</div>
-<div class="line"><a name="l01347"></a><span class="lineno"> 1347</span>&#160;            <a class="code" href="classEThreadEvent.html#af85952b8195e5ad54c284dec2397a0c3">defaultMessageHandler</a>(msg);</div>
-<div class="line"><a name="l01348"></a><span class="lineno"> 1348</span>&#160;      }</div>
-<div class="line"><a name="l01349"></a><span class="lineno"> 1349</span>&#160;      <span class="keywordflow">else</span></div>
-<div class="line"><a name="l01350"></a><span class="lineno"> 1350</span>&#160;      {</div>
-<div class="line"><a name="l01351"></a><span class="lineno"> 1351</span>&#160;         <span class="keywordflow">switch</span> (msg.getMessageId())</div>
-<div class="line"><a name="l01352"></a><span class="lineno"> 1352</span>&#160;         {</div>
-<div class="line"><a name="l01353"></a><span class="lineno"> 1353</span>&#160;            <span class="keywordflow">case</span> <a class="code" href="etevent_8h.html#a12a88eebdfeaddbbf3d9cdc3e45335a5">EM_INIT</a>:</div>
-<div class="line"><a name="l01354"></a><span class="lineno"> 1354</span>&#160;            {</div>
-<div class="line"><a name="l01355"></a><span class="lineno"> 1355</span>&#160;               <a class="code" href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">onInit</a>();</div>
-<div class="line"><a name="l01356"></a><span class="lineno"> 1356</span>&#160;               <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01357"></a><span class="lineno"> 1357</span>&#160;            }</div>
-<div class="line"><a name="l01358"></a><span class="lineno"> 1358</span>&#160;            <span class="keywordflow">case</span> <a class="code" href="etevent_8h.html#a9033464dedda10c0e9518393262912a0">EM_QUIT</a>:</div>
-<div class="line"><a name="l01359"></a><span class="lineno"> 1359</span>&#160;            {</div>
-<div class="line"><a name="l01360"></a><span class="lineno"> 1360</span>&#160;               <a class="code" href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">onQuit</a>();</div>
-<div class="line"><a name="l01361"></a><span class="lineno"> 1361</span>&#160;               <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01362"></a><span class="lineno"> 1362</span>&#160;            }</div>
-<div class="line"><a name="l01363"></a><span class="lineno"> 1363</span>&#160;            <span class="keywordflow">case</span> <a class="code" href="etevent_8h.html#a70b0f6950c221ec7091e2c42ce9e53df">EM_SUSPEND</a>:</div>
-<div class="line"><a name="l01364"></a><span class="lineno"> 1364</span>&#160;            {</div>
-<div class="line"><a name="l01365"></a><span class="lineno"> 1365</span>&#160;               <a class="code" href="classEThreadEvent.html#a8e005870b9f594bfea391b03030d38bd">onSuspend</a>();</div>
-<div class="line"><a name="l01366"></a><span class="lineno"> 1366</span>&#160;               <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01367"></a><span class="lineno"> 1367</span>&#160;            }</div>
-<div class="line"><a name="l01368"></a><span class="lineno"> 1368</span>&#160;            <span class="keywordflow">case</span> <a class="code" href="etevent_8h.html#a62c7f861374d2d4f3935e48f316e4077">EM_TIMER</a>:</div>
-<div class="line"><a name="l01369"></a><span class="lineno"> 1369</span>&#160;            {</div>
-<div class="line"><a name="l01370"></a><span class="lineno"> 1370</span>&#160;               <a class="code" href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a">onTimer</a>( (<a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a>*)msg.getVoidPtr() );</div>
-<div class="line"><a name="l01371"></a><span class="lineno"> 1371</span>&#160;               <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01372"></a><span class="lineno"> 1372</span>&#160;            }</div>
-<div class="line"><a name="l01373"></a><span class="lineno"> 1373</span>&#160;            <span class="keywordflow">default</span>:</div>
-<div class="line"><a name="l01374"></a><span class="lineno"> 1374</span>&#160;            {</div>
-<div class="line"><a name="l01375"></a><span class="lineno"> 1375</span>&#160;               <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01376"></a><span class="lineno"> 1376</span>&#160;            }</div>
-<div class="line"><a name="l01377"></a><span class="lineno"> 1377</span>&#160;         }</div>
-<div class="line"><a name="l01378"></a><span class="lineno"> 1378</span>&#160;      }</div>
-<div class="line"><a name="l01379"></a><span class="lineno"> 1379</span>&#160; </div>
-<div class="line"><a name="l01380"></a><span class="lineno"> 1380</span>&#160;      <span class="keywordflow">return</span> keepgoing;</div>
-<div class="line"><a name="l01381"></a><span class="lineno"> 1381</span>&#160;   }</div>
-<div class="line"><a name="l01382"></a><span class="lineno"> 1382</span>&#160; </div>
-<div class="line"><a name="l01383"></a><span class="lineno"> 1383</span>&#160;   Bool _sendMessage(<span class="keyword">const</span> <a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> &amp;msg, Bool wait)</div>
-<div class="line"><a name="l01384"></a><span class="lineno"> 1384</span>&#160;   {</div>
-<div class="line"><a name="l01385"></a><span class="lineno"> 1385</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>( (<span class="keyword">const</span> TMessage &amp;)msg, wait );</div>
-<div class="line"><a name="l01386"></a><span class="lineno"> 1386</span>&#160;   }</div>
-<div class="line"><a name="l01387"></a><span class="lineno"> 1387</span>&#160; </div>
-<div class="line"><a name="l01388"></a><span class="lineno"> 1388</span>&#160;   Void _destroyMessage(<a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *msg)</div>
-<div class="line"><a name="l01389"></a><span class="lineno"> 1389</span>&#160;   {</div>
-<div class="line"><a name="l01390"></a><span class="lineno"> 1390</span>&#160;      <span class="keyword">delete</span> (TMessage*)msg;</div>
-<div class="line"><a name="l01391"></a><span class="lineno"> 1391</span>&#160;   }</div>
-<div class="line"><a name="l01392"></a><span class="lineno"> 1392</span>&#160; </div>
-<div class="line"><a name="l01393"></a><span class="lineno"> 1393</span>&#160;   Short m_appId;</div>
-<div class="line"><a name="l01394"></a><span class="lineno"> 1394</span>&#160;   UShort m_threadId;</div>
-<div class="line"><a name="l01395"></a><span class="lineno"> 1395</span>&#160;   pVoid m_arg;</div>
-<div class="line"><a name="l01396"></a><span class="lineno"> 1396</span>&#160;   Int m_queueSize;</div>
-<div class="line"><a name="l01397"></a><span class="lineno"> 1397</span>&#160;   <span class="keywordtype">size_t</span> m_stacksize;</div>
-<div class="line"><a name="l01398"></a><span class="lineno"> 1398</span>&#160; </div>
-<div class="line"><a name="l01399"></a><span class="lineno"> 1399</span>&#160;   pid_t m_tid;</div>
-<div class="line"><a name="l01400"></a><span class="lineno"> 1400</span>&#160;   Int m_suspendCnt;</div>
-<div class="line"><a name="l01401"></a><span class="lineno"> 1401</span>&#160;   <a class="code" href="classESemaphorePrivate.html">ESemaphorePrivate</a> m_suspendSem;</div>
-<div class="line"><a name="l01402"></a><span class="lineno"> 1402</span>&#160;   TQueue m_queue;</div>
-<div class="line"><a name="l01403"></a><span class="lineno"> 1403</span>&#160;};</div>
-<div class="line"><a name="l01404"></a><span class="lineno"> 1404</span>&#160; </div>
-<div class="line"><a name="l01405"></a><span class="lineno"><a class="line" href="etevent_8h.html#a8954bda7259449b5e33a0c90f00f3e4a"> 1405</a></span>&#160;<span class="keyword">typedef</span> <a class="code" href="classEThreadEvent.html">EThreadEvent&lt;EThreadQueuePublic&lt;EThreadMessage&gt;</a>,<a class="code" href="classEThreadMessage.html">EThreadMessage</a>&gt; <a class="code" href="etevent_8h.html#a8954bda7259449b5e33a0c90f00f3e4a">EThreadPublic</a>;</div>
-<div class="line"><a name="l01406"></a><span class="lineno"><a class="line" href="etevent_8h.html#a8ec0f12a7073f7d1375468685b80b8dd"> 1406</a></span>&#160;<span class="keyword">typedef</span> <a class="code" href="classEThreadEvent.html">EThreadEvent&lt;EThreadQueuePrivate&lt;EThreadMessage&gt;</a>,<a class="code" href="classEThreadMessage.html">EThreadMessage</a>&gt; <a class="code" href="etevent_8h.html#a8ec0f12a7073f7d1375468685b80b8dd">EThreadPrivate</a>;</div>
-<div class="line"><a name="l01407"></a><span class="lineno"> 1407</span>&#160; </div>
-<div class="line"><a name="l01410"></a><span class="lineno"> 1410</span>&#160; </div>
-<div class="line"><a name="l01411"></a><span class="lineno"> 1411</span>&#160;<span class="preprocessor">#endif // #ifndef __ETEVENT_H</span></div>
+<div class="line"><a name="l00839"></a><span class="lineno">  839</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>;</div>
+<div class="line"><a name="l00840"></a><span class="lineno">  840</span>&#160;   }</div>
+<div class="line"><a name="l00841"></a><span class="lineno"><a class="line" href="class__EThreadEventBase.html#ac3f8ea70ea9793720900c801076f3558">  841</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="class__EThreadEventBase.html#ac3f8ea70ea9793720900c801076f3558">_destroyMessage</a>(<a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *msg)</div>
+<div class="line"><a name="l00842"></a><span class="lineno">  842</span>&#160;   {</div>
+<div class="line"><a name="l00843"></a><span class="lineno">  843</span>&#160;      <span class="keyword">delete</span> msg;</div>
+<div class="line"><a name="l00844"></a><span class="lineno">  844</span>&#160;   }</div>
+<div class="line"><a name="l00845"></a><span class="lineno">  845</span>&#160;};</div>
+<div class="line"><a name="l00846"></a><span class="lineno">  846</span>&#160; </div>
+<div class="line"><a name="l00853"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html">  853</a></span>&#160;<span class="keyword">class </span><a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a> : <span class="keyword">public</span> <a class="code" href="classEStatic.html">EStatic</a></div>
+<div class="line"><a name="l00854"></a><span class="lineno">  854</span>&#160;{</div>
+<div class="line"><a name="l00855"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#ad5f72ab97d50b9fbcff4711a8a6c23ff">  855</a></span>&#160;   <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classEThreadEventTimer.html#ad5f72ab97d50b9fbcff4711a8a6c23ff">EThreadEventTimerHandler</a>;</div>
+<div class="line"><a name="l00856"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#ab3fee708b871181cbbd8e30ba8661014">  856</a></span>&#160;   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TQueue, <span class="keyword">class</span> TMessage&gt; <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classEThreadEvent.html">EThreadEvent</a>;</div>
+<div class="line"><a name="l00857"></a><span class="lineno">  857</span>&#160; </div>
+<div class="line"><a name="l00859"></a><span class="lineno">  859</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00860"></a><span class="lineno">  860</span>&#160;   Void <a class="code" href="classEStatic.html#ab3947f34fddb06841dea3a79dbaeff27">init</a>(<a class="code" href="class__EThreadEventBase.html">_EThreadEventBase</a> *thread, <a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *msg)</div>
+<div class="line"><a name="l00861"></a><span class="lineno">  861</span>&#160;   {</div>
+<div class="line"><a name="l00862"></a><span class="lineno">  862</span>&#160;      m_thread = thread;</div>
+<div class="line"><a name="l00863"></a><span class="lineno">  863</span>&#160;      m_msg = msg;</div>
+<div class="line"><a name="l00864"></a><span class="lineno">  864</span>&#160; </div>
+<div class="line"><a name="l00865"></a><span class="lineno">  865</span>&#160;      <span class="keyword">struct </span>sigevent sev = {};</div>
+<div class="line"><a name="l00866"></a><span class="lineno">  866</span>&#160;      sev.sigev_notify = SIGEV_SIGNAL;</div>
+<div class="line"><a name="l00867"></a><span class="lineno">  867</span>&#160;      sev.sigev_signo = SIGRTMIN;</div>
+<div class="line"><a name="l00868"></a><span class="lineno">  868</span>&#160;      sev.sigev_value.sival_ptr = <span class="keyword">this</span>;</div>
+<div class="line"><a name="l00869"></a><span class="lineno">  869</span>&#160;      <span class="keywordflow">if</span> (timer_create(CLOCK_REALTIME, &amp;sev, &amp;m_timer) == -1)</div>
+<div class="line"><a name="l00870"></a><span class="lineno">  870</span>&#160;         <span class="keywordflow">throw</span> EThreadTimerError_UnableToInitialize();</div>
+<div class="line"><a name="l00871"></a><span class="lineno">  871</span>&#160;   }</div>
+<div class="line"><a name="l00873"></a><span class="lineno">  873</span>&#160; </div>
+<div class="line"><a name="l00874"></a><span class="lineno">  874</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00876"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a4411e3b8364be51ec52436df826d17c7">  876</a></span>&#160;   <a class="code" href="classEThreadEventTimer.html#a4411e3b8364be51ec52436df826d17c7">EThreadEventTimer</a>()</div>
+<div class="line"><a name="l00877"></a><span class="lineno">  877</span>&#160;   {</div>
+<div class="line"><a name="l00878"></a><span class="lineno">  878</span>&#160;      <span class="comment">// assign the id</span></div>
+<div class="line"><a name="l00879"></a><span class="lineno">  879</span>&#160;      m_id = <a class="code" href="eatomic_8h.html#a9ad8c41fa90cf160f025c573812e7071">atomic_inc</a>(m_nextid);</div>
+<div class="line"><a name="l00880"></a><span class="lineno">  880</span>&#160;      m_thread = NULL;</div>
+<div class="line"><a name="l00881"></a><span class="lineno">  881</span>&#160;      m_msg = NULL;</div>
+<div class="line"><a name="l00882"></a><span class="lineno">  882</span>&#160;      m_interval = 0;</div>
+<div class="line"><a name="l00883"></a><span class="lineno">  883</span>&#160;      m_oneshot = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>;</div>
+<div class="line"><a name="l00884"></a><span class="lineno">  884</span>&#160;      m_timer = NULL;</div>
+<div class="line"><a name="l00885"></a><span class="lineno">  885</span>&#160;   }</div>
+<div class="line"><a name="l00891"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#aef23da9557897000b797a9a98b7fee72">  891</a></span>&#160;   <a class="code" href="classEThreadEventTimer.html#aef23da9557897000b797a9a98b7fee72">EThreadEventTimer</a>(Long milliseconds, Bool oneshot = <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>)</div>
+<div class="line"><a name="l00892"></a><span class="lineno">  892</span>&#160;   {</div>
+<div class="line"><a name="l00893"></a><span class="lineno">  893</span>&#160;      <span class="comment">// assign the id</span></div>
+<div class="line"><a name="l00894"></a><span class="lineno">  894</span>&#160;      m_id = <a class="code" href="eatomic_8h.html#a9ad8c41fa90cf160f025c573812e7071">atomic_inc</a>(m_nextid);</div>
+<div class="line"><a name="l00895"></a><span class="lineno">  895</span>&#160;      m_thread = NULL;</div>
+<div class="line"><a name="l00896"></a><span class="lineno">  896</span>&#160;      m_msg = NULL;</div>
+<div class="line"><a name="l00897"></a><span class="lineno">  897</span>&#160;      m_interval = milliseconds;</div>
+<div class="line"><a name="l00898"></a><span class="lineno">  898</span>&#160;      m_oneshot = oneshot;</div>
+<div class="line"><a name="l00899"></a><span class="lineno">  899</span>&#160;      m_timer = NULL;</div>
+<div class="line"><a name="l00900"></a><span class="lineno">  900</span>&#160;   }      </div>
+<div class="line"><a name="l00901"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a3c6794f2c16a6d39f258c3352fab8cb7">  901</a></span>&#160;   <a class="code" href="classEThreadEventTimer.html#a3c6794f2c16a6d39f258c3352fab8cb7">~EThreadEventTimer</a>()</div>
+<div class="line"><a name="l00902"></a><span class="lineno">  902</span>&#160;   {</div>
+<div class="line"><a name="l00903"></a><span class="lineno">  903</span>&#160;      <a class="code" href="classEThreadEventTimer.html#a54bdc9f9ea342f6664ecd79d1070fff7">destroy</a>();</div>
+<div class="line"><a name="l00904"></a><span class="lineno">  904</span>&#160;   }</div>
+<div class="line"><a name="l00910"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a54bdc9f9ea342f6664ecd79d1070fff7">  910</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#a54bdc9f9ea342f6664ecd79d1070fff7">destroy</a>()</div>
+<div class="line"><a name="l00911"></a><span class="lineno">  911</span>&#160;   {</div>
+<div class="line"><a name="l00912"></a><span class="lineno">  912</span>&#160;      <span class="keywordflow">if</span> (m_timer != NULL)</div>
+<div class="line"><a name="l00913"></a><span class="lineno">  913</span>&#160;      {</div>
+<div class="line"><a name="l00914"></a><span class="lineno">  914</span>&#160;         <a class="code" href="classEThreadEventTimer.html#a3bbf0266c29648bbb5c4d16978f3bd58">stop</a>();</div>
+<div class="line"><a name="l00915"></a><span class="lineno">  915</span>&#160;         timer_delete(m_timer);</div>
+<div class="line"><a name="l00916"></a><span class="lineno">  916</span>&#160;         m_timer = NULL;</div>
+<div class="line"><a name="l00917"></a><span class="lineno">  917</span>&#160;      }</div>
+<div class="line"><a name="l00918"></a><span class="lineno">  918</span>&#160;      <span class="keywordflow">if</span> (m_msg)</div>
+<div class="line"><a name="l00919"></a><span class="lineno">  919</span>&#160;      {</div>
+<div class="line"><a name="l00920"></a><span class="lineno">  920</span>&#160;         <span class="keywordflow">if</span> (m_thread)</div>
+<div class="line"><a name="l00921"></a><span class="lineno">  921</span>&#160;            m_thread-&gt;<a class="code" href="class__EThreadEventBase.html#ac3f8ea70ea9793720900c801076f3558">_destroyMessage</a>(m_msg);</div>
+<div class="line"><a name="l00922"></a><span class="lineno">  922</span>&#160;         <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00923"></a><span class="lineno">  923</span>&#160;            <span class="keyword">delete</span> m_msg;</div>
+<div class="line"><a name="l00924"></a><span class="lineno">  924</span>&#160;         m_msg = NULL;</div>
+<div class="line"><a name="l00925"></a><span class="lineno">  925</span>&#160;      }</div>
+<div class="line"><a name="l00926"></a><span class="lineno">  926</span>&#160;      m_thread = NULL;</div>
+<div class="line"><a name="l00927"></a><span class="lineno">  927</span>&#160;   }</div>
+<div class="line"><a name="l00933"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#afe96e27e5031ae396f1f66160fb9e0ad">  933</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#afe96e27e5031ae396f1f66160fb9e0ad">start</a>()</div>
+<div class="line"><a name="l00934"></a><span class="lineno">  934</span>&#160;   {</div>
+<div class="line"><a name="l00935"></a><span class="lineno">  935</span>&#160;      <span class="keywordflow">if</span> (m_timer == NULL)</div>
+<div class="line"><a name="l00936"></a><span class="lineno">  936</span>&#160;         <span class="keywordflow">throw</span> EThreadTimerError_NotInitialized();</div>
+<div class="line"><a name="l00937"></a><span class="lineno">  937</span>&#160; </div>
+<div class="line"><a name="l00938"></a><span class="lineno">  938</span>&#160;      <span class="keyword">struct </span>itimerspec its;</div>
+<div class="line"><a name="l00939"></a><span class="lineno">  939</span>&#160;      its.it_value.tv_sec = m_interval / 1000;              <span class="comment">// seconds</span></div>
+<div class="line"><a name="l00940"></a><span class="lineno">  940</span>&#160;      its.it_value.tv_nsec = (m_interval % 1000) * 1000000; <span class="comment">// nano-seconds</span></div>
+<div class="line"><a name="l00941"></a><span class="lineno">  941</span>&#160;      its.it_interval.tv_sec = m_oneshot ? 0 : its.it_value.tv_sec;</div>
+<div class="line"><a name="l00942"></a><span class="lineno">  942</span>&#160;      its.it_interval.tv_nsec = m_oneshot ? 0 : its.it_value.tv_nsec;</div>
+<div class="line"><a name="l00943"></a><span class="lineno">  943</span>&#160;      <span class="keywordflow">if</span> (timer_settime(m_timer, 0, &amp;its, NULL) == -1)</div>
+<div class="line"><a name="l00944"></a><span class="lineno">  944</span>&#160;         <span class="keywordflow">throw</span> EThreadTimerError_UnableToStart();</div>
+<div class="line"><a name="l00945"></a><span class="lineno">  945</span>&#160;   }</div>
+<div class="line"><a name="l00947"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a3bbf0266c29648bbb5c4d16978f3bd58">  947</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#a3bbf0266c29648bbb5c4d16978f3bd58">stop</a>()</div>
+<div class="line"><a name="l00948"></a><span class="lineno">  948</span>&#160;   {</div>
+<div class="line"><a name="l00949"></a><span class="lineno">  949</span>&#160;      <span class="keywordflow">if</span> (m_timer != NULL)</div>
+<div class="line"><a name="l00950"></a><span class="lineno">  950</span>&#160;      {</div>
+<div class="line"><a name="l00951"></a><span class="lineno">  951</span>&#160;         <span class="keyword">struct </span>itimerspec its;</div>
+<div class="line"><a name="l00952"></a><span class="lineno">  952</span>&#160;         its.it_value.tv_sec = 0;  <span class="comment">// seconds</span></div>
+<div class="line"><a name="l00953"></a><span class="lineno">  953</span>&#160;         its.it_value.tv_nsec = 0; <span class="comment">// nano-seconds</span></div>
+<div class="line"><a name="l00954"></a><span class="lineno">  954</span>&#160;         its.it_interval.tv_sec = its.it_value.tv_sec;</div>
+<div class="line"><a name="l00955"></a><span class="lineno">  955</span>&#160;         its.it_interval.tv_nsec = its.it_value.tv_nsec;</div>
+<div class="line"><a name="l00956"></a><span class="lineno">  956</span>&#160;         timer_settime(m_timer, 0, &amp;its, NULL);</div>
+<div class="line"><a name="l00957"></a><span class="lineno">  957</span>&#160;      }</div>
+<div class="line"><a name="l00958"></a><span class="lineno">  958</span>&#160;   }</div>
+<div class="line"><a name="l00960"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a0167846e1333014011df17ffd326cecc">  960</a></span>&#160;   Long <a class="code" href="classEThreadEventTimer.html#a0167846e1333014011df17ffd326cecc">getInterval</a>() { <span class="keywordflow">return</span> m_interval; }</div>
+<div class="line"><a name="l00965"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#ab95bdb5c96b1ebe5662785282584dbab">  965</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#ab95bdb5c96b1ebe5662785282584dbab">setInterval</a>(Long interval) { m_interval = interval; }</div>
+<div class="line"><a name="l00970"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a6c65cb3297ebc6b37d0aaf8b38445ece">  970</a></span>&#160;   Void <a class="code" href="classEThreadEventTimer.html#a6c65cb3297ebc6b37d0aaf8b38445ece">setOneShot</a>(Bool oneshot) { m_oneshot = oneshot; }</div>
+<div class="line"><a name="l00977"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#a4b28f46b10c8164212e2713976f196b1">  977</a></span>&#160;   Long <a class="code" href="classEThreadEventTimer.html#a4b28f46b10c8164212e2713976f196b1">getId</a>() { <span class="keywordflow">return</span> m_id; }</div>
+<div class="line"><a name="l00984"></a><span class="lineno"><a class="line" href="classEThreadEventTimer.html#ad96b998c0429667bb6dcb23701cf9b16">  984</a></span>&#160;   Bool <a class="code" href="classEThreadEventTimer.html#ad96b998c0429667bb6dcb23701cf9b16">isInitialized</a>() { <span class="keywordflow">return</span> m_timer != NULL; }</div>
+<div class="line"><a name="l00985"></a><span class="lineno">  985</span>&#160; </div>
+<div class="line"><a name="l00986"></a><span class="lineno">  986</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00988"></a><span class="lineno">  988</span>&#160;   <span class="keyword">static</span> <span class="keywordtype">void</span> _timerHandler(<span class="keywordtype">int</span> signo, siginfo_t *pinfo, <span class="keywordtype">void</span> *pcontext)</div>
+<div class="line"><a name="l00989"></a><span class="lineno">  989</span>&#160;   {</div>
+<div class="line"><a name="l00990"></a><span class="lineno">  990</span>&#160;      <a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a> *timer = (<a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a>*)pinfo-&gt;si_value.sival_ptr;</div>
+<div class="line"><a name="l00991"></a><span class="lineno">  991</span>&#160;      if (timer)</div>
+<div class="line"><a name="l00992"></a><span class="lineno">  992</span>&#160;      {</div>
+<div class="line"><a name="l00993"></a><span class="lineno">  993</span>&#160;         timer-&gt;m_thread-&gt;<a class="code" href="class__EThreadEventBase.html#a66dffb624164130a9b097324b69136b3">_sendMessage</a>(*timer-&gt;m_msg);</div>
+<div class="line"><a name="l00994"></a><span class="lineno">  994</span>&#160;      }</div>
+<div class="line"><a name="l00995"></a><span class="lineno">  995</span>&#160;   }</div>
+<div class="line"><a name="l00997"></a><span class="lineno">  997</span>&#160; </div>
+<div class="line"><a name="l00998"></a><span class="lineno">  998</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00999"></a><span class="lineno">  999</span>&#160;   <span class="keyword">static</span> Long m_nextid;</div>
+<div class="line"><a name="l01000"></a><span class="lineno"> 1000</span>&#160; </div>
+<div class="line"><a name="l01001"></a><span class="lineno"> 1001</span>&#160;   Long m_id;</div>
+<div class="line"><a name="l01002"></a><span class="lineno"> 1002</span>&#160;   <a class="code" href="class__EThreadEventBase.html">_EThreadEventBase</a> *m_thread;</div>
+<div class="line"><a name="l01003"></a><span class="lineno"> 1003</span>&#160;   <a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *m_msg;</div>
+<div class="line"><a name="l01004"></a><span class="lineno"> 1004</span>&#160;   Bool m_oneshot;</div>
+<div class="line"><a name="l01005"></a><span class="lineno"> 1005</span>&#160;   Long m_interval;</div>
+<div class="line"><a name="l01006"></a><span class="lineno"> 1006</span>&#160;   timer_t m_timer;</div>
+<div class="line"><a name="l01007"></a><span class="lineno"> 1007</span>&#160;};</div>
+<div class="line"><a name="l01008"></a><span class="lineno"> 1008</span>&#160; </div>
+<div class="line"><a name="l01010"></a><span class="lineno"> 1010</span>&#160;<span class="keyword">class </span>EThreadEventTimerHandler : <a class="code" href="classEStatic.html">EStatic</a></div>
+<div class="line"><a name="l01011"></a><span class="lineno"> 1011</span>&#160;{</div>
+<div class="line"><a name="l01012"></a><span class="lineno"> 1012</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l01013"></a><span class="lineno"> 1013</span>&#160;   EThreadEventTimerHandler() {}</div>
+<div class="line"><a name="l01014"></a><span class="lineno"> 1014</span>&#160;   ~EThreadEventTimerHandler() {}</div>
+<div class="line"><a name="l01015"></a><span class="lineno"> 1015</span>&#160; </div>
+<div class="line"><a name="l01016"></a><span class="lineno"> 1016</span>&#160;   <span class="keyword">virtual</span> Int <a class="code" href="classEStatic.html#ab2b11db81892082623f89d5152015c97">getInitType</a>() { <span class="keywordflow">return</span> STATIC_INIT_TYPE_THREADS; }</div>
+<div class="line"><a name="l01017"></a><span class="lineno"> 1017</span>&#160;   Void <a class="code" href="classEStatic.html#ab3947f34fddb06841dea3a79dbaeff27">init</a>(<a class="code" href="classEGetOpt.html">EGetOpt</a> &amp;options)</div>
+<div class="line"><a name="l01018"></a><span class="lineno"> 1018</span>&#160;   {</div>
+<div class="line"><a name="l01019"></a><span class="lineno"> 1019</span>&#160;      <span class="keyword">struct </span>sigaction sa;</div>
+<div class="line"><a name="l01020"></a><span class="lineno"> 1020</span>&#160;      sa.sa_flags = SA_SIGINFO;</div>
+<div class="line"><a name="l01021"></a><span class="lineno"> 1021</span>&#160;      sa.sa_sigaction = EThreadEventTimer::_timerHandler;</div>
+<div class="line"><a name="l01022"></a><span class="lineno"> 1022</span>&#160;      sigemptyset(&amp;sa.sa_mask);</div>
+<div class="line"><a name="l01023"></a><span class="lineno"> 1023</span>&#160;      <span class="keywordtype">int</span> signo = SIGRTMIN;</div>
+<div class="line"><a name="l01024"></a><span class="lineno"> 1024</span>&#160;      <span class="keywordflow">if</span> (sigaction(signo, &amp;sa, NULL) == -1)</div>
+<div class="line"><a name="l01025"></a><span class="lineno"> 1025</span>&#160;         <span class="keywordflow">throw</span> EThreadTimerError_UnableToRegisterTimerHandler();</div>
+<div class="line"><a name="l01026"></a><span class="lineno"> 1026</span>&#160;   }</div>
+<div class="line"><a name="l01027"></a><span class="lineno"> 1027</span>&#160;   Void <a class="code" href="classEStatic.html#a5084cb094db936249865154e5a66da66">uninit</a>()</div>
+<div class="line"><a name="l01028"></a><span class="lineno"> 1028</span>&#160;   {</div>
+<div class="line"><a name="l01029"></a><span class="lineno"> 1029</span>&#160;   }</div>
+<div class="line"><a name="l01030"></a><span class="lineno"> 1030</span>&#160;};</div>
+<div class="line"><a name="l01032"></a><span class="lineno"> 1032</span>&#160; </div>
+<div class="line"><a name="l01040"></a><span class="lineno"> 1040</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> TQueue, <span class="keyword">class</span> TMessage&gt;</div>
+<div class="line"><a name="l01041"></a><span class="lineno"><a class="line" href="classEThreadEvent.html"> 1041</a></span>&#160;<span class="keyword">class </span><a class="code" href="classEThreadEvent.html">EThreadEvent</a> : <span class="keyword">public</span> <a class="code" href="classEThreadBasic.html">EThreadBasic</a>, <span class="keyword">public</span> <a class="code" href="class__EThreadEventBase.html">_EThreadEventBase</a></div>
+<div class="line"><a name="l01042"></a><span class="lineno"> 1042</span>&#160;{</div>
+<div class="line"><a name="l01043"></a><span class="lineno"> 1043</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l01045"></a><span class="lineno"> 1045</span>&#160;   <span class="keyword">typedef</span> Void (<a class="code" href="classEThreadEvent.html">EThreadEvent</a>::*msgfxn_t)(TMessage &amp;);</div>
+<div class="line"><a name="l01046"></a><span class="lineno"> 1046</span>&#160;   <span class="keyword">typedef</span> <span class="keyword">struct</span></div>
+<div class="line"><a name="l01047"></a><span class="lineno"> 1047</span>&#160;   {</div>
+<div class="line"><a name="l01048"></a><span class="lineno"> 1048</span>&#160;      UInt     nMessage; <span class="comment">// message</span></div>
+<div class="line"><a name="l01049"></a><span class="lineno"> 1049</span>&#160;      msgfxn_t pFn; <span class="comment">// routine to call (or special value)</span></div>
+<div class="line"><a name="l01050"></a><span class="lineno"> 1050</span>&#160;   } msgentry_t;</div>
+<div class="line"><a name="l01051"></a><span class="lineno"> 1051</span>&#160; </div>
+<div class="line"><a name="l01052"></a><span class="lineno"> 1052</span>&#160;   <span class="keyword">struct </span>msgmap_t</div>
+<div class="line"><a name="l01053"></a><span class="lineno"> 1053</span>&#160;   {</div>
+<div class="line"><a name="l01054"></a><span class="lineno"> 1054</span>&#160;      <span class="keyword">const</span> msgmap_t *(*pfnGetBaseMap)();</div>
+<div class="line"><a name="l01055"></a><span class="lineno"> 1055</span>&#160;      <span class="keyword">const</span> msgentry_t *lpEntries;</div>
+<div class="line"><a name="l01056"></a><span class="lineno"> 1056</span>&#160;   };</div>
+<div class="line"><a name="l01058"></a><span class="lineno"> 1058</span>&#160; </div>
+<div class="line"><a name="l01060"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a41b03009493fc1f10b8a60f112655868"> 1060</a></span>&#160;   <a class="code" href="classEThreadEvent.html#a41b03009493fc1f10b8a60f112655868">EThreadEvent</a>()</div>
+<div class="line"><a name="l01061"></a><span class="lineno"> 1061</span>&#160;      : <a class="code" href="classEThreadBasic.html">EThreadBasic</a>(),</div>
+<div class="line"><a name="l01062"></a><span class="lineno"> 1062</span>&#160;        m_tid(-1),</div>
+<div class="line"><a name="l01063"></a><span class="lineno"> 1063</span>&#160;        m_arg(NULL),</div>
+<div class="line"><a name="l01064"></a><span class="lineno"> 1064</span>&#160;        m_stacksize(0),</div>
+<div class="line"><a name="l01065"></a><span class="lineno"> 1065</span>&#160;        m_suspendCnt(0),</div>
+<div class="line"><a name="l01066"></a><span class="lineno"> 1066</span>&#160;        m_suspendSem(0)</div>
+<div class="line"><a name="l01067"></a><span class="lineno"> 1067</span>&#160;   {</div>
+<div class="line"><a name="l01068"></a><span class="lineno"> 1068</span>&#160;   }</div>
+<div class="line"><a name="l01070"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16"> 1070</a></span>&#160;   <a class="code" href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">~EThreadEvent</a>()</div>
+<div class="line"><a name="l01071"></a><span class="lineno"> 1071</span>&#160;   {</div>
+<div class="line"><a name="l01072"></a><span class="lineno"> 1072</span>&#160;   }</div>
+<div class="line"><a name="l01073"></a><span class="lineno"> 1073</span>&#160; </div>
+<div class="line"><a name="l01083"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b"> 1083</a></span>&#160;   Bool <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>(UInt message, Bool wait = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
+<div class="line"><a name="l01084"></a><span class="lineno"> 1084</span>&#160;   {</div>
+<div class="line"><a name="l01085"></a><span class="lineno"> 1085</span>&#160;      TMessage msg(message);</div>
+<div class="line"><a name="l01086"></a><span class="lineno"> 1086</span>&#160;      Bool result = m_queue.push(msg, wait);</div>
+<div class="line"><a name="l01087"></a><span class="lineno"> 1087</span>&#160;      <span class="keywordflow">if</span> (result)</div>
+<div class="line"><a name="l01088"></a><span class="lineno"> 1088</span>&#160;         <a class="code" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a>();</div>
+<div class="line"><a name="l01089"></a><span class="lineno"> 1089</span>&#160;      <span class="keywordflow">return</span> result;</div>
+<div class="line"><a name="l01090"></a><span class="lineno"> 1090</span>&#160;   }</div>
+<div class="line"><a name="l01101"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#af4f8883d8f7d39e2bdae6d2d9c3a978f"> 1101</a></span>&#160;   Bool <a class="code" href="classEThreadEvent.html#af4f8883d8f7d39e2bdae6d2d9c3a978f">sendMessage</a>(UInt message, pVoid voidptr, Bool wait = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
+<div class="line"><a name="l01102"></a><span class="lineno"> 1102</span>&#160;   {</div>
+<div class="line"><a name="l01103"></a><span class="lineno"> 1103</span>&#160;      TMessage msg(message);</div>
+<div class="line"><a name="l01104"></a><span class="lineno"> 1104</span>&#160;      msg.setVoidPtr(voidptr);</div>
+<div class="line"><a name="l01105"></a><span class="lineno"> 1105</span>&#160;      Bool result = m_queue.push(msg, wait);</div>
+<div class="line"><a name="l01106"></a><span class="lineno"> 1106</span>&#160;      <span class="keywordflow">if</span> (result)</div>
+<div class="line"><a name="l01107"></a><span class="lineno"> 1107</span>&#160;         <a class="code" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a>();</div>
+<div class="line"><a name="l01108"></a><span class="lineno"> 1108</span>&#160;      <span class="keywordflow">return</span> result;</div>
+<div class="line"><a name="l01109"></a><span class="lineno"> 1109</span>&#160;   }</div>
+<div class="line"><a name="l01118"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a137ee8f23161ffb90386e620c56b5eb5"> 1118</a></span>&#160;   Bool <a class="code" href="classEThreadEvent.html#a137ee8f23161ffb90386e620c56b5eb5">sendMessage</a>(<span class="keyword">const</span> TMessage &amp;msg, Bool wait = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
+<div class="line"><a name="l01119"></a><span class="lineno"> 1119</span>&#160;   {</div>
+<div class="line"><a name="l01120"></a><span class="lineno"> 1120</span>&#160;      Bool result = m_queue.push(msg, wait);</div>
+<div class="line"><a name="l01121"></a><span class="lineno"> 1121</span>&#160;      <span class="keywordflow">if</span> (result)</div>
+<div class="line"><a name="l01122"></a><span class="lineno"> 1122</span>&#160;         <a class="code" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a>();</div>
+<div class="line"><a name="l01123"></a><span class="lineno"> 1123</span>&#160;      <span class="keywordflow">return</span> result;</div>
+<div class="line"><a name="l01124"></a><span class="lineno"> 1124</span>&#160;   }</div>
+<div class="line"><a name="l01125"></a><span class="lineno"> 1125</span>&#160; </div>
+<div class="line"><a name="l01134"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#abd80672a331041d46982c9c7f873cdc1"> 1134</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#abd80672a331041d46982c9c7f873cdc1">init</a>(Short appId, UShort threadId, pVoid arg, Int queueSize = 16384, Bool suspended = <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>, Dword stackSize = 0)</div>
+<div class="line"><a name="l01135"></a><span class="lineno"> 1135</span>&#160;   {</div>
+<div class="line"><a name="l01136"></a><span class="lineno"> 1136</span>&#160;      m_appId = appId;</div>
+<div class="line"><a name="l01137"></a><span class="lineno"> 1137</span>&#160;      m_threadId = threadId;</div>
+<div class="line"><a name="l01138"></a><span class="lineno"> 1138</span>&#160;      m_queueSize = queueSize;</div>
+<div class="line"><a name="l01139"></a><span class="lineno"> 1139</span>&#160;      m_stacksize = stackSize;</div>
+<div class="line"><a name="l01140"></a><span class="lineno"> 1140</span>&#160; </div>
+<div class="line"><a name="l01141"></a><span class="lineno"> 1141</span>&#160;      <span class="keywordtype">long</span> <span class="keywordtype">id</span> = m_appId * 10000 + m_threadId;</div>
+<div class="line"><a name="l01142"></a><span class="lineno"> 1142</span>&#160; </div>
+<div class="line"><a name="l01143"></a><span class="lineno"> 1143</span>&#160;      m_queue.init(m_queueSize, <span class="keywordtype">id</span>, <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>, <a class="code" href="etevent_8h.html#a1a7c05eed44a6827c9ffd40fdd92fd50a70a2a84088d405a2e3f1e3accaa16723">EThreadQueueMode::ReadWrite</a>);</div>
+<div class="line"><a name="l01144"></a><span class="lineno"> 1144</span>&#160; </div>
+<div class="line"><a name="l01145"></a><span class="lineno"> 1145</span>&#160;      <span class="keywordflow">if</span> (!suspended)</div>
+<div class="line"><a name="l01146"></a><span class="lineno"> 1146</span>&#160;         <a class="code" href="classEThreadEvent.html#af9ae2e35cf18f57e7fa799c1e43a42a3">start</a>();</div>
+<div class="line"><a name="l01147"></a><span class="lineno"> 1147</span>&#160;   }</div>
+<div class="line"><a name="l01148"></a><span class="lineno"> 1148</span>&#160; </div>
+<div class="line"><a name="l01150"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757"> 1150</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757">quit</a>()</div>
+<div class="line"><a name="l01151"></a><span class="lineno"> 1151</span>&#160;   {</div>
+<div class="line"><a name="l01152"></a><span class="lineno"> 1152</span>&#160;      <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>(<a class="code" href="etevent_8h.html#a9033464dedda10c0e9518393262912a0">EM_QUIT</a>);</div>
+<div class="line"><a name="l01153"></a><span class="lineno"> 1153</span>&#160;   }</div>
+<div class="line"><a name="l01155"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#af9ae2e35cf18f57e7fa799c1e43a42a3"> 1155</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#af9ae2e35cf18f57e7fa799c1e43a42a3">start</a>()</div>
+<div class="line"><a name="l01156"></a><span class="lineno"> 1156</span>&#160;   {</div>
+<div class="line"><a name="l01157"></a><span class="lineno"> 1157</span>&#160;      <span class="keywordflow">if</span> (!<a class="code" href="classEThreadBasic.html#a0c6b0ae9e2a8c7550442efa1d589ac6c">isInitialized</a>())</div>
+<div class="line"><a name="l01158"></a><span class="lineno"> 1158</span>&#160;      {</div>
+<div class="line"><a name="l01159"></a><span class="lineno"> 1159</span>&#160;         <a class="code" href="classEThreadBasic.html#a51261a61fc5d83f67c41efd37c436a20">EThreadBasic::init</a>(m_arg, m_stacksize);</div>
+<div class="line"><a name="l01160"></a><span class="lineno"> 1160</span>&#160;         <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>(<a class="code" href="etevent_8h.html#a12a88eebdfeaddbbf3d9cdc3e45335a5">EM_INIT</a>);</div>
+<div class="line"><a name="l01161"></a><span class="lineno"> 1161</span>&#160;      }</div>
+<div class="line"><a name="l01162"></a><span class="lineno"> 1162</span>&#160;   }</div>
+<div class="line"><a name="l01171"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a951ebb6aa1c4f060e45272d1aeb80562"> 1171</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#a951ebb6aa1c4f060e45272d1aeb80562">suspend</a>()</div>
+<div class="line"><a name="l01172"></a><span class="lineno"> 1172</span>&#160;   {</div>
+<div class="line"><a name="l01173"></a><span class="lineno"> 1173</span>&#160;      <span class="keywordflow">if</span> (<a class="code" href="eatomic_8h.html#a9ad8c41fa90cf160f025c573812e7071">atomic_inc</a>(m_suspendCnt) == 1)</div>
+<div class="line"><a name="l01174"></a><span class="lineno"> 1174</span>&#160;         <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>(<a class="code" href="etevent_8h.html#a70b0f6950c221ec7091e2c42ce9e53df">EM_SUSPEND</a>);</div>
+<div class="line"><a name="l01175"></a><span class="lineno"> 1175</span>&#160;   }</div>
+<div class="line"><a name="l01177"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#aa1f46a5c4d47de47cc81899998b1f73d"> 1177</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#aa1f46a5c4d47de47cc81899998b1f73d">resume</a>()</div>
+<div class="line"><a name="l01178"></a><span class="lineno"> 1178</span>&#160;   {</div>
+<div class="line"><a name="l01179"></a><span class="lineno"> 1179</span>&#160;      <span class="keywordflow">if</span> (<a class="code" href="eatomic_8h.html#afd446c349676294a955ad8837ade6cbf">atomic_dec</a>(m_suspendCnt) == 0)</div>
+<div class="line"><a name="l01180"></a><span class="lineno"> 1180</span>&#160;         m_suspendSem.<a class="code" href="classESemaphoreBase.html#a292bce693b058f636c74c9b6eb3ba226">Increment</a>();</div>
+<div class="line"><a name="l01181"></a><span class="lineno"> 1181</span>&#160;   }</div>
+<div class="line"><a name="l01183"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389"> 1183</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">onInit</a>()</div>
+<div class="line"><a name="l01184"></a><span class="lineno"> 1184</span>&#160;   {</div>
+<div class="line"><a name="l01185"></a><span class="lineno"> 1185</span>&#160;   }</div>
+<div class="line"><a name="l01187"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e"> 1187</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">onQuit</a>()</div>
+<div class="line"><a name="l01188"></a><span class="lineno"> 1188</span>&#160;   {</div>
+<div class="line"><a name="l01189"></a><span class="lineno"> 1189</span>&#160;   }</div>
+<div class="line"><a name="l01191"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a8e005870b9f594bfea391b03030d38bd"> 1191</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#a8e005870b9f594bfea391b03030d38bd">onSuspend</a>()</div>
+<div class="line"><a name="l01192"></a><span class="lineno"> 1192</span>&#160;   {</div>
+<div class="line"><a name="l01193"></a><span class="lineno"> 1193</span>&#160;   }</div>
+<div class="line"><a name="l01198"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a"> 1198</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a">onTimer</a>(<a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a> *ptimer)</div>
+<div class="line"><a name="l01199"></a><span class="lineno"> 1199</span>&#160;   {</div>
+<div class="line"><a name="l01200"></a><span class="lineno"> 1200</span>&#160;   }</div>
+<div class="line"><a name="l01204"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#ad9dbc8444a26b5865c399f5a075daf2c"> 1204</a></span>&#160;   Void <a class="code" href="classEThreadEvent.html#ad9dbc8444a26b5865c399f5a075daf2c">initTimer</a>(<a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a> &amp;t)</div>
+<div class="line"><a name="l01205"></a><span class="lineno"> 1205</span>&#160;   {</div>
+<div class="line"><a name="l01206"></a><span class="lineno"> 1206</span>&#160;      TMessage *msg = <span class="keyword">new</span> TMessage(<a class="code" href="etevent_8h.html#a62c7f861374d2d4f3935e48f316e4077">EM_TIMER</a>);</div>
+<div class="line"><a name="l01207"></a><span class="lineno"> 1207</span>&#160;      msg-&gt;setVoidPtr(&amp;t);</div>
+<div class="line"><a name="l01208"></a><span class="lineno"> 1208</span>&#160;      t.<a class="code" href="classEStatic.html#ab3947f34fddb06841dea3a79dbaeff27">init</a>(<span class="keyword">this</span>, msg);</div>
+<div class="line"><a name="l01209"></a><span class="lineno"> 1209</span>&#160;   }</div>
+<div class="line"><a name="l01211"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a86b422b60d0271bb677e902dc6942a9d"> 1211</a></span>&#160;   <a class="code" href="classESemaphoreData.html">ESemaphoreData</a> &amp;<a class="code" href="classEThreadEvent.html#a86b422b60d0271bb677e902dc6942a9d">getMsgSemaphore</a>()</div>
+<div class="line"><a name="l01212"></a><span class="lineno"> 1212</span>&#160;   {</div>
+<div class="line"><a name="l01213"></a><span class="lineno"> 1213</span>&#160;      <span class="keywordflow">return</span> m_queue.semMsgs();</div>
+<div class="line"><a name="l01214"></a><span class="lineno"> 1214</span>&#160;   }</div>
+<div class="line"><a name="l01215"></a><span class="lineno"> 1215</span>&#160; </div>
+<div class="line"><a name="l01216"></a><span class="lineno"> 1216</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l01218"></a><span class="lineno"> 1218</span>&#160;   <span class="keyword">virtual</span> <span class="keyword">const</span> msgmap_t *GetMessageMap()<span class="keyword"> const</span></div>
+<div class="line"><a name="l01219"></a><span class="lineno"> 1219</span>&#160;<span class="keyword">   </span>{</div>
+<div class="line"><a name="l01220"></a><span class="lineno"> 1220</span>&#160;      <span class="keywordflow">return</span> GetThisMessageMap();</div>
+<div class="line"><a name="l01221"></a><span class="lineno"> 1221</span>&#160;   }</div>
+<div class="line"><a name="l01222"></a><span class="lineno"> 1222</span>&#160;   <span class="keyword">static</span> <span class="keyword">const</span> msgmap_t *GetThisMessageMap()</div>
+<div class="line"><a name="l01223"></a><span class="lineno"> 1223</span>&#160;   {</div>
+<div class="line"><a name="l01224"></a><span class="lineno"> 1224</span>&#160;      <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l01225"></a><span class="lineno"> 1225</span>&#160;   }</div>
+<div class="line"><a name="l01226"></a><span class="lineno"> 1226</span>&#160;   <span class="keywordtype">int</span> *getBumpPipe()</div>
+<div class="line"><a name="l01227"></a><span class="lineno"> 1227</span>&#160;   {</div>
+<div class="line"><a name="l01228"></a><span class="lineno"> 1228</span>&#160;      <span class="keywordflow">return</span> m_queue.getBumpPipe();</div>
+<div class="line"><a name="l01229"></a><span class="lineno"> 1229</span>&#160;   }</div>
+<div class="line"><a name="l01231"></a><span class="lineno"> 1231</span>&#160; </div>
+<div class="line"><a name="l01237"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5"> 1237</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a>()</div>
+<div class="line"><a name="l01238"></a><span class="lineno"> 1238</span>&#160;   {</div>
+<div class="line"><a name="l01239"></a><span class="lineno"> 1239</span>&#160;   }</div>
+<div class="line"><a name="l01254"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1"> 1254</a></span>&#160;   Bool <a class="code" href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">pumpMessage</a>(TMessage &amp;msg, Bool wait = <span class="keyword">true</span>)</div>
+<div class="line"><a name="l01255"></a><span class="lineno"> 1255</span>&#160;   {</div>
+<div class="line"><a name="l01256"></a><span class="lineno"> 1256</span>&#160;      Bool bMsg = m_queue.pop(msg, wait);</div>
+<div class="line"><a name="l01257"></a><span class="lineno"> 1257</span>&#160;      <span class="keywordflow">if</span> (bMsg)</div>
+<div class="line"><a name="l01258"></a><span class="lineno"> 1258</span>&#160;         dispatch(msg);</div>
+<div class="line"><a name="l01259"></a><span class="lineno"> 1259</span>&#160; </div>
+<div class="line"><a name="l01260"></a><span class="lineno"> 1260</span>&#160;      <span class="keywordflow">return</span> bMsg;</div>
+<div class="line"><a name="l01261"></a><span class="lineno"> 1261</span>&#160;   }</div>
+<div class="line"><a name="l01270"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#abbed57739b0fda9afb16370947795e5b"> 1270</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#abbed57739b0fda9afb16370947795e5b">pumpMessages</a>()</div>
+<div class="line"><a name="l01271"></a><span class="lineno"> 1271</span>&#160;   {</div>
+<div class="line"><a name="l01272"></a><span class="lineno"> 1272</span>&#160;      TMessage msg;</div>
+<div class="line"><a name="l01273"></a><span class="lineno"> 1273</span>&#160; </div>
+<div class="line"><a name="l01274"></a><span class="lineno"> 1274</span>&#160;      <span class="keywordflow">try</span></div>
+<div class="line"><a name="l01275"></a><span class="lineno"> 1275</span>&#160;      {</div>
+<div class="line"><a name="l01276"></a><span class="lineno"> 1276</span>&#160;         <span class="keywordflow">while</span> (<a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</div>
+<div class="line"><a name="l01277"></a><span class="lineno"> 1277</span>&#160;         {</div>
+<div class="line"><a name="l01278"></a><span class="lineno"> 1278</span>&#160;            <span class="keywordflow">if</span> (<a class="code" href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">pumpMessage</a>(msg))</div>
+<div class="line"><a name="l01279"></a><span class="lineno"> 1279</span>&#160;            {</div>
+<div class="line"><a name="l01280"></a><span class="lineno"> 1280</span>&#160;               <span class="keywordflow">if</span> (msg.getMessageId() == <a class="code" href="etevent_8h.html#a9033464dedda10c0e9518393262912a0">EM_QUIT</a>)</div>
+<div class="line"><a name="l01281"></a><span class="lineno"> 1281</span>&#160;                  <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01282"></a><span class="lineno"> 1282</span>&#160;               <span class="keywordflow">if</span> (msg.getMessageId() == <a class="code" href="etevent_8h.html#a70b0f6950c221ec7091e2c42ce9e53df">EM_SUSPEND</a>)</div>
+<div class="line"><a name="l01283"></a><span class="lineno"> 1283</span>&#160;                  m_suspendSem.<a class="code" href="classESemaphoreBase.html#a4517a1a12b12ca7fe182e77b0532dc5a">Decrement</a>();</div>
+<div class="line"><a name="l01284"></a><span class="lineno"> 1284</span>&#160;            }</div>
+<div class="line"><a name="l01285"></a><span class="lineno"> 1285</span>&#160;         }</div>
+<div class="line"><a name="l01286"></a><span class="lineno"> 1286</span>&#160;      }</div>
+<div class="line"><a name="l01287"></a><span class="lineno"> 1287</span>&#160;      <span class="keywordflow">catch</span> (<a class="code" href="classEError.html">EError</a> &amp;e)</div>
+<div class="line"><a name="l01288"></a><span class="lineno"> 1288</span>&#160;      {</div>
+<div class="line"><a name="l01289"></a><span class="lineno"> 1289</span>&#160;         <span class="comment">//std::cout &lt;&lt; &quot;t1 - &quot; &lt;&lt; e.Name() &lt;&lt; std::endl;</span></div>
+<div class="line"><a name="l01290"></a><span class="lineno"> 1290</span>&#160;         <span class="keywordflow">throw</span>;</div>
+<div class="line"><a name="l01291"></a><span class="lineno"> 1291</span>&#160;      }</div>
+<div class="line"><a name="l01292"></a><span class="lineno"> 1292</span>&#160;      <span class="keywordflow">catch</span> (...)</div>
+<div class="line"><a name="l01293"></a><span class="lineno"> 1293</span>&#160;      {</div>
+<div class="line"><a name="l01294"></a><span class="lineno"> 1294</span>&#160;         <span class="keywordflow">throw</span>;</div>
+<div class="line"><a name="l01295"></a><span class="lineno"> 1295</span>&#160;      }</div>
+<div class="line"><a name="l01296"></a><span class="lineno"> 1296</span>&#160;   }</div>
+<div class="line"><a name="l01304"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#af85952b8195e5ad54c284dec2397a0c3"> 1304</a></span>&#160;   <span class="keyword">virtual</span> Void <a class="code" href="classEThreadEvent.html#af85952b8195e5ad54c284dec2397a0c3">defaultMessageHandler</a>(TMessage &amp;msg)</div>
+<div class="line"><a name="l01305"></a><span class="lineno"> 1305</span>&#160;   {</div>
+<div class="line"><a name="l01306"></a><span class="lineno"> 1306</span>&#160;   }</div>
+<div class="line"><a name="l01309"></a><span class="lineno"><a class="line" href="classEThreadEvent.html#afdcb2283e3167255ba178aa69dccf6c4"> 1309</a></span>&#160;   pid_t <a class="code" href="classEThreadEvent.html#afdcb2283e3167255ba178aa69dccf6c4">getThreadId</a>()</div>
+<div class="line"><a name="l01310"></a><span class="lineno"> 1310</span>&#160;   {</div>
+<div class="line"><a name="l01311"></a><span class="lineno"> 1311</span>&#160;      <span class="keywordflow">if</span> (m_tid == -1)</div>
+<div class="line"><a name="l01312"></a><span class="lineno"> 1312</span>&#160;         m_tid = syscall(SYS_gettid);</div>
+<div class="line"><a name="l01313"></a><span class="lineno"> 1313</span>&#160;      <span class="keywordflow">return</span> m_tid;</div>
+<div class="line"><a name="l01314"></a><span class="lineno"> 1314</span>&#160;   }</div>
+<div class="line"><a name="l01315"></a><span class="lineno"> 1315</span>&#160; </div>
+<div class="line"><a name="l01316"></a><span class="lineno"> 1316</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l01317"></a><span class="lineno"> 1317</span>&#160;   Dword threadProc(pVoid arg)</div>
+<div class="line"><a name="l01318"></a><span class="lineno"> 1318</span>&#160;   {</div>
+<div class="line"><a name="l01319"></a><span class="lineno"> 1319</span>&#160;      <a class="code" href="classEThreadEvent.html#abbed57739b0fda9afb16370947795e5b">pumpMessages</a>();</div>
+<div class="line"><a name="l01320"></a><span class="lineno"> 1320</span>&#160;      <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l01321"></a><span class="lineno"> 1321</span>&#160;   }</div>
+<div class="line"><a name="l01322"></a><span class="lineno"> 1322</span>&#160; </div>
+<div class="line"><a name="l01323"></a><span class="lineno"> 1323</span>&#160;   Bool dispatch(TMessage &amp;msg)</div>
+<div class="line"><a name="l01324"></a><span class="lineno"> 1324</span>&#160;   {</div>
+<div class="line"><a name="l01325"></a><span class="lineno"> 1325</span>&#160;      Bool res = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>;</div>
+<div class="line"><a name="l01326"></a><span class="lineno"> 1326</span>&#160;      Bool keepgoing = <a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>;</div>
+<div class="line"><a name="l01327"></a><span class="lineno"> 1327</span>&#160;      <span class="keyword">const</span> msgmap_t *pMap;</div>
+<div class="line"><a name="l01328"></a><span class="lineno"> 1328</span>&#160;      <span class="keyword">const</span> msgentry_t *pEntries;</div>
+<div class="line"><a name="l01329"></a><span class="lineno"> 1329</span>&#160; </div>
+<div class="line"><a name="l01330"></a><span class="lineno"> 1330</span>&#160;      <span class="keywordflow">if</span> (msg.getMessageId() &gt;= <a class="code" href="etevent_8h.html#aabfd2690d041c127d98c3dbc964b30ae">EM_USER</a>)</div>
+<div class="line"><a name="l01331"></a><span class="lineno"> 1331</span>&#160;      {</div>
+<div class="line"><a name="l01332"></a><span class="lineno"> 1332</span>&#160;         <span class="comment">// interate through each map</span></div>
+<div class="line"><a name="l01333"></a><span class="lineno"> 1333</span>&#160;         <span class="keywordflow">for</span> (pMap = GetMessageMap(); keepgoing &amp;&amp; pMap &amp;&amp; pMap-&gt;pfnGetBaseMap != NULL; pMap = (*pMap-&gt;pfnGetBaseMap)())</div>
+<div class="line"><a name="l01334"></a><span class="lineno"> 1334</span>&#160;         {</div>
+<div class="line"><a name="l01335"></a><span class="lineno"> 1335</span>&#160;            <span class="comment">// interate through each entry for the map</span></div>
+<div class="line"><a name="l01336"></a><span class="lineno"> 1336</span>&#160;            <span class="keywordflow">for</span> (pEntries = pMap-&gt;lpEntries; pEntries-&gt;nMessage; pEntries++)</div>
+<div class="line"><a name="l01337"></a><span class="lineno"> 1337</span>&#160;            {</div>
+<div class="line"><a name="l01338"></a><span class="lineno"> 1338</span>&#160;               <span class="keywordflow">if</span> (pEntries-&gt;nMessage == msg.getMessageId())</div>
+<div class="line"><a name="l01339"></a><span class="lineno"> 1339</span>&#160;               {</div>
+<div class="line"><a name="l01340"></a><span class="lineno"> 1340</span>&#160;                  (this-&gt;*pEntries-&gt;pFn)(msg);</div>
+<div class="line"><a name="l01341"></a><span class="lineno"> 1341</span>&#160;                  keepgoing = <a class="code" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>;</div>
+<div class="line"><a name="l01342"></a><span class="lineno"> 1342</span>&#160;                  <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01343"></a><span class="lineno"> 1343</span>&#160;               }</div>
+<div class="line"><a name="l01344"></a><span class="lineno"> 1344</span>&#160;            }</div>
+<div class="line"><a name="l01345"></a><span class="lineno"> 1345</span>&#160;         }</div>
+<div class="line"><a name="l01346"></a><span class="lineno"> 1346</span>&#160; </div>
+<div class="line"><a name="l01347"></a><span class="lineno"> 1347</span>&#160;         <span class="keywordflow">if</span> (pMap == NULL)</div>
+<div class="line"><a name="l01348"></a><span class="lineno"> 1348</span>&#160;            <a class="code" href="classEThreadEvent.html#af85952b8195e5ad54c284dec2397a0c3">defaultMessageHandler</a>(msg);</div>
+<div class="line"><a name="l01349"></a><span class="lineno"> 1349</span>&#160;      }</div>
+<div class="line"><a name="l01350"></a><span class="lineno"> 1350</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l01351"></a><span class="lineno"> 1351</span>&#160;      {</div>
+<div class="line"><a name="l01352"></a><span class="lineno"> 1352</span>&#160;         <span class="keywordflow">switch</span> (msg.getMessageId())</div>
+<div class="line"><a name="l01353"></a><span class="lineno"> 1353</span>&#160;         {</div>
+<div class="line"><a name="l01354"></a><span class="lineno"> 1354</span>&#160;            <span class="keywordflow">case</span> <a class="code" href="etevent_8h.html#a12a88eebdfeaddbbf3d9cdc3e45335a5">EM_INIT</a>:</div>
+<div class="line"><a name="l01355"></a><span class="lineno"> 1355</span>&#160;            {</div>
+<div class="line"><a name="l01356"></a><span class="lineno"> 1356</span>&#160;               <a class="code" href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">onInit</a>();</div>
+<div class="line"><a name="l01357"></a><span class="lineno"> 1357</span>&#160;               <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01358"></a><span class="lineno"> 1358</span>&#160;            }</div>
+<div class="line"><a name="l01359"></a><span class="lineno"> 1359</span>&#160;            <span class="keywordflow">case</span> <a class="code" href="etevent_8h.html#a9033464dedda10c0e9518393262912a0">EM_QUIT</a>:</div>
+<div class="line"><a name="l01360"></a><span class="lineno"> 1360</span>&#160;            {</div>
+<div class="line"><a name="l01361"></a><span class="lineno"> 1361</span>&#160;               <a class="code" href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">onQuit</a>();</div>
+<div class="line"><a name="l01362"></a><span class="lineno"> 1362</span>&#160;               <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01363"></a><span class="lineno"> 1363</span>&#160;            }</div>
+<div class="line"><a name="l01364"></a><span class="lineno"> 1364</span>&#160;            <span class="keywordflow">case</span> <a class="code" href="etevent_8h.html#a70b0f6950c221ec7091e2c42ce9e53df">EM_SUSPEND</a>:</div>
+<div class="line"><a name="l01365"></a><span class="lineno"> 1365</span>&#160;            {</div>
+<div class="line"><a name="l01366"></a><span class="lineno"> 1366</span>&#160;               <a class="code" href="classEThreadEvent.html#a8e005870b9f594bfea391b03030d38bd">onSuspend</a>();</div>
+<div class="line"><a name="l01367"></a><span class="lineno"> 1367</span>&#160;               <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01368"></a><span class="lineno"> 1368</span>&#160;            }</div>
+<div class="line"><a name="l01369"></a><span class="lineno"> 1369</span>&#160;            <span class="keywordflow">case</span> <a class="code" href="etevent_8h.html#a62c7f861374d2d4f3935e48f316e4077">EM_TIMER</a>:</div>
+<div class="line"><a name="l01370"></a><span class="lineno"> 1370</span>&#160;            {</div>
+<div class="line"><a name="l01371"></a><span class="lineno"> 1371</span>&#160;               <a class="code" href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a">onTimer</a>( (<a class="code" href="classEThreadEventTimer.html">EThreadEventTimer</a>*)msg.getVoidPtr() );</div>
+<div class="line"><a name="l01372"></a><span class="lineno"> 1372</span>&#160;               <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01373"></a><span class="lineno"> 1373</span>&#160;            }</div>
+<div class="line"><a name="l01374"></a><span class="lineno"> 1374</span>&#160;            <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l01375"></a><span class="lineno"> 1375</span>&#160;            {</div>
+<div class="line"><a name="l01376"></a><span class="lineno"> 1376</span>&#160;               <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01377"></a><span class="lineno"> 1377</span>&#160;            }</div>
+<div class="line"><a name="l01378"></a><span class="lineno"> 1378</span>&#160;         }</div>
+<div class="line"><a name="l01379"></a><span class="lineno"> 1379</span>&#160;      }</div>
+<div class="line"><a name="l01380"></a><span class="lineno"> 1380</span>&#160; </div>
+<div class="line"><a name="l01381"></a><span class="lineno"> 1381</span>&#160;      <span class="keywordflow">return</span> keepgoing;</div>
+<div class="line"><a name="l01382"></a><span class="lineno"> 1382</span>&#160;   }</div>
+<div class="line"><a name="l01383"></a><span class="lineno"> 1383</span>&#160; </div>
+<div class="line"><a name="l01384"></a><span class="lineno"> 1384</span>&#160;   Bool _sendMessage(<span class="keyword">const</span> <a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> &amp;msg, Bool wait)</div>
+<div class="line"><a name="l01385"></a><span class="lineno"> 1385</span>&#160;   {</div>
+<div class="line"><a name="l01386"></a><span class="lineno"> 1386</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a>( (<span class="keyword">const</span> TMessage &amp;)msg, wait );</div>
+<div class="line"><a name="l01387"></a><span class="lineno"> 1387</span>&#160;   }</div>
+<div class="line"><a name="l01388"></a><span class="lineno"> 1388</span>&#160; </div>
+<div class="line"><a name="l01389"></a><span class="lineno"> 1389</span>&#160;   Void _destroyMessage(<a class="code" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *msg)</div>
+<div class="line"><a name="l01390"></a><span class="lineno"> 1390</span>&#160;   {</div>
+<div class="line"><a name="l01391"></a><span class="lineno"> 1391</span>&#160;      <span class="keyword">delete</span> (TMessage*)msg;</div>
+<div class="line"><a name="l01392"></a><span class="lineno"> 1392</span>&#160;   }</div>
+<div class="line"><a name="l01393"></a><span class="lineno"> 1393</span>&#160; </div>
+<div class="line"><a name="l01394"></a><span class="lineno"> 1394</span>&#160;   Short m_appId;</div>
+<div class="line"><a name="l01395"></a><span class="lineno"> 1395</span>&#160;   UShort m_threadId;</div>
+<div class="line"><a name="l01396"></a><span class="lineno"> 1396</span>&#160;   pVoid m_arg;</div>
+<div class="line"><a name="l01397"></a><span class="lineno"> 1397</span>&#160;   Int m_queueSize;</div>
+<div class="line"><a name="l01398"></a><span class="lineno"> 1398</span>&#160;   <span class="keywordtype">size_t</span> m_stacksize;</div>
+<div class="line"><a name="l01399"></a><span class="lineno"> 1399</span>&#160; </div>
+<div class="line"><a name="l01400"></a><span class="lineno"> 1400</span>&#160;   pid_t m_tid;</div>
+<div class="line"><a name="l01401"></a><span class="lineno"> 1401</span>&#160;   Int m_suspendCnt;</div>
+<div class="line"><a name="l01402"></a><span class="lineno"> 1402</span>&#160;   <a class="code" href="classESemaphorePrivate.html">ESemaphorePrivate</a> m_suspendSem;</div>
+<div class="line"><a name="l01403"></a><span class="lineno"> 1403</span>&#160;   TQueue m_queue;</div>
+<div class="line"><a name="l01404"></a><span class="lineno"> 1404</span>&#160;};</div>
+<div class="line"><a name="l01405"></a><span class="lineno"> 1405</span>&#160; </div>
+<div class="line"><a name="l01406"></a><span class="lineno"><a class="line" href="etevent_8h.html#a8954bda7259449b5e33a0c90f00f3e4a"> 1406</a></span>&#160;<span class="keyword">typedef</span> <a class="code" href="classEThreadEvent.html">EThreadEvent&lt;EThreadQueuePublic&lt;EThreadMessage&gt;</a>,<a class="code" href="classEThreadMessage.html">EThreadMessage</a>&gt; <a class="code" href="etevent_8h.html#a8954bda7259449b5e33a0c90f00f3e4a">EThreadPublic</a>;</div>
+<div class="line"><a name="l01407"></a><span class="lineno"><a class="line" href="etevent_8h.html#a8ec0f12a7073f7d1375468685b80b8dd"> 1407</a></span>&#160;<span class="keyword">typedef</span> <a class="code" href="classEThreadEvent.html">EThreadEvent&lt;EThreadQueuePrivate&lt;EThreadMessage&gt;</a>,<a class="code" href="classEThreadMessage.html">EThreadMessage</a>&gt; <a class="code" href="etevent_8h.html#a8ec0f12a7073f7d1375468685b80b8dd">EThreadPrivate</a>;</div>
+<div class="line"><a name="l01408"></a><span class="lineno"> 1408</span>&#160; </div>
+<div class="line"><a name="l01411"></a><span class="lineno"> 1411</span>&#160; </div>
+<div class="line"><a name="l01412"></a><span class="lineno"> 1412</span>&#160;<span class="preprocessor">#endif // #ifndef __ETEVENT_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclassEThreadMessage_html_a64d1ba98a758fe15745307bfce0d900d"><div class="ttname"><a href="classEThreadMessage.html#a64d1ba98a758fe15745307bfce0d900d">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage()</div><div class="ttdoc">Default class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:270</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html"><div class="ttname"><a href="classEThreadEventTimer.html">EThreadEventTimer</a></div><div class="ttdoc">Thread timer class.</div><div class="ttdef"><b>Definition:</b> etevent.h:852</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a3003651d73c57459305d073e0f1ad389"><div class="ttname"><a href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">EThreadEvent::onInit</a></div><div class="ttdeci">virtual Void onInit()</div><div class="ttdoc">Called in the context of the thread when the EM_INIT event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1182</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html"><div class="ttname"><a href="classEThreadEventTimer.html">EThreadEventTimer</a></div><div class="ttdoc">Thread timer class.</div><div class="ttdef"><b>Definition:</b> etevent.h:853</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a3003651d73c57459305d073e0f1ad389"><div class="ttname"><a href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">EThreadEvent::onInit</a></div><div class="ttdeci">virtual Void onInit()</div><div class="ttdoc">Called in the context of the thread when the EM_INIT event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1183</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html_a3e5f0bb07f84401e4b1057e6d699db9a"><div class="ttname"><a href="classEThreadEventMessageDataBase.html#a3e5f0bb07f84401e4b1057e6d699db9a">EThreadEventMessageDataBase::getTimer</a></div><div class="ttdeci">ETimer &amp; getTimer()</div><div class="ttdoc">Retrieves the timer associated with this event message.</div><div class="ttdef"><b>Definition:</b> etevent.h:85</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a230c9b28843f770b7cbe41c573516603"><div class="ttname"><a href="classEThreadEventMessageBase.html#a230c9b28843f770b7cbe41c573516603">EThreadEventMessageBase::data</a></div><div class="ttdeci">T &amp; data()</div><div class="ttdoc">Retrieves the data portion of the message.</div><div class="ttdef"><b>Definition:</b> etevent.h:233</div></div>
 <div class="ttc" id="aeerror_8h_html_ab71591f350ed65d99a1349f90b65f2af"><div class="ttname"><a href="eerror_8h.html#ab71591f350ed65d99a1349f90b65f2af">DECLARE_ERROR</a></div><div class="ttdeci">#define DECLARE_ERROR(__e__)</div><div class="ttdoc">Declares exception class derived from EError with no constructor parameters.</div><div class="ttdef"><b>Definition:</b> eerror.h:53</div></div>
@@ -1071,47 +1072,47 @@ $(function() {
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a1afd3430ef6d14bba3a2a1725f7da350"><div class="ttname"><a href="classEThreadEventMessageBase.html#a1afd3430ef6d14bba3a2a1725f7da350">EThreadEventMessageBase::~EThreadEventMessageBase</a></div><div class="ttdeci">virtual ~EThreadEventMessageBase()</div><div class="ttdoc">Class destructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:221</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_a8f509b21b4e2680b4e124efa77d0cf39"><div class="ttname"><a href="classEThreadMessage.html#a8f509b21b4e2680b4e124efa77d0cf39">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, Char v1, Char v2=0, Char v3=0, Char v4=0, Char v5=0, Char v6=0, Char v7=0, Char v8=0)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:324</div></div>
 <div class="ttc" id="aetevent_8h_html_ae80c2a6ed70987cd6c1710ee1c04765c"><div class="ttname"><a href="etevent_8h.html#ae80c2a6ed70987cd6c1710ee1c04765c">_EThreadMessage</a></div><div class="ttdeci">EThreadEventMessageBase&lt; EThreadEventMessageData &gt; _EThreadMessage</div><div class="ttdef"><b>Definition:</b> etevent.h:261</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_abbed57739b0fda9afb16370947795e5b"><div class="ttname"><a href="classEThreadEvent.html#abbed57739b0fda9afb16370947795e5b">EThreadEvent::pumpMessages</a></div><div class="ttdeci">virtual Void pumpMessages()</div><div class="ttdoc">Process event messages.</div><div class="ttdef"><b>Definition:</b> etevent.h:1269</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_abbed57739b0fda9afb16370947795e5b"><div class="ttname"><a href="classEThreadEvent.html#abbed57739b0fda9afb16370947795e5b">EThreadEvent::pumpMessages</a></div><div class="ttdeci">virtual Void pumpMessages()</div><div class="ttdoc">Process event messages.</div><div class="ttdef"><b>Definition:</b> etevent.h:1270</div></div>
 <div class="ttc" id="aclassEThreadQueueBase_html"><div class="ttname"><a href="classEThreadQueueBase.html">EThreadQueueBase</a></div><div class="ttdoc">Defines the functionality for the thread queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:359</div></div>
 <div class="ttc" id="aetevent_8h_html_a1a7c05eed44a6827c9ffd40fdd92fd50"><div class="ttname"><a href="etevent_8h.html#a1a7c05eed44a6827c9ffd40fdd92fd50">EThreadQueueMode</a></div><div class="ttdeci">EThreadQueueMode</div><div class="ttdoc">Defines how a client can access a thread queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:344</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_a5028679d5c0bc730bf0d4677b09ecfb5"><div class="ttname"><a href="classEThreadMessage.html#a5028679d5c0bc730bf0d4677b09ecfb5">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, UChar v1, UChar v2=0, UChar v3=0, UChar v4=0, UChar v5=0, UChar v6=0, UChar v7=0, UChar v8=0)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:336</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_ad9dbc8444a26b5865c399f5a075daf2c"><div class="ttname"><a href="classEThreadEvent.html#ad9dbc8444a26b5865c399f5a075daf2c">EThreadEvent::initTimer</a></div><div class="ttdeci">Void initTimer(EThreadEventTimer &amp;t)</div><div class="ttdoc">Intializes an EThreadEvent::Timer object and associates with this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1203</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_a3c6794f2c16a6d39f258c3352fab8cb7"><div class="ttname"><a href="classEThreadEventTimer.html#a3c6794f2c16a6d39f258c3352fab8cb7">EThreadEventTimer::~EThreadEventTimer</a></div><div class="ttdeci">~EThreadEventTimer()</div><div class="ttdoc">Class destructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:900</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_ad9dbc8444a26b5865c399f5a075daf2c"><div class="ttname"><a href="classEThreadEvent.html#ad9dbc8444a26b5865c399f5a075daf2c">EThreadEvent::initTimer</a></div><div class="ttdeci">Void initTimer(EThreadEventTimer &amp;t)</div><div class="ttdoc">Intializes an EThreadEvent::Timer object and associates with this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1204</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_a3c6794f2c16a6d39f258c3352fab8cb7"><div class="ttname"><a href="classEThreadEventTimer.html#a3c6794f2c16a6d39f258c3352fab8cb7">EThreadEventTimer::~EThreadEventTimer</a></div><div class="ttdeci">~EThreadEventTimer()</div><div class="ttdoc">Class destructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:901</div></div>
 <div class="ttc" id="aebase_8h_html_add3ca9eefe3b5b754426f51d3043e579"><div class="ttname"><a href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a></div><div class="ttdeci">#define True</div><div class="ttdoc">True.</div><div class="ttdef"><b>Definition:</b> ebase.h:25</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a3795e185faf1fc4c7fa080cce776863a"><div class="ttname"><a href="classEThreadEventMessageData.html#a3795e185faf1fc4c7fa080cce776863a">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData()</div><div class="ttdoc">Default constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:111</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html_a13026c4e61d9ced38d3a34a456c53836"><div class="ttname"><a href="classEThreadEventMessageDataBase.html#a13026c4e61d9ced38d3a34a456c53836">EThreadEventMessageDataBase::EThreadEventMessageDataBase</a></div><div class="ttdeci">EThreadEventMessageDataBase()</div><div class="ttdoc">Default constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:60</div></div>
 <div class="ttc" id="aclassEThreadMessage_html"><div class="ttname"><a href="classEThreadMessage.html">EThreadMessage</a></div><div class="ttdoc">An event message that is to be sent to a thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:266</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html_a7867cd425d490e7d89aa5e29f693636d"><div class="ttname"><a href="classEThreadEventMessageDataBase.html#a7867cd425d490e7d89aa5e29f693636d">EThreadEventMessageDataBase::EThreadEventMessageDataBase</a></div><div class="ttdeci">EThreadEventMessageDataBase(UInt msgid)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:63</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_a4b28f46b10c8164212e2713976f196b1"><div class="ttname"><a href="classEThreadEventTimer.html#a4b28f46b10c8164212e2713976f196b1">EThreadEventTimer::getId</a></div><div class="ttdeci">Long getId()</div><div class="ttdoc">Returns the unique timer id.</div><div class="ttdef"><b>Definition:</b> etevent.h:976</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_a4b28f46b10c8164212e2713976f196b1"><div class="ttname"><a href="classEThreadEventTimer.html#a4b28f46b10c8164212e2713976f196b1">EThreadEventTimer::getId</a></div><div class="ttdeci">Long getId()</div><div class="ttdoc">Returns the unique timer id.</div><div class="ttdef"><b>Definition:</b> etevent.h:977</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a9e97b5a05fab3b4dc2dd35711105c53d"><div class="ttname"><a href="classEThreadEventMessageData.html#a9e97b5a05fab3b4dc2dd35711105c53d">EThreadEventMessageData::setVoidPtr</a></div><div class="ttdeci">Void setVoidPtr(pVoid p)</div><div class="ttdoc">Sets the void pointer.</div><div class="ttdef"><b>Definition:</b> etevent.h:188</div></div>
 <div class="ttc" id="aclassEStatic_html_a5084cb094db936249865154e5a66da66"><div class="ttname"><a href="classEStatic.html#a5084cb094db936249865154e5a66da66">EStatic::uninit</a></div><div class="ttdeci">virtual Void uninit()</div><div class="ttdoc">Performs uninitialization at system shutdown.</div><div class="ttdef"><b>Definition:</b> estatic.h:63</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a258426dbc6f2f26aae859c1d3787b13e"><div class="ttname"><a href="classEThreadEventMessageData.html#a258426dbc6f2f26aae859c1d3787b13e">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid, UChar v1, UChar v2, UChar v3, UChar v4, UChar v5, UChar v6, UChar v7, UChar v8)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:176</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html_aab7b01e9913284bd9af3d8d510ef892d"><div class="ttname"><a href="classEThreadEventMessageDataBase.html#aab7b01e9913284bd9af3d8d510ef892d">EThreadEventMessageDataBase::setVoidPtr</a></div><div class="ttdeci">virtual Void setVoidPtr(pVoid p)=0</div><div class="ttdoc">Sets the void pointer.</div></div>
 <div class="ttc" id="aclassEThreadQueueBase_html_a09c1cd0ae04bbee23931ba741da75229"><div class="ttname"><a href="classEThreadQueueBase.html#a09c1cd0ae04bbee23931ba741da75229">EThreadQueueBase::pop</a></div><div class="ttdeci">Bool pop(T &amp;msg, Bool wait=True)</div><div class="ttdoc">Removes the next message from the thread event queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:398</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_aef23da9557897000b797a9a98b7fee72"><div class="ttname"><a href="classEThreadEventTimer.html#aef23da9557897000b797a9a98b7fee72">EThreadEventTimer::EThreadEventTimer</a></div><div class="ttdeci">EThreadEventTimer(Long milliseconds, Bool oneshot=False)</div><div class="ttdoc">Class constructor with configuration parameters.</div><div class="ttdef"><b>Definition:</b> etevent.h:890</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_af9ae2e35cf18f57e7fa799c1e43a42a3"><div class="ttname"><a href="classEThreadEvent.html#af9ae2e35cf18f57e7fa799c1e43a42a3">EThreadEvent::start</a></div><div class="ttdeci">Void start()</div><div class="ttdoc">Initializes the thread when it was suspended at init().</div><div class="ttdef"><b>Definition:</b> etevent.h:1154</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_aef23da9557897000b797a9a98b7fee72"><div class="ttname"><a href="classEThreadEventTimer.html#aef23da9557897000b797a9a98b7fee72">EThreadEventTimer::EThreadEventTimer</a></div><div class="ttdeci">EThreadEventTimer(Long milliseconds, Bool oneshot=False)</div><div class="ttdoc">Class constructor with configuration parameters.</div><div class="ttdef"><b>Definition:</b> etevent.h:891</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_af9ae2e35cf18f57e7fa799c1e43a42a3"><div class="ttname"><a href="classEThreadEvent.html#af9ae2e35cf18f57e7fa799c1e43a42a3">EThreadEvent::start</a></div><div class="ttdeci">Void start()</div><div class="ttdoc">Initializes the thread when it was suspended at init().</div><div class="ttdef"><b>Definition:</b> etevent.h:1155</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_ac7cf477dc43eefe485c4d7c85d401ba9"><div class="ttname"><a href="classEThreadMessage.html#ac7cf477dc43eefe485c4d7c85d401ba9">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, UShort v1, UShort v2=0, UShort v3=0, UShort v4=0)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:313</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_adbdfea9c7c873363a05241dd166fa65b"><div class="ttname"><a href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">EThreadEvent::sendMessage</a></div><div class="ttdeci">Bool sendMessage(UInt message, Bool wait=True)</div><div class="ttdoc">Sends event message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1082</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_adbdfea9c7c873363a05241dd166fa65b"><div class="ttname"><a href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">EThreadEvent::sendMessage</a></div><div class="ttdeci">Bool sendMessage(UInt message, Bool wait=True)</div><div class="ttdoc">Sends event message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1083</div></div>
 <div class="ttc" id="aeshmem_8h_html"><div class="ttname"><a href="eshmem_8h.html">eshmem.h</a></div><div class="ttdoc">Defines a class for access to shared memory.</div></div>
 <div class="ttc" id="aebase_8h_html"><div class="ttname"><a href="ebase_8h.html">ebase.h</a></div><div class="ttdoc">Macros for various standard C library functions and standard includes.</div></div>
 <div class="ttc" id="aclassEStatic_html"><div class="ttname"><a href="classEStatic.html">EStatic</a></div><div class="ttdoc">Any EpcTools that needs to have initialization performed as part of EpcTools::Initialize() should der...</div><div class="ttdef"><b>Definition:</b> estatic.h:51</div></div>
 <div class="ttc" id="aclass__EThreadEventBase_html"><div class="ttname"><a href="class__EThreadEventBase.html">_EThreadEventBase</a></div><div class="ttdef"><b>Definition:</b> etevent.h:834</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_acc26ee3ebe6b5a0e18477c39c01b3c3a"><div class="ttname"><a href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a">EThreadEvent::onTimer</a></div><div class="ttdeci">virtual Void onTimer(EThreadEventTimer *ptimer)</div><div class="ttdoc">Called in the context of the thread when th EM_TIMER event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1197</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_acc26ee3ebe6b5a0e18477c39c01b3c3a"><div class="ttname"><a href="classEThreadEvent.html#acc26ee3ebe6b5a0e18477c39c01b3c3a">EThreadEvent::onTimer</a></div><div class="ttdeci">virtual Void onTimer(EThreadEventTimer *ptimer)</div><div class="ttdoc">Called in the context of the thread when th EM_TIMER event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1198</div></div>
 <div class="ttc" id="aclassEThreadQueuePrivate_html"><div class="ttname"><a href="classEThreadQueuePrivate.html">EThreadQueuePrivate</a></div><div class="ttdoc">Definition of a private event thread message queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:670</div></div>
 <div class="ttc" id="aclassEMutexPrivate_html"><div class="ttname"><a href="classEMutexPrivate.html">EMutexPrivate</a></div><div class="ttdoc">A private mutex (the mutex data is allocated from either the heap or stack).</div><div class="ttdef"><b>Definition:</b> esynch.h:175</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_a4411e3b8364be51ec52436df826d17c7"><div class="ttname"><a href="classEThreadEventTimer.html#a4411e3b8364be51ec52436df826d17c7">EThreadEventTimer::EThreadEventTimer</a></div><div class="ttdeci">EThreadEventTimer()</div><div class="ttdoc">Default class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:875</div></div>
-<div class="ttc" id="aclassEThreadEvent_html"><div class="ttname"><a href="classEThreadEvent.html">EThreadEvent</a></div><div class="ttdoc">base class for EThreadPrivate and EThreadPublic</div><div class="ttdef"><b>Definition:</b> etevent.h:1040</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_a4411e3b8364be51ec52436df826d17c7"><div class="ttname"><a href="classEThreadEventTimer.html#a4411e3b8364be51ec52436df826d17c7">EThreadEventTimer::EThreadEventTimer</a></div><div class="ttdeci">EThreadEventTimer()</div><div class="ttdoc">Default class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:876</div></div>
+<div class="ttc" id="aclassEThreadEvent_html"><div class="ttname"><a href="classEThreadEvent.html">EThreadEvent</a></div><div class="ttdoc">base class for EThreadPrivate and EThreadPublic</div><div class="ttdef"><b>Definition:</b> etevent.h:1041</div></div>
 <div class="ttc" id="aclassEThreadQueuePrivate_html_a7c61d629b5464480c2d5bb5e9bbd7321"><div class="ttname"><a href="classEThreadQueuePrivate.html#a7c61d629b5464480c2d5bb5e9bbd7321">EThreadQueuePrivate::~EThreadQueuePrivate</a></div><div class="ttdeci">~EThreadQueuePrivate()</div><div class="ttdoc">Class destructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:689</div></div>
 <div class="ttc" id="aclassESemaphorePrivate_html_ae628785707d4bb2fddba875d209f93b4"><div class="ttname"><a href="classESemaphorePrivate.html#ae628785707d4bb2fddba875d209f93b4">ESemaphorePrivate::init</a></div><div class="ttdeci">Void init(Long initcnt)</div><div class="ttdoc">Initializes the data associated with the semaphore.</div><div class="ttdef"><b>Definition:</b> esynch.h:402</div></div>
 <div class="ttc" id="aclassEThreadQueueBase_html_aada3403d7740768b7234a560762db379"><div class="ttname"><a href="classEThreadQueueBase.html#aada3403d7740768b7234a560762db379">EThreadQueueBase::push</a></div><div class="ttdeci">Bool push(const T &amp;msg, Bool wait=True)</div><div class="ttdoc">Adds the specified message to the thread event queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:369</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_afdcb2283e3167255ba178aa69dccf6c4"><div class="ttname"><a href="classEThreadEvent.html#afdcb2283e3167255ba178aa69dccf6c4">EThreadEvent::getThreadId</a></div><div class="ttdeci">pid_t getThreadId()</div><div class="ttdoc">Retrieves the internal thread ID.</div><div class="ttdef"><b>Definition:</b> etevent.h:1308</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_afdcb2283e3167255ba178aa69dccf6c4"><div class="ttname"><a href="classEThreadEvent.html#afdcb2283e3167255ba178aa69dccf6c4">EThreadEvent::getThreadId</a></div><div class="ttdeci">pid_t getThreadId()</div><div class="ttdoc">Retrieves the internal thread ID.</div><div class="ttdef"><b>Definition:</b> etevent.h:1309</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_a3b0ded49a46a24101bc4d4beaf1ffb80"><div class="ttname"><a href="classEThreadMessage.html#a3b0ded49a46a24101bc4d4beaf1ffb80">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, pVoid v)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:281</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_a67736461309c15c095ce60ae17585b9d"><div class="ttname"><a href="classEThreadMessage.html#a67736461309c15c095ce60ae17585b9d">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, EThreadEventMessageData &amp;data)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:277</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a3f3d7abc6059f17af5505d4a06a8c7cc"><div class="ttname"><a href="classEThreadEventMessageData.html#a3f3d7abc6059f17af5505d4a06a8c7cc">EThreadEventMessageData::getVoidPtr</a></div><div class="ttdeci">pVoid getVoidPtr()</div><div class="ttdoc">Retrieves the void pointer.</div><div class="ttdef"><b>Definition:</b> etevent.h:184</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html"><div class="ttname"><a href="classEThreadEventMessageBase.html">EThreadEventMessageBase</a></div><div class="ttdoc">A template class that all event message classes should derive from.</div><div class="ttdef"><b>Definition:</b> etevent.h:206</div></div>
 <div class="ttc" id="aesynch_8h_html"><div class="ttname"><a href="esynch_8h.html">esynch.h</a></div><div class="ttdoc">Contains definitions for synchronization objects.</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a18fbce94b1fdc44d69cac2ca712fb90e"><div class="ttname"><a href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">EThreadEvent::onQuit</a></div><div class="ttdeci">virtual Void onQuit()</div><div class="ttdoc">Called in the context of the thread when the EM_QUIT event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1186</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_aa1f46a5c4d47de47cc81899998b1f73d"><div class="ttname"><a href="classEThreadEvent.html#aa1f46a5c4d47de47cc81899998b1f73d">EThreadEvent::resume</a></div><div class="ttdeci">Void resume()</div><div class="ttdoc">Resumes a suspended thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1176</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a18fbce94b1fdc44d69cac2ca712fb90e"><div class="ttname"><a href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">EThreadEvent::onQuit</a></div><div class="ttdeci">virtual Void onQuit()</div><div class="ttdoc">Called in the context of the thread when the EM_QUIT event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1187</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_aa1f46a5c4d47de47cc81899998b1f73d"><div class="ttname"><a href="classEThreadEvent.html#aa1f46a5c4d47de47cc81899998b1f73d">EThreadEvent::resume</a></div><div class="ttdeci">Void resume()</div><div class="ttdoc">Resumes a suspended thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1177</div></div>
 <div class="ttc" id="aetevent_8h_html_a1a7c05eed44a6827c9ffd40fdd92fd50a70a2a84088d405a2e3f1e3accaa16723"><div class="ttname"><a href="etevent_8h.html#a1a7c05eed44a6827c9ffd40fdd92fd50a70a2a84088d405a2e3f1e3accaa16723">EThreadQueueMode::ReadWrite</a></div><div class="ttdoc">Allows read or write access.</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a1692737ac06df0b6410a2dd4636a73fc"><div class="ttname"><a href="classEThreadEventMessageBase.html#a1692737ac06df0b6410a2dd4636a73fc">EThreadEventMessageBase::EThreadEventMessageBase</a></div><div class="ttdeci">EThreadEventMessageBase()</div><div class="ttdoc">Default constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:210</div></div>
 <div class="ttc" id="aetimer_8h_html"><div class="ttname"><a href="etimer_8h.html">etimer.h</a></div></div>
@@ -1120,91 +1121,91 @@ $(function() {
 <div class="ttc" id="aetevent_8h_html_a12a88eebdfeaddbbf3d9cdc3e45335a5"><div class="ttname"><a href="etevent_8h.html#a12a88eebdfeaddbbf3d9cdc3e45335a5">EM_INIT</a></div><div class="ttdeci">#define EM_INIT</div><div class="ttdoc">thread initialization event</div><div class="ttdef"><b>Definition:</b> etevent.h:770</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a31db800ac31a7fe82e243d76b658a606"><div class="ttname"><a href="classEThreadEventMessageData.html#a31db800ac31a7fe82e243d76b658a606">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid, Long v1, Long v2)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:135</div></div>
 <div class="ttc" id="aclassESemaphorePublic_html"><div class="ttname"><a href="classESemaphorePublic.html">ESemaphorePublic</a></div><div class="ttdoc">Represents a public semaphore, the semaphore data is located in shared memory.</div><div class="ttdef"><b>Definition:</b> esynch.h:446</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_ab95bdb5c96b1ebe5662785282584dbab"><div class="ttname"><a href="classEThreadEventTimer.html#ab95bdb5c96b1ebe5662785282584dbab">EThreadEventTimer::setInterval</a></div><div class="ttdeci">Void setInterval(Long interval)</div><div class="ttdoc">sets the timer interval</div><div class="ttdef"><b>Definition:</b> etevent.h:964</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_ab95bdb5c96b1ebe5662785282584dbab"><div class="ttname"><a href="classEThreadEventTimer.html#ab95bdb5c96b1ebe5662785282584dbab">EThreadEventTimer::setInterval</a></div><div class="ttdeci">Void setInterval(Long interval)</div><div class="ttdoc">sets the timer interval</div><div class="ttdef"><b>Definition:</b> etevent.h:965</div></div>
 <div class="ttc" id="aesynch2_8h_html"><div class="ttname"><a href="esynch2_8h.html">esynch2.h</a></div></div>
-<div class="ttc" id="aclassEThreadEvent_html_af4f8883d8f7d39e2bdae6d2d9c3a978f"><div class="ttname"><a href="classEThreadEvent.html#af4f8883d8f7d39e2bdae6d2d9c3a978f">EThreadEvent::sendMessage</a></div><div class="ttdeci">Bool sendMessage(UInt message, pVoid voidptr, Bool wait=True)</div><div class="ttdoc">Sends event message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1100</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_af4f8883d8f7d39e2bdae6d2d9c3a978f"><div class="ttname"><a href="classEThreadEvent.html#af4f8883d8f7d39e2bdae6d2d9c3a978f">EThreadEvent::sendMessage</a></div><div class="ttdeci">Bool sendMessage(UInt message, pVoid voidptr, Bool wait=True)</div><div class="ttdoc">Sends event message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1101</div></div>
 <div class="ttc" id="aclassEMutexPublic_html"><div class="ttname"><a href="classEMutexPublic.html">EMutexPublic</a></div><div class="ttdoc">A public mutex (the mutex data is located in shared memory).</div><div class="ttdef"><b>Definition:</b> esynch.h:223</div></div>
 <div class="ttc" id="aclassETimer_html"><div class="ttname"><a href="classETimer.html">ETimer</a></div><div class="ttdoc">Implements a stopwatch style timer.</div><div class="ttdef"><b>Definition:</b> etimer.h:26</div></div>
 <div class="ttc" id="aclassEThreadQueueBase_html_aba42433338ea2b928066f276076d9a3d"><div class="ttname"><a href="classEThreadQueueBase.html#aba42433338ea2b928066f276076d9a3d">EThreadQueueBase::mode</a></div><div class="ttdeci">EThreadQueueMode mode()</div><div class="ttdoc">Retrieves the access mode associated with this queue object.</div><div class="ttdef"><b>Definition:</b> etevent.h:443</div></div>
 <div class="ttc" id="aclassESharedMemory_html_affda2d92d4ba4506b196d7c266b777ad"><div class="ttname"><a href="classESharedMemory.html#affda2d92d4ba4506b196d7c266b777ad">ESharedMemory::getDataPtr</a></div><div class="ttdeci">pVoid getDataPtr()</div><div class="ttdoc">Retrieves a pointer to the first location of the shated memory.</div><div class="ttdef"><b>Definition:</b> eshmem.h:65</div></div>
 <div class="ttc" id="aclassESharedMemory_html_ad231d66f0e4d22240690008d6131cff7"><div class="ttname"><a href="classESharedMemory.html#ad231d66f0e4d22240690008d6131cff7">ESharedMemory::init</a></div><div class="ttdeci">Void init(cpStr file, Int id, Int size)</div><div class="ttdoc">Initializes this shared memory object. This method is called by the parameterized constructor.</div><div class="ttdef"><b>Definition:</b> eshmem.cpp:109</div></div>
 <div class="ttc" id="aclassEMutexPublic_html_ab18eafe10a216cffb94fe4dd68bac0da"><div class="ttname"><a href="classEMutexPublic.html#ab18eafe10a216cffb94fe4dd68bac0da">EMutexPublic::mutexId</a></div><div class="ttdeci">Int mutexId()</div><div class="ttdoc">Retrieves the mutex ID associated with this public mutex.</div><div class="ttdef"><b>Definition:</b> esynch.h:253</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a137ee8f23161ffb90386e620c56b5eb5"><div class="ttname"><a href="classEThreadEvent.html#a137ee8f23161ffb90386e620c56b5eb5">EThreadEvent::sendMessage</a></div><div class="ttdeci">Bool sendMessage(const TMessage &amp;msg, Bool wait=True)</div><div class="ttdoc">Sends event message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1117</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a137ee8f23161ffb90386e620c56b5eb5"><div class="ttname"><a href="classEThreadEvent.html#a137ee8f23161ffb90386e620c56b5eb5">EThreadEvent::sendMessage</a></div><div class="ttdeci">Bool sendMessage(const TMessage &amp;msg, Bool wait=True)</div><div class="ttdoc">Sends event message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1118</div></div>
 <div class="ttc" id="aebase_8h_html_a306ebd41c0cd1303b1372c6153f0caf8"><div class="ttname"><a href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a></div><div class="ttdeci">#define False</div><div class="ttdoc">False.</div><div class="ttdef"><b>Definition:</b> ebase.h:27</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_a6c65cb3297ebc6b37d0aaf8b38445ece"><div class="ttname"><a href="classEThreadEventTimer.html#a6c65cb3297ebc6b37d0aaf8b38445ece">EThreadEventTimer::setOneShot</a></div><div class="ttdeci">Void setOneShot(Bool oneshot)</div><div class="ttdoc">sets the type of timer</div><div class="ttdef"><b>Definition:</b> etevent.h:969</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_a54bdc9f9ea342f6664ecd79d1070fff7"><div class="ttname"><a href="classEThreadEventTimer.html#a54bdc9f9ea342f6664ecd79d1070fff7">EThreadEventTimer::destroy</a></div><div class="ttdeci">Void destroy()</div><div class="ttdoc">Stops and destroys the underlying timer object.</div><div class="ttdef"><b>Definition:</b> etevent.h:909</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_a6c65cb3297ebc6b37d0aaf8b38445ece"><div class="ttname"><a href="classEThreadEventTimer.html#a6c65cb3297ebc6b37d0aaf8b38445ece">EThreadEventTimer::setOneShot</a></div><div class="ttdeci">Void setOneShot(Bool oneshot)</div><div class="ttdoc">sets the type of timer</div><div class="ttdef"><b>Definition:</b> etevent.h:970</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_a54bdc9f9ea342f6664ecd79d1070fff7"><div class="ttname"><a href="classEThreadEventTimer.html#a54bdc9f9ea342f6664ecd79d1070fff7">EThreadEventTimer::destroy</a></div><div class="ttdeci">Void destroy()</div><div class="ttdoc">Stops and destroys the underlying timer object.</div><div class="ttdef"><b>Definition:</b> etevent.h:910</div></div>
 <div class="ttc" id="aclassEThreadQueuePublic_html_a86d3ca91cb5473336ec7ce4dcd6a6502"><div class="ttname"><a href="classEThreadQueuePublic.html#a86d3ca91cb5473336ec7ce4dcd6a6502">EThreadQueuePublic::init</a></div><div class="ttdeci">Void init(Int nMsgCnt, Int threadId, Bool bMultipleWriters, EThreadQueueMode eMode)</div><div class="ttdoc">Initializes this public event thead message queue object.</div><div class="ttdef"><b>Definition:</b> etevent.h:588</div></div>
 <div class="ttc" id="aclassEThreadBasic_html_a0c6b0ae9e2a8c7550442efa1d589ac6c"><div class="ttname"><a href="classEThreadBasic.html#a0c6b0ae9e2a8c7550442efa1d589ac6c">EThreadBasic::isInitialized</a></div><div class="ttdeci">Bool isInitialized()</div><div class="ttdoc">Returns the thread initialization state.</div><div class="ttdef"><b>Definition:</b> etbasic.cpp:133</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_ad5c18145fc2368b079166137217e09a9"><div class="ttname"><a href="classEThreadMessage.html#ad5c18145fc2368b079166137217e09a9">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, ULong v1, ULong v2=0)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:299</div></div>
-<div class="ttc" id="aetevent_8h_html_a8ec0f12a7073f7d1375468685b80b8dd"><div class="ttname"><a href="etevent_8h.html#a8ec0f12a7073f7d1375468685b80b8dd">EThreadPrivate</a></div><div class="ttdeci">EThreadEvent&lt; EThreadQueuePrivate&lt; EThreadMessage &gt;, EThreadMessage &gt; EThreadPrivate</div><div class="ttdef"><b>Definition:</b> etevent.h:1406</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a5d549f8c942e4ea3bea9fa105e2c9c16"><div class="ttname"><a href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">EThreadEvent::~EThreadEvent</a></div><div class="ttdeci">~EThreadEvent()</div><div class="ttdoc">Rhe class destructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:1069</div></div>
+<div class="ttc" id="aetevent_8h_html_a8ec0f12a7073f7d1375468685b80b8dd"><div class="ttname"><a href="etevent_8h.html#a8ec0f12a7073f7d1375468685b80b8dd">EThreadPrivate</a></div><div class="ttdeci">EThreadEvent&lt; EThreadQueuePrivate&lt; EThreadMessage &gt;, EThreadMessage &gt; EThreadPrivate</div><div class="ttdef"><b>Definition:</b> etevent.h:1407</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a5d549f8c942e4ea3bea9fa105e2c9c16"><div class="ttname"><a href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">EThreadEvent::~EThreadEvent</a></div><div class="ttdeci">~EThreadEvent()</div><div class="ttdoc">Rhe class destructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:1070</div></div>
 <div class="ttc" id="aetevent_8h_html_a1a7c05eed44a6827c9ffd40fdd92fd50a131fb182a881796e7606ed6da27f1197"><div class="ttname"><a href="etevent_8h.html#a1a7c05eed44a6827c9ffd40fdd92fd50a131fb182a881796e7606ed6da27f1197">EThreadQueueMode::ReadOnly</a></div><div class="ttdoc">Allows read only access.</div></div>
 <div class="ttc" id="aetevent_8h_html_aabfd2690d041c127d98c3dbc964b30ae"><div class="ttname"><a href="etevent_8h.html#aabfd2690d041c127d98c3dbc964b30ae">EM_USER</a></div><div class="ttdeci">#define EM_USER</div><div class="ttdoc">beginning of user events</div><div class="ttdef"><b>Definition:</b> etevent.h:786</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html_aeb994e216e1a6c16976825f4c1d57583"><div class="ttname"><a href="classEThreadEventMessageDataBase.html#aeb994e216e1a6c16976825f4c1d57583">EThreadEventMessageDataBase::setMessageId</a></div><div class="ttdeci">EThreadEventMessageDataBase &amp; setMessageId(UInt msgid)</div><div class="ttdoc">Sets the event message ID.</div><div class="ttdef"><b>Definition:</b> etevent.h:71</div></div>
 <div class="ttc" id="aetevent_8h_html_a9033464dedda10c0e9518393262912a0"><div class="ttname"><a href="etevent_8h.html#a9033464dedda10c0e9518393262912a0">EM_QUIT</a></div><div class="ttdeci">#define EM_QUIT</div><div class="ttdoc">thread quit event</div><div class="ttdef"><b>Definition:</b> etevent.h:772</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_a3bbf0266c29648bbb5c4d16978f3bd58"><div class="ttname"><a href="classEThreadEventTimer.html#a3bbf0266c29648bbb5c4d16978f3bd58">EThreadEventTimer::stop</a></div><div class="ttdeci">Void stop()</div><div class="ttdoc">Stops the timer.</div><div class="ttdef"><b>Definition:</b> etevent.h:946</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_a3bbf0266c29648bbb5c4d16978f3bd58"><div class="ttname"><a href="classEThreadEventTimer.html#a3bbf0266c29648bbb5c4d16978f3bd58">EThreadEventTimer::stop</a></div><div class="ttdeci">Void stop()</div><div class="ttdoc">Stops the timer.</div><div class="ttdef"><b>Definition:</b> etevent.h:947</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_aa1fbd95fe769424c61be180a3fa7a134"><div class="ttname"><a href="classEThreadEventMessageData.html#aa1fbd95fe769424c61be180a3fa7a134">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid, LongLong v)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:126</div></div>
 <div class="ttc" id="aclassESemaphorePrivate_html"><div class="ttname"><a href="classESemaphorePrivate.html">ESemaphorePrivate</a></div><div class="ttdoc">Represents a private semaphore, the semaphore data is allocated from either the stack or heap.</div><div class="ttdef"><b>Definition:</b> esynch.h:382</div></div>
 <div class="ttc" id="aclassEThreadQueueBase_html_aff101e8dbddee7c8aea63710f7fc349f"><div class="ttname"><a href="classEThreadQueueBase.html#aff101e8dbddee7c8aea63710f7fc349f">EThreadQueueBase::isInitialized</a></div><div class="ttdeci">Bool isInitialized()</div><div class="ttdoc">Retrieves indication if this queue object has been initialized.</div><div class="ttdef"><b>Definition:</b> etevent.h:440</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_abd80672a331041d46982c9c7f873cdc1"><div class="ttname"><a href="classEThreadEvent.html#abd80672a331041d46982c9c7f873cdc1">EThreadEvent::init</a></div><div class="ttdeci">virtual Void init(Short appId, UShort threadId, pVoid arg, Int queueSize=16384, Bool suspended=False, Dword stackSize=0)</div><div class="ttdoc">Initializes the thread object.</div><div class="ttdef"><b>Definition:</b> etevent.h:1133</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_abd80672a331041d46982c9c7f873cdc1"><div class="ttname"><a href="classEThreadEvent.html#abd80672a331041d46982c9c7f873cdc1">EThreadEvent::init</a></div><div class="ttdeci">virtual Void init(Short appId, UShort threadId, pVoid arg, Int queueSize=16384, Bool suspended=False, Dword stackSize=0)</div><div class="ttdoc">Initializes the thread object.</div><div class="ttdef"><b>Definition:</b> etevent.h:1134</div></div>
 <div class="ttc" id="aetevent_8h_html_a70b0f6950c221ec7091e2c42ce9e53df"><div class="ttname"><a href="etevent_8h.html#a70b0f6950c221ec7091e2c42ce9e53df">EM_SUSPEND</a></div><div class="ttdeci">#define EM_SUSPEND</div><div class="ttdoc">thread suspend event</div><div class="ttdef"><b>Definition:</b> etevent.h:774</div></div>
 <div class="ttc" id="aeerror_8h_html_a974638b398459efd2cc6d8abada9d7ce"><div class="ttname"><a href="eerror_8h.html#a974638b398459efd2cc6d8abada9d7ce">DECLARE_ERROR_ADVANCED</a></div><div class="ttdeci">#define DECLARE_ERROR_ADVANCED(__e__)</div><div class="ttdoc">Declares exception class derived from EError with no constructor parameters and developer defined con...</div><div class="ttdef"><b>Definition:</b> eerror.h:59</div></div>
 <div class="ttc" id="aclassESemaphoreBase_html_a292bce693b058f636c74c9b6eb3ba226"><div class="ttname"><a href="classESemaphoreBase.html#a292bce693b058f636c74c9b6eb3ba226">ESemaphoreBase::Increment</a></div><div class="ttdeci">Bool Increment()</div><div class="ttdoc">Increments the semaphore value.</div><div class="ttdef"><b>Definition:</b> esynch.h:351</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a8e005870b9f594bfea391b03030d38bd"><div class="ttname"><a href="classEThreadEvent.html#a8e005870b9f594bfea391b03030d38bd">EThreadEvent::onSuspend</a></div><div class="ttdeci">virtual Void onSuspend()</div><div class="ttdoc">Called in the context of the thread when th EM_SUSPEND event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1190</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a8e005870b9f594bfea391b03030d38bd"><div class="ttname"><a href="classEThreadEvent.html#a8e005870b9f594bfea391b03030d38bd">EThreadEvent::onSuspend</a></div><div class="ttdeci">virtual Void onSuspend()</div><div class="ttdoc">Called in the context of the thread when th EM_SUSPEND event is processed.</div><div class="ttdef"><b>Definition:</b> etevent.h:1191</div></div>
 <div class="ttc" id="aclassEThreadQueuePrivate_html_aeb02811d13998e798cf5ff970201352c"><div class="ttname"><a href="classEThreadQueuePrivate.html#aeb02811d13998e798cf5ff970201352c">EThreadQueuePrivate::init</a></div><div class="ttdeci">Void init(Int nMsgCnt, Int threadId, Bool bMultipleWriters, EThreadQueueMode eMode)</div><div class="ttdoc">Initializes this public event thead message queue object.</div><div class="ttdef"><b>Definition:</b> etevent.h:705</div></div>
 <div class="ttc" id="aclassEThreadQueueBase_html_ac2682d0db5d80d5522d13109ec7b3571"><div class="ttname"><a href="classEThreadQueueBase.html#ac2682d0db5d80d5522d13109ec7b3571">EThreadQueueBase::peek</a></div><div class="ttdeci">Bool peek(T &amp;msg, Bool wait=True)</div><div class="ttdoc">Retrievees the next message from the thread event queue without removing the message from the queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:421</div></div>
 <div class="ttc" id="aclassEThreadQueuePublic_html_a5d375a23aad6cd036a871a7d1ba14616"><div class="ttname"><a href="classEThreadQueuePublic.html#a5d375a23aad6cd036a871a7d1ba14616">EThreadQueuePublic::~EThreadQueuePublic</a></div><div class="ttdeci">~EThreadQueuePublic()</div><div class="ttdoc">Class destructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:577</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a2109f232b88941ef1c5e72c8d0af7028"><div class="ttname"><a href="classEThreadEventMessageBase.html#a2109f232b88941ef1c5e72c8d0af7028">EThreadEventMessageBase::operator=</a></div><div class="ttdeci">T &amp; operator=(const T &amp;data)</div><div class="ttdoc">Assignment operator.</div><div class="ttdef"><b>Definition:</b> etevent.h:226</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a78ca5192e396f358d16b34f4e085eb90"><div class="ttname"><a href="classEThreadEventMessageData.html#a78ca5192e396f358d16b34f4e085eb90">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid, ULongLong v)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:130</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a951ebb6aa1c4f060e45272d1aeb80562"><div class="ttname"><a href="classEThreadEvent.html#a951ebb6aa1c4f060e45272d1aeb80562">EThreadEvent::suspend</a></div><div class="ttdeci">Void suspend()</div><div class="ttdoc">Suspends a running thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1170</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a951ebb6aa1c4f060e45272d1aeb80562"><div class="ttname"><a href="classEThreadEvent.html#a951ebb6aa1c4f060e45272d1aeb80562">EThreadEvent::suspend</a></div><div class="ttdeci">Void suspend()</div><div class="ttdoc">Suspends a running thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1171</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html"><div class="ttname"><a href="classEThreadEventMessageDataBase.html">EThreadEventMessageDataBase</a></div><div class="ttdoc">The base class that all event message data objects should be derived from.</div><div class="ttdef"><b>Definition:</b> etevent.h:56</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a4aa824f0be3ecdb23c3ea869fc11ca8c"><div class="ttname"><a href="classEThreadEventMessageData.html#a4aa824f0be3ecdb23c3ea869fc11ca8c">EThreadEventMessageData::data</a></div><div class="ttdeci">DataUnion &amp; data()</div><div class="ttdoc">Retrieves the data union object.</div><div class="ttdef"><b>Definition:</b> etevent.h:180</div></div>
 <div class="ttc" id="aclassESharedMemory_html"><div class="ttname"><a href="classESharedMemory.html">ESharedMemory</a></div><div class="ttdoc">The shared memory access class.</div><div class="ttdef"><b>Definition:</b> eshmem.h:43</div></div>
 <div class="ttc" id="aclassEThreadEventMessageDataBase_html_a54bf958a39d811cd2d2dac47eb842d22"><div class="ttname"><a href="classEThreadEventMessageDataBase.html#a54bf958a39d811cd2d2dac47eb842d22">EThreadEventMessageDataBase::getVoidPtr</a></div><div class="ttdeci">virtual pVoid getVoidPtr()=0</div><div class="ttdoc">Retrieves the void pointer.</div></div>
 <div class="ttc" id="aclassEThreadBasic_html_a51261a61fc5d83f67c41efd37c436a20"><div class="ttname"><a href="classEThreadBasic.html#a51261a61fc5d83f67c41efd37c436a20">EThreadBasic::init</a></div><div class="ttdeci">Void init(pVoid arg, size_t stackSize=0)</div><div class="ttdoc">Initialize and start the thread.</div><div class="ttdef"><b>Definition:</b> etbasic.cpp:106</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a149cda0565f258faf0c963b3009da8f5"><div class="ttname"><a href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">EThreadEvent::messageQueued</a></div><div class="ttdeci">virtual Void messageQueued()</div><div class="ttdoc">Called when an event message is queued.</div><div class="ttdef"><b>Definition:</b> etevent.h:1236</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a149cda0565f258faf0c963b3009da8f5"><div class="ttname"><a href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">EThreadEvent::messageQueued</a></div><div class="ttdeci">virtual Void messageQueued()</div><div class="ttdoc">Called when an event message is queued.</div><div class="ttdef"><b>Definition:</b> etevent.h:1237</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a984c6a4d1094ac27166d4d5fc8b429b0"><div class="ttname"><a href="classEThreadEventMessageBase.html#a984c6a4d1094ac27166d4d5fc8b429b0">EThreadEventMessageBase::setVoidPtr</a></div><div class="ttdeci">Void setVoidPtr(pVoid p)</div><div class="ttdoc">Sets the void pointer for this event message.</div><div class="ttdef"><b>Definition:</b> etevent.h:250</div></div>
 <div class="ttc" id="aclass__EThreadEventMessageBase_html"><div class="ttname"><a href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a></div><div class="ttdoc">The event message base class.</div><div class="ttdef"><b>Definition:</b> etevent.h:197</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_ad96b998c0429667bb6dcb23701cf9b16"><div class="ttname"><a href="classEThreadEventTimer.html#ad96b998c0429667bb6dcb23701cf9b16">EThreadEventTimer::isInitialized</a></div><div class="ttdeci">Bool isInitialized()</div><div class="ttdoc">Indicates if this timer object has been initialized.</div><div class="ttdef"><b>Definition:</b> etevent.h:983</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_afe96e27e5031ae396f1f66160fb9e0ad"><div class="ttname"><a href="classEThreadEventTimer.html#afe96e27e5031ae396f1f66160fb9e0ad">EThreadEventTimer::start</a></div><div class="ttdeci">Void start()</div><div class="ttdoc">Starts the timer.</div><div class="ttdef"><b>Definition:</b> etevent.h:932</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_ad96b998c0429667bb6dcb23701cf9b16"><div class="ttname"><a href="classEThreadEventTimer.html#ad96b998c0429667bb6dcb23701cf9b16">EThreadEventTimer::isInitialized</a></div><div class="ttdeci">Bool isInitialized()</div><div class="ttdoc">Indicates if this timer object has been initialized.</div><div class="ttdef"><b>Definition:</b> etevent.h:984</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_afe96e27e5031ae396f1f66160fb9e0ad"><div class="ttname"><a href="classEThreadEventTimer.html#afe96e27e5031ae396f1f66160fb9e0ad">EThreadEventTimer::start</a></div><div class="ttdeci">Void start()</div><div class="ttdoc">Starts the timer.</div><div class="ttdef"><b>Definition:</b> etevent.h:933</div></div>
 <div class="ttc" id="aclassEThreadBasic_html"><div class="ttname"><a href="classEThreadBasic.html">EThreadBasic</a></div><div class="ttdoc">An abstract class that represents contains the threadProc() that will be run in a separate thread.</div><div class="ttdef"><b>Definition:</b> etbasic.h:53</div></div>
-<div class="ttc" id="aclass__EThreadEventBase_html_ac3f8ea70ea9793720900c801076f3558"><div class="ttname"><a href="class__EThreadEventBase.html#ac3f8ea70ea9793720900c801076f3558">_EThreadEventBase::_destroyMessage</a></div><div class="ttdeci">virtual Void _destroyMessage(_EThreadEventMessageBase *msg)</div><div class="ttdef"><b>Definition:</b> etevent.h:840</div></div>
+<div class="ttc" id="aclass__EThreadEventBase_html_ac3f8ea70ea9793720900c801076f3558"><div class="ttname"><a href="class__EThreadEventBase.html#ac3f8ea70ea9793720900c801076f3558">_EThreadEventBase::_destroyMessage</a></div><div class="ttdeci">virtual Void _destroyMessage(_EThreadEventMessageBase *msg)</div><div class="ttdef"><b>Definition:</b> etevent.h:841</div></div>
 <div class="ttc" id="aclass__EThreadEventMessageBase_html_a267071bbebd98127de3f23f275c1082f"><div class="ttname"><a href="class__EThreadEventMessageBase.html#a267071bbebd98127de3f23f275c1082f">_EThreadEventMessageBase::~_EThreadEventMessageBase</a></div><div class="ttdeci">virtual ~_EThreadEventMessageBase()</div><div class="ttdoc">Virtual class destructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:201</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_a2a082db0869ddc600e73eb893cc0f19a"><div class="ttname"><a href="classEThreadMessage.html#a2a082db0869ddc600e73eb893cc0f19a">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, Long v1, Long v2=0)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:294</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a4fdad2388459f0a2b326ff896d821f00"><div class="ttname"><a href="classEThreadEventMessageData.html#a4fdad2388459f0a2b326ff896d821f00">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid, EThreadEventMessageData &amp;data)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:118</div></div>
 <div class="ttc" id="aegetopt_8h_html"><div class="ttname"><a href="egetopt_8h.html">egetopt.h</a></div><div class="ttdoc">Manages configuration parameters from a file and the command line.</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_a0167846e1333014011df17ffd326cecc"><div class="ttname"><a href="classEThreadEventTimer.html#a0167846e1333014011df17ffd326cecc">EThreadEventTimer::getInterval</a></div><div class="ttdeci">Long getInterval()</div><div class="ttdoc">Returns the timer interval in milliseconds.</div><div class="ttdef"><b>Definition:</b> etevent.h:959</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_a0167846e1333014011df17ffd326cecc"><div class="ttname"><a href="classEThreadEventTimer.html#a0167846e1333014011df17ffd326cecc">EThreadEventTimer::getInterval</a></div><div class="ttdeci">Long getInterval()</div><div class="ttdoc">Returns the timer interval in milliseconds.</div><div class="ttdef"><b>Definition:</b> etevent.h:960</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a653c7cfa30bc4a990aaab516453adb92"><div class="ttname"><a href="classEThreadEventMessageData.html#a653c7cfa30bc4a990aaab516453adb92">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid, Char v1, Char v2, Char v3, Char v4, Char v5, Char v6, Char v7, Char v8)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:165</div></div>
 <div class="ttc" id="aetbasic_8h_html"><div class="ttname"><a href="etbasic_8h.html">etbasic.h</a></div></div>
-<div class="ttc" id="aclassEThreadEvent_html_af85952b8195e5ad54c284dec2397a0c3"><div class="ttname"><a href="classEThreadEvent.html#af85952b8195e5ad54c284dec2397a0c3">EThreadEvent::defaultMessageHandler</a></div><div class="ttdeci">virtual Void defaultMessageHandler(TMessage &amp;msg)</div><div class="ttdoc">The default event message handler.</div><div class="ttdef"><b>Definition:</b> etevent.h:1303</div></div>
-<div class="ttc" id="aclassEThreadEventTimer_html_ad5f72ab97d50b9fbcff4711a8a6c23ff"><div class="ttname"><a href="classEThreadEventTimer.html#ad5f72ab97d50b9fbcff4711a8a6c23ff">EThreadEventTimer::EThreadEventTimerHandler</a></div><div class="ttdeci">friend class EThreadEventTimerHandler</div><div class="ttdef"><b>Definition:</b> etevent.h:854</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_af85952b8195e5ad54c284dec2397a0c3"><div class="ttname"><a href="classEThreadEvent.html#af85952b8195e5ad54c284dec2397a0c3">EThreadEvent::defaultMessageHandler</a></div><div class="ttdeci">virtual Void defaultMessageHandler(TMessage &amp;msg)</div><div class="ttdoc">The default event message handler.</div><div class="ttdef"><b>Definition:</b> etevent.h:1304</div></div>
+<div class="ttc" id="aclassEThreadEventTimer_html_ad5f72ab97d50b9fbcff4711a8a6c23ff"><div class="ttname"><a href="classEThreadEventTimer.html#ad5f72ab97d50b9fbcff4711a8a6c23ff">EThreadEventTimer::EThreadEventTimerHandler</a></div><div class="ttdeci">friend class EThreadEventTimerHandler</div><div class="ttdef"><b>Definition:</b> etevent.h:855</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html"><div class="ttname"><a href="classEThreadEventMessageData.html">EThreadEventMessageData</a></div><div class="ttdoc">An event message data object that provides access to a union over 8 bytes of data.</div><div class="ttdef"><b>Definition:</b> etevent.h:93</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_ad9c48af1f8f68bc7631c547ff2f31757"><div class="ttname"><a href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757">EThreadEvent::quit</a></div><div class="ttdeci">Void quit()</div><div class="ttdoc">Posts the quit message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1149</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_ad9c48af1f8f68bc7631c547ff2f31757"><div class="ttname"><a href="classEThreadEvent.html#ad9c48af1f8f68bc7631c547ff2f31757">EThreadEvent::quit</a></div><div class="ttdeci">Void quit()</div><div class="ttdoc">Posts the quit message to this thread.</div><div class="ttdef"><b>Definition:</b> etevent.h:1150</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_aab00b1395f808bdebe49e88bcbf9640c"><div class="ttname"><a href="classEThreadEventMessageData.html#aab00b1395f808bdebe49e88bcbf9640c">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:114</div></div>
 <div class="ttc" id="aebase_8h_html_a41e2969a97793c6f35881c6f1d054145"><div class="ttname"><a href="ebase_8h.html#a41e2969a97793c6f35881c6f1d054145">EPC_FILENAME_MAX</a></div><div class="ttdeci">#define EPC_FILENAME_MAX</div><div class="ttdoc">maximum file name length</div><div class="ttdef"><b>Definition:</b> ebase.h:37</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_a1acc702961698475059e296f3e0a754c"><div class="ttname"><a href="classEThreadMessage.html#a1acc702961698475059e296f3e0a754c">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, LongLong v)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:285</div></div>
 <div class="ttc" id="aclassEError_html"><div class="ttname"><a href="classEError.html">EError</a></div><div class="ttdoc">The base class for exceptions derived from std::exception.</div><div class="ttdef"><b>Definition:</b> eerror.h:92</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_ae7648594242c1bd2890f92318dc3178c"><div class="ttname"><a href="classEThreadMessage.html#ae7648594242c1bd2890f92318dc3178c">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, Short v1, Short v2=0, Short v3=0, Short v4=0)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:306</div></div>
 <div class="ttc" id="aclassEThreadQueuePrivate_html_ad4c1736a50f31f27e2e8c5b421633f3e"><div class="ttname"><a href="classEThreadQueuePrivate.html#ad4c1736a50f31f27e2e8c5b421633f3e">EThreadQueuePrivate::EThreadQueuePrivate</a></div><div class="ttdeci">EThreadQueuePrivate()</div><div class="ttdoc">Default constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:675</div></div>
-<div class="ttc" id="aetevent_8h_html_a8954bda7259449b5e33a0c90f00f3e4a"><div class="ttname"><a href="etevent_8h.html#a8954bda7259449b5e33a0c90f00f3e4a">EThreadPublic</a></div><div class="ttdeci">EThreadEvent&lt; EThreadQueuePublic&lt; EThreadMessage &gt;, EThreadMessage &gt; EThreadPublic</div><div class="ttdef"><b>Definition:</b> etevent.h:1405</div></div>
+<div class="ttc" id="aetevent_8h_html_a8954bda7259449b5e33a0c90f00f3e4a"><div class="ttname"><a href="etevent_8h.html#a8954bda7259449b5e33a0c90f00f3e4a">EThreadPublic</a></div><div class="ttdeci">EThreadEvent&lt; EThreadQueuePublic&lt; EThreadMessage &gt;, EThreadMessage &gt; EThreadPublic</div><div class="ttdef"><b>Definition:</b> etevent.h:1406</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a32352601508cc8805f51aadd2a62207f"><div class="ttname"><a href="classEThreadEventMessageBase.html#a32352601508cc8805f51aadd2a62207f">EThreadEventMessageBase::EThreadEventMessageBase</a></div><div class="ttdeci">EThreadEventMessageBase(const T &amp;data)</div><div class="ttdoc">Copy constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:216</div></div>
 <div class="ttc" id="aetevent_8h_html_a62c7f861374d2d4f3935e48f316e4077"><div class="ttname"><a href="etevent_8h.html#a62c7f861374d2d4f3935e48f316e4077">EM_TIMER</a></div><div class="ttdeci">#define EM_TIMER</div><div class="ttdoc">thread timer expiration event</div><div class="ttdef"><b>Definition:</b> etevent.h:776</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_adbcbf94f689ee25602f42429fb9e187d"><div class="ttname"><a href="classEThreadEventMessageBase.html#adbcbf94f689ee25602f42429fb9e187d">EThreadEventMessageBase::getVoidPtr</a></div><div class="ttdeci">pVoid getVoidPtr()</div><div class="ttdoc">Retrieves the void pointer from the data portion of this event message.</div><div class="ttdef"><b>Definition:</b> etevent.h:246</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a59d0f04ed76c9d052cff7f940f0de042"><div class="ttname"><a href="classEThreadEventMessageData.html#a59d0f04ed76c9d052cff7f940f0de042">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid, pVoid v)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:122</div></div>
 <div class="ttc" id="aclassEMutexPrivate_html_a828aafdbf0709894fb42228e67f540e6"><div class="ttname"><a href="classEMutexPrivate.html#a828aafdbf0709894fb42228e67f540e6">EMutexPrivate::init</a></div><div class="ttdeci">Void init()</div><div class="ttdef"><b>Definition:</b> esynch.h:195</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a86b422b60d0271bb677e902dc6942a9d"><div class="ttname"><a href="classEThreadEvent.html#a86b422b60d0271bb677e902dc6942a9d">EThreadEvent::getMsgSemaphore</a></div><div class="ttdeci">ESemaphoreData &amp; getMsgSemaphore()</div><div class="ttdoc">Returns the semaphore associated with this thread's event queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:1210</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a86b422b60d0271bb677e902dc6942a9d"><div class="ttname"><a href="classEThreadEvent.html#a86b422b60d0271bb677e902dc6942a9d">EThreadEvent::getMsgSemaphore</a></div><div class="ttdeci">ESemaphoreData &amp; getMsgSemaphore()</div><div class="ttdoc">Returns the semaphore associated with this thread's event queue.</div><div class="ttdef"><b>Definition:</b> etevent.h:1211</div></div>
 <div class="ttc" id="aebase_8h_html_a2cc2d445a1e706397c55eb5d1a72256f"><div class="ttname"><a href="ebase_8h.html#a2cc2d445a1e706397c55eb5d1a72256f">epc_sprintf_s</a></div><div class="ttdeci">#define epc_sprintf_s</div><div class="ttdoc">epc_sprintf_s - sprintf_s</div><div class="ttdef"><b>Definition:</b> ebase.h:46</div></div>
 <div class="ttc" id="aclassEMutexLock_html"><div class="ttname"><a href="classEMutexLock.html">EMutexLock</a></div><div class="ttdoc">Acquires and holds a lock on the specified mutex.</div><div class="ttdef"><b>Definition:</b> esynch.h:133</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_a4f92ffc042c0e8b6093ffc76375a31df"><div class="ttname"><a href="classEThreadEventMessageBase.html#a4f92ffc042c0e8b6093ffc76375a31df">EThreadEventMessageBase::getTimer</a></div><div class="ttdeci">ETimer &amp; getTimer()</div><div class="ttdoc">Retrieves the timer associated with this event message.</div><div class="ttdef"><b>Definition:</b> etevent.h:255</div></div>
 <div class="ttc" id="aclassEStatic_html_ab3947f34fddb06841dea3a79dbaeff27"><div class="ttname"><a href="classEStatic.html#ab3947f34fddb06841dea3a79dbaeff27">EStatic::init</a></div><div class="ttdeci">virtual Void init(EGetOpt &amp;opt)</div><div class="ttdoc">Performs class specific initialization.</div><div class="ttdef"><b>Definition:</b> estatic.h:61</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_a0ca89f9f83f64d631242738afe59c25d"><div class="ttname"><a href="classEThreadMessage.html#a0ca89f9f83f64d631242738afe59c25d">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid, ULongLong v)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:289</div></div>
 <div class="ttc" id="aetevent_8h_html_a1a7c05eed44a6827c9ffd40fdd92fd50a53dfe5089ae9e65887cb0215cb0098f5"><div class="ttname"><a href="etevent_8h.html#a1a7c05eed44a6827c9ffd40fdd92fd50a53dfe5089ae9e65887cb0215cb0098f5">EThreadQueueMode::WriteOnly</a></div><div class="ttdoc">Allows read only access.</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a433f8511addca1ec1eb6d3bf6f1c22a1"><div class="ttname"><a href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">EThreadEvent::pumpMessage</a></div><div class="ttdeci">Bool pumpMessage(TMessage &amp;msg, Bool wait=true)</div><div class="ttdoc">Dispatches the next thread event message.</div><div class="ttdef"><b>Definition:</b> etevent.h:1253</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a433f8511addca1ec1eb6d3bf6f1c22a1"><div class="ttname"><a href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">EThreadEvent::pumpMessage</a></div><div class="ttdeci">Bool pumpMessage(TMessage &amp;msg, Bool wait=true)</div><div class="ttdoc">Dispatches the next thread event message.</div><div class="ttdef"><b>Definition:</b> etevent.h:1254</div></div>
 <div class="ttc" id="aclassEStatic_html_ab2b11db81892082623f89d5152015c97"><div class="ttname"><a href="classEStatic.html#ab2b11db81892082623f89d5152015c97">EStatic::getInitType</a></div><div class="ttdeci">virtual Int getInitType()</div><div class="ttdef"><b>Definition:</b> estatic.h:57</div></div>
 <div class="ttc" id="aclassEThreadEventMessageData_html_a85e4dde134a7c02900fd7b2783faa51b"><div class="ttname"><a href="classEThreadEventMessageData.html#a85e4dde134a7c02900fd7b2783faa51b">EThreadEventMessageData::EThreadEventMessageData</a></div><div class="ttdeci">EThreadEventMessageData(UInt msgid, UShort v1, UShort v2, UShort v3, UShort v4)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:154</div></div>
 <div class="ttc" id="aeatomic_8h_html_afd446c349676294a955ad8837ade6cbf"><div class="ttname"><a href="eatomic_8h.html#afd446c349676294a955ad8837ade6cbf">atomic_dec</a></div><div class="ttdeci">#define atomic_dec(a)</div><div class="ttdoc">atomic decrement - decrements a by 1</div><div class="ttdef"><b>Definition:</b> eatomic.h:25</div></div>
 <div class="ttc" id="aclassEThreadMessage_html_a614488b442826092a9bb6225759b9d03"><div class="ttname"><a href="classEThreadMessage.html#a614488b442826092a9bb6225759b9d03">EThreadMessage::EThreadMessage</a></div><div class="ttdeci">EThreadMessage(UInt msgid)</div><div class="ttdoc">Class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:273</div></div>
-<div class="ttc" id="aclassEThreadEvent_html_a41b03009493fc1f10b8a60f112655868"><div class="ttname"><a href="classEThreadEvent.html#a41b03009493fc1f10b8a60f112655868">EThreadEvent::EThreadEvent</a></div><div class="ttdeci">EThreadEvent()</div><div class="ttdoc">Default class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:1059</div></div>
+<div class="ttc" id="aclassEThreadEvent_html_a41b03009493fc1f10b8a60f112655868"><div class="ttname"><a href="classEThreadEvent.html#a41b03009493fc1f10b8a60f112655868">EThreadEvent::EThreadEvent</a></div><div class="ttdeci">EThreadEvent()</div><div class="ttdoc">Default class constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:1060</div></div>
 <div class="ttc" id="aclassEThreadQueuePublic_html_abfccfdac3c8e1b936e287ba1dc3d4671"><div class="ttname"><a href="classEThreadQueuePublic.html#abfccfdac3c8e1b936e287ba1dc3d4671">EThreadQueuePublic::EThreadQueuePublic</a></div><div class="ttdeci">EThreadQueuePublic()</div><div class="ttdoc">Default constructor.</div><div class="ttdef"><b>Definition:</b> etevent.h:571</div></div>
 <div class="ttc" id="aclassEMutexData_html"><div class="ttname"><a href="classEMutexData.html">EMutexData</a></div><div class="ttdoc">Contains the data associated with a public or private mutex.</div><div class="ttdef"><b>Definition:</b> esynch.h:72</div></div>
 <div class="ttc" id="aclassEThreadEventMessageBase_html_ab2e9f13e22f67856ee9ba43ec1b8f8c7"><div class="ttname"><a href="classEThreadEventMessageBase.html#ab2e9f13e22f67856ee9ba43ec1b8f8c7">EThreadEventMessageBase::setMessageId</a></div><div class="ttdeci">EThreadEventMessageBase &amp; setMessageId(UInt msgid)</div><div class="ttdoc">Sets the event message ID for this event message.</div><div class="ttdef"><b>Definition:</b> etevent.h:243</div></div>

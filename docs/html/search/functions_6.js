@@ -37,7 +37,7 @@ var searchData=
   ['findusagetype',['findUsageType',['../classEPCDNS_1_1AppProtocol.html#a10678dc0d09ab8bc5accb2bb48a3574a',1,'EPCDNS::AppProtocol']]],
   ['flush',['flush',['../classELogger.html#a94861e91d9e1f0911f185ae2a4e7cb63',1,'ELogger']]],
   ['forcerefresh',['forceRefresh',['../classDNS_1_1Cache.html#a02948e5e8540ba9fc3a6c312b087e4d8',1,'DNS::Cache']]],
-  ['format',['Format',['../classETime.html#a7c794038cc4ca2f0c9cffbf9e5a2bbee',1,'ETime::Format(EString &amp;dest, cpStr fmt, Bool local)'],['../classETime.html#a629d0f8fe9b208d8facc4d319ff58f77',1,'ETime::Format(pStr dest, Int maxsize, cpStr fmt, Bool local)'],['../classETime.html#a559064d6ac5fc4d17c9ae0f975fa68d2',1,'ETime::Format(cpStr fmt, Bool local)'],['../classEString.html#a320dce9f0bdcbf80118db0d623e176e1',1,'EString::format()']]],
+  ['format',['format',['../classEString.html#a320dce9f0bdcbf80118db0d623e176e1',1,'EString::format()'],['../classETime.html#a7c794038cc4ca2f0c9cffbf9e5a2bbee',1,'ETime::Format(EString &amp;dest, cpStr fmt, Bool local)'],['../classETime.html#a629d0f8fe9b208d8facc4d319ff58f77',1,'ETime::Format(pStr dest, Int maxsize, cpStr fmt, Bool local)'],['../classETime.html#a559064d6ac5fc4d17c9ae0f975fa68d2',1,'ETime::Format(cpStr fmt, Bool local)']]],
   ['format_5ftime_5finto_5fspecs',['format_time_into_specs',['../etime_8cpp.html#abd7bf87933eeb41ebdc2752eeee2f91d',1,'etime.cpp']]],
   ['format_5ftime_5finto_5fstring',['format_time_into_string',['../etime_8cpp.html#a0b2a27b31a3275d003249cd016d3002c',1,'etime.cpp']]],
   ['free',['free',['../classECircularBuffer.html#a859905656a113a943b063a3b93e8bf98',1,'ECircularBuffer']]]
