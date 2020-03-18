@@ -89,7 +89,7 @@ typedef const pLong cpLong;
 typedef const pULong cpULong;
 typedef const pDword cpDword;
 typedef const pLongLong cpLongLong;
-typedef const pULongLong cpUlongLong;
+typedef const pULongLong cpULongLong;
 typedef const pFloat cpFloat;
 typedef const pDouble cpDouble;
 

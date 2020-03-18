@@ -15,6 +15,7 @@
 * limitations under the License.
 */
 
+#include "etypes.h"
 #include "ehash.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,3 +120,337 @@ ULong EHash::m_crcTable[] =
         0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94, //0x0F8
         0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D, //0x0FC
 };
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+ESipHash24::Key ESipHash24::key_(
+   (cUChar[]){0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}, 16
+);
+
+// UChar ESipHash24::key_[16] = {
+//    0,  1,  2,  3,  4,  5,  6,  7,
+//    8,  9, 10, 11, 12, 13, 14, 15
+// };
+
+ULong ESipHash24::getHash32(cpUChar in, size_t inlen, const Key &key)
+{
+   union
+   {
+      ULong val;
+      UChar bytes[sizeof(val)];
+   } result;
+
+   getHalfHash(in, inlen, key.data(), result.bytes, sizeof(result.bytes));
+
+   return result.val;
+}
+
+Bool ESipHash24::getHash32(cpUChar in, size_t inlen, pUChar out, const size_t outlen, const Key &key)
+{
+   return getHalfHash(in, inlen, key, out, outlen);
+}
+
+ULongLong ESipHash24::getHash64(cpUChar in, size_t inlen, const Key &key)
+{
+   union
+   {
+      ULongLong val;
+      UChar bytes[sizeof(val)];
+   } result;
+
+   getHalfHash(in, inlen, key, result.bytes, sizeof(result.bytes));
+
+   return result.val;
+}
+
+Bool ESipHash24::getHash64(cpUChar in, size_t inlen, pUChar out, const size_t outlen, const Key &key)
+{
+   return getHalfHash(in, inlen, key, out, outlen);
+}
+
+Bool ESipHash24::getHash128(cpUChar in, size_t inlen, pUChar out, const size_t outlen, const Key &key)
+{
+   return getFullHash(in, inlen, key, out, outlen);
+}
+
+#define ROTATELEFT_FULL(x, b) (uint64_t)(((x) << (b)) | ((x) >> (64 - (b))))
+#define ROTATELEFT_HALF(x, b) (uint32_t)(((x) << (b)) | ((x) >> (32 - (b))))
+
+#define SIP_ROUND_FULL                 \
+    do {                               \
+        v0 += v1;                      \
+        v1 = ROTATELEFT_FULL(v1, 13);  \
+        v1 ^= v0;                      \
+        v0 = ROTATELEFT_FULL(v0, 32);  \
+        v2 += v3;                      \
+        v3 = ROTATELEFT_FULL(v3, 16);  \
+        v3 ^= v2;                      \
+        v0 += v3;                      \
+        v3 = ROTATELEFT_FULL(v3, 21);  \
+        v3 ^= v0;                      \
+        v2 += v1;                      \
+        v1 = ROTATELEFT_FULL(v1, 17);  \
+        v1 ^= v2;                      \
+        v2 = ROTATELEFT_FULL(v2, 32);  \
+    } while (0)
+
+#define SIP_ROUND_HALF                 \
+    do {                               \
+        v0 += v1;                      \
+        v1 = ROTATELEFT_HALF(v1, 5);   \
+        v1 ^= v0;                      \
+        v0 = ROTATELEFT_HALF(v0, 16);  \
+        v2 += v3;                      \
+        v3 = ROTATELEFT_HALF(v3, 8);   \
+        v3 ^= v2;                      \
+        v0 += v3;                      \
+        v3 = ROTATELEFT_HALF(v3, 7);   \
+        v3 ^= v0;                      \
+        v2 += v1;                      \
+        v1 = ROTATELEFT_HALF(v1, 13);  \
+        v1 ^= v2;                      \
+        v2 = ROTATELEFT_HALF(v2, 16);  \
+    } while (0)
+
+#define SIP_ROUND_FULL_C   \
+({                         \
+   SIP_ROUND_FULL;         \
+   SIP_ROUND_FULL;         \
+})
+
+#define SIP_ROUND_FULL_D   \
+({                         \
+   SIP_ROUND_FULL;         \
+   SIP_ROUND_FULL;         \
+   SIP_ROUND_FULL;         \
+   SIP_ROUND_FULL;         \
+})
+
+#define SIP_ROUND_HALF_C   \
+({                         \
+   SIP_ROUND_HALF;         \
+   SIP_ROUND_HALF;         \
+})
+
+#define SIP_ROUND_HALF_D   \
+({                         \
+   SIP_ROUND_HALF;         \
+   SIP_ROUND_HALF;         \
+   SIP_ROUND_HALF;         \
+   SIP_ROUND_HALF;         \
+})
+
+Bool ESipHash24::getFullHash(cpUChar in, size_t inlen, cpUChar k, pUChar out, const size_t outlen)
+{
+   if (outlen != 16)
+      throw ESipHash24Error_InvalidKeyLength();
+
+   union
+   {
+      ULongLong val;
+      UChar bytes[sizeof(val)];
+   } k0, k1;
+
+   for (int i=0; i<sizeof(k0.val); i++)
+      k0.bytes[i] = k[i];
+
+   for (int i=0; i<sizeof(k1.val); i++)
+      k1.bytes[i] = k[sizeof(k1.val)+i];
+
+   ULongLong v0 = 0x736f6d6570736575ull ^ k0.val;
+   ULongLong v1 = 0x646f72616e646f6dull ^ k1.val;
+   ULongLong v2 = 0x6c7967656e657261ull ^ k0.val;
+   ULongLong v3 = 0x7465646279746573ull ^ k1.val;
+
+   union
+   {
+      UChar bytes[128];
+      struct
+      {
+         ULongLong low;
+         ULongLong high;
+      } u;
+   } result = {0};
+   
+   union
+   {
+      ULongLong val;
+      UChar bytes[sizeof(val)];
+   } m;
+   
+   cpUChar end = in + inlen - (inlen % sizeof(ULongLong));
+   const cInt left = inlen & 7;
+   ULongLong b = ((ULongLong)inlen) << 56;
+
+   v1 ^= 0xee;
+
+   for (; in != end; in += 8)
+   {
+      m.bytes[0] = in[0];
+      m.bytes[1] = in[1];
+      m.bytes[2] = in[2];
+      m.bytes[3] = in[3];
+      m.bytes[4] = in[4];
+      m.bytes[5] = in[5];
+      m.bytes[6] = in[6];
+      m.bytes[7] = in[7];
+
+      v3 ^= m.val;
+
+      SIP_ROUND_FULL_C;
+
+      v0 ^= m.val;
+   }
+
+   switch (left)
+   {
+      case 7: b |= ((ULongLong)in[6]) << 48;
+      case 6: b |= ((ULongLong)in[5]) << 40;
+      case 5: b |= ((ULongLong)in[4]) << 32;
+      case 4: b |= ((ULongLong)in[3]) << 24;
+      case 3: b |= ((ULongLong)in[2]) << 16;
+      case 2: b |= ((ULongLong)in[1]) << 8;
+      case 1: b |= ((ULongLong)in[0]);
+   }
+
+   v3 ^= b;
+
+   SIP_ROUND_FULL_C;
+
+   v0 ^= b;
+
+   v2 ^= 0xee;
+
+   SIP_ROUND_FULL_D;
+
+   result.u.low = v0 ^ v1 ^ v2 ^ v3;
+
+   out[0] = result.bytes[0];
+   out[1] = result.bytes[1];
+   out[2] = result.bytes[2];
+   out[3] = result.bytes[3];
+   out[4] = result.bytes[4];
+   out[5] = result.bytes[5];
+   out[6] = result.bytes[6];
+   out[7] = result.bytes[7];
+
+   v1 ^= 0xdd;
+
+   SIP_ROUND_FULL_D;
+   
+   result.u.high = v0 ^ v1 ^ v2 ^ v3;
+
+   out[8] = result.bytes[8];
+   out[9] = result.bytes[9];
+   out[10] = result.bytes[10];
+   out[11] = result.bytes[11];
+   out[12] = result.bytes[12];
+   out[13] = result.bytes[13];
+   out[14] = result.bytes[14];
+   out[15] = result.bytes[15];
+
+   return True;
+}
+
+Bool ESipHash24::getHalfHash(cpUChar in, size_t inlen, cpUChar k, pUChar out, const size_t outlen)
+{
+   if (outlen != 4 && outlen != 8)
+      throw ESipHash24Error_InvalidKeyLength();
+
+   union
+   {
+      ULong val;
+      UChar bytes[sizeof(val)];
+   } k0, k1;
+
+   for (int i=0; i<sizeof(k0.val); i++)
+      k0.bytes[i] = k[i];
+
+   for (int i=0; i<sizeof(k1.val); i++)
+      k1.bytes[i] = k[sizeof(k1.val)+i];
+
+   ULong v0 = 0 ^ k0.val;
+   ULong v1 = 0 ^ k1.val;
+   ULong v2 = 0x6c796765ul ^ k0.val;
+   ULong v3 = 0x74656462ul ^ k1.val;
+
+   union
+   {
+      ULongLong val;
+      struct
+      {
+         ULong low;
+         ULong high;
+      } u;
+      UChar bytes[sizeof(val)];
+   } result;
+   result.val = 0;
+   
+   union
+   {
+      ULong val;
+      UChar bytes[sizeof(val)];
+   } m;
+   
+   cpUChar end = in + inlen - (inlen % sizeof(ULong));
+   const cInt left = inlen & 3;
+   ULong b = ((ULong)inlen) << 24;
+
+   if (outlen == 8)
+      v1 ^= 0xee;
+
+   for (; in != end; in += 4)
+   {
+      m.bytes[0] = in[0];
+      m.bytes[1] = in[1];
+      m.bytes[2] = in[2];
+      m.bytes[3] = in[3];
+
+      v3 ^= m.val;
+
+      SIP_ROUND_HALF_C;
+
+      v0 ^= m.val;
+   }
+
+   switch (left)
+   {
+      case 3: b |= ((ULong)in[2]) << 16;
+      case 2: b |= ((ULong)in[1]) << 8;
+      case 1: b |= ((ULong)in[0]);
+   }
+
+   v3 ^= b;
+
+   SIP_ROUND_HALF_C;
+
+   v0 ^= b;
+
+   v2 ^= (outlen == 8) ? 0xee : 0xff;
+
+   SIP_ROUND_HALF_D;
+
+   result.u.low = v1 ^ v3;
+
+   out[0] = result.bytes[0];
+   out[1] = result.bytes[1];
+   out[2] = result.bytes[2];
+   out[3] = result.bytes[3];
+
+   if (outlen == 4)
+      return True;
+
+   v1 ^= 0xdd;
+
+   SIP_ROUND_HALF_D;
+   
+   result.u.high = v1 ^ v3;
+
+   out[4] = result.bytes[4];
+   out[5] = result.bytes[5];
+   out[6] = result.bytes[6];
+   out[7] = result.bytes[7];
+
+   return True;
+}
