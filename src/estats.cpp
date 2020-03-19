@@ -88,7 +88,7 @@ Void EStatistics::DiameterHook::process(enum fd_hook_type type, struct msg * msg
    if ( !msg || fd_msg_hdr(msg,&hdr) )
       return;
 
-   Bool isError = HOOK_MASK(HOOK_MESSAGE_RECEIVED, HOOK_MESSAGE_SENDING) & type == 0;
+   Bool isError = (HOOK_MASK(HOOK_MESSAGE_RECEIVED, HOOK_MESSAGE_SENDING) & type) == 0;
    Bool isRequest = (hdr->msg_flags & CMD_FLAG_REQUEST) == CMD_FLAG_REQUEST;
    EStatistics::InterfaceId intfcid = hdr->msg_appl;
    EStatistics::MessageId msgid = isRequest ? hdr->msg_code : hdr->msg_code | DIAMETER_ANSWER_BIT;
@@ -105,6 +105,10 @@ Void EStatistics::DiameterHook::process(enum fd_hook_type type, struct msg * msg
             case HOOK_MESSAGE_SENDING:       { intfc.incRequestSentOk( peer->info.pi_diamid, msgid );          break; }
             case HOOK_MESSAGE_PARSING_ERROR: { intfc.incRequestSentErrors( peer->info.pi_diamid, msgid );      break; }
             case HOOK_MESSAGE_ROUTING_ERROR: { intfc.incRequestReceivedErrors( peer->info.pi_diamid, msgid );  break; }
+            default:
+            {
+               break;
+            }
          }
       }
       else
@@ -118,6 +122,10 @@ Void EStatistics::DiameterHook::process(enum fd_hook_type type, struct msg * msg
                {
                   case HOOK_MESSAGE_RECEIVED:   { intfc.incResponseReceivedOkAccepted( peer->info.pi_diamid, msgid | DIAMETER_ANSWER_BIT ); break; }
                   case HOOK_MESSAGE_SENDING:    { intfc.incResponseSentOkAccepted( peer->info.pi_diamid, msgid | DIAMETER_ANSWER_BIT ); break; }
+                  default:
+                  {
+                     break;
+                  }
                }
             }
             else
@@ -126,6 +134,10 @@ Void EStatistics::DiameterHook::process(enum fd_hook_type type, struct msg * msg
                {
                   case HOOK_MESSAGE_RECEIVED:   { intfc.incResponseReceivedOkRejected( peer->info.pi_diamid, msgid | DIAMETER_ANSWER_BIT ); break; }
                   case HOOK_MESSAGE_SENDING:    { intfc.incResponseSentOkRejected( peer->info.pi_diamid, msgid | DIAMETER_ANSWER_BIT ); break; }
+                  default:
+                  {
+                     break;
+                  }
                }
             }
          }
@@ -135,6 +147,10 @@ Void EStatistics::DiameterHook::process(enum fd_hook_type type, struct msg * msg
             {
                case HOOK_MESSAGE_PARSING_ERROR: { intfc.incResponseSentErrors( peer->info.pi_diamid, msgid | DIAMETER_ANSWER_BIT );      break; }
                case HOOK_MESSAGE_ROUTING_ERROR: { intfc.incResponseReceivedErrors( peer->info.pi_diamid, msgid | DIAMETER_ANSWER_BIT );  break; }
+               default:
+               {
+                  break;
+               }
             }
          }
          

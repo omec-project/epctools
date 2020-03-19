@@ -575,7 +575,7 @@ static bool initiate_and_create_date(parse_date *pd, struct tm *time_ptr,
       break;
    }
 
-   for (int i = 0; i < date_order; i++, day_count++)
+   for (UInt i = 0; i < date_order; i++, day_count++)
    {
 
       if (1 == day_count)
@@ -670,7 +670,6 @@ static bool determine_date(parse_date *pd, UInt date,
 {
    int day = 30, month = 12, year = 1899;
    UInt date_order;
-   UInt date_try;
 
    if (0 == pd->field_count)
    {

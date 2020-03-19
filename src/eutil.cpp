@@ -119,7 +119,7 @@ void EUtility::_string_format( std::string &dest, const char *format, va_list &a
 {
    char buf[2048];
    int len = vsnprintf( buf, sizeof(buf), format, args  );
-   dest.assign( buf, len < sizeof(buf) ? len : sizeof(buf) );
+   dest.assign( buf, (size_t)len < sizeof(buf) ? len : sizeof(buf) );
 }
 
 std::string EUtility::string_format( const char *format, ... )

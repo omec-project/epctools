@@ -68,4 +68,4 @@ libepc_a_SOURCES =   \
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-libepc_a_CPPFLAGS = -Og -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares
+libepc_a_CPPFLAGS = -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares

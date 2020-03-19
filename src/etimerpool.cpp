@@ -358,6 +358,8 @@ Void ETimerPool::Entry::notify()
       case ETimerPool::ExpirationInfoType::Callback:
          (m_info.u.cb.func)( getId(), m_info.u.cb.data );
          break;
+      default:
+         break;
    }
 }
 /// @endcond

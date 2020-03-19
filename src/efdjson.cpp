@@ -298,8 +298,6 @@ private:
 
    void _init( const char *avp_name )
    {
-      int ret = 0;
-
       mName = avp_name;
       mBaseEntry = NULL;
       memset( &mBaseData, 0, sizeof(mBaseData) );
@@ -468,7 +466,6 @@ static void fdJsonAddAvps( msg_or_avp *reference, const RAPIDJSON_NAMESPACE::Val
 
 static void fdJsonAddAvp( msg_or_avp *reference, const char *name, const RAPIDJSON_NAMESPACE::Value &value, void (*errfunc)(const char*) )
 {
-   int ret;
    AVP avp( name );
 
    switch (value.GetType())
@@ -605,7 +602,7 @@ static void fdJsonAddAvp( msg_or_avp *reference, const char *name, const RAPIDJS
                 * start index at 1 (first hex digit divided by number of digits per byte, 2 / 2 = 1)
                 * to start at the first hex digit
                 */
-               for (int i = 1; i < binlen; i++)
+               for (size_t i = 1; i < binlen; i++)
                   avp.getBuffer().get()[i-1] = (HEX2BIN(p[i * 2] ) << 4) + HEX2BIN(p[i * 2 + 1]);
 
                /*

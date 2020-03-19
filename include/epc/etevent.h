@@ -807,7 +807,6 @@ protected:                                                     \
    }                                                           \
    const theClass::msgmap_t *theClass::GetThisMessageMap()     \
    {                                                           \
-      typedef theClass ThisClass;                              \
       typedef baseClass TheBaseClass;                          \
       _Pragma("GCC diagnostic push")                           \
       _Pragma("GCC diagnostic ignored \"-Wpmf-conversions\"")  \
@@ -1322,7 +1321,6 @@ private:
 
    Bool dispatch(TMessage &msg)
    {
-      Bool res = True;
       Bool keepgoing = True;
       const msgmap_t *pMap;
       const msgentry_t *pEntries;
@@ -1391,15 +1389,15 @@ private:
       delete (TMessage*)msg;
    }
 
-   Short m_appId;
-   UShort m_threadId;
-   pVoid m_arg;
-   Int m_queueSize;
-   size_t m_stacksize;
-
    pid_t m_tid;
+   pVoid m_arg;
+   size_t m_stacksize;
    Int m_suspendCnt;
    ESemaphorePrivate m_suspendSem;
+
+   Short m_appId;
+   UShort m_threadId;
+   Int m_queueSize;
    TQueue m_queue;
 };
 

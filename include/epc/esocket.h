@@ -633,8 +633,6 @@ namespace ESocket
             if (getRemote().getFamily() != Family::INET && getRemote().getFamily() != Family::INET6)
                throw TcpTalkerError_InvalidRemoteAddress();
 
-            struct addrinfo *pAddress;
-
             Int family = getRemote().getFamily() == Family::INET ? AF_INET : AF_INET6;
             Int type = this->getType();
             Int protocol = this->getProtocol();
@@ -1327,7 +1325,7 @@ namespace ESocket
 
             size_t packetLength = 0;
             Int amtRead = m_wbuf.peekData(reinterpret_cast<pUChar>(&packetLength), 0, sizeof(packetLength));
-            if (amtRead != sizeof(packetLength))
+            if ((size_t)amtRead != sizeof(packetLength))
             {
                EString msg;
                msg.format("expected %d bytes, read %d bytes", sizeof(packetLength), amtRead);
@@ -1335,7 +1333,7 @@ namespace ESocket
             }
 
             amtRead = m_wbuf.peekData(reinterpret_cast<pUChar>(m_sndmsg), 0, packetLength);
-            if (amtRead != packetLength)
+            if ((size_t)amtRead != packetLength)
             {
                EString msg;
                msg.format("expected %d bytes, read %d bytes", sizeof(packetLength), amtRead);
@@ -1426,10 +1424,10 @@ namespace ESocket
       EMutexPrivate m_sendmtx;
       Bool m_sending;
 
-      UDPMessage *m_rcvmsg;
-      UDPMessage *m_sndmsg;
       ECircularBuffer m_rbuf;
       ECircularBuffer m_wbuf;
+      UDPMessage *m_rcvmsg;
+      UDPMessage *m_sndmsg;
    };
 
    /////////////////////////////////////////////////////////////////////////////

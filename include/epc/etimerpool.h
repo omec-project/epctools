@@ -265,6 +265,8 @@ protected:
                break;
             case ExpirationInfoType::Callback:
                break;
+            default:
+               break;
          }
       }
 

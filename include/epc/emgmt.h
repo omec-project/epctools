@@ -121,9 +121,9 @@ protected:
 private:
    EManagementHandler();
 
-   ELogger &m_audit;
    EString m_path;
    HttpMethod m_method;
+   ELogger &m_audit;
 };
 
 /// @brief Implemts the HTTP server endpoint.

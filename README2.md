@@ -117,6 +117,15 @@ $ ./configure
 $ make
 $ sudo make install
 ```
+
+***To compile with optimization disabled run the following***
+```sh
+$ cd epctools
+$ env CXXFLAGS="$CXXFLAGS -O0 -g" ./configure
+$ make clean
+$ make
+$ sudo make install
+```
   
 <a  name="feature-overview"></a>
 # Feature Overview

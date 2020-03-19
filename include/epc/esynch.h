@@ -160,8 +160,8 @@ public:
    }
 
 private:
-   EMutexData &m_mtx;
    Bool m_acquire;
+   EMutexData &m_mtx;
 
    EMutexLock();
    EMutexLock &operator=(const EMutexLock &other);

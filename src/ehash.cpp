@@ -252,10 +252,10 @@ Bool ESipHash24::getFullHash(cpUChar in, size_t inlen, cpUChar k, pUChar out, co
       UChar bytes[sizeof(val)];
    } k0, k1;
 
-   for (int i=0; i<sizeof(k0.val); i++)
+   for (size_t i=0; i<sizeof(k0.val); i++)
       k0.bytes[i] = k[i];
 
-   for (int i=0; i<sizeof(k1.val); i++)
+   for (size_t i=0; i<sizeof(k1.val); i++)
       k1.bytes[i] = k[sizeof(k1.val)+i];
 
    ULongLong v0 = 0x736f6d6570736575ull ^ k0.val;
@@ -364,10 +364,10 @@ Bool ESipHash24::getHalfHash(cpUChar in, size_t inlen, cpUChar k, pUChar out, co
       UChar bytes[sizeof(val)];
    } k0, k1;
 
-   for (int i=0; i<sizeof(k0.val); i++)
+   for (size_t i=0; i<sizeof(k0.val); i++)
       k0.bytes[i] = k[i];
 
-   for (int i=0; i<sizeof(k1.val); i++)
+   for (size_t i=0; i<sizeof(k1.val); i++)
       k1.bytes[i] = k[sizeof(k1.val)+i];
 
    ULong v0 = 0 ^ k0.val;

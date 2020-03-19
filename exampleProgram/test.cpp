@@ -267,11 +267,6 @@ public:
 
    Dword threadProc(Void *arg)
    {
-      int oldstate = 0;
-      //		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
-      //		cout << "PTHREAD_CANCEL_ENABLE=" << PTHREAD_CANCEL_ENABLE << " PTHREAD_CANCEL_DISABLE=" << PTHREAD_CANCEL_DISABLE << " old cancel state [" << oldstate << "]" << endl;
-      //		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldstate);
-      //		cout << ((oldstate==PTHREAD_CANCEL_DEFERRED) ? "cancellation was deferred" : "cancellation was NOT deferred") << endl;
       ESemaphorePrivate s;
       runningSemaphore.Increment();
       try
@@ -678,7 +673,7 @@ public:
 
    Void rcv2(EThreadMessage &msg)
    {
-      UInt pending = getMsgSemaphore().currCount();
+      Long pending = getMsgSemaphore().currCount();
       if (pending > maxpending)
          maxpending = pending;
 
@@ -2493,7 +2488,7 @@ Void EGetOpt_test(EGetOpt &opt)
    {
       UInt cnt = opt.getCount("EpcTools/Logger/SinkSets");
       std::cout << "EpcTools/Logger/SinkSets count=" << cnt << std::endl;
-      for (int i = 0; i < cnt; i++)
+      for (UInt i = 0; i < cnt; i++)
       {
          Long sinkid = opt.get(i, "EpcTools/Logger/SinkSets", "SinkID", -1);
          std::cout << "EpcTools/Logger/SinkSets/" << i << "/SinkID=" << sinkid << std::endl;
@@ -2502,7 +2497,7 @@ Void EGetOpt_test(EGetOpt &opt)
          path.format("/EpcTools/Logger/SinkSets/%d/Sinks", i);
          UInt cnt2 = opt.getCount(path.c_str());
          std::cout << path << " count=" << cnt2 << std::endl;
-         for (int j = 0; j < cnt2; j++)
+         for (UInt j = 0; j < cnt2; j++)
             std::cout << path << "/" << j << "/SinkType = " << opt.get(j, path, "SinkType", "unknown") << std::endl;
       }
    }
@@ -2883,7 +2878,6 @@ Void customThreadTest(Bool isHost)
       Long id = MYAPPID * 10000 + MYTHREADID;
       q.init(queueSize, id, True, EThreadQueueMode::WriteOnly);
 
-      Bool print = True;
       MyCustomEvent event;
       event.data().setMessageId(MYEVENT_1);
       event.data().setPrint(True);
@@ -3102,7 +3096,7 @@ Void publicThreadExample(Bool isHost)
 
 extern "C" Void NodeSelector_test_callback(EPCDNS::NodeSelector &ns, cpVoid data)
 {
-   EPCDNS::PGWUPFNodeSelector *s = (EPCDNS::PGWUPFNodeSelector*)data;
+   //EPCDNS::PGWUPFNodeSelector *s = (EPCDNS::PGWUPFNodeSelector*)data;
    std::cout << "*********** Asynchronous Node Selector ***********" << std::endl;
    std::cout << "NodeSelector_test_callback() - data = 0x" << hexFormatWithoutCommas((ULongLong)data) << std::endl;
    ns.dump();

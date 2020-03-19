@@ -231,7 +231,6 @@ void Parser::parseDomainName( EString &dn )
 {
    int compressedLength = 0;
    int currOfs = m_data.getOffset();
-   int amount = 0;
    bool offsetActive = false;
    int val;
    unsigned char *ptr = m_data.getPointer();

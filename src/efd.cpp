@@ -711,6 +711,10 @@ Bool FDAvp::get( char *data, size_t &len )
 
          break;
       }
+      default:
+      {
+         break;
+      }
    }
 
    return true;
@@ -933,7 +937,7 @@ FDAvp FDAvp::getNext( Bool &found )
             __FILE__, __LINE__, ret )
          );
 
-      FDDictionaryEntryAVP *de = new FDDictionaryEntryAVP( model );
+      de = new FDDictionaryEntryAVP( model );
    }
 
    return FDAvp( *de, a );
@@ -960,7 +964,7 @@ FDAvp FDAvp::getChild( Bool &found )
                __FILE__, __LINE__, ret )
             );
 
-         FDDictionaryEntryAVP *de = new FDDictionaryEntryAVP( model );
+         de = new FDDictionaryEntryAVP( model );
       }
    }
 
@@ -1060,8 +1064,6 @@ FDAvp &FDAvp::add( FDExtractorList &el )
 
 FDAvp &FDAvp::add( FDExtractorAvp &ea )
 {
-   Int ret;
-
    if ( ea.exists() )
    {
       copy( ea.getAvp(), getAvp() );
@@ -1244,7 +1246,7 @@ FDAvp FDMessage::getFirstAVP( Bool &found )
             __FILE__, __LINE__, ret )
          );
 
-      FDDictionaryEntryAVP *de = new FDDictionaryEntryAVP( model );
+      de = new FDDictionaryEntryAVP( model );
    }
 
    return FDAvp( *de, child, true );
@@ -1332,8 +1334,6 @@ FDMessage &FDMessage::add( FDExtractorList &el )
 
 FDMessage &FDMessage::add( FDExtractorAvp &ea )
 {
-   Int ret;
-
    if ( ea.exists() )
    {
       copy( ea.getAvp(), getMsg() );
@@ -1546,8 +1546,6 @@ Int FDApplication::commandcb( struct msg **m, struct avp *avp, struct session *s
       return EINVAL;
    }
 
-   Bool isRequest = (hdr->msg_flags & CMD_FLAG_REQUEST) == CMD_FLAG_REQUEST;
-
    if ( FDISANSWER(hdr) )
    {
       // the answer message should have been processed in the fd_msg_send callback
@@ -1602,10 +1600,9 @@ FDSession::FDSession()
 
 FDSession::~FDSession()
 {
-   Int ret;
    if ( m_session )
    {
-      ret = fd_sess_destroy( &m_session );
+      fd_sess_destroy( &m_session );
       //if ( ret != 0 )
       //   throw FDException(
       //      EUtility::string_format("%s:%d - EXCEPTION - Error destroying session ret=%d",

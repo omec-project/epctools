@@ -829,12 +829,12 @@ private:
    Void assignValue();
 
    FDDictionaryEntryAVP *m_de;
-   struct avp *m_avp;
-   struct avp_hdr *m_avphdr;
-   union avp_value m_value;
    FDBuffer<uint8_t> *m_buf;
    Bool m_assigned;
+   struct avp *m_avp;
+   struct avp_hdr *m_avphdr;
    Bool m_dedel;
+   union avp_value m_value;
 };
 
 class FDMessageRequest;
@@ -1092,10 +1092,10 @@ private:
    FDMessage();
 
    FDDictionaryEntryCommand *m_de;
-   Bool m_dedel;
-   struct dict_cmd_data m_basedata;
-   Bool m_msgdel;
    struct msg *m_msg;
+   Bool m_dedel;
+   Bool m_msgdel;
+   struct dict_cmd_data m_basedata;
 };
 
 /// @brief Represents a Diameter answer message (in rsponse to a request).
