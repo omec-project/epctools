@@ -30,6 +30,8 @@
 #include "epc/emgmt.h"
 #include "epc/etimerpool.h"
 
+#include "epc/epcdns.h"
+
 std::locale defaultLocale;
 std::locale mylocale;
 
@@ -3098,6 +3100,47 @@ Void publicThreadExample(Bool isHost)
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
+extern "C" Void NodeSelector_test_callback(EPCDNS::NodeSelector &ns, cpVoid data)
+{
+   EPCDNS::PGWUPFNodeSelector *s = (EPCDNS::PGWUPFNodeSelector*)data;
+   std::cout << "*********** Asynchronous Node Selector ***********" << std::endl;
+   std::cout << "NodeSelector_test_callback() - data = 0x" << hexFormatWithoutCommas((ULongLong)data) << std::endl;
+   ns.dump();
+   std::cout << "*************************************************" << std::endl;
+}
+
+Void NodeSelector_test()
+{
+   DNS::Cache::setRefreshConcurrent( 2 );
+   DNS::Cache::setRefreshPercent( 70 );
+   DNS::Cache::setRefreshInterval( 4000 );
+   DNS::Cache::getInstance().addNamedServer("192.168.3.156");
+   DNS::Cache::getInstance().applyNamedServers();
+
+   EPCDNS::PGWUPFNodeSelector s1( "apn1", "120", "310" );
+   s1.setNamedServerID(DNS::NS_DEFAULT);
+   s1.addDesiredProtocol( EPCDNS::UPFAppProtocolEnum::upf_x_sxb );
+   s1.addDesiredNetworkCapability( "lbo" );
+   s1.process();
+   std::cout << "*********** Synchronous Node Selector ***********" << std::endl;
+   s1.dump();
+   std::cout << "*************************************************" << std::endl;
+
+   EPCDNS::PGWUPFNodeSelector s2( "apn1", "120", "310" );
+   s2.setNamedServerID(DNS::NS_DEFAULT);
+   s2.addDesiredProtocol( EPCDNS::UPFAppProtocolEnum::upf_x_sxb );
+   s2.addDesiredNetworkCapability( "lbo" );
+   s2.process(&s2, NodeSelector_test_callback);
+
+   std::cout << "sleeping for 2 seconds" << std::endl;
+   EThreadBasic::sleep(2000);
+
+   std::cout << std::endl << "NodeSelector_test() complete" << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
 Void usage()
 {
    const char *msg =
@@ -3146,7 +3189,11 @@ Void run(EGetOpt &options)
    {
       printMenu();
       cout << "Selection : ";
-      cin.getline(selection, sizeof(selection));
+      while ( cin.getline(selection, sizeof(selection)).fail() )
+      {
+         cin.clear();
+         continue;
+      }
       cout << endl;
 
       if (selection[0] == 'q' || selection[0] == 'Q')
@@ -3390,19 +3437,19 @@ int main(int argc, char *argv[])
 
    std::cout.imbue(mylocale);
 
-ETime now = ETime::Now();
-std::cout
-   << "timeval.tv_sec="
-   << now.getTimeVal().tv_sec
-   << " sizeof(timeval.tv_sec)="
-   << sizeof(now.getTimeVal().tv_sec)
-   << " timeval.tv_usec="
-   << now.getTimeVal().tv_usec
-   << " sizeof(timeval.tv_usec)="
-   << sizeof(now.getTimeVal().tv_usec)
-   << " (timeval.tv_sec * 1000000 + timeval.tv_usec % 1000000)="
-   << now.getTimeVal().tv_sec * 1000000 + now.getTimeVal().tv_usec % 1000000
-   << std::endl << std::flush;
+// ETime now = ETime::Now();
+// std::cout
+//    << "timeval.tv_sec="
+//    << now.getTimeVal().tv_sec
+//    << " sizeof(timeval.tv_sec)="
+//    << sizeof(now.getTimeVal().tv_sec)
+//    << " timeval.tv_usec="
+//    << now.getTimeVal().tv_usec
+//    << " sizeof(timeval.tv_usec)="
+//    << sizeof(now.getTimeVal().tv_usec)
+//    << " (timeval.tv_sec * 1000000 + timeval.tv_usec % 1000000)="
+//    << now.getTimeVal().tv_sec * 1000000 + now.getTimeVal().tv_usec % 1000000
+//    << std::endl << std::flush;
 
    try
    {
@@ -3418,6 +3465,8 @@ std::cout
       }
 
       EpcTools::Initialize(opt);
+
+      // NodeSelector_test();
 
       run(opt);
 

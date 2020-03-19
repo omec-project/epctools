@@ -884,13 +884,34 @@ int CanonicalNodeName::topologicalCompare( const CanonicalNodeName &right )
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+Void NodeSelector::async_callback(DNS::QueryPtr q, Bool cacheHit, const void *data)
+{
+   NodeSelector *ns = (NodeSelector*)data;
+   NodeSelectorResultList &nsrl = ns->process(q, cacheHit);
+   if (ns->m_asynccb)
+      (*ns->m_asynccb)(*ns, ns->m_asyncdata);
+}
+
 NodeSelectorResultList &NodeSelector::process()
+{
+   Bool cacheHit = False;
+   DNS::QueryPtr query = DNS::Cache::getInstance(m_nsid).query( ns_t_naptr, m_domain, cacheHit );
+   return process(query, cacheHit);
+}
+
+Void NodeSelector::process(cpVoid data, AsyncNodeSelectorCallback cb)
+{
+   m_asynccb = cb;
+   m_asyncdata = data;
+   DNS::Cache::getInstance(m_nsid).query( ns_t_naptr, m_domain, async_callback, this );
+}
+
+NodeSelectorResultList &NodeSelector::process(DNS::QueryPtr query, Bool cacheHit)
 {
    std::list<AppProtocolEnum> supportedProtocols;
 
-   // perform dns query
-   Bool cacheHit = False;
-   m_query = DNS::Cache::getInstance(m_nsid).query( ns_t_naptr, m_domain, cacheHit );
+   // process the dns query results
+   m_query = query;
 
    // evaluate each answer to see if it matches the service/protocol requirements
    for (std::list<DNS::ResourceRecord*>::const_iterator rrit = m_query->getAnswers().begin();

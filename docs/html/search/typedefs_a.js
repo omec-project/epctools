@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['querycache',['QueryCache',['../namespaceDNS.html#acc498d8771b926961e3d88449bf607dd',1,'DNS']]],
-  ['queryptr',['QueryPtr',['../namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e',1,'DNS']]]
+  ['udpprivate',['UdpPrivate',['../namespaceESocket.html#a24cc0ce3fc2469d0913def48e8a7f4dd',1,'ESocket']]],
+  ['udppublic',['UdpPublic',['../namespaceESocket.html#a01c287e132584ba636fcc4021566ad7b',1,'ESocket']]]
 ];

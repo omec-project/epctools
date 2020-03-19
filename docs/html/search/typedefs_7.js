@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['queryptr',['QueryPtr',['../namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e',1,'DNS']]]
+  ['peermap',['PeerMap',['../classEStatistics.html#ac68953e939437c914bb61697611097dd',1,'EStatistics']]]
 ];

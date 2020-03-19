@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['messageid',['MessageId',['../classEStatistics.html#a8000150175dbddd630c31ceb9f1deb83',1,'EStatistics']]],
-  ['messagestatsmap',['MessageStatsMap',['../classEStatistics.html#a7e42493bdd445b5a570fa7d82e30fb07',1,'EStatistics']]]
+  ['listenerprivate',['ListenerPrivate',['../namespaceESocket_1_1TCP.html#af194efe40cc3fd2948342f083b8b42e2',1,'ESocket::TCP']]],
+  ['listenerpublic',['ListenerPublic',['../namespaceESocket_1_1TCP.html#ab952c0ac8272ad63c13cc5981da67cd0',1,'ESocket::TCP']]]
 ];

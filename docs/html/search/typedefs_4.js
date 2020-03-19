@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['listenerprivate',['ListenerPrivate',['../namespaceESocket_1_1TCP.html#af194efe40cc3fd2948342f083b8b42e2',1,'ESocket::TCP']]],
-  ['listenerpublic',['ListenerPublic',['../namespaceESocket_1_1TCP.html#ab952c0ac8272ad63c13cc5981da67cd0',1,'ESocket::TCP']]]
+  ['interfaceid',['InterfaceId',['../classEStatistics.html#aabcde47d2b3c8be834aa41a96b86148e',1,'EStatistics']]],
+  ['interfacemap',['InterfaceMap',['../classEStatistics.html#a87e383d0e08ecd8e8477d9ae2eb4db61',1,'EStatistics']]]
 ];

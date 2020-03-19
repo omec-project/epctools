@@ -126,8 +126,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aa9e2e05152078b575cade87b1d350b83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a desired network capability to the list of desired network capabilities.  <a href="classEPCDNS_1_1NodeSelector.html#aa9e2e05152078b575cade87b1d350b83">More...</a><br /></td></tr>
 <tr class="separator:aa9e2e05152078b575cade87b1d350b83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d1a86e786dcaaf2a503ed32a717c642"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEPCDNS_1_1NodeSelectorResultList.html">NodeSelectorResultList</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEPCDNS_1_1NodeSelector.html#a5d1a86e786dcaaf2a503ed32a717c642">process</a> ()</td></tr>
-<tr class="memdesc:a5d1a86e786dcaaf2a503ed32a717c642"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs the selection process.  <a href="classEPCDNS_1_1NodeSelector.html#a5d1a86e786dcaaf2a503ed32a717c642">More...</a><br /></td></tr>
+<tr class="memdesc:a5d1a86e786dcaaf2a503ed32a717c642"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs synchronous selection process.  <a href="classEPCDNS_1_1NodeSelector.html#a5d1a86e786dcaaf2a503ed32a717c642">More...</a><br /></td></tr>
 <tr class="separator:a5d1a86e786dcaaf2a503ed32a717c642"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a571dffc9fe5f8d23351e335abb405119"><td class="memItemLeft" align="right" valign="top">Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEPCDNS_1_1NodeSelector.html#a571dffc9fe5f8d23351e335abb405119">process</a> (cpVoid data, <a class="el" href="namespaceEPCDNS.html#af12041446945728d2738ef11d89f195c">AsyncNodeSelectorCallback</a> cb)</td></tr>
+<tr class="memdesc:a571dffc9fe5f8d23351e335abb405119"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs asynchronous node selection process.  <a href="classEPCDNS_1_1NodeSelector.html#a571dffc9fe5f8d23351e335abb405119">More...</a><br /></td></tr>
+<tr class="separator:a571dffc9fe5f8d23351e335abb405119"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac643ecadc5960c74ee34006c5ff1c6cf"><td class="memItemLeft" align="right" valign="top">Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEPCDNS_1_1NodeSelector.html#ac643ecadc5960c74ee34006c5ff1c6cf">dump</a> ()</td></tr>
 <tr class="memdesc:ac643ecadc5960c74ee34006c5ff1c6cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the contents of this object.  <a href="classEPCDNS_1_1NodeSelector.html#ac643ecadc5960c74ee34006c5ff1c6cf">More...</a><br /></td></tr>
 <tr class="separator:ac643ecadc5960c74ee34006c5ff1c6cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -515,7 +518,7 @@ Protected Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a5d1a86e786dcaaf2a503ed32a717c642"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5d1a86e786dcaaf2a503ed32a717c642">&#9670;&nbsp;</a></span>process()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d1a86e786dcaaf2a503ed32a717c642">&#9670;&nbsp;</a></span>process() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -529,8 +532,45 @@ Protected Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Performs the selection process. </p>
+<p>Performs synchronous selection process. </p>
 <dl class="section return"><dt>Returns</dt><dd>the node selector results. </dd></dl>
+
+</div>
+</div>
+<a id="a571dffc9fe5f8d23351e335abb405119"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a571dffc9fe5f8d23351e335abb405119">&#9670;&nbsp;</a></span>process() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Void NodeSelector::process </td>
+          <td>(</td>
+          <td class="paramtype">cpVoid&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespaceEPCDNS.html#af12041446945728d2738ef11d89f195c">AsyncNodeSelectorCallback</a>&#160;</td>
+          <td class="paramname"><em>cb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Performs asynchronous node selection process. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>a void pointer that will be passed to the callback when complete. </td></tr>
+    <tr><td class="paramname">cb</td><td>a pointer to the callback function that will be called when the node selection is complete. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

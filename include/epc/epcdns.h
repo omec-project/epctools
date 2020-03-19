@@ -1224,6 +1224,9 @@ namespace EPCDNS
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   class NodeSelector;
+   extern "C" typedef Void(*AsyncNodeSelectorCallback)(NodeSelector &ns, cpVoid data);
+
    /// @brief contains the information to select a node.
    class NodeSelector
    {
@@ -1262,9 +1265,13 @@ namespace EPCDNS
       /// @return the desired network capability to added.
       NetworkCapability &addDesiredNetworkCapability( NetworkCapability &nc ) { m_desiredNetworkCapabilities.push_back( nc ); return nc; }
 
-      /// @brief Performs the selection process.
+      /// @brief Performs synchronous selection process.
       /// @return the node selector results.
       NodeSelectorResultList &process();
+      /// @brief Performs asynchronous node selection process.
+      /// @param data a void pointer that will be passed to the callback when complete.
+      /// @param cb a pointer to the callback function that will be called when the node selection is complete.
+      Void process(cpVoid data, AsyncNodeSelectorCallback cb);
 
       /// @brief Prints the contents of this object.
       Void dump()
@@ -1303,7 +1310,9 @@ namespace EPCDNS
    private:
       AppServiceEnum parseService( const std::string &service, std::list<AppProtocolEnum> &protocols ) const;
       static Bool naptr_compare( DNS::RRecordNAPTR*& first, DNS::RRecordNAPTR*& second );
-   
+      NodeSelectorResultList &process(DNS::QueryPtr query, Bool cacheHit);
+      static Void async_callback(DNS::QueryPtr q, Bool cacheHit, const void *data);
+ 
       DNS::namedserverid_t m_nsid;
       EString m_domain;
       AppServiceEnum m_desiredService;
@@ -1313,6 +1322,8 @@ namespace EPCDNS
 
       NodeSelectorResultList m_results;
       DNS::QueryPtr m_query;
+      AsyncNodeSelectorCallback m_asynccb;
+      pVoid m_asyncdata;
    };
    
    ////////////////////////////////////////////////////////////////////////////////
