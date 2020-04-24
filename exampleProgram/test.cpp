@@ -1810,8 +1810,7 @@ public:
 
    Void onInit();
    Void onQuit();
-   Void onClose();
-
+   Void onSocketClosed(ESocket::BasePrivate *psocket);
    Void errorHandler(EError &err, ESocket::BasePrivate *psocket);
 
    Talker *createTalker();
@@ -1994,7 +1993,6 @@ Void Talker::onClose()
    std::cout << std::endl
              << "socket closed" << std::endl
              << std::flush;
-   ((TcpWorker &)getThread()).onClose();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -2033,15 +2031,12 @@ Void TcpWorker::onQuit()
 {
 }
 
-Void TcpWorker::onClose()
+Void TcpWorker::onSocketClosed(ESocket::BasePrivate *psocket)
 {
    if (m_talker)
    {
-      Talker *t = m_talker;
+      delete m_talker;
       m_talker = NULL;
-
-      //t->close();
-      delete t;
       quit();
    }
 }
