@@ -535,19 +535,33 @@ static void fdJsonAddAvp( msg_or_avp *reference, const char *name, const RAPIDJS
          if ( avp.getType() == ADTAddress )
          {
             sSS ss;
-            char abuf[18];
+#pragma pack(push, 1)
+            union
+            {
+               struct
+               {
+                  uint16_t addressType;
+                  uint8_t buffer[18-sizeof(uint16_t)];
+               } address;
+               uint8_t raw[18];
+            } addr;
+#pragma pack(pop)
 
             if (inet_pton(AF_INET,value.GetString(),&((sSA4*)&ss)->sin_addr) == 1)
             {
-               *(uint16_t *)abuf = htons(1);
-               memcpy(abuf + 2, &((sSA4*)&ss)->sin_addr.s_addr, 4);
-               avp.set( (uint8_t*)abuf, 6 );
+               addr.address.addressType = htons(1);
+               memcpy(addr.address.buffer, &((sSA4*)&ss)->sin_addr.s_addr, 4);
+               //*(uint16_t *)abuf = htons(1);
+               //memcpy(abuf + 2, &((sSA4*)&ss)->sin_addr.s_addr, 4);
+               avp.set( addr.raw, 6 );
             }
             else if (inet_pton(AF_INET6,value.GetString(),&((sSA6*)&ss)->sin6_addr) == 1)
             {
-               *(uint16_t *)abuf = htons(2);
-               memcpy(abuf + 2, &((sSA6*)&ss)->sin6_addr.s6_addr, 16);
-               avp.set( (uint8_t*)abuf, 18 );
+               addr.address.addressType = htons(2);
+               memcpy(addr.address.buffer, &((sSA4*)&ss)->sin_addr.s_addr, 16);
+               //*(uint16_t *)abuf = htons(2);
+               //memcpy(abuf + 2, &((sSA6*)&ss)->sin6_addr.s6_addr, 16);
+               avp.set( addr.raw, 18 );
             }
             else
             {
