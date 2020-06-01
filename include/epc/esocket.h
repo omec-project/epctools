@@ -1463,6 +1463,8 @@ namespace ESocket
          fcntl(pipefd[0], F_SETFL, O_NONBLOCK);
 
          FD_ZERO(&m_master);
+
+         getMaxFileDescriptor(True);
       }
       /// @brief Class destructor.
       virtual ~Thread()
@@ -1474,6 +1476,7 @@ namespace ESocket
       {
          m_socketmap.insert(std::make_pair(socket->getHandle(), socket));
          FD_SET(socket->getHandle(), &m_master);
+         getMaxFileDescriptor(True);
          bump();
       }
       /// @brief Called by the framework to unregister a Base derived socket object with this thread.
@@ -1483,6 +1486,7 @@ namespace ESocket
          if (m_socketmap.erase(socket->getHandle()))
          {
             FD_CLR(socket->getHandle(), &m_master);
+            getMaxFileDescriptor(True);
             bump();
          }
       }
@@ -1884,19 +1888,24 @@ namespace ESocket
          onSocketClosed(psocket);
       }
 
-      int getMaxFileDescriptor()
+      int getMaxFileDescriptor(Bool calc=False)
       {
-         if (m_socketmap.size() == 0)
-            return this->getBumpPipe()[0];
-
-         int maxfd = m_socketmap.begin()->first;
-
-         return (maxfd > this->getBumpPipe()[0]) ? maxfd : this->getBumpPipe()[0];
+         if (calc)
+         {
+            m_maxfd = this->getBumpPipe()[0];
+            
+            for (auto entry : m_socketmap)
+               if (entry.second->getHandle() > m_maxfd)
+                  m_maxfd = entry.second->getHandle();
+         }
+         
+         return m_maxfd;
       }
 
       Int m_error;
       std::unordered_map<Int,Base<TQueue,TMessage>*> m_socketmap;
       fd_set m_master;
+      Int m_maxfd;
    };
 
    typedef Base<EThreadQueuePublic<EThreadMessage>,EThreadMessage> BasePublic;
