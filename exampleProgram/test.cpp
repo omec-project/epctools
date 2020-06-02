@@ -18,6 +18,7 @@
 #include "stdio.h"
 #include <iostream>
 #include <locale>
+#include <array>
 #include <memory.h>
 #include <signal.h>
 
@@ -31,6 +32,10 @@
 #include "epc/etimerpool.h"
 
 #include "epc/epcdns.h"
+
+#include "epc/eip.h"
+#include "epc/eostring.h"
+#include "epc/eteid.h"
 
 std::locale defaultLocale;
 std::locale mylocale;
@@ -1691,6 +1696,40 @@ Void EHash_test()
          std::cout << "OK" << std::endl;
    }
 
+   //////////////////////////////////////////////////////////////////////////
+   //////////////////////////////////////////////////////////////////////////
+
+   EString str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPARSTUVWXYZ0123456789"
+                  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPARSTUVWXYZ0123456789";
+   std::cout << "EMurmurHash64::getHash((cChar)1) = " << EMurmurHash64::getHash((cChar)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cUChar)1) = " << EMurmurHash64::getHash((cUChar)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cShort)1) = " << EMurmurHash64::getHash((cShort)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cUShort)1) = " << EMurmurHash64::getHash((cUShort)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cLong)1) = " << EMurmurHash64::getHash((cLong)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cULong)1) = " << EMurmurHash64::getHash((cULong)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cLongLong)1) = " << EMurmurHash64::getHash((cLongLong)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cULongLong)1) = " << EMurmurHash64::getHash((cULongLong)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cFloat)1) = " << EMurmurHash64::getHash((cFloat)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cDouble)1) = " << EMurmurHash64::getHash((cDouble)1) << std::endl;
+   std::cout << "EMurmurHash64::getHash(str.c_str()) = " << EMurmurHash64::getHash(str.c_str()) << std::endl;
+   std::cout << "EMurmurHash64::getHash(str.c_str(),strlen(str.c_str())) = " << EMurmurHash64::getHash(str.c_str(),strlen(str.c_str())) << std::endl;
+   std::cout << "EMurmurHash64::getHash((cpUChar)str.c_str(),strlen(str.c_str())) = " << EMurmurHash64::getHash((cpUChar)str.c_str(),strlen(str.c_str())) << std::endl;
+   std::cout << "EMurmurHash64::getHash(str) = " << EMurmurHash64::getHash(str) << std::endl;
+
+   ETimer tmr;
+
+   tmr.Start();
+   for (int i=0; i<1000000; i++)
+      EMurmurHash64::getHash((cULongLong)1);
+   tmr.Stop();
+   std::cout << "EMurmurHash64::getHash((cULongLong)1) 1,000,000 iterations took " << tmr.MicroSeconds() << "us" << std::endl;
+
+   tmr.Start();
+   for (int i=0; i<1000000; i++)
+      EMurmurHash64::getHash(str);
+   tmr.Stop();
+   std::cout << "EMurmurHash64::getHash(str) 1,000,000 iterations took " << tmr.MicroSeconds() << "us" << std::endl;
+
    cout << "Ehash_test complete" << endl;
 }
 
@@ -1810,7 +1849,8 @@ public:
 
    Void onInit();
    Void onQuit();
-   Void onSocketClosed(ESocket::BasePrivate *psocket);
+   Void onClose();
+
    Void errorHandler(EError &err, ESocket::BasePrivate *psocket);
 
    Talker *createTalker();
@@ -1993,6 +2033,7 @@ Void Talker::onClose()
    std::cout << std::endl
              << "socket closed" << std::endl
              << std::flush;
+   ((TcpWorker &)getThread()).onClose();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -2031,12 +2072,15 @@ Void TcpWorker::onQuit()
 {
 }
 
-Void TcpWorker::onSocketClosed(ESocket::BasePrivate *psocket)
+Void TcpWorker::onClose()
 {
    if (m_talker)
    {
-      delete m_talker;
+      Talker *t = m_talker;
       m_talker = NULL;
+
+      //t->close();
+      delete t;
       quit();
    }
 }
@@ -2147,7 +2191,7 @@ public:
 
    virtual ~UdpSocket() {}
 
-   Void onReceive(const ESocket::Address &from, pVoid msg, Int len);
+   Void onReceive(const ESocket::Address &from, const ESocket::Address &to, pVoid msg, Int len);
    Void onError();
 
    Void sendpacket();
@@ -2174,10 +2218,10 @@ Void UdpSocket::sendpacket()
       else
          m_sentcnt = -1;
    }
-   write( m_remote, &m_sentcnt, sizeof(m_sentcnt) );
+   write( m_remote, reinterpret_cast<cpUChar>(&m_sentcnt), sizeof(m_sentcnt) );
 }
 
-Void UdpSocket::onReceive(const ESocket::Address &addr, cpVoid pData, Int length)
+Void UdpSocket::onReceive(const ESocket::Address &from, const ESocket::Address &to, cpVoid pData, Int length)
 {
    std::cout.imbue(defaultLocale);
    std::cout << ETime::Now().Format("%Y-%m-%dT%H:%M:%S.%0",True)
@@ -2186,10 +2230,15 @@ Void UdpSocket::onReceive(const ESocket::Address &addr, cpVoid pData, Int length
              << "] length ["
              << length
              << "] from ["
-             << addr.getAddress()
+             << from.getAddress()
              << ":"
-             << addr.getPort()
-             << "]" << std::endl << std::flush;
+             << from.getPort()
+             << "] to ["
+             << to.getAddress()
+             << ":"
+             << to.getPort()
+             << "]"
+             << std::endl << std::flush;
    std::cout.imbue(mylocale);
 
    if (*(Int*)pData == -1)
@@ -2268,8 +2317,10 @@ Void udpsockettest()
    static Int messages = 20;
    static UShort localport = 11111;
    static UShort remoteport = 22222;
-   static EString localip = "127.0.0.1";
-   static EString remoteip = "127.0.0.1";
+   // static EString localip = "127.0.0.1";
+   // static EString remoteip = "127.0.0.1";
+   static EString localip = "::1";
+   static EString remoteip = "::1";
 
    UdpWorker *pWorker = new UdpWorker();
    Char buffer[128];
@@ -3130,11 +3181,258 @@ Void NodeSelector_test()
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
+Void eipfilterruleTest()
+{
+   EIpFilterRule r;
+   
+   r = "permit in ip from any to any";       r.dump();   std::cout << std::endl;
+   r = "deny out ip from any to any";        r.dump();   std::cout << std::endl;
+   r = "permit in 0 from 1.2.3.4 to 5.6.7.8"; r.dump();  std::cout << std::endl;
+   r = "permit in 0 from 1.2.3.4/24 to 5.6.7.8/17"; r.dump();  std::cout << std::endl;
+   r = "permit in 0 from 1.2.3.4/24 111 to 5.6.7.8/17 111,222,333-444,555-666"; r.dump();  std::cout << std::endl;
+   r = "permit in ip from any to any frag ipoptions aaaaa tcpoptions bbbbb established setup tcpflags fin,syn,rst,psh,ack,urg icmptypes 0,12,3,4,5";       r.dump();   std::cout << std::endl;
+
+   EIpAddress a("1.2.3.4/25"), b("5.6.7.8/17"), c("5.6.7.8/18");
+   std::cout << "std::hash(" << a.address() << ") = " << std::hash<EIpAddress>{}(a) << std::endl;
+   std::cout << "std::hash(" << b.address() << ") = " << std::hash<EIpAddress>{}(b) << std::endl;
+   std::cout << "std::hash(" << c.address() << ") = " << std::hash<EIpAddress>{}(c) << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+Void octetStringTest()
+{
+   cpChar str = "A character string";
+   UChar buf[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+   {
+      EOctetString os;
+      std::cout << "EOctetString() length=" << os.length() << " capacity=" << os.capacity() << " { " << os << " }" << std::endl;
+   }
+   {
+      EOctetString os(50);
+      std::cout << "EOctetString(50) length=" << os.length() << " capacity=" << os.capacity() << " { " << os << " }" << std::endl;
+   }
+   {
+      EOctetString os(str);
+      std::cout << "EOctetString(\"" << str << "\") length=" << os.length() << " capacity=" << os.capacity() << " { " << os << " }" << std::endl;
+   }
+   {
+      EOctetString os(buf, sizeof(buf));
+      std::cout << "EOctetString({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}) length=" << os.length() << " capacity=" << os.capacity() << " { " << os << " }" << std::endl;
+   }
+   {
+      EOctetString os1(buf, sizeof(buf));
+      EOctetString os2(os1);
+      std::cout << "EOctetString os2(os1) length=" << os2.length() << " capacity=" << os2.capacity() << " { " << os2 << " }" << std::endl;
+   }
+   {
+      EOctetString os1(buf, sizeof(buf));
+      EOctetString os2(os1, 5);
+      std::cout << "EOctetString os2(os1,5) length=" << os2.length() << " capacity=" << os2.capacity() << " { " << os2 << " }" << std::endl;
+   }
+   {
+      EOctetString os1(buf, sizeof(buf));
+      EOctetString os2(os1, 5, 10);
+      std::cout << "EOctetString os2(os1,5,10) length=" << os2.length() << " capacity=" << os2.capacity() << " { " << os2 << " }" << std::endl;
+   }
+   {
+      EOctetString os1;
+      EOctetString os2(buf, sizeof(buf));
+      os1 = os2;
+      std::cout << "os1=os2 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+
+      os1=str;
+      std::cout << "os1=os2 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+
+      os1='A';
+      std::cout << "os1='x' length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+
+      os1=buf[0];
+      std::cout << "os1=255 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+
+      os1 = std::move(os2);
+      std::cout << "os1=std::move(os2) os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      std::cout << "                   os2 length=" << os2.length() << " capacity=" << os2.capacity() << " { " << os2 << " }" << std::endl;
+   }
+   {
+      EOctetString os1;
+      EOctetString os2(buf, 8);
+
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1 += os2;
+      std::cout << "os1+=os2 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1 += os2;
+      std::cout << "os1+=os2 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(buf,8);
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1 += str;
+      std::cout << "os1+=str length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1+='A';
+      std::cout << "os1+='A' length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1+=buf[0];
+      std::cout << "os1+=0x01 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+   }
+   {
+      EOctetString os1(buf,sizeof(buf));
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1[0] += 32;
+      std::cout << "os1[0]+=32 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+   }
+   {
+      EOctetString os1(buf,sizeof(buf)), os2(buf,sizeof(buf));
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      std::cout << "os2 length=" << os2.length() << " capacity=" << os2.capacity() << " { " << os2 << " }" << std::endl;
+      os1.append(os2);
+      std::cout << "os1.append(os2) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(buf,sizeof(buf));
+      os1.append(os2,9,10);
+      std::cout << "os1.append(os2,9,10) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(buf,5);
+      os1.append(str);
+      std::cout << "os1.append(str) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(buf,5);
+      os1.append(str,10);
+      std::cout << "os1.append(str,10) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(buf,5);
+      os1.append(buf,10);
+      std::cout << "os1.append(buf,10) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(buf,5);
+      os1.append(20,buf[0]);
+      std::cout << "os1.append(20,buf[0]) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+   }
+   {
+      EOctetString os1, os2(buf,sizeof(buf));
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(os2);
+      std::cout << "os1.assign(os2) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(os2,9,10);
+      std::cout << "os1.assign(os2,9,10) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(str);
+      std::cout << "os1.assign(str) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(str,10);
+      std::cout << "os1.assign(str,10) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(buf,5);
+      std::cout << "os1.assign(buf,5) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(30,'0');
+      std::cout << "os1.assign(30,'0') length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.assign(std::move(os2));
+      std::cout << "os2.assign(std::move(os2)) os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl
+                << "                           os2 length=" << os2.length() << " capacity=" << os2.capacity() << " { " << os2 << " }" << std::endl;
+   }
+   {
+      EOctetString os1(buf,10);
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      std::cout << "os1.at(4)=" << static_cast<UInt>(os1.at(4)) << std::endl;
+      std::cout << "os1.back()=" << static_cast<UInt>(os1.back()) << std::endl;
+   }
+   {
+      EOctetString os1(buf,10), os2(&buf[10],10), os3(buf,sizeof(buf)), os4(buf,sizeof(buf));
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      std::cout << "os2 length=" << os2.length() << " capacity=" << os2.capacity() << " { " << os2 << " }" << std::endl;
+      std::cout << "os3 length=" << os3.length() << " capacity=" << os3.capacity() << " { " << os3 << " }" << std::endl;
+      std::cout << "os4 length=" << os4.length() << " capacity=" << os4.capacity() << " { " << os4 << " }" << std::endl;
+      std::cout << "os1==os1 " << (os1==os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1==os2 " << (os1==os2?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1!=os1 " << (os1!=os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1!=os2 " << (os1!=os2?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1<os1 " << (os1<os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1<os2 " << (os1<os2?"TRUE":"FALSE") << std::endl;
+      std::cout << "os2<os1 " << (os2<os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1>os1 " << (os1>os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1>os2 " << (os1>os2?"TRUE":"FALSE") << std::endl;
+      std::cout << "os2>os1 " << (os2>os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1<=os1 " << (os1<=os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1<=os2 " << (os1<=os2?"TRUE":"FALSE") << std::endl;
+      std::cout << "os2<=os1 " << (os2<=os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1>=os1 " << (os1>=os1?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1>=os2 " << (os1>=os2?"TRUE":"FALSE") << std::endl;
+      std::cout << "os2>=os1 " << (os2>=os1?"TRUE":"FALSE") << std::endl;
+   }
+   {
+      EOctetString os1, os2(buf,10);
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      std::cout << "os2 length=" << os2.length() << " capacity=" << os2.capacity() << " { " << os2 << " }" << std::endl;
+      std::cout << "os1.empty()" << (os1.empty()?"TRUE":"FALSE") << std::endl;
+      std::cout << "os2.empty()" << (os2.empty()?"TRUE":"FALSE") << std::endl;
+      std::cout << "os1.erase() length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      std::cout << "os2.erase() length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+   }
+   {
+      EOctetString os1(buf,10);
+      std::cout << "os1 length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.resize(5);
+      std::cout << "os1.resize(5) length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.resize(50,'0');
+      std::cout << "os1.resize(50,'0') length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      os1.shrink_to_fit();
+      std::cout << "os1.shrink_to_fit() length=" << os1.length() << " capacity=" << os1.capacity() << " { " << os1 << " }" << std::endl;
+      std::cout << "std::hash<EOctetString>{}(os1) = " << std::hash<EOctetString>{}(os1) << std::endl;
+   }
+}
+
+Void teidTest()
+{
+   ETeidManager mgr1, mgr2(1,0), mgr3(2,0), mgr4(3,0), mgr5(4,0), mgr6(5,0), mgr7(6,0), mgr8(7,0), mgr9(7,127);
+   std::cout << "ETeidManager() rangeBits=" << mgr1.rangeBits() << " rangeValue=" << mgr1.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr1.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr1.max()) << std::endl;
+   std::cout << "ETeidManager() rangeBits=" << mgr2.rangeBits() << " rangeValue=" << mgr2.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr2.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr2.max()) << std::endl;
+   std::cout << "ETeidManager() rangeBits=" << mgr3.rangeBits() << " rangeValue=" << mgr3.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr3.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr3.max()) << std::endl;
+   std::cout << "ETeidManager() rangeBits=" << mgr4.rangeBits() << " rangeValue=" << mgr4.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr4.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr4.max()) << std::endl;
+   std::cout << "ETeidManager() rangeBits=" << mgr5.rangeBits() << " rangeValue=" << mgr5.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr5.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr5.max()) << std::endl;
+   std::cout << "ETeidManager() rangeBits=" << mgr6.rangeBits() << " rangeValue=" << mgr6.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr6.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr6.max()) << std::endl;
+   std::cout << "ETeidManager() rangeBits=" << mgr7.rangeBits() << " rangeValue=" << mgr7.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr7.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr7.max()) << std::endl;
+   std::cout << "ETeidManager() rangeBits=" << mgr8.rangeBits() << " rangeValue=" << mgr8.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr8.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr8.max()) << std::endl;
+   std::cout << "ETeidManager() rangeBits=" << mgr9.rangeBits() << " rangeValue=" << mgr9.rangeValue() << " min=" << hexFormatWithoutCommas<ULong>(mgr9.min()) << " max=" << hexFormatWithoutCommas<ULong>(mgr9.max()) << std::endl;
+
+   ULong v1, v2, v3;
+
+   std::cout << "starting teid assignment min=" << mgr8.min() << " max=" << mgr8.max() << std::endl;
+   v1 = mgr8.alloc();
+   v2 = 0;
+   v3 = 0;
+   while (1)
+   {
+      v2 = mgr8.alloc();
+      if (v2 < v3)
+         break;
+      v3 = v2;
+   }
+   std::cout << "ETeidManager() v1=" << hexFormatWithoutCommas<ULong>(v1) << " v2=" << hexFormatWithoutCommas<ULong>(v2) << " v3=" << hexFormatWithoutCommas<ULong>(v3) << std::endl;
+
+   std::cout << "starting teid assignment min=" << mgr9.min() << " max=" << mgr9.max() << std::endl;
+   v1 = mgr9.alloc();
+   v2 = 0;
+   v3 = 0;
+   while (1)
+   {
+      v2 = mgr9.alloc();
+      if (v2 < v3)
+         break;
+      v3 = v2;
+   }
+   std::cout << "ETeidManager() v1=" << hexFormatWithoutCommas<ULong>(v1) << " v2=" << hexFormatWithoutCommas<ULong>(v2) << " v3=" << hexFormatWithoutCommas<ULong>(v3) << std::endl;
+
+   std::cout << "starting teid assignment min=" << mgr1.min() << " max=" << mgr1.max() << std::endl;
+   v1 = mgr1.alloc();
+   v2 = 0;
+   v3 = 0;
+   while (1)
+   {
+      v2 = mgr1.alloc();
+      if (v2 < v3)
+         break;
+      v3 = v2;
+   }
+   std::cout << "ETeidManager() v1=" << hexFormatWithoutCommas<ULong>(v1) << " v2=" << hexFormatWithoutCommas<ULong>(v2) << " v3=" << hexFormatWithoutCommas<ULong>(v3) << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
 Void usage()
 {
    const char *msg =
        "USAGE:  epctest [--help] [--file optionfile]\n";
-
    cout << msg;
 }
 
@@ -3162,9 +3460,9 @@ Void printMenu()
        "15. Thread suspend/resume                      35. Private Thread Example       \n"
        "16. Thread periodic timer test                 36. Public Thread Example Host   \n"
        "17. Thread one shot timer test                 37. Public Thread Example Client \n"
-       "18. Circular buffer test                       \n"
-       "19. Directory test                             \n"
-       "20. Hash test                                  \n"
+       "18. Circular buffer test                       38. EIpFilterRule                \n"
+       "19. Directory test                             39. Octet string                 \n"
+       "20. Hash test                                  40. Teid                         \n"
        "\n",
        EpcTools::isPublicEnabled() ? "" : "NOT ");
 }
@@ -3194,121 +3492,47 @@ Void run(EGetOpt &options)
       {
          switch (opt)
          {
-         case 1:
-            EThread_cancel_wait();
-            break;
-         case 2:
-            EDateTime_test();
-            break;
-         case 3:
-            EThread_test();
-            break;
-         case 4:
-            EThread_test2();
-            break;
-         case 5:
-            EThread_test3();
-            break;
-         case 6:
-            EQueuePublic_test(False);
-            break;
-         case 7:
-            EQueuePublic_test(True);
-            break;
-         case 8:
-            ETimer_test();
-            break;
-         case 9:
-            EError_test();
-            break;
-         case 10:
-            EMutexPrivate_test();
-            break;
-         case 11:
-            EMutexPublic_test();
-            break;
-         case 12:
-            ESemaphorePrivate_test();
-            break;
-         case 13:
-            ESemaphorePublic_test();
-            break;
-         case 14:
-            EThreadBasic_test();
-            break;
-         case 15:
-            EThreadSuspendResume_test();
-            break;
-         case 16:
-            EThreadTimerPeriodic_test();
-            break;
-         case 17:
-            EThreadTimerOneShot_test();
-            break;
-         case 18:
-            ECircularBuffer_test();
-            break;
-         case 19:
-            EDirectory_test();
-            break;
-         case 20:
-            EHash_test();
-            break;
-         case 21:
-            EThread_test4();
-            break;
-         case 22:
-            deadlock();
-            break;
-         case 23:
-            EThread_test5();
-            break;
-         case 24:
-            EMutex_test2();
-            break;
-         case 25:
-            tcpsockettest(True);
-            break;
-         case 26:
-            tcpsockettest(False);
-            break;
-         case 27:
-            ERWLock_test();
-            break;
-         case 28:
-            EGetOpt_test(options);
-            break;
-         case 29:
-            ELogger_test();
-            break;
-         case 30:
-            udpsockettest();
-            break;
-         case 31:
-            timerpooltest();
-            break;
-         case 32:
-            printObjectSizes();
-            break;
-         case 33:
-            customThreadTest(True);
-            break;
-         case 34:
-            customThreadTest(False);
-            break;
-         case 35:
-            threadExample();
-            break;
-         case 36:
-            publicThreadExample(True);
-            break;
-         case 37:
-            publicThreadExample(False);
-            break;
-         default:
-            cout << "Invalid Selection" << endl
-                 << endl;
-            break;
+            case 1:  EThread_cancel_wait();        break;
+            case 2:  EDateTime_test();             break;
+            case 3:  EThread_test();               break;
+            case 4:  EThread_test2();              break;
+            case 5:  EThread_test3();              break;
+            case 6:  EQueuePublic_test(False);     break;
+            case 7:  EQueuePublic_test(True);      break;
+            case 8:  ETimer_test();                break;
+            case 9:  EError_test();                break;
+            case 10: EMutexPrivate_test();         break;
+            case 11: EMutexPublic_test();          break;
+            case 12: ESemaphorePrivate_test();     break;
+            case 13: ESemaphorePublic_test();      break;
+            case 14: EThreadBasic_test();          break;
+            case 15: EThreadSuspendResume_test();  break;
+            case 16: EThreadTimerPeriodic_test();  break;
+            case 17: EThreadTimerOneShot_test();   break;
+            case 18: ECircularBuffer_test();       break;
+            case 19: EDirectory_test();            break;
+            case 20: EHash_test();                 break;
+            case 21: EThread_test4();              break;
+            case 22: deadlock();                   break;
+            case 23: EThread_test5();              break;
+            case 24: EMutex_test2();               break;
+            case 25: tcpsockettest(True);          break;
+            case 26: tcpsockettest(False);         break;
+            case 27: ERWLock_test();               break;
+            case 28: EGetOpt_test(options);        break;
+            case 29: ELogger_test();               break;
+            case 30: udpsockettest();              break;
+            case 31: timerpooltest();              break;
+            case 32: printObjectSizes();           break;
+            case 33: customThreadTest(True);       break;
+            case 34: customThreadTest(False);      break;
+            case 35: threadExample();              break;
+            case 36: publicThreadExample(True);    break;
+            case 37: publicThreadExample(False);   break;
+            case 38: eipfilterruleTest();          break;
+            case 39: octetStringTest();            break;
+            case 40: teidTest();                  break;
+            default: cout << "Invalid Selection" << endl << endl;    break;
          }
       }
       catch (EError &e)
@@ -3321,6 +3545,34 @@ Void run(EGetOpt &options)
 #define BUFFER_SIZE 262144
 int main(int argc, char *argv[])
 {
+   typedef uint8_t ThreeBytes[3];
+   typedef std::array<uint8_t,3> AnotherThreeBytes;
+   typedef struct
+   {
+      UChar f1_ : 1;
+      UChar f2_ : 1;
+      UChar f3_ : 1;
+      UChar f4_ : 1;
+      UChar f5_ : 1;
+   } Flags;
+
+   class Brian
+   {
+   public:
+      ThreeBytes &threeBytes() { return threebytes_; }
+      AnotherThreeBytes &anotherThreeBytes() { return anotherthreebytes_; }
+      Flags &flags() { return flags_; }
+      ThreeBytes threebytes_;
+      AnotherThreeBytes anotherthreebytes_;
+      Flags flags_;
+   };
+
+   Brian b;
+
+   std::cout << "sizeof Brian::ThreeBytes() = " << sizeof(b.threeBytes()) << std::endl;
+   std::cout << "sizeof Brian::AnotherThreeBytes() = " << sizeof(b.anotherThreeBytes()) << std::endl;
+   std::cout << "sizeof Brian::flags() = " << sizeof(b.flags()) << std::endl;
+
    //EString s;
    //ETime t1, t2;
    //t1.Format(s, "%i", True);	cout << s << endl;

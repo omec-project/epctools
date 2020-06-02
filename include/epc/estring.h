@@ -23,6 +23,7 @@
 
 #include <string>
 #include <algorithm>
+#include <vector>
 
 #include "ebase.h"
 
@@ -35,6 +36,10 @@ public:
    /// @brief Class constructor.
    /// @param s the NULL terminated string to initilize this string object to.
    EString(cpStr s) : std::string(s) {}
+   /// @brief Class constructor.
+   /// @param s a pointer to the beginning of the character buffer.
+   /// @param n the number of characters to assign to the string.
+   EString(cpStr s, size_t n) : std::string(s,n) {}
    /// @brief Copy constructor.
    /// @param s the object to copy.
    EString(const std::string &s) : std::string(s) {}
@@ -53,7 +58,7 @@ public:
 
    /// @brief Retrieves a const char* to this string.
    /// @return a const char* to this string.
-   operator cpChar() { return c_str(); }
+   operator cpChar() const { return c_str(); }
 
    /// @brief Assigns the specified NULL terminated strint to this string object.
    /// @return reference to this string object.
@@ -96,8 +101,7 @@ public:
    {
       erase(std::find_if(rbegin(), rend(), [](Char ch) {
                return !std::isspace(ch);
-            })
-                .base(),
+            }).base(),
             end());
    }
 
@@ -123,5 +127,7 @@ public:
    /// @return the new string object.
    EString replaceAllCopy(cpStr srch, size_t srchlen, cpStr rplc, size_t rplclen);
 };
+
+typedef std::vector<EString> EStringVec;
 
 #endif // #define __estring_h_included

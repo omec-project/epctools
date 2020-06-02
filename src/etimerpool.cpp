@@ -212,11 +212,14 @@ Void ETimerPool::init()
 {
    EEvent evnt;
 
-   // start the thread
-   m_thread.init(&evnt);
+   if (m_thread.isWaitingToRun())
+   {
+      // start the thread
+      m_thread.init(&evnt);
 
-   // wait for the thread id to be populated
-   evnt.wait();
+      // wait for the thread id to be populated
+      evnt.wait();
+   }
 }
 
 Void ETimerPool::uninit(Bool dumpit)

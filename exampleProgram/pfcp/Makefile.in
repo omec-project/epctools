@@ -103,8 +103,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = epctest$(EXEEXT)
-subdir = exampleProgram
+bin_PROGRAMS = bin/pfcpex$(EXEEXT)
+subdir = exampleProgram/pfcp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -115,9 +115,11 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_epctest_OBJECTS = epctest-test.$(OBJEXT)
-epctest_OBJECTS = $(am_epctest_OBJECTS)
-epctest_DEPENDENCIES =
+am__dirstamp = $(am__leading_dot)dirstamp
+am_bin_pfcpex_OBJECTS = src/bin_pfcpex-main.$(OBJEXT) \
+	src/bin_pfcpex-pfcpex.$(OBJEXT) \
+	src/bin_pfcpex-pfcpr15.$(OBJEXT)
+bin_pfcpex_OBJECTS = $(am_bin_pfcpex_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -151,8 +153,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(epctest_SOURCES)
-DIST_SOURCES = $(epctest_SOURCES)
+SOURCES = $(bin_pfcpex_SOURCES)
+DIST_SOURCES = $(bin_pfcpex_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -274,15 +276,23 @@ top_srcdir = @top_srcdir@
 # Build information for each library
 
 # Sources for epc
-epctest_SOURCES = test.cpp
+bin_pfcpex_DEPENDENCIES = \
+   $(top_builddir)/exampleProgram/libpfcp/lib/libpfcp.so \
+   $(top_builddir)/src/libepc.a
+
+bin_pfcpex_SOURCES = \
+   src/main.cpp \
+   src/pfcpex.cpp \
+   src/pfcpr15.cpp
+
 
 # Linker options libTestProgram
 #libepc_a_LDFLAGS = 
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-epctest_CPPFLAGS = -Wall -std=c++11 -I../include -I../modules/spdlog/include
-epctest_LDADD = -L../src -lepc -lcares -lpthread -lrt
+bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I./include -I../../include/epc -I../../modules/spdlog/include -I../libpfcp/include
+bin_pfcpex_LDADD = -L../../src -L../libpfcp/lib -lpfcp -lepc -lpthread -lrt
 all: all-am
 
 .SUFFIXES:
@@ -296,9 +306,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu exampleProgram/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu exampleProgram/pfcp/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu exampleProgram/Makefile
+	  $(AUTOMAKE) --gnu exampleProgram/pfcp/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -358,18 +368,36 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+src/$(am__dirstamp):
+	@$(MKDIR_P) src
+	@: > src/$(am__dirstamp)
+src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/$(DEPDIR)
+	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/bin_pfcpex-main.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/bin_pfcpex-pfcpex.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/bin_pfcpex-pfcpr15.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+bin/$(am__dirstamp):
+	@$(MKDIR_P) bin
+	@: > bin/$(am__dirstamp)
 
-epctest$(EXEEXT): $(epctest_OBJECTS) $(epctest_DEPENDENCIES) $(EXTRA_epctest_DEPENDENCIES) 
-	@rm -f epctest$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(epctest_OBJECTS) $(epctest_LDADD) $(LIBS)
+bin/pfcpex$(EXEEXT): $(bin_pfcpex_OBJECTS) $(bin_pfcpex_DEPENDENCIES) $(EXTRA_bin_pfcpex_DEPENDENCIES) bin/$(am__dirstamp)
+	@rm -f bin/pfcpex$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(bin_pfcpex_OBJECTS) $(bin_pfcpex_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f src/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/epctest-test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/bin_pfcpex-main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/bin_pfcpex-pfcpex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/bin_pfcpex-pfcpr15.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -387,19 +415,47 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-epctest-test.o: test.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(epctest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT epctest-test.o -MD -MP -MF $(DEPDIR)/epctest-test.Tpo -c -o epctest-test.o `test -f 'test.cpp' || echo '$(srcdir)/'`test.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/epctest-test.Tpo $(DEPDIR)/epctest-test.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test.cpp' object='epctest-test.o' libtool=no @AMDEPBACKSLASH@
+src/bin_pfcpex-main.o: src/main.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/bin_pfcpex-main.o -MD -MP -MF src/$(DEPDIR)/bin_pfcpex-main.Tpo -c -o src/bin_pfcpex-main.o `test -f 'src/main.cpp' || echo '$(srcdir)/'`src/main.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/bin_pfcpex-main.Tpo src/$(DEPDIR)/bin_pfcpex-main.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/main.cpp' object='src/bin_pfcpex-main.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(epctest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o epctest-test.o `test -f 'test.cpp' || echo '$(srcdir)/'`test.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/bin_pfcpex-main.o `test -f 'src/main.cpp' || echo '$(srcdir)/'`src/main.cpp
 
-epctest-test.obj: test.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(epctest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT epctest-test.obj -MD -MP -MF $(DEPDIR)/epctest-test.Tpo -c -o epctest-test.obj `if test -f 'test.cpp'; then $(CYGPATH_W) 'test.cpp'; else $(CYGPATH_W) '$(srcdir)/test.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/epctest-test.Tpo $(DEPDIR)/epctest-test.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test.cpp' object='epctest-test.obj' libtool=no @AMDEPBACKSLASH@
+src/bin_pfcpex-main.obj: src/main.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/bin_pfcpex-main.obj -MD -MP -MF src/$(DEPDIR)/bin_pfcpex-main.Tpo -c -o src/bin_pfcpex-main.obj `if test -f 'src/main.cpp'; then $(CYGPATH_W) 'src/main.cpp'; else $(CYGPATH_W) '$(srcdir)/src/main.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/bin_pfcpex-main.Tpo src/$(DEPDIR)/bin_pfcpex-main.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/main.cpp' object='src/bin_pfcpex-main.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(epctest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o epctest-test.obj `if test -f 'test.cpp'; then $(CYGPATH_W) 'test.cpp'; else $(CYGPATH_W) '$(srcdir)/test.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/bin_pfcpex-main.obj `if test -f 'src/main.cpp'; then $(CYGPATH_W) 'src/main.cpp'; else $(CYGPATH_W) '$(srcdir)/src/main.cpp'; fi`
+
+src/bin_pfcpex-pfcpex.o: src/pfcpex.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/bin_pfcpex-pfcpex.o -MD -MP -MF src/$(DEPDIR)/bin_pfcpex-pfcpex.Tpo -c -o src/bin_pfcpex-pfcpex.o `test -f 'src/pfcpex.cpp' || echo '$(srcdir)/'`src/pfcpex.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/bin_pfcpex-pfcpex.Tpo src/$(DEPDIR)/bin_pfcpex-pfcpex.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/pfcpex.cpp' object='src/bin_pfcpex-pfcpex.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/bin_pfcpex-pfcpex.o `test -f 'src/pfcpex.cpp' || echo '$(srcdir)/'`src/pfcpex.cpp
+
+src/bin_pfcpex-pfcpex.obj: src/pfcpex.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/bin_pfcpex-pfcpex.obj -MD -MP -MF src/$(DEPDIR)/bin_pfcpex-pfcpex.Tpo -c -o src/bin_pfcpex-pfcpex.obj `if test -f 'src/pfcpex.cpp'; then $(CYGPATH_W) 'src/pfcpex.cpp'; else $(CYGPATH_W) '$(srcdir)/src/pfcpex.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/bin_pfcpex-pfcpex.Tpo src/$(DEPDIR)/bin_pfcpex-pfcpex.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/pfcpex.cpp' object='src/bin_pfcpex-pfcpex.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/bin_pfcpex-pfcpex.obj `if test -f 'src/pfcpex.cpp'; then $(CYGPATH_W) 'src/pfcpex.cpp'; else $(CYGPATH_W) '$(srcdir)/src/pfcpex.cpp'; fi`
+
+src/bin_pfcpex-pfcpr15.o: src/pfcpr15.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/bin_pfcpex-pfcpr15.o -MD -MP -MF src/$(DEPDIR)/bin_pfcpex-pfcpr15.Tpo -c -o src/bin_pfcpex-pfcpr15.o `test -f 'src/pfcpr15.cpp' || echo '$(srcdir)/'`src/pfcpr15.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/bin_pfcpex-pfcpr15.Tpo src/$(DEPDIR)/bin_pfcpex-pfcpr15.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/pfcpr15.cpp' object='src/bin_pfcpex-pfcpr15.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/bin_pfcpex-pfcpr15.o `test -f 'src/pfcpr15.cpp' || echo '$(srcdir)/'`src/pfcpr15.cpp
+
+src/bin_pfcpex-pfcpr15.obj: src/pfcpr15.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/bin_pfcpex-pfcpr15.obj -MD -MP -MF src/$(DEPDIR)/bin_pfcpex-pfcpr15.Tpo -c -o src/bin_pfcpex-pfcpr15.obj `if test -f 'src/pfcpr15.cpp'; then $(CYGPATH_W) 'src/pfcpr15.cpp'; else $(CYGPATH_W) '$(srcdir)/src/pfcpr15.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/bin_pfcpex-pfcpr15.Tpo src/$(DEPDIR)/bin_pfcpex-pfcpr15.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/pfcpr15.cpp' object='src/bin_pfcpex-pfcpr15.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_pfcpex_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/bin_pfcpex-pfcpr15.obj `if test -f 'src/pfcpr15.cpp'; then $(CYGPATH_W) 'src/pfcpr15.cpp'; else $(CYGPATH_W) '$(srcdir)/src/pfcpr15.cpp'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -516,6 +572,9 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f bin/$(am__dirstamp)
+	-rm -f src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -525,7 +584,7 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf src/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -571,7 +630,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf src/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -607,6 +666,8 @@ uninstall-am: uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
+#__top_builddir__exampleProgram_pfcp_bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc -I../../libpfcp/include -I../../../modules/spdlog/include
+#__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDADD = -L../../../src -L../../libpfcp/lib -lpfcp -lepc -lpthread -lrt
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

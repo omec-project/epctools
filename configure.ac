@@ -25,7 +25,7 @@ AC_PROG_CXX
 dnl AC_CANONICAL_SYSTEM
 
 dnl Initialize automake
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(subdir-objects)
 
 dnl this allows us specify individual liking flags for each target
 AM_PROG_CC_C_O 
@@ -42,7 +42,8 @@ AC_PROG_RANLIB
 AC_CONFIG_FILES(Makefile
                 src/Makefile
                 include/Makefile
-		exampleProgram/Makefile)
+		exampleProgram/Makefile
+                exampleProgram/pfcp/Makefile)
 
 #AC_CONFIG_COMMANDS([submodules],[git submodule update --init --recursive])
 AC_CONFIG_COMMANDS([submodules],[git submodule update --init])
