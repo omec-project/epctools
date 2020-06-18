@@ -15,6 +15,7 @@
 */
 
 #include "pfcpex.h"
+#include "pfcpr15inl.h"
 
 ExamplePfcpApplication *ExamplePfcpApplication::this_ = nullptr;
 
@@ -61,6 +62,16 @@ Void ExamplePfcpApplication::sendAssociationSetupReq()
 {
    static EString __method__ = __METHOD_NAME__;
    PFCP_R15::AssnSetupReq *req = new PFCP_R15::AssnSetupReq(ln_, rn_);
+
+   req->sequenceNumber(ln_->allocSeqNbr());
+   req->node_id().node_id_value(ln_->address());
+   req->rcvry_time_stmp().rcvry_time_stmp_val(ln_->startTime());
+
+   // Send to the translation layer for encoding and subsquent transmission
+   SEND_TO_TRANSLATION(SndMsg, req);
+#if 0
+   static EString __method__ = __METHOD_NAME__;
+   PFCP_R15::AssnSetupReq *req = new PFCP_R15::AssnSetupReq(ln_, rn_);
    Int ielen = sizeof(req->data().node_id) - sizeof(req->data().node_id.header) - sizeof(req->data().node_id.node_id_value);
 
    req->setSeqNbr(ln_->allocSeqNbr());
@@ -96,10 +107,39 @@ Void ExamplePfcpApplication::sendAssociationSetupReq()
 
    // Send to the translation layer for encoding and subsquent transmission
    SEND_TO_TRANSLATION(SndMsg, req);
+#endif
 }
 
 Void ExamplePfcpApplication::sendAssociationSetupRsp(PFCP_R15::AssnSetupReq *req)
 {
+   static EString __method__ = __METHOD_NAME__;
+   PFCP_R15::AssnSetupRsp *rsp = new PFCP_R15::AssnSetupRsp();
+
+   ELogger::log(LOG_SYSTEM).debug(
+      "{} - sending PFCP Association Setup Response local={} remote={}",
+      __method__, req->localNode()->address().getAddress(), req->remoteNode()->address().getAddress());
+
+   rsp->setReq(req);
+   rsp->sequenceNumber(req->seqNbr());
+
+   rsp->node_id().node_id_value(rsp->localNode()->address());
+   rsp->cause().cause(PFCP_R15::CauseEnum::RequestAccepted);
+   rsp->rcvry_time_stmp().rcvry_time_stmp_val(req->localNode()->startTime());
+   rsp->up_func_feat()
+      .bucp(True)
+      .pfdm(True)
+      .trst(True);
+   uint16_t idx = rsp->next_user_plane_ip_rsrc_info();
+   if (idx != -1)
+   {
+      rsp->user_plane_ip_rsrc_info(idx)
+         .teid_range(PFCP::Configuration::teidRangeBits(), rsp->remoteNode()->teidRangeValue())
+         .ip_address(EIpAddress("1.2.3.4"))
+         .src_intfc(PFCP_R15::SourceInterfaceEnum::Core);
+   }
+   SEND_TO_TRANSLATION(SndMsg, rsp);
+
+#if 0
    static EString __method__ = __METHOD_NAME__;
    PFCP_R15::AssnSetupRsp *rsp = new PFCP_R15::AssnSetupRsp();
    Int ielen = 0;
@@ -186,6 +226,7 @@ Void ExamplePfcpApplication::sendAssociationSetupRsp(PFCP_R15::AssnSetupReq *req
 
    // Send to the translation layer for encoding and subsquent transmission
    SEND_TO_TRANSLATION(SndMsg, rsp);
+#endif
 }
 
 Void ExamplePfcpApplication::onInit()
@@ -205,7 +246,7 @@ Void ExamplePfcpApplication::onInit()
 
 Void ExamplePfcpApplication::onQuit()
 {
-      static EString __method__ = __METHOD_NAME__;
+   static EString __method__ = __METHOD_NAME__;
 
    PFCP::Uninitialize();
 

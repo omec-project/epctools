@@ -281,19 +281,19 @@ namespace ESocket
 
       /// @brief Retrieves a reference to this address as an IPv4 address.
       /// @return a reference to this address as an IPv4 address.
-      struct sockaddr_in &getInet()
+      const struct sockaddr_in &getInet() const
       {
          if (m_addr.ss_family != AF_INET)
-            throw AddressError_CannotConvertInet2Inet6();
+            throw AddressError_CannotConvertInet62Inet();
          return (struct sockaddr_in &)m_addr;
       }
 
       /// @brief Retrieves a reference to this address as an IPv6 address.
       /// @return a reference to this address as an IPv6 address.
-      struct sockaddr_in6 &getInet6()
+      const struct sockaddr_in6 &getInet6() const
       {
          if (m_addr.ss_family != AF_INET6)
-            throw AddressError_CannotConvertInet62Inet();
+            throw AddressError_CannotConvertInet2Inet6();
          return (struct sockaddr_in6 &)m_addr;
       }
 

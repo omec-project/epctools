@@ -431,7 +431,7 @@ private:
 
 typedef std::vector<EOctetString> EOctetStringVec;
 
-std::ostream &operator<<(std::ostream &output, const EOctetString &ostr)
+inline std::ostream &operator<<(std::ostream &output, const EOctetString &ostr)
 {
    std::ios_base::fmtflags f(std::cout.flags());
    for (EOctetString::size_type idx=0; idx<ostr.length(); idx++)

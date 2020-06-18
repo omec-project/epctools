@@ -905,7 +905,7 @@ namespace PFCP
       }
 
       AppMsgReqPtr appMsg()               { return am_; }
-      ReqOut &setAppMsg(AppMsgReqPtr am)  { am_ = am; return *this; }
+      ReqOut &setAppMsg(AppMsgReqPtr am)  { am_ = am; if (am) setMsgType(am->msgType()); return *this; }
 
       Bool okToSnd()                      { if (n1_ < 1) return False; n1_--; return True; }
 

@@ -16,6 +16,7 @@
 
 #include <arpa/inet.h>
 #include "pfcpr15.h"
+#include "pfcpr15inl.h"
 #include "pfcp_messages_encoder.h"
 #include "pfcp_messages_decoder.h"
 
@@ -40,22 +41,12 @@ PFCP::ReqOutPtr Translator::encodeHeartbeatReq(PFCP::SndHeartbeatReqData &hb)
    ro->setSeqNbr(hb.localNode()->allocSeqNbr());
 
    HeartbeatReq *req = new HeartbeatReq(ro->localNode(), ro->remoteNode());
-   req->setSeqNbr(ro->seqNbr());
-   req->data().header.version = 1;
-   req->data().header.message_type = req->msgType();
-   req->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
+   req->sequenceNumber(ro->seqNbr());
+   req->recoveryTimeStamp().rcvry_time_stmp_val(ro->localNode()->startTime());
+   req->encode(data());
 
-   req->data().rcvry_time_stmp.header.type = PFCP_IE_RCVRY_TIME_STMP;
-   req->data().rcvry_time_stmp.header.len = sizeof(req->data().rcvry_time_stmp.rcvry_time_stmp_val);
-   req->data().rcvry_time_stmp.rcvry_time_stmp_val = ro->localNode()->startTime().getNTPTimeSeconds();
-
-   ro->setMsgType(req->msgType());
    ro->setAppMsg(req);
-
-   UShort len = encode_pfcp_hrtbeat_req_t(&req->data(), data());
-   reinterpret_cast<pfcp_header_t*>(data())->message_len = htons(len - 4);
-
-   ro->assign(data(), len);
+   ro->assign(data(), req->length());
 
    return ro;
 }
@@ -68,22 +59,12 @@ PFCP::RspOutPtr Translator::encodeHeartbeatRsp(PFCP::SndHeartbeatRspData &hb)
    ro->setSeqNbr(hb.req().seqNbr());
 
    HeartbeatRsp *rsp = new HeartbeatRsp();
-   rsp->setSeqNbr(ro->seqNbr());
-   rsp->data().header.version = 1;
-   rsp->data().header.message_type = rsp->msgType();
-   rsp->data().header.seid_seqno.no_seid.seq_no = ro->seqNbr();
+   rsp->sequenceNumber(ro->seqNbr());
+   rsp->recoveryTimeStamp().rcvry_time_stmp_val(ro->localNode()->startTime());
+   rsp->encode(data());
 
-   rsp->data().rcvry_time_stmp.header.type = PFCP_IE_RCVRY_TIME_STMP;
-   rsp->data().rcvry_time_stmp.header.len = sizeof(rsp->data().rcvry_time_stmp.rcvry_time_stmp_val);
-   rsp->data().rcvry_time_stmp.rcvry_time_stmp_val = ro->localNode()->startTime().getNTPTimeSeconds();
-
-   ro->setMsgType(rsp->msgType());
    ro->setRsp(rsp);
-
-   UShort len = encode_pfcp_hrtbeat_rsp_t(&rsp->data(), data());
-   reinterpret_cast<pfcp_header_t*>(data())->message_len = htons(len - 4);
-
-   ro->assign(data(), len);
+   ro->assign(data(), rsp->length());
 
    return ro;
 }
@@ -131,101 +112,120 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
       case PFCP_PFD_MGMT_REQ:
       {
          PfdMgmtReq *am = static_cast<PfdMgmtReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_pfd_mgmt_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_pfd_mgmt_req_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_SETUP_REQ:
       {
          AssnSetupReq *am = static_cast<AssnSetupReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_assn_setup_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_assn_setup_req_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_UPD_REQ:
       {
          AssnUpdateReq *am = static_cast<AssnUpdateReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_assn_upd_req_t(&am->data(), data());
+         am->encode(data());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_assn_upd_req_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_REL_REQ:
       {
          AssnReleaseReq *am = static_cast<AssnReleaseReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_assn_rel_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_assn_rel_req_t(&am->data(), data());
          break;
       }
       case PFCP_NODE_RPT_REQ:
       {
          NodeReportReq *am = static_cast<NodeReportReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_node_rpt_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_node_rpt_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_SET_DEL_REQ:
       {
          SessionSetDeletionReq *am = static_cast<SessionSetDeletionReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_sess_set_del_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_sess_set_del_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_ESTAB_REQ:
       {
          SessionEstablishmentReq *am = static_cast<SessionEstablishmentReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.s = 1;
-         am->data().header.message_type = req->msgType();
-         // force a '0' SEID for the remote SEID since the remote has not seen the session yet
-         req->setSeid(0);
-         am->data().header.seid_seqno.has_seid.seid = req->seid();
-         am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_sess_estab_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.s = 1;
+         // am->data().header.message_type = req->msgType();
+         // // force a '0' SEID for the remote SEID since the remote has not seen the session yet
+         // req->setSeid(0);
+         // am->data().header.seid_seqno.has_seid.seid = req->seid();
+         // am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_sess_estab_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_MOD_REQ:
       {
          SessionModificationReq *am = static_cast<SessionModificationReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.s = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.has_seid.seid = req->seid();
-         am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_sess_mod_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.s = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.has_seid.seid = req->seid();
+         // am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_sess_mod_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_DEL_REQ:
       {
          SessionDeletionReq *am = static_cast<SessionDeletionReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.s = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.has_seid.seid = req->seid();
-         am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_sess_del_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.s = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.has_seid.seid = req->seid();
+         // am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_sess_del_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_RPT_REQ:
       {
          SessionReportReq *am = static_cast<SessionReportReq*>(req);
-         am->data().header.version = 1;
-         am->data().header.s = 1;
-         am->data().header.message_type = req->msgType();
-         am->data().header.seid_seqno.has_seid.seid = req->seid();
-         am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
-         len = encode_pfcp_sess_rpt_req_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.s = 1;
+         // am->data().header.message_type = req->msgType();
+         // am->data().header.seid_seqno.has_seid.seid = req->seid();
+         // am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
+         // len = encode_pfcp_sess_rpt_req_t(&am->data(), data());
          break;
       }
       default:
@@ -239,8 +239,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
    // update the header length
    reinterpret_cast<pfcp_header_t*>(data())->message_len = htons(len - 4);
 
-   // copy the data to the output request object
-   ro->assign(data(), len);
 
    return ro;
 }
@@ -248,7 +246,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
 PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
 {
    static EString __method__ = __METHOD_NAME__;
-   UShort len = 0;
 
    std::memset(data(), 0, ESocket::UPD_MAX_MSG_LENGTH);
 
@@ -264,99 +261,119 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
       case PFCP_PFD_MGMT_RSP:
       {
          PfdMgmtRsp *am = static_cast<PfdMgmtRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_pfd_mgmt_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_pfd_mgmt_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_SETUP_RSP:
       {
          AssnSetupRsp *am = static_cast<AssnSetupRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_assn_setup_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_assn_setup_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_UPD_RSP:
       {
          AssnUpdateRsp *am = static_cast<AssnUpdateRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_assn_upd_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_assn_upd_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_REL_RSP:
       {
          AssnUpdateRsp *am = static_cast<AssnUpdateRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_assn_upd_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_assn_upd_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_NODE_RPT_RSP:
       {
          NodeReportRsp *am = static_cast<NodeReportRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_node_rpt_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_node_rpt_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_SET_DEL_RSP:
       {
          SessionSetDeletionRsp *am = static_cast<SessionSetDeletionRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_sess_set_del_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_sess_set_del_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_ESTAB_RSP:
       {
          SessionEstablishmentRsp *am = static_cast<SessionEstablishmentRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.s = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.has_seid.seid = rsp->seid();
-         am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_sess_estab_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.s = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.has_seid.seid = rsp->seid();
+         // am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_sess_estab_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_MOD_RSP:
       {
          SessionModificationRsp *am = static_cast<SessionModificationRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.s = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.has_seid.seid = rsp->seid();
-         am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_sess_mod_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.s = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.has_seid.seid = rsp->seid();
+         // am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_sess_mod_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_DEL_RSP:
       {
          SessionDeletionRsp *am = static_cast<SessionDeletionRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.s = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.has_seid.seid = rsp->seid();
-         am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_sess_del_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.s = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.has_seid.seid = rsp->seid();
+         // am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_sess_del_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_RPT_RSP:
       {
          SessionReportRsp *am = static_cast<SessionReportRsp*>(rsp);
-         am->data().header.version = 1;
-         am->data().header.s = 1;
-         am->data().header.message_type = rsp->msgType();
-         am->data().header.seid_seqno.has_seid.seid = rsp->seid();
-         am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
-         len = encode_pfcp_sess_rpt_rsp_t(&am->data(), data());
+         am->encode(data());
+         ro->assign(data(), am->length());
+         // am->data().header.version = 1;
+         // am->data().header.s = 1;
+         // am->data().header.message_type = rsp->msgType();
+         // am->data().header.seid_seqno.has_seid.seid = rsp->seid();
+         // am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
+         // len = encode_pfcp_sess_rpt_rsp_t(&am->data(), data());
          break;
       }
       default:
@@ -367,11 +384,11 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
       }
    }
 
-   // update the header length
-   reinterpret_cast<pfcp_header_t*>(data())->message_len = htons(len - 4);
+   // // update the header length
+   // reinterpret_cast<pfcp_header_t*>(data())->message_len = htons(len - 4);
 
-   // copy the data to the output request object
-   ro->assign(data(), len);
+   // // copy the data to the output request object
+   // ro->assign(data(), len);
 
    return ro;
 }

@@ -120,6 +120,8 @@ am_bin_pfcpex_OBJECTS = src/bin_pfcpex-main.$(OBJEXT) \
 	src/bin_pfcpex-pfcpex.$(OBJEXT) \
 	src/bin_pfcpex-pfcpr15.$(OBJEXT)
 bin_pfcpex_OBJECTS = $(am_bin_pfcpex_OBJECTS)
+bin_pfcpex_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(bin_pfcpex_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -287,12 +289,12 @@ bin_pfcpex_SOURCES = \
 
 
 # Linker options libTestProgram
-#libepc_a_LDFLAGS = 
+bin_pfcpex_LDFLAGS = -Wl,-rpath,../libpfcp/lib
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
 bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I./include -I../../include/epc -I../../modules/spdlog/include -I../libpfcp/include
-bin_pfcpex_LDADD = -L../../src -L../libpfcp/lib -lpfcp -lepc -lpthread -lrt
+bin_pfcpex_LDADD = ../libpfcp/lib/libpfcp.so -L../../src -lepc -lpthread -lrt
 all: all-am
 
 .SUFFIXES:
@@ -386,7 +388,7 @@ bin/$(am__dirstamp):
 
 bin/pfcpex$(EXEEXT): $(bin_pfcpex_OBJECTS) $(bin_pfcpex_DEPENDENCIES) $(EXTRA_bin_pfcpex_DEPENDENCIES) bin/$(am__dirstamp)
 	@rm -f bin/pfcpex$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(bin_pfcpex_OBJECTS) $(bin_pfcpex_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(bin_pfcpex_LINK) $(bin_pfcpex_OBJECTS) $(bin_pfcpex_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -666,8 +668,6 @@ uninstall-am: uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
-#__top_builddir__exampleProgram_pfcp_bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc -I../../libpfcp/include -I../../../modules/spdlog/include
-#__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDADD = -L../../../src -L../../libpfcp/lib -lpfcp -lepc -lpthread -lrt
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -31,7 +31,7 @@ __top_builddir__exampleProgram_pfcp_bin_pfcpex_SOURCE = main.cpp pfcpex.cpp pfcp
 #pfcpex_SOURCES = main.cpp pfcpr15.cpp
 
 # Linker options libTestProgram
-#__top_builddir__bin_pfcpex_LDFLAGS = ../../libpfcp/lib/libpfcp.so
+#__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDFLAGS = -Wl,../../libpfcp/lib/libpfcp.so
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
@@ -39,4 +39,4 @@ __top_builddir__exampleProgram_pfcp_bin_pfcpex_SOURCE = main.cpp pfcpex.cpp pfcp
 #pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc
 #pfcpex_LDADD = -L../../../src -lepc -lpthread -lrt
 __top_builddir__exampleProgram_pfcp_bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc -I../../libpfcp/include -I../../../modules/spdlog/include
-__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDADD = -L../../../src -L../../libpfcp/lib -lpfcp -lepc -lpthread -lrt
+__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDADD = -Wl,../../libpfcp/lib/libpfcp.so -L../../../src -lepc -lpthread -lrt

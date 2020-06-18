@@ -481,6 +481,15 @@ public:
    /// @brief Assigns the time represented by the NTP time to this ETime object.
    /// @param ntp the ntp_time_t object to assign.
    Void setNTPTime(const ntp_time_t &ntp);
+   /// @brief Assigns the time represented by the NTP time seconds (only) to this ETime object.
+   /// @param ntp the ntp_time_t seconds to assign.
+   Void setNTPTime(const UInt seconds, const UInt fraction=0)
+   {
+      ntp_time_t t;
+      t.second = seconds;
+      t.fraction = fraction;
+      setNTPTime(t);
+   }
    /// @brief Retrieves the NTP time seconds representation of this ETime object.
    /// @return the seconds from the NTP timestamp.
    UInt getNTPTimeSeconds() const { ntp_time_t t; getNTPTime(t); return t.second; }
