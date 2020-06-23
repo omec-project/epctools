@@ -47,8 +47,12 @@
    MNC = [MNC digit 1][MNC digit 2][MNC digit 3]
 */
 
+#ifndef LOW_NIBBLE
 #define LOW_NIBBLE(a) (((unsigned char)a) & 0x0f)
+#endif
+#ifndef HIGH_NIBBLE
 #define HIGH_NIBBLE(a) ((((unsigned char)a) & 0xf0) >> 4)
+#endif
 
 #define PARSE_MNC(a,b) { \
    if ( HIGH_NIBBLE(b[1]) == 0x0f ) { \
@@ -362,6 +366,7 @@ namespace EPCDNS
       | aaa+ap16777251 | 3GPP S6a [TS29.272]  |
       | aaa+ap16777264 | 3GPP SWm [TS29.273]  |
       | aaa+ap16777267 | 3GPP S9 [TS29.215]   |
+      | aaa+ap16777238 | 3GPP Gx [TS29.212]   |
       +----------------+----------------------+
       */
       /// 3GPP STa
@@ -372,6 +377,8 @@ namespace EPCDNS
       dia_app_3gpp_swm,
       /// 3GPP S9
       dia_app_3gpp_s9,
+      /// 3GPP Gx
+      dia_app_3gpp_gx,
       /*
       +----------------+--------------------------------------------------+
       | Tag            | Diameter Application                             |

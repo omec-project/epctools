@@ -272,7 +272,7 @@ public:
    /// @brief Equality operator.
    /// @param a the ETime value to compare to.
    /// @return True indicates that the values are equal, otherwise False.
-   Bool operator==(const ETime &a)
+   Bool operator==(const ETime &a) const
    {
       return ((m_time.tv_sec == a.m_time.tv_sec) && (m_time.tv_usec == a.m_time.tv_usec));
    }
@@ -280,7 +280,7 @@ public:
    /// @brief Inequality operator.
    /// @param a the ETime value to compare to.
    /// @return True indicates that the values are not equal, otherwise False (values are equal).
-   Bool operator!=(const ETime &a)
+   Bool operator!=(const ETime &a) const
    {
       return ((m_time.tv_sec != a.m_time.tv_sec) || (m_time.tv_usec != a.m_time.tv_usec));
    }
@@ -288,7 +288,7 @@ public:
    /// @brief Less than operator.
    /// @param a the ETime value to compare to.
    /// @return True indicates that this value is less than the provided value, otherwise False.
-   Bool operator<(const ETime &a)
+   Bool operator<(const ETime &a) const
    {
       if (m_time.tv_sec < a.m_time.tv_sec)
          return true;
@@ -304,7 +304,7 @@ public:
    /// @brief Greater than operator.
    /// @param a the ETime value to compare to.
    /// @return True indicates that this value is greater than the provided value, otherwise False.
-   Bool operator>(const ETime &a)
+   Bool operator>(const ETime &a) const
    {
       if (m_time.tv_sec > a.m_time.tv_sec)
          return true;
@@ -320,7 +320,7 @@ public:
    /// @brief Greater than or equal to operator.
    /// @param a the ETime value to compare to.
    /// @return True indicates that this value is greater than or equal to the provided value, otherwise False.
-   Bool operator>=(const ETime &a)
+   Bool operator>=(const ETime &a) const
    {
       return !(*this < a);
    }
@@ -328,7 +328,7 @@ public:
    /// @brief Less than or equal to operator.
    /// @param a the ETime value to compare to.
    /// @return True indicates that this value is less than or equal to the provided value, otherwise False.
-   Bool operator<=(const ETime &a)
+   Bool operator<=(const ETime &a) const
    {
       return !(*this > a);
    }
@@ -481,6 +481,18 @@ public:
    /// @brief Assigns the time represented by the NTP time to this ETime object.
    /// @param ntp the ntp_time_t object to assign.
    Void setNTPTime(const ntp_time_t &ntp);
+   /// @brief Assigns the time represented by the NTP time seconds (only) to this ETime object.
+   /// @param ntp the ntp_time_t seconds to assign.
+   Void setNTPTime(const UInt seconds, const UInt fraction=0)
+   {
+      ntp_time_t t;
+      t.second = seconds;
+      t.fraction = fraction;
+      setNTPTime(t);
+   }
+   /// @brief Retrieves the NTP time seconds representation of this ETime object.
+   /// @return the seconds from the NTP timestamp.
+   UInt getNTPTimeSeconds() const { ntp_time_t t; getNTPTime(t); return t.second; }
 
    /// @brief Indicates whether this ETime object is valid or not.
    /// @return True indicates this object is valid, otherwise False.
@@ -512,18 +524,18 @@ public:
    /// @param dest contains the resulting string.
    /// @param fmt the format string.
    /// @param local indicates if the time/date value is to be converted to the current timezone or not.
-   Void Format(EString &dest, cpStr fmt, Bool local);
+   Void Format(EString &dest, cpStr fmt, Bool local) const;
    /// @brief Formats the date/time value as specified by the format string.
    /// @param dest contains the resulting string.
    /// @param maxsize the maximum length of dest.
    /// @param fmt the format string.
    /// @param local indicates if the time/date value is to be converted to the current timezone or not.
-   Void Format(pStr dest, Int maxsize, cpStr fmt, Bool local);
+   Void Format(pStr dest, Int maxsize, cpStr fmt, Bool local) const;
    /// @brief Formats the date/time value as specified by the format string.
    /// @param fmt the format string.
    /// @param local indicates if the time/date value is to be converted to the current timezone or not.
    /// @return a string containing the formatted output.
-   EString Format(cpStr fmt, Bool local) { EString s; Format(s,fmt,local); return s; }
+   EString Format(cpStr fmt, Bool local) const { EString s; Format(s,fmt,local); return s; }
    /// @brief Parses the string containing the time and date.
    /// @param pszDate NULL terminated string to parse.
    /// @param isLocal indicates if the time/date string is in local time or not.

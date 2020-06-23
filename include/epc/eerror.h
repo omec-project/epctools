@@ -53,6 +53,8 @@ struct EErrorMapEntry
 #define DECLARE_ERROR(__e__)                                \
    class __e__ : public EError                              \
    {                                                        \
+   public:                                                  \
+      __e__() { setText(#__e__); }                          \
       virtual const cpStr Name() const { return #__e__; }   \
    }
 /// Declares exception class derived from EError with no constructor parameters and developer defined constructor body.

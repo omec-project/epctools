@@ -34,11 +34,14 @@ nobase_include_HEADERS =   \
    epc/egetopt.h           \
    epc/ehash.h             \
    epc/einternal.h         \
+   epc/eip.h               \
    epc/elogger.h           \
    epc/emsg.h              \
+   epc/eostring.h          \
    epc/epath.h             \
    epc/epcdns.h            \
    epc/epctools.h          \
+   epc/epfcp.h             \
    epc/eqbase.h            \
    epc/eqpriv.h            \
    epc/eqpub.h             \
@@ -50,6 +53,7 @@ nobase_include_HEADERS =   \
    epc/esynch.h            \
    epc/esynch2.h           \
    epc/etbasic.h           \
+   epc/eteid.h             \
    epc/etevent.h           \
    epc/etime.h             \
    epc/etimer.h            \

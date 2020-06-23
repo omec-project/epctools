@@ -19,55 +19,24 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example #usr#lib
-lib_LIBRARIES = libepc.a
+bin_PROGRAMS = $(top_builddir)/exampleProgram/pfcp/bin/pfcpex
+#__top_builddir__bin_pfcpex_SOURCES
+
 
 #######################################
 # Build information for each library
 
 # Sources for epc
-libepc_a_SOURCES =   \
-   ebase.cpp         \
-   ebzip2.cpp        \
-   ecbuf.cpp         \
-   emgmt.cpp         \
-   edir.cpp          \
-   eerror.cpp        \
-   efd.cpp           \
-   efdjson.cpp       \
-   egetopt.cpp       \
-   ehash.cpp         \
-   eip.cpp           \
-   elogger.cpp       \
-   emsg.cpp          \
-   epath.cpp         \
-   epcdns.cpp        \
-   epfcp.cpp         \
-   eqbase.cpp        \
-   eqpriv.cpp        \
-   eqpub.cpp         \
-   eshmem.cpp        \
-   esocket.cpp       \
-   estatic.cpp       \
-   estats.cpp        \
-   estring.cpp       \
-   esynch.cpp        \
-   etbasic.cpp       \
-   etevent.cpp       \
-   etime.cpp         \
-   etimer.cpp        \
-   etimerpool.cpp    \
-   eutil.cpp         \
-   dnscache.cpp      \
-   dnsparser.cpp 
-
-#   etbase.cpp        
-#   ethread.cpp
-#   etq.cpp
-
+__top_builddir__exampleProgram_pfcp_bin_pfcpex_SOURCE = main.cpp pfcpex.cpp pfcpr15.cpp
+#pfcpex_SOURCES = main.cpp pfcpr15.cpp
 
 # Linker options libTestProgram
-#libepc_a_LDFLAGS = 
+#__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDFLAGS = -Wl,../../libpfcp/lib/libpfcp.so
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-libepc_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares
+ #-I../modules/spdlog/include
+#pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc
+#pfcpex_LDADD = -L../../../src -lepc -lpthread -lrt
+__top_builddir__exampleProgram_pfcp_bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc -I../../libpfcp/include -I../../../modules/spdlog/include
+__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDADD = -Wl,../../libpfcp/lib/libpfcp.so -L../../../src -lepc -lpthread -lrt

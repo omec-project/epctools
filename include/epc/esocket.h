@@ -19,6 +19,7 @@
 #define __esocket_h_included
 
 #include <csignal>
+#include <cstring>
 #include <unordered_map>
 
 #include <errno.h>
@@ -34,6 +35,7 @@
 #include "estatic.h"
 #include "estring.h"
 #include "etevent.h"
+#include "ehash.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +152,14 @@ namespace ESocket
       /// @param port the IP port.
       Address(cpStr addr, UShort port) { setAddress(addr,port); }
       /// @brief Class constructor.
+      /// @param addr the IPv4 address.
+      /// @param port the IP port.
+      Address(const struct in_addr &addr, UShort port) { setAddress(addr,port); }
+      /// @brief Class constructor.
+      /// @param addr the IP IPv6 address.
+      /// @param port the IP port.
+      Address(const struct in6_addr &addr, UShort port) { setAddress(addr,port); }
+      /// @brief Class constructor.
       /// @param addr the IPv4 socket address.
       Address(struct sockaddr_in &addr) { memcpy(&m_addr, &addr, sizeof(addr)); }
       /// @brief Class constructor.
@@ -198,7 +208,14 @@ namespace ESocket
 
       /// @brief Retrieves a sockaddr pointer to the socket address.
       /// @return a sockaddr pointer to the socket address.
-      struct sockaddr *getSockAddr()
+      const struct sockaddr_storage &getSockAddrStorage() const
+      {
+         return m_addr;
+      }
+
+      /// @brief Retrieves a sockaddr_storage reference to the socket address.
+      /// @return a sockaddr_storage reference to the socket address.
+      struct sockaddr *getSockAddr() const
       {
          return (struct sockaddr *)&m_addr;
       }
@@ -223,6 +240,22 @@ namespace ESocket
          return *this;
       }
 
+      /// @brief Assignment operator.
+      /// @param addr the IPV4 address object to copy.
+      /// @return a reference to this Address object.
+      Address &operator=(const sockaddr_in &addr)
+      {
+         return setAddress(addr);
+      }
+
+      /// @brief Assignment operator.
+      /// @param addr the IPV6 address object to copy.
+      /// @return a reference to this Address object.
+      Address &operator=(const sockaddr_in6 &addr)
+      {
+         return setAddress(addr);
+      }
+
       /// @brief Assigns a port value (allowing IPADDR_ANY).
       /// @param port the port.
       /// @return a reference to this Address object.
@@ -239,21 +272,28 @@ namespace ESocket
                 m_addr.ss_family == AF_INET6 ? Family::INET6 : Family::Undefined;
       }
 
+      /// @brief Retrieves the sockaddr_storage.
+      /// @return a reference to the sockaddr_storage member.
+      const struct sockaddr_storage &getStorage() const
+      {
+         return m_addr;
+      }
+
       /// @brief Retrieves a reference to this address as an IPv4 address.
       /// @return a reference to this address as an IPv4 address.
-      struct sockaddr_in &getInet()
+      const struct sockaddr_in &getInet() const
       {
          if (m_addr.ss_family != AF_INET)
-            throw AddressError_CannotConvertInet2Inet6();
+            throw AddressError_CannotConvertInet62Inet();
          return (struct sockaddr_in &)m_addr;
       }
 
       /// @brief Retrieves a reference to this address as an IPv6 address.
       /// @return a reference to this address as an IPv6 address.
-      struct sockaddr_in6 &getInet6()
+      const struct sockaddr_in6 &getInet6() const
       {
          if (m_addr.ss_family != AF_INET6)
-            throw AddressError_CannotConvertInet62Inet();
+            throw AddressError_CannotConvertInet2Inet6();
          return (struct sockaddr_in6 &)m_addr;
       }
 
@@ -284,16 +324,83 @@ namespace ESocket
          throw AddressError_UnknownAddressType();
       }
 
-      /// @brief Assigns the socket address.
+      /// @brief Assigns the IPv4 socket address.
+      /// @param addr the IPv4 address.
       /// @param port the port.
       /// @return a reference to this address object.
-      Address &setAddress(UShort port)
+      Address &setAddress(const struct in_addr &addr, UShort port)
       {
+         clear();
+         std::memcpy(&((struct sockaddr_in*)&m_addr)->sin_addr, &addr, sizeof(((struct sockaddr_in*)&m_addr)->sin_addr));
+         ((struct sockaddr_in*)&m_addr)->sin_family = AF_INET;
+         ((struct sockaddr_in*)&m_addr)->sin_port = htons(port);
+         return *this;
+      }
+
+      /// @brief Assigns the IPv6 socket address.
+      /// @param addr the IPv6 address.
+      /// @param port the port.
+      /// @return a reference to this address object.
+      Address &setAddress(const struct in6_addr &addr, UShort port)
+      {
+         clear();
+         std::memcpy(&((struct sockaddr_in6*)&m_addr)->sin6_addr, &addr, sizeof(((struct sockaddr_in6*)&m_addr)->sin6_addr));
          ((struct sockaddr_in6*)&m_addr)->sin6_family = AF_INET6;
          ((struct sockaddr_in6*)&m_addr)->sin6_port = htons(port);
          ((struct sockaddr_in6*)&m_addr)->sin6_flowinfo = 0;
          ((struct sockaddr_in6*)&m_addr)->sin6_scope_id = 0;
-         ((struct sockaddr_in6*)&m_addr)->sin6_addr = in6addr_any;
+         return *this;
+      }
+
+      /// @brief Assigns the socket address.
+      /// @param port the port.
+      /// @param fam the address family.
+      /// @return a reference to this address object.
+      Address &setAddress(UShort port, Family fam = Family::INET6)
+      {
+         switch (fam)
+         {
+            case Family::INET:
+            {
+               ((struct sockaddr_in*)&m_addr)->sin_family = AF_INET;
+               ((struct sockaddr_in*)&m_addr)->sin_port = htons(port);
+               ((struct sockaddr_in*)&m_addr)->sin_addr.s_addr = INADDR_ANY;
+               break;
+            }
+            case Family::INET6:
+            {
+               ((struct sockaddr_in6*)&m_addr)->sin6_family = AF_INET6;
+               ((struct sockaddr_in6*)&m_addr)->sin6_port = htons(port);
+               ((struct sockaddr_in6*)&m_addr)->sin6_flowinfo = 0;
+               ((struct sockaddr_in6*)&m_addr)->sin6_scope_id = 0;
+               ((struct sockaddr_in6*)&m_addr)->sin6_addr = in6addr_any;
+               break;
+            }
+            default:
+            {
+               throw AddressError_UndefinedFamily();
+            }
+         }
+         return *this;
+      }
+
+      Address &setAddress(const sockaddr_in &addr)
+      {
+         clear();
+         ((struct sockaddr_in*)&m_addr)->sin_family = AF_INET;
+         ((struct sockaddr_in*)&m_addr)->sin_port = addr.sin_port;
+         ((struct sockaddr_in*)&m_addr)->sin_addr.s_addr = addr.sin_addr.s_addr;
+         return *this;
+      }
+
+      Address &setAddress(const sockaddr_in6 &addr)
+      {
+         clear();
+         ((struct sockaddr_in6*)&m_addr)->sin6_family = AF_INET6;
+         ((struct sockaddr_in6*)&m_addr)->sin6_port = addr.sin6_port;
+         ((struct sockaddr_in6*)&m_addr)->sin6_flowinfo = 0;
+         ((struct sockaddr_in6*)&m_addr)->sin6_scope_id = 0;
+         ((struct sockaddr_in6*)&m_addr)->sin6_addr = addr.sin6_addr;
          return *this;
       }
 
@@ -651,7 +758,6 @@ namespace ESocket
                this->setError();
                if (this->getError() != EINPROGRESS && this->getError() != EWOULDBLOCK)
                   throw TcpTalkerError_UnableToConnect();
-               this->setError(0);
 
                setState( SocketState::Connecting );
 
@@ -702,11 +808,11 @@ namespace ESocket
          /// @brief Writes data to the socket.  This is a thread safe method.
          /// @param src the location to the data to write.
          /// @param len the desired number of bytes to write.
-         Void write(pUChar src, Int len)
+         Void write(cpUChar src, Int len)
          {
             {
                EMutexLock l(m_wbuf.getMutex());
-               m_wbuf.writeData((pUChar)&len, 0, sizeof(len), True);
+               m_wbuf.writeData((cpUChar)&len, 0, sizeof(len), True);
                m_wbuf.writeData(src, 0, len, True);
             }
 
@@ -745,7 +851,7 @@ namespace ESocket
          virtual Void onConnect()
          {
          }
-         // /// @brief Called when the socket has been closed.
+         /// @brief Called when the socket has been closed.
          virtual Void onClose()
          {
             this->close();            
@@ -798,10 +904,7 @@ namespace ESocket
                {
                   this->setError();
                   if (this->getError() == EWOULDBLOCK)
-                  {
-                     this->setError(0);
                      break;
-                  }
                   throw TcpTalkerError_UnableToRecvData();
                }
             }
@@ -828,7 +931,7 @@ namespace ESocket
 
             if (getState() != SocketState::Connected)
             {
-               //std::raise(SIGINT);
+               std::raise(SIGINT);
                throw TcpTalkerError_InvalidSendState(Base<TQueue,TMessage>::getStateDescription(getState()));
             }
 
@@ -900,7 +1003,6 @@ namespace ESocket
                this->setError();
                if (this->getError() != EWOULDBLOCK)
                   throw TcpTalkerError_SendingPacket();
-               this->setError(0);
             }
 
             return result;
@@ -1158,7 +1260,7 @@ namespace ESocket
       }
       /// @brief Retrieves the local address for this socket.
       /// @return the local address for this socket.
-      Address getLocal()
+      const Address &getLocal()
       {
          return m_local;
       }
@@ -1195,17 +1297,27 @@ namespace ESocket
       /// @param to the address to send the data to.
       /// @param src a pointer to the beginning of the data buffer to send.
       /// @param len the number of bytes to send.
-      Void write(const Address &to, pVoid src, Int len)
+      Void write(const Address &to, cpUChar src, Int len)
+      {
+         write(Address(), to, src, len);
+      }
+      /// @brief Sends data to the specified recipient address.
+      /// @param from the address the data is sent from.
+      /// @param to the address to send the data to.
+      /// @param src a pointer to the beginning of the data buffer to send.
+      /// @param len the number of bytes to send.
+      Void write(const Address &from, const Address &to, cpUChar src, Int len)
       {
          UDPMessage msg;
          msg.total_length = sizeof(msg) + len;
          msg.data_length = len;
-         msg.addr = to;
+         msg.local = from;
+         msg.remote = to;
 
          {
             EMutexLock l(m_wbuf.getMutex());
-            m_wbuf.writeData(reinterpret_cast<pUChar>(&msg), 0, sizeof(msg), True);
-            m_wbuf.writeData(reinterpret_cast<pUChar>(src), 0, len, True);
+            m_wbuf.writeData(reinterpret_cast<cpUChar>(&msg), 0, sizeof(msg), True);
+            m_wbuf.writeData(src, 0, len, True);
          }
 
          send();
@@ -1257,7 +1369,7 @@ namespace ESocket
       /// @param from the socket address that the data was received from.
       /// @param msg pointer to the received data.
       /// @param len number of bytes received.
-      virtual Void onReceive(const Address &from, pVoid msg, Int len)
+      virtual Void onReceive(const Address &from, const Address &to, cpUChar msg, Int len)
       {
       }
       /// @brief Called when an error is detected on this socket.
@@ -1274,20 +1386,71 @@ namespace ESocket
 
       Int recv()
       {
+         union ControlData
+         {
+            struct cmsghdr header;
+            struct in_pktinfo pktinfo;
+            struct in6_pktinfo pktinfo6;
+         };
+
          Int totalReceived = 0;
-         Address addr;
-         socklen_t addrlen;
+         Address local;
+         Address remote;
+         // socklen_t addrlen;
          Int flags = 0;
+         UChar cmsgdata[CMSG_SPACE(sizeof(ControlData))];
+         struct iovec iov[1];
+         struct msghdr mh;
+
+         std::memset(&mh, 0, sizeof(mh));
+         mh.msg_control = cmsgdata;
+         mh.msg_controllen = sizeof(cmsgdata);
+         mh.msg_iov = iov;
+         mh.msg_iovlen = 1;
+         iov[0].iov_base = m_rcvmsg->data;
+         iov[0].iov_len = UPD_MAX_MSG_LENGTH;
+         mh.msg_name = (pVoid)&remote.getStorage();
+         mh.msg_namelen = sizeof(remote.getStorage());
 
          while (True)
          {
-            addrlen = addr.getSockAddrLen();
-            Int amtReceived = ::recvfrom(this->getHandle(), m_rcvmsg->data, UPD_MAX_MSG_LENGTH, flags, addr.getSockAddr(), &addrlen);
+            // addrlen = addr.getSockAddrLen();
+            // Int amtReceived = ::recvfrom(this->getHandle(), m_rcvmsg->data, UPD_MAX_MSG_LENGTH, flags, addr.getSockAddr(), &addrlen);
+            Int amtReceived = ::recvmsg(this->getHandle(), &mh, flags);
             if (amtReceived >= 0)
             {
                m_rcvmsg->total_length = sizeof(UDPMessage) + amtReceived;
                m_rcvmsg->data_length = amtReceived;
-               m_rcvmsg->addr = addr;
+               m_rcvmsg->local = getLocal();
+               m_rcvmsg->remote = remote;
+
+               for (struct cmsghdr *cp = CMSG_FIRSTHDR(&mh); cp != NULL; cp = CMSG_NXTHDR(&mh,cp))
+               {
+                  if (cp->cmsg_level == IPPROTO_IP && cp->cmsg_type == IP_PKTINFO)
+                  {
+                     struct in_pktinfo *p = (struct in_pktinfo *)CMSG_DATA(cp);
+                     sockaddr_in ipv4;
+                     std::memset(&ipv4, 0, sizeof(ipv4));
+                     ipv4.sin_family = AF_INET;
+                     ipv4.sin_port = ((struct sockaddr_in&)getLocal().getStorage()).sin_port;
+                     ipv4.sin_addr.s_addr = p->ipi_spec_dst.s_addr;
+                     m_rcvmsg->local = ipv4;
+                     break;
+                  }
+                  if (cp->cmsg_level == IPPROTO_IPV6 && cp->cmsg_type == IPV6_PKTINFO)
+                  {
+                     struct in6_pktinfo *p = (struct in6_pktinfo *)CMSG_DATA(cp);
+                     sockaddr_in6 ipv6;
+                     std::memset(&ipv6, 0, sizeof(ipv6));
+                     ipv6.sin6_family = AF_INET6;
+                     ipv6.sin6_port = ((struct sockaddr_in6&)getLocal().getStorage()).sin6_port;
+                     ipv6.sin6_flowinfo = 0;
+                     ipv6.sin6_scope_id = 0;
+                     ipv6.sin6_addr = p->ipi6_addr;
+                     m_rcvmsg->local = ipv6;
+                     break;
+                  }
+               }
 
                m_rbuf.writeData( reinterpret_cast<pUChar>(m_rcvmsg), 0, m_rcvmsg->total_length);
                totalReceived += amtReceived;
@@ -1296,10 +1459,7 @@ namespace ESocket
             {
                this->setError();
                if (this->getError() == EWOULDBLOCK)
-               {
-                  this->setError(0);
                   break;
-               }
                throw UdpError_UnableToRecvData();
             }
          }
@@ -1348,7 +1508,7 @@ namespace ESocket
                throw UdpError_ReadingWritePacketLength(msg.c_str());
             }
 
-            if (send(m_sndmsg->addr, m_sndmsg->data, m_sndmsg->data_length) == -1)
+            if (send(m_sndmsg->local, m_sndmsg->remote, m_sndmsg->data, m_sndmsg->data_length) == -1)
             {
                // unable to send this message so get out, it will be sent when the socket is ready for writing
                break;
@@ -1365,7 +1525,8 @@ namespace ESocket
       {
          size_t total_length;
          size_t data_length;
-         Address addr;
+         Address local;
+         Address remote;
          UChar data[0];
       };
       #pragma pack(pop)
@@ -1382,7 +1543,7 @@ namespace ESocket
       {
          while (readMessage(*m_rcvmsg))
          {
-            onReceive(m_rcvmsg->addr, reinterpret_cast<pVoid>(m_rcvmsg->data), m_rcvmsg->data_length);
+            onReceive(m_rcvmsg->remote, m_rcvmsg->local, m_rcvmsg->data, m_rcvmsg->data_length);
          }
       }
 
@@ -1393,7 +1554,27 @@ namespace ESocket
 
          Base<TQueue,TMessage>::createSocket(this->getFamily(), this->getType(), this->getProtocol());
 
-         int result = ::bind(this->getHandle(), getLocal().getSockAddr(), getLocal().getSockAddrLen());
+         int result;
+         int sockopt = 1;
+         result = setsockopt(this->getHandle(), IPPROTO_IP, IP_PKTINFO, &sockopt, sizeof(sockopt));
+         if (result == -1)
+         {
+            UdpError_UnableToBindSocket err;
+            this->close();
+            throw err;
+         }
+         if (getLocal().getFamily() == Family::INET6)
+         {
+            result = setsockopt(this->getHandle(), IPPROTO_IPV6, IPV6_RECVPKTINFO, &sockopt, sizeof(sockopt));
+            if (result == -1)
+            {
+               UdpError_UnableToBindSocket err;
+               this->close();
+               throw err;
+            }
+         }
+
+         result = ::bind(this->getHandle(), getLocal().getSockAddr(), getLocal().getSockAddrLen());
          if (result == -1)
          {
             UdpError_UnableToBindSocket err;
@@ -1413,10 +1594,10 @@ namespace ESocket
          return False;
       }
 
-      Int send(Address &addr, cpVoid pData, Int length)
+      Int send(Address &from, Address &to, cpVoid pData, Int length)
       {
          Int flags = MSG_NOSIGNAL;
-         Int result = sendto(this->getHandle(), pData, length, flags, addr.getSockAddr(), addr.getSockAddrLen());
+         Int result = sendto(this->getHandle(), pData, length, flags, to.getSockAddr(), to.getSockAddrLen());
 
          if (result == -1)
          {
@@ -1618,9 +1799,6 @@ namespace ESocket
       }
 
       virtual Void errorHandler(EError &err, Base<TQueue,TMessage> *psocket) = 0;
-      virtual Void onSocketClosed(Base<TQueue,TMessage> *psocket)
-      {
-      }
 
       virtual Void onInit()
       {
@@ -1746,6 +1924,7 @@ namespace ESocket
                {
                   if (err.getLastOsError() != EWOULDBLOCK)
                   {
+                     //printf("errorHandler() 1 %d\n", err->getLastOsError());
                      errorHandler(err, NULL);
                   }
                   more = false;
@@ -1768,47 +1947,32 @@ namespace ESocket
          }
          else if (psocket->getSocketType() == SocketType::TcpTalker)
          {
-            if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getError() == 0)
+            if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getState() == SocketState::Connecting)
             {
-               if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getState() == SocketState::Connecting)
-               {
-                  Int result=-1;
-                  socklen_t resultlen = sizeof(result);
-                  if (getsockopt(psocket->getHandle(), SOL_SOCKET, SO_ERROR, &result, &resultlen) < 0 ||
-                      result != 0)
-                  {
-                     psocket->setError(result);
-                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onError();
-                     return;
-                  }
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Connected );
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setAddresses();
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onConnect();
-               }
-
-               while (true)
-               {
-                  try
-                  {
-                     Int amtRead = (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->recv();
-                     if (amtRead <= 0)
-                        break;
-                  }
-                  catch (EError &err)
-                  {
-                     errorHandler(err, psocket);
-                  }
-               }
-
-               ((TCP::Talker<TQueue,TMessage>*)psocket)->onReceive();
-
-               if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getState() == SocketState::Disconnected)
-                  processSelectClose(psocket);
+               (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Connected );
+               (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setAddresses();
+               (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onConnect();
             }
-            else if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getError() != EINPROGRESS)
+
+            while (true)
             {
+               try
+               {
+                  Int amtRead = (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->recv();
+                  if (amtRead <= 0)
+                     break;
+               }
+               catch (EError &err)
+               {
+                  //printf("errorHandler() 2\n");
+                  errorHandler(err, psocket);
+               }
+            }
+
+            ((TCP::Talker<TQueue,TMessage>*)psocket)->onReceive();
+
+            if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getState() == SocketState::Disconnected)
                processSelectClose(psocket);
-            }
          }
          else if (psocket->getSocketType() == SocketType::Udp)
          {
@@ -1822,6 +1986,7 @@ namespace ESocket
                }
                catch (EError &err)
                {
+                  //printf("errorHandler() 2\n");
                   errorHandler(err, psocket);
                }
             }
@@ -1834,33 +1999,22 @@ namespace ESocket
       {
          if (psocket->getSocketType() == SocketType::TcpTalker)
          {
-            if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getError() == 0)
+            if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getState() == SocketState::Connecting)
             {
-               if ((static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getState() == SocketState::Connecting)
+               (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState(SocketState::Connected);
+               (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setAddresses();
+               (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onConnect();
+            }
+            else
+            {
+               try
                {
-                  Int result;
-                  socklen_t resultlen = sizeof(result);
-                  if (getsockopt(psocket->getHandle(), SOL_SOCKET, SO_ERROR, &result, &resultlen) < 0 ||
-                      result != 0)
-                  {
-                     psocket->setError(result);
-                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onError();
-                     return;
-                  }
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState(SocketState::Connected);
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setAddresses();
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onConnect();
+                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->send(True);
                }
-               else
+               catch (EError &err)
                {
-                  try
-                  {
-                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->send(True);
-                  }
-                  catch (EError &err)
-                  {
-                     errorHandler(err, psocket);
-                  }
+                  //printf("errorHandler() 3\n");
+                  errorHandler(err, psocket);
                }
             }
          }
@@ -1872,6 +2026,7 @@ namespace ESocket
             }
             catch (EError &err)
             {
+               //printf("errorHandler() 3\n");
                errorHandler(err, psocket);
             }
          }
@@ -1885,7 +2040,6 @@ namespace ESocket
       Void processSelectClose(Base<TQueue,TMessage> *psocket)
       {
          psocket->onClose();
-         onSocketClosed(psocket);
       }
 
       int getMaxFileDescriptor(Bool calc=False)
@@ -1921,6 +2075,20 @@ namespace ESocket
    }
    typedef UDP<EThreadQueuePublic<EThreadMessage>,EThreadMessage> UdpPublic;
    typedef UDP<EThreadQueuePrivate<EThreadMessage>,EThreadMessage> UdpPrivate;
+}
+
+namespace std
+{
+   template<>
+   struct hash<ESocket::Address>
+   {
+      std::size_t operator()(const ESocket::Address &addr) const noexcept
+      {
+         size_t addrhash = EMurmurHash64::getHash(reinterpret_cast<cpUChar>(addr.getSockAddr()), addr.getSockAddrLen());
+         size_t porthash = std::hash<UShort>{}(addr.getPort());
+         return EMurmurHash64::combine(addrhash, porthash);
+      }
+   };
 }
 
 #endif // #define __esocket_h_included

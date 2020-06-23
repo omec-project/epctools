@@ -743,12 +743,14 @@ uint32_t Utility::getDiameterApplication( DiameterApplicationEnum app )
       | aaa+ap16777251 | 3GPP S6a [TS29.272]  |
       | aaa+ap16777264 | 3GPP SWm [TS29.273]  |
       | aaa+ap16777267 | 3GPP S9 [TS29.215]   |
+      | aaa+ap16777238 | 3GPP Gx [TS29.212]   |
       +----------------+----------------------+
       */
       app == dia_app_3gpp_sta ? 16777250 :
       app == dia_app_3gpp_s6a ? 16777251 :
       app == dia_app_3gpp_swm ? 16777264 :
       app == dia_app_3gpp_s9  ? 16777267 :
+      app == dia_app_3gpp_gx  ? 16777238 :
       /*
       +----------------+--------------------------------------------------+
       | Tag            | Diameter Application                             |

@@ -93,7 +93,7 @@ public:
    /// @throws ECircularBufferError_BufferSizeHasBeenExceeded
    /// @throws ECircularBufferError_HeadHasExceededCapacity
    ///
-   void writeData(pUChar src, Int offset, Int length, Bool nolock=False);
+   void writeData(cpUChar src, Int offset, Int length, Bool nolock=False);
    /// @brief Modifies data within the buffer.
    /// @param src A pointer to the data that will be written to the buffer.
    /// @param offset The offset within the buffer to start writing.
@@ -107,7 +107,7 @@ public:
    /// where the message length, the first 4 bytes, needed to updated to
    /// reflect the remaining bytes to be written.
    /// <b>**** USE WITH EXTREME CAUTION ***</b>
-   void modifyData(pUChar src, Int offset, Int length, Bool nolock=False);
+   void modifyData(cpUChar src, Int offset, Int length, Bool nolock=False);
 
    /// @brief Retrieves the mutex;
    /// @return the mutex.

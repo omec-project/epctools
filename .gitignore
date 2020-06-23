@@ -21,5 +21,13 @@ exampleProgram/mylog
 exampleProgram/logs
 exampleProgram/test2*
 exampleProgram/test3*
-doc/Doxyfile.bak
+exampleProgram/pfcp/bin/*
+exampleProgram/pfcp/logs/*
+exampleProgram/pfcp/Makefile
+exampleProgram/pfcp/.deps
+exampleProgram/pfcp/src/.deps
+exampleProgram/pfcp/src/.dirstamp
+exampleProgram/pfcp/src/*.o
+exampleProgram/libpfcp
+docDoxyfile.bak
 epctools.code-workspace

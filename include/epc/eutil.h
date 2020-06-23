@@ -51,7 +51,7 @@ public:
    /// @param s the string to split.
    /// @param delims the list of delimiting characters.
    /// @return a vector (array) of the resulting strings.
-   static std::vector<EString> split(cpStr s, cpStr delims);
+   static EStringVec split(cpStr s, cpStr delims);
    /// @brief replaces all occurances of the search string in the provided string with the replacement
    ///   string.
    /// @param str the string to make the replacements in.

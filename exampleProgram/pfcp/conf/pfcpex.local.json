@@ -1,0 +1,87 @@
+{
+   "PfcpExample": {
+      "localIp": "192.168.3.109",
+      "remoteIp": "192.168.3.253",
+      "sendAssnSetup": true,
+      "PFCP": {
+         "pfcpPort": 8805,
+         "socketBufferSize": 2097152,
+         "T1": 1000,
+         "N1": 2,
+         "heartbeatT1": 1000,
+         "heartbeatN1": 3,
+         "nbrActivityWindows": 5,
+         "lenActivityWindow": 1000,
+         "assignTeidRange": false,
+         "teidRangeBits": 0
+      }
+   },
+   "EpcTools": {
+      "EnablePublicObjects": false,
+      "Debug": false,
+      "SynchronizationObjects": {
+         "NumberSemaphores": 100,
+         "NumberMutexes": 100
+      },
+      "Logger": {
+         "ApplicationName": "pfcpex",
+         "QueueSize": 8192,
+         "NumberThreads": 1,
+         "SinkSets": [
+            {
+               "SinkID": 1,
+               "Sinks": [
+                  {
+                     "SinkType": "syslog",
+                     "LogLevel": "startup",
+                     "Pattern": "[__APPNAME__] [%n] [%l] %v"
+                  },
+                  {
+                     "SinkType": "stdout",
+                     "LogLevel": "debug",
+                     "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [stdout] [%^__APPNAME__%$] [%n] [%^%l%$] %v"
+                  },
+                  {
+                     "SinkType": "basic_file",
+                     "LogLevel": "debug",
+                     "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [%^__APPNAME__%$] [%n] [%^%l%$] %v",
+                     "FileName": "./logs/pfcpex.local.log",
+                     "Truncate": false
+                  }
+               ]
+            },
+            {
+               "SinkID": 2,
+               "Sinks": [
+                  {
+                     "SinkType": "stdout",
+                     "LogLevel": "debug",
+                     "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [stdout] [%^__APPNAME__%$] [%n] [%^%l%$] %v"
+                  },
+                  {
+                     "SinkType": "basic_file",
+                     "LogLevel": "debug",
+                     "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [%^__APPNAME__%$] [%n] [%^%l%$] %v",
+                     "FileName": "./logs/pfcp.local.log",
+                     "Truncate": false
+                  }
+               ]
+            }
+         ],
+         "Logs": [
+            {
+               "LogID": 1,
+               "Category": "system",
+               "SinkID": 1,
+               "LogLevel": "debug"
+            },
+            {
+               "LogID": 2,
+               "Category": "pfcp",
+               "SinkID": 2,
+               "LogLevel": "debug"
+            }
+         ]
+      }
+   }
+}

@@ -18,6 +18,9 @@
 #ifndef __etypes_h_included
 #define __etypes_h_included
 
+#include <utility>
+#include <string>
+
 /// @file
 /// @brief Contains type definitions used by this library.
 /// @cond DOXYGEN_EXCLUDE
@@ -110,6 +113,43 @@ typedef union {
    } uli;
    ULongLong quadPart;
 } ulonginteger_t;
+
+#if __cplusplus == 201103
+namespace std {
+   template<typename T, typename U=T>
+   T exchange(T& obj, U&& new_value)
+   {
+       T old_value(std::move(obj));
+       obj = std::forward<T>(new_value);
+       return old_value;
+   }
+}
+#endif
+
+inline std::string methodName(const std::string& prettyFunction)
+{
+    size_t colons = prettyFunction.find("::");
+    size_t begin = prettyFunction.substr(0,colons).rfind(" ") + 1;
+    size_t end = prettyFunction.rfind("(") - begin;
+
+    return prettyFunction.substr(begin,end) + "()";
+}
+
+#define __METHOD_NAME__ methodName(__PRETTY_FUNCTION__)
+
+inline std::string className(const std::string& prettyFunction)
+{
+    size_t colons = prettyFunction.find("::");
+    if (colons == std::string::npos)
+        return "::";
+    size_t begin = prettyFunction.substr(0,colons).rfind(" ") + 1;
+    size_t end = colons - begin;
+
+    return prettyFunction.substr(begin,end);
+}
+
+#define __CLASS_NAME__ className(__PRETTY_FUNCTION__)
+
 
 /// @endcond
 

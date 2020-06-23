@@ -15,4 +15,4 @@
 # limitations under the License.
 ############################################################################
 
-SUBDIRS=src include exampleProgram
+SUBDIRS=src include exampleProgram exampleProgram/pfcp
