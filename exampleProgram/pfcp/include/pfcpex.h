@@ -24,10 +24,16 @@
 #define LOG_SYSTEM   1
 #define LOG_PFCP     2
 
-class ExamplePfcpApplication : public PFCP::ApplicationThread
+class ExamplePfcpApplicationWorkGroup;
+
+class ExamplePfcpApplicationWorker : public PFCP::ApplicationWorker
 {
 public:
-   ExamplePfcpApplication();
+   ExamplePfcpApplicationWorker() : group_(nullptr) {}
+
+   ExamplePfcpApplicationWorkGroup &group() { return *group_; }
+   ExamplePfcpApplicationWorkGroup &group(ExamplePfcpApplicationWorkGroup &group)
+      { return *(group_ = &group); }
 
    Void onInit();
    Void onQuit();
@@ -44,6 +50,18 @@ public:
    Void onEncodeReqError(PFCP::AppMsgReqPtr req, PFCP::EncodeReqException &err);
    Void onEncodeRspError(PFCP::AppMsgRspPtr rsp, PFCP::EncodeRspException &err);
 
+   BEGIN_MESSAGE_MAP2(ExamplePfcpApplicationWorker, PFCP::ApplicationWorker)
+   END_MESSAGE_MAP2()
+protected:
+private:
+   ExamplePfcpApplicationWorkGroup *group_;
+};
+
+class ExamplePfcpApplicationWorkGroup : public PFCP::ApplicationWorkGroup<ExamplePfcpApplicationWorker>
+{
+public:
+   ExamplePfcpApplicationWorkGroup();
+
    static Void setShutdownEvent() { if (this_ != nullptr) this_->m_shutdown.set(); }
    Void waitForShutdown() { m_shutdown.wait(); }
 
@@ -53,10 +71,10 @@ public:
    Void sendAssociationSetupReq();
    Void sendAssociationSetupRsp(PFCP_R15::AssnSetupReq *am);
 
-   DECLARE_MESSAGE_MAP()
+   Void onCreateWorker(ExamplePfcpApplicationWorker &worker);
 
 private:
-   static ExamplePfcpApplication *this_;
+   static ExamplePfcpApplicationWorkGroup *this_;
    EEvent m_shutdown;
    PFCP_R15::Translator xlator_;
    PFCP::LocalNodeSPtr ln_;

@@ -19,7 +19,8 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example #usr#lib
-bin_PROGRAMS = bin/pfcpex
+#bin_PROGRAMS = bin/pfcpex
+noinst_PROGRAMS = bin/pfcpex
 
 #######################################
 # Build information for each library
@@ -27,12 +28,12 @@ bin_PROGRAMS = bin/pfcpex
 # Sources for epc
 bin_pfcpex_DEPENDENCIES = \
    $(top_builddir)/exampleProgram/libpfcp/lib/libpfcp.so \
-   $(top_builddir)/src/libepc.a
+   $(top_builddir)/src/libepc.a \
+   $(top_builddir)/src/libpfcpr15.a
 
 bin_pfcpex_SOURCES = \
    src/main.cpp \
-   src/pfcpex.cpp \
-   src/pfcpr15.cpp
+   src/pfcpex.cpp
 
 # Linker options libTestProgram
 bin_pfcpex_LDFLAGS = -Wl,-rpath,../libpfcp/lib
@@ -40,4 +41,4 @@ bin_pfcpex_LDFLAGS = -Wl,-rpath,../libpfcp/lib
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
 bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I./include -I../../include/epc -I../../modules/spdlog/include -I../libpfcp/include
-bin_pfcpex_LDADD = ../libpfcp/lib/libpfcp.so -L../../src -lepc -lpthread -lrt
+bin_pfcpex_LDADD = -L../libpfcp/lib -L../../src -lpfcpr15 -lpfcp -lepc -lpthread -lrt

@@ -39,7 +39,7 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
 
    class Translator;
-   class ApplicationThread;
+   template<class TWorker> class ApplicationWorkGroup;
    class TranslationThread;
    class CommunicationThread;
 
@@ -60,8 +60,8 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
 
    #define SEND_TO_APPLICATION(a,b)                                                       \
-      (PFCP::ApplicationThread::Instance().sendMessage(EThreadMessage(                    \
-         static_cast<UInt>(PFCP::ApplicationThread::Events::a),static_cast<pVoid>(b))))
+      (PFCP::Configuration::application()._sendThreadMessage(EThreadMessage(                    \
+         static_cast<UInt>(PFCP::ApplicationEvents::a),static_cast<pVoid>(b))))
    #define SEND_TO_TRANSLATION(a,b)                                                       \
       (PFCP::TranslationThread::Instance().sendMessage(EThreadMessage(                    \
          static_cast<UInt>(PFCP::TranslationThread::Events::a),static_cast<pVoid>(b))))
@@ -82,48 +82,64 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
 
    DECLARE_ERROR(Configuration_LoggerNotDefined);
+   DECLARE_ERROR(Configuration_ApplicationNotDefined);
 
    class Configuration
    {
    public:
 
-      static UShort port()                                  { return port_; }
-      static UShort setPort(UShort port)                    { return port_ = port; }
+      static UShort port()                                                             { return port_; }
+      static UShort setPort(UShort port)                                               { return port_ = port; }
 
-      static Int socketBufferSize()                         { return bufsize_; }
-      static Int setSocketBufferSize(Int sz)                { return bufsize_ = sz; }
+      static Int socketBufferSize()                                                    { return bufsize_; }
+      static Int setSocketBufferSize(Int sz)                                           { return bufsize_ = sz; }
 
-      static LongLong t1()                                  { return t1_; }
-      static LongLong setT1(LongLong t1)                    { return t1_ = t1; }
+      static LongLong t1()                                                             { return t1_; }
+      static LongLong setT1(LongLong t1)                                               { return t1_ = t1; }
 
-      static LongLong heartbeatT1()                         { return hbt1_; }
-      static LongLong setHeartbeatT1(LongLong hbt1)         { return hbt1_ = hbt1; }
+      static LongLong heartbeatT1()                                                    { return hbt1_; }
+      static LongLong setHeartbeatT1(LongLong hbt1)                                    { return hbt1_ = hbt1; }
 
-      static Int n1()                                       { return n1_; }
-      static Int setN1(Int n1)                              { return n1_ = n1; }
+      static Int n1()                                                                  { return n1_; }
+      static Int setN1(Int n1)                                                         { return n1_ = n1; }
 
-      static Int heartbeatN1()                              { return hbn1_; }
-      static Int setHeartbeatN1(Int hbn1)                   { return hbn1_ = hbn1; }
+      static Int heartbeatN1()                                                         { return hbn1_; }
+      static Int setHeartbeatN1(Int hbn1)                                              { return hbn1_ = hbn1; }
 
-      static Long maxRspWait()                              { return static_cast<Long>(std::max(t1_,hbt1_) * std::max(n1_,hbn1_)); }
+      static Long maxRspWait()                                                         { return static_cast<Long>(std::max(t1_,hbt1_) * std::max(n1_,hbn1_)); }
 
-      static size_t nbrActivityWnds()                       { return naw_; }
-      static size_t setNnbrActivityWnds(size_t naw)         { return naw_ = naw; }
+      static size_t nbrActivityWnds()                                                  { return naw_; }
+      static size_t setNnbrActivityWnds(size_t naw)                                    { return naw_ = naw; }
 
-      static Long lenActivityWnd()                          { return law_; }
-      static Long setLenActivityWnd(Long law)               { return law_ = law; }
+      static Long lenActivityWnd()                                                     { return law_; }
+      static Long setLenActivityWnd(Long law)                                          { return law_ = law; }
 
-      static ELogger &logger()                              { if (logger_ == nullptr) throw Configuration_LoggerNotDefined(); return *logger_; }
-      static ELogger &setLogger(ELogger &log)               { logger_ = &log; return *logger_; }
+      static ELogger &logger()                                                         { if (logger_ == nullptr) throw Configuration_LoggerNotDefined(); return *logger_; }
+      static ELogger &setLogger(ELogger &log)                                          { logger_ = &log; return *logger_; }
 
-      static Bool assignTeidRange()                         { return atr_; }
-      static Bool setAssignTeidRange(Bool atr)              { return atr_ = atr; }
+      static Bool assignTeidRange()                                                    { return atr_; }
+      static Bool setAssignTeidRange(Bool atr)                                         { return atr_ = atr; }
 
-      static Int teidRangeBits()                            { return trb_; }
-      static Int setTeidRangeBits(Int trb)                  { return trb_ = trb; }
+      static Int teidRangeBits()                                                       { return trb_; }
+      static Int setTeidRangeBits(Int trb)                                             { return trb_ = trb; }
 
-      static Translator &translator()                       { return *xlator_; }
-      static Translator &setTranslator(Translator &xlator)  { return *(xlator_ = &xlator); }
+      static Translator &translator()                                                  { return *xlator_; }
+      static Translator &setTranslator(Translator &xlator)                             { return *(xlator_ = &xlator); }
+
+      static Int minApplicationWorkers()                                               { return aminw_; }
+      static Int setMinApplicationWorkers(Int w)                                       { return aminw_ = w; }
+
+      static Int maxApplicationWorkers()                                               { return amaxw_; }
+      static Int setMaxApplicationWorkers(Int w)                                       { return amaxw_ = w; }
+
+      static Int minTranslatorWorkers()                                                { return tminw_; }
+      static Int setMinTranslatorWorkers(Int w)                                        { return tminw_ = w; }
+
+      static Int maxTranslatorWorkers()                                                { return tmaxw_; }
+      static Int setMaxTranslatorWorkers(Int w)                                        { return tmaxw_ = w; }
+
+      static _EThreadEventNotification &application()                                  { if (app_ == nullptr) throw Configuration_ApplicationNotDefined(); return *app_; }
+      static _EThreadEventNotification &setApplication(_EThreadEventNotification &app) { return *(app_ = &app); }
 
    private:
       static UShort port_;
@@ -138,6 +154,11 @@ namespace PFCP
       static Int trb_;
       static Bool atr_;
       static Translator *xlator_;
+      static Int aminw_;
+      static Int amaxw_;
+      static Int tminw_;
+      static Int tmaxw_;
+      static _EThreadEventNotification *app_;
    };
 
    /////////////////////////////////////////////////////////////////////////////
@@ -1200,31 +1221,61 @@ Receiving a msg
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
-   DECLARE_ERROR(ApplicationThread_UnrecognizedAddressFamily);
-
    #define APPLICATION_BASE_EVENT (EM_USER + 10000)
 
-   class ApplicationThread : public EThreadPrivate
+   enum class ApplicationEvents : UInt
+   {
+      RcvdReq              = (APPLICATION_BASE_EVENT + 1),     // TranslationThread --> ApplicationWorkGroup - AppMsgReqPtr
+      RcvdRsp              = (APPLICATION_BASE_EVENT + 2),     // TranslationThread --> ApplicationWorkGroup - AppMsgRspPtr
+      ReqTimeout           = (APPLICATION_BASE_EVENT + 3),     // CommunicationThread --> ApplicationWorkGroup - AppMsgReqPtr
+      RemoteNodeAdded      = (APPLICATION_BASE_EVENT + 4),     // CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
+      RemoteNodeFailure    = (APPLICATION_BASE_EVENT + 5),     // CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
+      RemoteNodeRestart    = (APPLICATION_BASE_EVENT + 6),     // CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
+      RemoteNodeRemoved    = (APPLICATION_BASE_EVENT + 7),     // CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
+      SndReqError          = (APPLICATION_BASE_EVENT + 8),     // CommunicationThread --> ApplicationWorkGroup - SndReqExceptionDataPtr
+      SndRspError          = (APPLICATION_BASE_EVENT + 9),     // CommunicationThread --> ApplicationWorkGroup - SndRspExceptionDataPtr
+      EncodeReqError       = (APPLICATION_BASE_EVENT + 10),    // TranslationThread --> ApplicationWorkGroup - EncodeReqExceptionDataPtr
+      EncodeRspError       = (APPLICATION_BASE_EVENT + 11)     // TranslationThread --> ApplicationWorkGroup - EncodeRspExceptionDataPtr
+   };
+
+   /////////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
+
+   DECLARE_ERROR(ApplicationWorkGroup_UnrecognizedAddressFamily);
+
+   template <class TWorker>
+   class ApplicationWorkGroup : public EThreadWorkGroupPrivate<TWorker>
+   {
+   public:
+      LocalNodeSPtr createLocalNode(cpStr ipaddr, UShort port)
+      {
+         ESocket::Address addr(ipaddr, port);
+         return createLocalNode(addr);
+      }
+      LocalNodeSPtr createLocalNode(const EIpAddress &ipaddr, UShort port)
+      {
+         ESocket::Address addr;
+         switch (ipaddr.family())
+         {
+            case AF_INET:  { addr.setAddress(ipaddr.ipv4Address(), port); break; }
+            case AF_INET6: { addr.setAddress(ipaddr.ipv6Address(), port); break; }
+            default:
+            {
+               throw ApplicationWorkGroup_UnrecognizedAddressFamily();
+            }
+         }
+         return createLocalNode(addr);
+      }
+      LocalNodeSPtr createLocalNode(ESocket::Address &addr);
+   };
+
+   /////////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
+
+   class ApplicationWorker : public EThreadWorkerPrivate
    {
       friend Void Uninitialize();
    public:
-      enum class Events : UInt
-      {
-         RcvdReq              = (APPLICATION_BASE_EVENT + 1),     // TranslationThread --> ApplicationThread - AppMsgReqPtr
-         RcvdRsp              = (APPLICATION_BASE_EVENT + 2),     // TranslationThread --> ApplicationThread - AppMsgRspPtr
-         ReqTimeout           = (APPLICATION_BASE_EVENT + 3),     // CommunicationThread --> ApplicationThread - AppMsgReqPtr
-         RemoteNodeAdded      = (APPLICATION_BASE_EVENT + 4),     // CommunicationThread --> ApplicationThread - *RemoteNodeSPtr
-         RemoteNodeFailure    = (APPLICATION_BASE_EVENT + 5),     // CommunicationThread --> ApplicationThread - *RemoteNodeSPtr
-         RemoteNodeRestart    = (APPLICATION_BASE_EVENT + 6),     // CommunicationThread --> ApplicationThread - *RemoteNodeSPtr
-         RemoteNodeRemoved    = (APPLICATION_BASE_EVENT + 7),     // CommunicationThread --> ApplicationThread - *RemoteNodeSPtr
-         SndReqError          = (APPLICATION_BASE_EVENT + 8),     // CommunicationThread --> ApplicationThread - SndReqExceptionDataPtr
-         SndRspError          = (APPLICATION_BASE_EVENT + 9),     // CommunicationThread --> ApplicationThread - SndRspExceptionDataPtr
-         EncodeReqError       = (APPLICATION_BASE_EVENT + 10),    // TranslationThread --> ApplicationThread - EncodeReqExceptionDataPtr
-         EncodeRspError       = (APPLICATION_BASE_EVENT + 11)     // TranslationThread --> ApplicationThread - EncodeRspExceptionDataPtr
-      };
-
-      static ApplicationThread &Instance() { return *this_; }
-
       Void onInit();
       Void onQuit();
 
@@ -1240,49 +1291,34 @@ Receiving a msg
       virtual Void onEncodeReqError(AppMsgReqPtr req, EncodeReqException &err);
       virtual Void onEncodeRspError(AppMsgRspPtr rsp, EncodeRspException &err);
 
-      LocalNodeSPtr createLocalNode(cpStr ipaddr, UShort port)
-      {
-         ESocket::Address addr(ipaddr, port);
-         return createLocalNode(addr);
-      }
-      LocalNodeSPtr createLocalNode(EIpAddress ipaddr, UShort port)
-      {
-         ESocket::Address addr;
-         switch (ipaddr.family())
-         {
-            case AF_INET:  { addr.setAddress(ipaddr.ipv4Address(), port); break; }
-            case AF_INET6: { addr.setAddress(ipaddr.ipv6Address(), port); break; }
-            default:
-            {
-               throw ApplicationThread_UnrecognizedAddressFamily();
-            }
-         }
-         return createLocalNode(addr);
-      }
-      LocalNodeSPtr createLocalNode(ESocket::Address &addr);
-
-      DECLARE_MESSAGE_MAP()
-
    protected:
-      ApplicationThread();
-      ~ApplicationThread();
+      ApplicationWorker();
+      ~ApplicationWorker();
 
-      Void releaseLocalNodes();
+      Void _onRcvdReq(EThreadMessage &msg);
+      Void _onRcvdRsp(EThreadMessage &msg);
+      Void _onReqTimeout(EThreadMessage &msg);
+      Void _onRemoteNodeAdded(EThreadMessage &msg);
+      Void _onRemoteNodeFailure(EThreadMessage &msg);
+      Void _onRemoteNodeRestart(EThreadMessage &msg);
+      Void _onRemoteNodeRemoved(EThreadMessage &msg);
+      Void _onSndReqError(EThreadMessage &msg);
+      Void _onSndRspError(EThreadMessage &msg);
+      Void _onEncodeReqError(EThreadMessage &msg);
+      Void _onEncodeRspError(EThreadMessage &msg);
 
-      Void onRcvdReq(EThreadMessage &msg);
-      Void onRcvdRsp(EThreadMessage &msg);
-      Void onReqTimeout(EThreadMessage &msg);
-      Void onRemoteNodeAdded(EThreadMessage &msg);
-      Void onRemoteNodeFailure(EThreadMessage &msg);
-      Void onRemoteNodeRestart(EThreadMessage &msg);
-      Void onRemoteNodeRemoved(EThreadMessage &msg);
-      Void onSndReqError(EThreadMessage &msg);
-      Void onSndRspError(EThreadMessage &msg);
-      Void onEncodeReqError(EThreadMessage &msg);
-      Void onEncodeRspError(EThreadMessage &msg);
-
+      BEGIN_MESSAGE_MAP2(ApplicationWorker, EThreadWorkerPrivate)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RcvdReq), ApplicationWorker::_onRcvdReq)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RcvdRsp), ApplicationWorker::_onRcvdRsp)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::ReqTimeout), ApplicationWorker::_onReqTimeout)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeAdded), ApplicationWorker::_onRemoteNodeAdded)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeFailure), ApplicationWorker::_onRemoteNodeFailure)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeRestart), ApplicationWorker::_onRemoteNodeRestart)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeRemoved), ApplicationWorker::_onRemoteNodeRemoved)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::SndReqError), ApplicationWorker::_onSndReqError)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::SndRspError), ApplicationWorker::_onSndRspError)
+      END_MESSAGE_MAP2()
    private:
-      static ApplicationThread *this_;
    };
 
    /////////////////////////////////////////////////////////////////////////////
@@ -1298,7 +1334,7 @@ Receiving a msg
    public:
       enum class Events : UInt
       {
-         SndMsg            = (TRANSLATION_BASE_EVENT + 1),  // ApplicationThread --> TranslationThread - AppMsgPtr
+         SndMsg            = (TRANSLATION_BASE_EVENT + 1),  // ApplicationWorkGroup --> TranslationThread - AppMsgPtr
          RcvdReq           = (TRANSLATION_BASE_EVENT + 2),  // CommunicationThread --> TranslationThread - ReqInPtr
          RcvdRsp           = (TRANSLATION_BASE_EVENT + 3),  // CommunicationThread --> TranslationThread - RspInPtr
          SndHeartbeatReq   = (TRANSLATION_BASE_EVENT + 4),  // CommunicationThread --> TranslationThread - SndHeartbeatReqDataPtr
@@ -1337,7 +1373,7 @@ Receiving a msg
       // {
       //    return this_->sendMsg(new EThreadMessage(TRANSLATE_SEND_RESPONSE_EVENT, amrs.release()));
       // }
-
+     
       static Void cleanup()
       {
          delete this_;
@@ -1474,7 +1510,8 @@ Receiving a msg
       return setRcvdReqRspWnd(sn, CommunicationThread::Instance().currentRspWnd());
    }
 
-   inline LocalNodeSPtr ApplicationThread::createLocalNode(ESocket::Address &addr)
+   template<class TWorker>
+   inline LocalNodeSPtr ApplicationWorkGroup<TWorker>::createLocalNode(ESocket::Address &addr)
    {
       return CommunicationThread::Instance().createLocalNode(addr);
    }

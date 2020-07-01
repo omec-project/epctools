@@ -283,9 +283,9 @@ public:
       {
          cout << e << endl;
       }
-      catch (...)
+      catch (std::exception &ex)
       {
-         cout << "an exception occurred" << endl;
+         cout << "an exception occurred - " << ex.what() << endl;
          throw;
       }
       return 0;
@@ -1166,11 +1166,11 @@ public:
       if (m_oneshot)
       {
          m_cnt = 0;
-         m_timer1.setInterval(5000);
+         m_timer1.setInterval(m_timerLength);
          m_timer1.setOneShot(True);
-         m_timer2.setInterval(10000);
+         m_timer2.setInterval(m_timerLength * 2);
          m_timer2.setOneShot(True);
-         m_timer3.setInterval(15000);
+         m_timer3.setInterval(m_timerLength * 3);
          m_timer3.setOneShot(True);
 
          initTimer(m_timer1);
@@ -1186,7 +1186,7 @@ public:
       else
       {
          m_cnt = 0;
-         m_timer1.setInterval(5000);
+         m_timer1.setInterval(m_timerLength);
          m_timer1.setOneShot(m_oneshot);
          initTimer(m_timer1);
          m_elapsed.Start();
@@ -1219,9 +1219,12 @@ public:
 
    Void setOneShot(Bool oneshot) { m_oneshot = oneshot; }
 
+   Void setTimerLength(Long tl) { m_timerLength = tl; }
+
    DECLARE_MESSAGE_MAP()
 
 private:
+   Long m_timerLength;
    Int m_cnt;
    Bool m_oneshot;
    EThreadEventTimer m_timer1;
@@ -1235,7 +1238,17 @@ END_MESSAGE_MAP()
 
 Void EThreadTimerPeriodic_test()
 {
+   static Long timerLength = 5000;
+   Char buffer[256];
+
+   cout << "Enter the timer length in milliseconds [" << timerLength << "]: ";
+   cin.getline(buffer, sizeof(buffer));
+   if (*buffer)
+      timerLength = std::atol(buffer);
+   cout.imbue(defaultLocale);
+
    EThreadTimerTest t;
+   t.setTimerLength(timerLength);
    t.setOneShot(False);
    t.init(1, 1, NULL, 2000);
    t.join();
@@ -1243,7 +1256,17 @@ Void EThreadTimerPeriodic_test()
 
 Void EThreadTimerOneShot_test()
 {
+   static Long timerLength = 5000;
+   Char buffer[256];
+
+   cout << "Enter the timer length in milliseconds [" << timerLength << "]: ";
+   cin.getline(buffer, sizeof(buffer));
+   if (*buffer)
+      timerLength = std::atol(buffer);
+   cout.imbue(defaultLocale);
+
    EThreadTimerTest t;
+   t.setTimerLength(timerLength);
    t.setOneShot(True);
    t.init(1, 1, NULL, 2000);
    t.join();
@@ -1841,8 +1864,10 @@ class TcpWorker : public ESocket::ThreadPrivate
 public:
    TcpWorker()
    {
+      m_repeat = 1;
       m_listen = False;
       m_port = 0;
+      m_attempt = 0;
       m_cnt = 0;
       m_talker = NULL;
    }
@@ -1850,6 +1875,8 @@ public:
    Void onInit();
    Void onQuit();
    Void onClose();
+   Void onSocketClosed(ESocket::BasePrivate *psocket);
+   Void onSocketError(ESocket::BasePrivate *psocket);
 
    Void errorHandler(EError &err, ESocket::BasePrivate *psocket);
 
@@ -1864,9 +1891,16 @@ public:
    Void setPort(UShort port) { m_port = port; }
    UShort getPort() { return m_port; }
 
+   Void setRepeat(ULongLong repeat) { m_repeat = repeat; }
+   ULongLong getRepeat() { return m_repeat; }
+
 private:
+   Void connect();
+
+   ULongLong m_repeat;
    Bool m_listen;
    UShort m_port;
+   ULongLong m_attempt;
    Int m_cnt;
    Listener *m_listener;
    Talker *m_talker;
@@ -2033,39 +2067,44 @@ Void Talker::onClose()
    std::cout << std::endl
              << "socket closed" << std::endl
              << std::flush;
-   ((TcpWorker &)getThread()).onClose();
+   // ((TcpWorker &)getThread()).onClose();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 
 Talker *TcpWorker::createTalker()
 {
+   m_attempt++;
    return m_talker = new Talker(*this);
 }
 
 Void TcpWorker::onInit()
 {
-   UShort port = 12345;
    if (getListen())
    {
       m_listener = new Listener(*this);
-      m_listener->listen(port, 10);
+      m_listener->listen(m_port, 10);
       std::cout.imbue(defaultLocale);
-      std::cout << "waiting for client to attach on port " << port << std::endl
+      std::cout << "waiting for client to attach on port " << m_port << std::endl
                 << std::flush;
       std::cout.imbue(mylocale);
    }
    else
    {
-      std::cout.imbue(defaultLocale);
-      std::cout << "connecting to server on port " << port << std::endl
-                << std::flush;
-      std::cout.imbue(mylocale);
-      createTalker()->connect("127.0.0.1", 12345);
+      connect();
    }
 
    std::cout << std::endl
              << std::flush;
+}
+
+Void TcpWorker::connect()
+{
+   std::cout.imbue(defaultLocale);
+   std::cout << "connecting to server on port " << m_port << " attempt " << numberFormatWithCommas<ULongLong>(m_attempt + 1) << std::endl
+               << std::flush;
+   std::cout.imbue(mylocale);
+   createTalker()->connect("127.0.0.1", m_port);
 }
 
 Void TcpWorker::onQuit()
@@ -2085,6 +2124,30 @@ Void TcpWorker::onClose()
    }
 }
 
+Void TcpWorker::onSocketClosed(ESocket::BasePrivate *psocket)
+{
+   if (psocket == reinterpret_cast<ESocket::BasePrivate*>(m_talker))
+   {
+      delete m_talker;
+      m_talker = NULL;
+      if (m_attempt >= m_repeat)
+         quit();
+      else if (!getListen())
+         connect();
+   }
+   else if (psocket == reinterpret_cast<ESocket::BasePrivate*>(m_listener))
+   {
+      delete m_listener;
+      m_listener = NULL;
+      quit();
+   }
+}
+
+Void TcpWorker::onSocketError(ESocket::BasePrivate *psocket)
+{
+   onSocketClosed(psocket);
+}
+
 Void TcpWorker::errorHandler(EError &err, ESocket::BasePrivate *psocket)
 {
    //std::cout << "Socket exception - " << err << std::endl << std::flush;
@@ -2096,8 +2159,16 @@ Void tcpsockettest(Bool server)
 {
    static Int messages = 100000;
    static UShort port = 12345;
+   static Int repeat = 1;
    TcpWorker *pWorker = new TcpWorker();
    Char buffer[128];
+
+   cout.imbue(defaultLocale);
+   cout << "Enter the number of times to repeat the test(-1 indicates forever) [" << repeat << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   repeat = buffer[0] ? std::stoi(buffer) : repeat;
+   pWorker->setRepeat(repeat < 0 ? ULLONG_MAX : repeat);
 
    cout.imbue(defaultLocale);
    cout << "Enter the port number for the connection [" << port << "]: ";
@@ -2191,7 +2262,7 @@ public:
 
    virtual ~UdpSocket() {}
 
-   Void onReceive(const ESocket::Address &from, const ESocket::Address &to, pVoid msg, Int len);
+   Void onReceive(const ESocket::Address &from, const ESocket::Address &to, cpUChar msg, Int len);
    Void onError();
 
    Void sendpacket();
@@ -2218,10 +2289,11 @@ Void UdpSocket::sendpacket()
       else
          m_sentcnt = -1;
    }
+   std::cout << "sending packet number " << m_sentcnt << std::endl;
    write( m_remote, reinterpret_cast<cpUChar>(&m_sentcnt), sizeof(m_sentcnt) );
 }
 
-Void UdpSocket::onReceive(const ESocket::Address &from, const ESocket::Address &to, cpVoid pData, Int length)
+Void UdpSocket::onReceive(const ESocket::Address &from, const ESocket::Address &to, cpUChar pData, Int length)
 {
    std::cout.imbue(defaultLocale);
    std::cout << ETime::Now().Format("%Y-%m-%dT%H:%M:%S.%0",True)
@@ -2921,7 +2993,11 @@ Void customThreadTest(Bool isHost)
       maxPrintIndex = *buffer ? std::stoi(buffer) : maxPrintIndex;
 
       MyCustomEventPublicQueue q;
-      Long id = MYAPPID * 10000 + MYTHREADID;
+      // thread id (t) 0-9999
+      // thread type (x) thread 1, worker 2
+      // application id (a) 0 - ...
+      // aaaaaxtttt
+      Long id = MYAPPID * 100000 + 10000 + MYTHREADID;
       q.init(queueSize, id, True, EThreadQueueMode::WriteOnly);
 
       MyCustomEvent event;
@@ -3110,18 +3186,13 @@ Void publicThreadExample(Bool isHost)
    else
    {
       static Int msgcnt = 10000;
-      static Int maxPrintIndex = 1;
 
       cout << "Enter the number of messages to send [" << msgcnt << "]: ";
       cin.getline(buffer, sizeof(buffer));
       msgcnt = *buffer ? std::stoi(buffer) : msgcnt;
 
-      cout << "Enter the number of messages to print [" << maxPrintIndex << "]: ";
-      cin.getline(buffer, sizeof(buffer));
-      maxPrintIndex = *buffer ? std::stoi(buffer) : maxPrintIndex;
-
       EThreadQueuePublic<EThreadMessage> q;
-      Long id = MYPUBLICAPPID * 10000 + MYPUBLICTHREADID;
+      Long id = MYPUBLICAPPID * 100000 + 10000 + MYPUBLICTHREADID;
       q.init(queueSize, id, True, EThreadQueueMode::WriteOnly);
 
       EThreadMessage event;
@@ -3429,6 +3500,142 @@ Void teidTest()
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
+class TestWorkGroup;
+
+class TestWorker : public EThreadWorkerPrivate
+{
+public:
+   TestWorker()
+      : m_twg(nullptr),
+        m_val(0)
+   {
+   }
+
+   Void onInit()
+   {
+      std::cout << "TestWorker::onInit() workerId=" << this->workerId() << std::endl;
+   }
+
+   Void onQuit()
+   {
+      std::cout << "TestWorker::onQuit() workerId=" << this->workerId() << std::endl;
+   }
+
+   Void onTimer(EThreadEventTimer *pTimer)
+   {
+      myOnTimer(pTimer);
+   }
+
+   Void onMessageQueued(const EThreadMessage &msg)
+   {
+   }
+
+   Void handler(EThreadMessage &msg);
+
+   TestWorkGroup &group()
+   {
+      return *m_twg;
+   }
+
+   TestWorker &group(TestWorkGroup &twg)
+   {
+      m_twg = &twg;
+      return *this;
+   }
+
+   BEGIN_MESSAGE_MAP2(TestWorker, EThreadWorkerPrivate)
+      ON_MESSAGE2(EM_USER1, TestWorker::handler)
+   END_MESSAGE_MAP2()
+
+private:
+   Void myOnTimer(EThreadEventTimer *pTimer);
+
+   TestWorkGroup *m_twg;
+   Int m_val;
+};
+
+class TestWorkGroup : public EThreadWorkGroupPrivate<TestWorker>
+{
+public:
+   TestWorkGroup()
+   {
+      m_cnt = 0;
+   }
+
+   Bool keepGoing()
+   {
+      m_cnt++;
+      return m_cnt < 200;
+   }
+
+protected:
+   Void onCreateWorker(TestWorker &worker)
+   {
+      worker.group(*this);
+   }
+
+   Void onMessageQueued(const EThreadMessage &msg)
+   {
+   }
+
+private:
+   Int m_cnt;
+};
+
+Void TestWorker::myOnTimer(EThreadEventTimer *pTimer)
+{
+   std::cout << "TestWorker::onTimer() workerId=" << workerId() << " timerId=" << pTimer->getId() << std::endl;
+   if (!group().keepGoing())
+      group().quit();
+}
+
+Void TestWorker::handler(EThreadMessage &msg)
+{
+   std::cout << "TestWorker::handler() workerId=" << this->workerId() << " data=" << msg.data().data().int32[0] << std::endl;
+   m_val++;
+
+   EThreadMessage m(EM_USER1, this->workerId() * 1000 + m_val);
+   group().sendMessage(m);
+   sleep(100);
+}
+
+Void workGroup_test()
+{
+   static int numWorkers = 1;
+   char buffer[128];
+   TestWorkGroup wg;
+
+   cout << "Enter the number of workers threads for this work group [" << numWorkers << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      numWorkers = std::stoi(buffer);
+
+   std::cout << "workGroup_test() initializing the work group " << std::endl;
+   wg.init(1, 1, numWorkers);
+
+   std::cout << "workGroup_test() posting messages" << std::endl;
+   for (int i=0; i<numWorkers; i++)
+   {
+      EThreadMessage msg(EM_USER1,i+1);
+      wg.sendMessage(msg);
+   }
+
+   EThreadEventTimer tmr;
+   tmr.setOneShot(False);
+   tmr.setInterval(10);
+   wg.initTimer(tmr);
+   tmr.start();
+   
+   std::cout << "workGroup_test() joining" << std::endl;
+   wg.join();
+   std::cout << "workGroup_test() complete" << std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
 Void usage()
 {
    const char *msg =
@@ -3443,26 +3650,28 @@ Void printMenu()
        "                       Enhanced Packet Core Tools Test Menu                     \n"
        "                         Public features are %senabled                          \n"
        "\n"
-       "1.  Semaphore/thread cancellation              21. Thread test (1 reader/writer)\n"
-       "2.  DateTime object tests                      22. Deadlock                     \n"
-       "3.  Public thread test (1 writer, 1 reader)    23. Thread Test (4 writers)      \n"
-       "4.  Public thread test (1 writer, 4 readers)   24. Mutex performance test       \n"
-       "5.  Private thread test (1 writer, 4 readers)  25. Socket server                \n"
-       "6.  Public queue test (reader)                 26. Socket client                \n"
-       "7.  Public queue test (writer)                 27. Read/Write Lock test         \n"
-       "8.  Elapsed timer                              28. Options test                 \n"
-       "9.  Error handling                             29. Logger test                  \n"
-       "10. Private Mutex test                         30. UDP socket test              \n"
-       "11. Public Mutex test                          31. Timer Pool test              \n"
-       "12. Private Semaphore test                     32. Object Sizes                 \n"
-       "13. Public Semaphore test                      33. Custom Public Event Host     \n"
-       "14. Basic thread test                          34. Custom Public Event Client   \n"
-       "15. Thread suspend/resume                      35. Private Thread Example       \n"
-       "16. Thread periodic timer test                 36. Public Thread Example Host   \n"
-       "17. Thread one shot timer test                 37. Public Thread Example Client \n"
-       "18. Circular buffer test                       38. EIpFilterRule                \n"
-       "19. Directory test                             39. Octet string                 \n"
-       "20. Hash test                                  40. Teid                         \n"
+       "1.  Semaphore/thread cancellation              23. Thread Test (4 writers)      \n"
+       "2.  DateTime object tests                      24. Mutex performance test       \n"
+       "3.  Public thread test (1 writer, 1 reader)    25. Socket server                \n"
+       "4.  Public thread test (1 writer, 4 readers)   26. Socket client                \n"
+       "5.  Private thread test (1 writer, 4 readers)  27. Read/Write Lock test         \n"
+       "6.  Public queue test (reader)                 28. Options test                 \n"
+       "7.  Public queue test (writer)                 29. Logger test                  \n"
+       "8.  Elapsed timer                              30. UDP socket test              \n"
+       "9.  Error handling                             31. Timer Pool test              \n"
+       "10. Private Mutex test                         32. Object Sizes                 \n"
+       "11. Public Mutex test                          33. Custom Public Event Host     \n"
+       "12. Private Semaphore test                     34. Custom Public Event Client   \n"
+       "13. Public Semaphore test                      35. Private Thread Example       \n"
+       "14. Basic thread test                          36. Public Thread Example Host   \n"
+       "15. Thread suspend/resume                      37. Public Thread Example Client \n"
+       "16. Thread periodic timer test                 38. EIpFilterRule                \n"
+       "17. Thread one shot timer test                 39. Octet string                 \n"
+       "18. Circular buffer test                       40. Teid                         \n"
+       "19. Directory test                             41. Work Group                   \n"
+       "20. Hash test                                  \n"
+       "21. Thread test (1 reader/writer)              \n"
+       "22. Deadlock                                   \n"
        "\n",
        EpcTools::isPublicEnabled() ? "" : "NOT ");
 }
@@ -3531,7 +3740,8 @@ Void run(EGetOpt &options)
             case 37: publicThreadExample(False);   break;
             case 38: eipfilterruleTest();          break;
             case 39: octetStringTest();            break;
-            case 40: teidTest();                  break;
+            case 40: teidTest();                   break;
+            case 41: workGroup_test();             break;
             default: cout << "Invalid Selection" << endl << endl;    break;
          }
       }

@@ -91,7 +91,7 @@ EIpFilterRule &EIpFilterRule::parse(const std::string &raw)
    if (next != end)
    {
       std::smatch match = *next;
-      setOriginal(match.str());
+      setOriginal(match[0].str());
       setAction(parseAction(match[1].str()));
       setDirection(parseDirection(match[2].str()));
       setProtocol(parseProtocol(match[3].str()));

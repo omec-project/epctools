@@ -7,7 +7,6 @@ autom4te.cache
 src/*.swp
 include/epc/*.swp
 config.*
-.vscode
 Makefile
 src/Makefile
 include/Makefile

@@ -19,49 +19,18 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example #usr#lib
-lib_LIBRARIES = libepc.a libpfcpr15.a
+lib_LIBRARIES = libpfcpr15.a
 
 #######################################
 # Build information for each library
 
 # Sources for epc
-libepc_a_SOURCES =   \
-   ebase.cpp         \
-   ebzip2.cpp        \
-   ecbuf.cpp         \
-   emgmt.cpp         \
-   edir.cpp          \
-   eerror.cpp        \
-   efd.cpp           \
-   efdjson.cpp       \
-   egetopt.cpp       \
-   ehash.cpp         \
-   eip.cpp           \
-   elogger.cpp       \
-   emsg.cpp          \
-   epath.cpp         \
-   epcdns.cpp        \
-   epfcp.cpp         \
-   eqbase.cpp        \
-   eqpriv.cpp        \
-   eqpub.cpp         \
-   eshmem.cpp        \
-   esocket.cpp       \
-   estatic.cpp       \
-   estats.cpp        \
-   estring.cpp       \
-   esynch.cpp        \
-   etbasic.cpp       \
-   etevent.cpp       \
-   etime.cpp         \
-   etimer.cpp        \
-   etimerpool.cpp    \
-   eutil.cpp         \
-   dnscache.cpp      \
-   dnsparser.cpp 
-
 libpfcpr15_a_SOURCES =   \
-   pfcpr15.cpp
+   ../src/pfcpr15.cpp
+
+#   etbase.cpp        
+#   ethread.cpp
+#   etq.cpp
 
 
 # Linker options libTestProgram
@@ -69,5 +38,4 @@ libpfcpr15_a_SOURCES =   \
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-libepc_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares
-libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares -I$(top_srcdir)/exampleProgram/libpfcp/include
+libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares

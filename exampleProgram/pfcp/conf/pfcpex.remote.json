@@ -1,8 +1,10 @@
 {
    "PfcpExample": {
-      "localIp": "192.168.3.253",
-      "remoteIp": "192.168.3.109",
+      "localIp": "192.168.3.247",
+      "remoteIp": "192.168.3.106",
       "sendAssnSetup": false,
+      "minApplicationWorkers": 2,
+      "maxApplicationWorkers": 2,
       "PFCP": {
          "pfcpPort": 8805,
          "socketBufferSize": 2097152,

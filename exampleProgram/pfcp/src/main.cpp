@@ -20,6 +20,9 @@
 
 #include "pfcpex.h"
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 void signal_handler(int signal)
 {
    ELogger::log(LOG_SYSTEM).startup( "Caught signal ({})", signal );
@@ -30,7 +33,7 @@ void signal_handler(int signal)
       case SIGTERM:
       {
          ELogger::log(LOG_SYSTEM).startup( "Setting shutdown event" );
-         ExamplePfcpApplication::setShutdownEvent();
+         ExamplePfcpApplicationWorkGroup::setShutdownEvent();
          break;
       }
    }
@@ -125,11 +128,11 @@ int main(int argc, char *argv[])
       {
          init_signal_handler();
 
-         ExamplePfcpApplication app;
+         ExamplePfcpApplicationWorkGroup wg;
 
-         app.startup(opt);
-         app.waitForShutdown();
-         app.shutdown();
+         wg.startup(opt);
+         wg.waitForShutdown();
+         wg.shutdown();
       }
       catch(const std::exception& e)
       {

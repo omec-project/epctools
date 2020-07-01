@@ -61,6 +61,8 @@ public:
    /// @brief Class constructor.
    /// @param msgid the event message ID.
    EThreadEventMessageDataBase(UInt msgid) : m_msgid(msgid) {}
+   /// @brief Class destructor.
+   virtual ~EThreadEventMessageDataBase() {}
 
    /// @brief Retrieves the event message ID.
    /// @return the event message ID.
@@ -174,6 +176,8 @@ public:
    /// @param v7 the seventh 8-bit unsigned integer to include in the event message.
    /// @param v8 the eighth 8-bit unsigned integer to include in the event message.
    EThreadEventMessageData(UInt msgid, UChar v1, UChar v2, UChar v3, UChar v4, UChar v5, UChar v6, UChar v7, UChar v8) : EThreadEventMessageDataBase(msgid), m_data{.uint8={v1,v2,v3,v4,v5,v6,v7,v8}} {}
+   /// @brief Class destructor.
+   virtual ~EThreadEventMessageData() {}
 
    /// @brief Retrieves the data union object.
    /// @return a reference to the data union object.
@@ -207,20 +211,12 @@ class EThreadEventMessageBase : public _EThreadEventMessageBase
 {
 public:
    /// @brief Default constructor.
-   EThreadEventMessageBase()
-      : m_data()
-   {
-   }
+   EThreadEventMessageBase() : m_data() {}
    /// @brief Copy constructor.
    /// @param data the T to copy.
-   EThreadEventMessageBase(const T &data)
-      : m_data( data )
-   {
-   }
+   EThreadEventMessageBase(const T &data) : m_data( data ) {}
    /// @brief Class destructor.
-   virtual ~EThreadEventMessageBase()
-   {
-   }
+   virtual ~EThreadEventMessageBase() {}
    /// @brief Assignment operator.
    /// @param data the message object to copy.
    T &operator=(const T &data)
@@ -335,6 +331,8 @@ public:
    /// @param v8 the eighth 8-bit unsigned integer to include in the event message.
    EThreadMessage(UInt msgid, UChar v1, UChar v2=0, UChar v3=0, UChar v4=0, UChar v5=0, UChar v6=0, UChar v7=0, UChar v8=0)
       : _EThreadMessage(EThreadEventMessageData(msgid, v1, v2, v3, v4, v5, v6, v7, v8)) {}
+   /// @brief Class destructor.
+   virtual ~EThreadMessage() {}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -359,6 +357,9 @@ template <class T>
 class EThreadQueueBase
 {
 public:
+   /// @brief Returns the maximum number of events that can be present in the event queue.
+   /// @return The maximum number of events that can be present in the event queue.
+   Int queueSize() const { return msgCnt(); }
 
    /// @brief Adds the specified message to the thread event queue.
    /// @param msg a reference to the message to add.
@@ -403,34 +404,19 @@ public:
       if (!semMsgs().Decrement(wait))
          return False;
 
-      msg = data()[msgTail()++];
+      {
+         EMutexLock l(mutex(),False);
 
-      if (msgTail() >= msgCnt())
-         msgTail() = 0;
+         if (multipleReaders())
+            l.acquire();
 
-      semFree().Increment();
+         msg = data()[msgTail()++];
 
-      return True;
-   }
-   /// @brief Retrievees the next message from the thread event queue without removing
-   ///   the message from the queue.
-   /// @param msg a reference to a message object that will be populated with the message.
-   /// @param wait indicates whether this function should wait for space to become
-   ///   available in the queue.
-   /// @return True indicates that a message was successfully popped from the queue, otherwise False.
-   Bool peek(T &msg, Bool wait = True)
-   {
-      if (m_mode == EThreadQueueMode::WriteOnly)
-         throw EThreadQueueBaseError_NotOpenForReading();
+         if (msgTail() >= msgCnt())
+            msgTail() = 0;
 
-      if (!semMsgs().Decrement(wait))
-         return False;
-
-      msg = data()[msgTail()];
-
-      // since we are not pulling the message off, we need to increment
-      // the semaphore to put it back where it was
-      semMsgs().Increment();
+         semFree().Increment();
+      }
 
       return True;
    }
@@ -449,6 +435,7 @@ protected:
    virtual Int &msgCnt() = 0;
    virtual Int &msgHead() = 0;
    virtual Int &msgTail() = 0;
+   virtual Bool &multipleReaders() = 0;
    virtual Bool &multipleWriters() = 0;
    virtual Int &numReaders() = 0;
    virtual Int &numWriters() = 0;
@@ -473,7 +460,7 @@ protected:
    {
    }
 
-   Void init(Int nMsgCnt, Int threadId, Bool bMultipleWriters, EThreadQueueMode eMode)
+   Void init(Int nMsgCnt, Int threadId, Bool bMultipleWriters, EThreadQueueMode eMode, Bool bMultipleReaders = False)
    {
       m_mode = eMode;
 
@@ -493,6 +480,7 @@ protected:
          refCnt() = 0;
          numReaders() = 0;
          numWriters() = 0;
+         multipleReaders() = bMultipleReaders;
          multipleWriters() = bMultipleWriters;
          msgCnt() = nMsgCnt;
          msgHead() = 0;
@@ -503,13 +491,18 @@ protected:
          initSemFree(msgCnt());
          initSemMsgs(0);
       }
-      else
-      {
-      }
 
+      attach(eMode);
+
+      m_initialized = True;
+   }
+
+   Void attach(EThreadQueueMode eMode)
+   {
       EMutexLock l(mutex());
 
-      if ((eMode == EThreadQueueMode::ReadOnly || eMode == EThreadQueueMode::ReadWrite) && numReaders() > 0)
+      if (!multipleReaders() && numReaders() > 0 &&
+          (eMode == EThreadQueueMode::ReadOnly || eMode == EThreadQueueMode::ReadWrite))
       {
          throw EThreadQueueBaseError_MultipleReadersNotAllowed();
       }
@@ -517,8 +510,6 @@ protected:
       refCnt()++;
       numReaders() += (eMode == EThreadQueueMode::ReadOnly || eMode == EThreadQueueMode::ReadWrite) ? 1 : 0;
       numWriters() += (eMode == EThreadQueueMode::WriteOnly || eMode == EThreadQueueMode::ReadWrite) ? 1 : 0;
-
-      m_initialized = True;
    }
 
    Void destroy()
@@ -535,6 +526,8 @@ protected:
             semMsgs().destroy();
 
             destroyMutex = True;
+
+            m_initialized = False;
          }
          else
          {
@@ -550,6 +543,11 @@ protected:
    /// @endcond
 
 private:
+   Bool _push(const _EThreadEventMessageBase &msg, Bool wait)
+   {
+      return push( (const T &)msg, wait );
+   }
+
    Bool m_initialized;
    EThreadQueueMode m_mode;
 };
@@ -566,6 +564,8 @@ template <class T>
 class EThreadQueuePublic : public EThreadQueueBase<T>
 {
    template <class TQueue, class TMessage> friend class EThreadEvent;
+   template <class TQueue, class TMessage> friend class EThreadEventWorker;
+   template <class TQueue, class TMessage, class TWorker> friend class EThreadEventWorkGroup;
 public:
    /// @brief Default constructor.
    EThreadQueuePublic()
@@ -576,6 +576,7 @@ public:
    /// @brief Class destructor.
    ~EThreadQueuePublic()
    {
+      EThreadQueueBase<T>::destroy();
    }
    /// @brief Initializes this public event thead message queue object.
    /// @param nMsgCnt the maximum number of event messages that can exist
@@ -593,10 +594,17 @@ public:
 
 protected:
    /// @cond DOXYGEN_EXCLUDE
+   Void init(Int nMsgCnt, Int threadId, Bool bMultipleWriters,
+             EThreadQueueMode eMode, Bool bMultipleReaders)
+   {
+      EThreadQueueBase<T>::init(nMsgCnt, threadId, bMultipleWriters, eMode, bMultipleReaders);
+   }
+
    Bool isPublic() { return True; }
    Int &msgCnt() { return m_pCtrl->m_msgCnt; }
    Int &msgHead() { return m_pCtrl->m_head; }
    Int &msgTail() { return m_pCtrl->m_tail; }
+   Bool &multipleReaders() { return m_pCtrl->m_multipleReaders; }
    Bool &multipleWriters() { return m_pCtrl->m_multipleWriters; }
    Int &numReaders() { return m_pCtrl->m_numReaders; }
    Int &numWriters() { return m_pCtrl->m_numWriters; }
@@ -640,6 +648,7 @@ private:
       Int m_refCnt;
       Int m_numReaders;
       Int m_numWriters;
+      Bool m_multipleReaders;
       Bool m_multipleWriters;
 
       Int m_msgCnt;
@@ -670,6 +679,8 @@ template <class T>
 class EThreadQueuePrivate : public EThreadQueueBase<T>
 {
    template <class TQueue, class TMessage> friend class EThreadEvent;
+   template <class TQueue, class TMessage> friend class EThreadEventWorker;
+   template <class TQueue, class TMessage, class TWorker> friend class EThreadEventWorkGroup;
 public:
    /// @brief Default constructor.
    EThreadQueuePrivate()
@@ -678,6 +689,7 @@ public:
       m_refCnt = 0;
       m_numReaders = 0;
       m_numWriters = 0;
+      m_multipleReaders = False;
       m_multipleWriters = False;
 
       m_msgCnt = 0;
@@ -688,11 +700,10 @@ public:
    /// @brief Class destructor.
    ~EThreadQueuePrivate()
    {
-      if (m_pData)
-      {
+      EThreadQueueBase<T>::destroy();
+      if (m_pData && refCnt() == 1)
          delete[](pChar) m_pData;
-         m_pData = NULL;
-      }
+      m_pData = NULL;
    }
    /// @brief Initializes this public event thead message queue object.
    /// @param nMsgCnt the maximum number of event messages that can exist
@@ -710,10 +721,17 @@ public:
 
 protected:
    /// @cond DOXYGEN_EXCLUDE
+   Void init(Int nMsgCnt, Int threadId, Bool bMultipleWriters,
+             EThreadQueueMode eMode, Bool bMultipleReaders)
+   {
+      EThreadQueueBase<T>::init(nMsgCnt, threadId, bMultipleWriters, eMode, bMultipleReaders);
+   }
+
    Bool isPublic() { return False; }
    Int &msgCnt() { return m_msgCnt; }
    Int &msgHead() { return m_head; }
    Int &msgTail() { return m_tail; }
+   Bool &multipleReaders() { return m_multipleReaders; }
    Bool &multipleWriters() { return m_multipleWriters; }
    Int &numReaders() { return m_numReaders; }
    Int &numWriters() { return m_numWriters; }
@@ -721,8 +739,11 @@ protected:
    T *data() { return m_pData; }
    Void allocDataSpace(cpStr sFile, Char cId, Int nSize)
    {
-      m_pData = (EThreadMessage *)new Char[nSize];
-      memset((pChar)m_pData, 0, nSize);
+      if (!m_pData)
+      {
+         m_pData = (EThreadMessage *)new Char[nSize];
+         memset((pChar)m_pData, 0, nSize);
+      }
    }
    Void initMutex()
    {
@@ -748,6 +769,7 @@ private:
    Int m_refCnt;
    Int m_numReaders;
    Int m_numWriters;
+   Bool m_multipleReaders;
    Bool m_multipleWriters;
 
    Int m_msgCnt;
@@ -788,77 +810,29 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Inserts message map declarations into the thread class.
-/// @details This macro should be used in the event thread class definition.
-#define DECLARE_MESSAGE_MAP()                                  \
-protected:                                                     \
-   static const msgmap_t *GetThisMessageMap();                 \
-   virtual const msgmap_t *GetMessageMap() const;
-
-/// @brief Begins the message map declaration.
-/// @details The event message map establishes the relationship of the
-///   event ID's to the individual event handlers defined in the class.
-///   "theClass" is the name of the class containing the message handlers.
-///   "baseClass" is the class name that "theClass" is derived from.
-#define BEGIN_MESSAGE_MAP(theClass, baseClass)                 \
-   const theClass::msgmap_t *theClass::GetMessageMap() const   \
-   {                                                           \
-      return GetThisMessageMap();                              \
-   }                                                           \
-   const theClass::msgmap_t *theClass::GetThisMessageMap()     \
-   {                                                           \
-      typedef baseClass TheBaseClass;                          \
-      _Pragma("GCC diagnostic push")                           \
-      _Pragma("GCC diagnostic ignored \"-Wpmf-conversions\"")  \
-      static const msgentry_t _msgEntries[] =                  \
-      {
-
-/// @brief Defines an invidual event handler.
-#define ON_MESSAGE(id, memberFxn)                              \
-         {id, (msgfxn_t)&memberFxn},
-
-/// @brief Ends the message map declaration.
-#define END_MESSAGE_MAP()                                      \
-         {0, (msgfxn_t)NULL}                                   \
-      };                                                       \
-      _Pragma("GCC diagnostic pop")                            \
-      static const msgmap_t msgMap =                           \
-         {&TheBaseClass::GetThisMessageMap, &_msgEntries[0]};  \
-      return &msgMap;                                          \
-   }
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-class _EThreadEventBase
+/// @cond DOXYGEN_EXCLUDE
+class _EThreadEventNotification
 {
 public:
-   virtual Bool _sendMessage(const _EThreadEventMessageBase &msg, Bool wait = True)
-   {
-      return False;
-   }
-   virtual Void _destroyMessage(_EThreadEventMessageBase *msg)
-   {
-      delete msg;
-   }
+   virtual Bool _sendTimerExpiration(const _EThreadEventMessageBase &msg, Bool wait = True) = 0;
+   virtual Bool _sendThreadMessage(const _EThreadEventMessageBase &msg, Bool wait = True) = 0;
 };
+/// @endcond
 
 /// @brief Thread timer class.
-///
 /// @details EThreadBase::Timer represents an individual timer.  When the
 /// timer expires, the EM_TIMER event will be raised.  The application
 /// can handle the timer by overrideing the onTimer method.
-///
 class EThreadEventTimer : public EStatic
 {
    friend class EThreadEventTimerHandler;
    template <class TQueue, class TMessage> friend class EThreadEvent;
-
+   template <class TQueue, class TMessage, class TWorker> friend class EThreadEventWorkGroup;
 /// @cond DOXYGEN_EXCLUDE
 protected:
-   Void init(_EThreadEventBase *thread, _EThreadEventMessageBase *msg)
+   Void init(_EThreadEventNotification *notify, _EThreadEventMessageBase *msg)
    {
-      m_thread = thread;
+      m_notify = notify;
       m_msg = msg;
 
       struct sigevent sev = {};
@@ -876,22 +850,22 @@ public:
    {
       // assign the id
       m_id = atomic_inc(m_nextid);
-      m_thread = NULL;
+      // m_thread = NULL;
+      m_notify = NULL;
       m_msg = NULL;
       m_interval = 0;
       m_oneshot = True;
       m_timer = NULL;
    }
    /// @brief Class constructor with configuration parameters.
-   ///
    /// @param milliseconds the number of milliseconds before the timer expires
    /// @param oneshot True - one shot timer, False - periodic (recurring) timer
-   ///
    EThreadEventTimer(Long milliseconds, Bool oneshot = False)
    {
       // assign the id
       m_id = atomic_inc(m_nextid);
-      m_thread = NULL;
+      // m_thread = NULL;
+      m_notify = NULL;
       m_msg = NULL;
       m_interval = milliseconds;
       m_oneshot = oneshot;
@@ -902,10 +876,8 @@ public:
       destroy();
    }
    /// @brief Stops and destroys the underlying timer object.
-   ///
    /// @details Calling destroy() will stop the timer and then delete the
    /// underlying timer object.  This method is called by the destructor.
-   ///
    Void destroy()
    {
       if (m_timer != NULL)
@@ -916,19 +888,14 @@ public:
       }
       if (m_msg)
       {
-         if (m_thread)
-            m_thread->_destroyMessage(m_msg);
-         else
-            delete m_msg;
+         delete m_msg;
          m_msg = NULL;
       }
-      m_thread = NULL;
+      m_notify = NULL;
    }
    /// @brief Starts the timer.
-   ///
    /// @throws EThreadTimerError_NotInitialized timer not initialized
    /// @throws EThreadTimerError_UnableToStart unable to start the timer
-   /// 
    Void start()
    {
       if (m_timer == NULL)
@@ -958,28 +925,20 @@ public:
    /// @brief Returns the timer interval in milliseconds.
    Long getInterval() { return m_interval; }
    /// @brief sets the timer interval
-   ///
    /// @param interval the timer interval in milliseconds.
-   ///
    Void setInterval(Long interval) { m_interval = interval; }
    /// @brief sets the type of timer
-   ///
    /// @param oneshot True - one shot timer, False - periodic (recurring timer)
-   ///
    Void setOneShot(Bool oneshot) { m_oneshot = oneshot; }
    /// @brief Returns the unique timer id.
-   ///
    /// @details
    /// The timer ID is created internally when the timer object is
    /// instantiated.
-   ///
    Long getId() { return m_id; }
    /// @brief Indicates if this timer object has been initialized.
-   ///
    /// @details
    /// The timer ID is created internally when the timer object is
    /// instantiated.
-   ///
    Bool isInitialized() { return m_timer != NULL; }
 
 protected:
@@ -988,9 +947,7 @@ protected:
    {
       EThreadEventTimer *timer = (EThreadEventTimer*)pinfo->si_value.sival_ptr;
       if (timer)
-      {
-         timer->m_thread->_sendMessage(*timer->m_msg);
-      }
+         timer->m_notify->_sendTimerExpiration(*timer->m_msg);
    }
    /// @endcond
 
@@ -998,7 +955,7 @@ private:
    static Long m_nextid;
 
    Long m_id;
-   _EThreadEventBase *m_thread;
+   _EThreadEventNotification *m_notify;
    _EThreadEventMessageBase *m_msg;
    Bool m_oneshot;
    Long m_interval;
@@ -1029,6 +986,50 @@ public:
 };
 /// @endcond
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Inserts message map declarations into the thread class.
+/// @details This macro should be used in the event thread class definition.
+#define DECLARE_MESSAGE_MAP()                                  \
+protected:                                                     \
+   static const msgmap_t *GetThisMessageMap();                 \
+   virtual const msgmap_t *GetMessageMap() const;
+
+/// @brief Begins the message map declaration.
+/// @details The event message map establishes the relationship of the
+///   event ID's to the individual event handlers defined in the class.
+///   "theClass" is the name of the class containing the message handlers.
+///   "baseClass" is the class name that "theClass" is derived from.
+
+
+#define BEGIN_MESSAGE_MAP(theClass, baseClass)                 \
+   const theClass::msgmap_t *theClass::GetMessageMap() const   \
+   {                                                           \
+      return GetThisMessageMap();                              \
+   }                                                           \
+   const theClass::msgmap_t *theClass::GetThisMessageMap()     \
+   {                                                           \
+      typedef baseClass TheBaseClass;                          \
+      _Pragma("GCC diagnostic push")                           \
+      _Pragma("GCC diagnostic ignored \"-Wpmf-conversions\"")  \
+      static const msgentry_t _msgEntries[] =                  \
+      {
+
+/// @brief Defines an invidual event handler.
+#define ON_MESSAGE(id, memberFxn)                              \
+         {id, (msgfxn_t)&memberFxn},
+
+/// @brief Ends the message map declaration.
+#define END_MESSAGE_MAP()                                      \
+         {0, (msgfxn_t)NULL}                                   \
+      };                                                       \
+      _Pragma("GCC diagnostic pop")                            \
+      static const msgmap_t msgMap =                           \
+         {&TheBaseClass::GetThisMessageMap, &_msgEntries[0]};  \
+      return &msgMap;                                          \
+   }
+
 /// @brief base class for EThreadPrivate and EThreadPublic
 ///
 /// @details The EThreadBase class provides event dispatching and timer
@@ -1037,7 +1038,7 @@ public:
 /// event dispatching 
 ///
 template <class TQueue, class TMessage>
-class EThreadEvent : public EThreadBasic, public _EThreadEventBase
+class EThreadEvent : public EThreadBasic, public _EThreadEventNotification
 {
 public:
    /// @cond DOXYGEN_EXCLUDE
@@ -1071,54 +1072,45 @@ public:
    }
 
    /// @brief Sends event message to this thread.
-   ///
    /// @param message the message ID
    /// @param wait waits for the message to be sent
-   ///
    /// @details
    /// Sends (posts) an event message to this threads event queue.  No
    /// additional data is posted with the event.
-   /// 
    Bool sendMessage(UInt message, Bool wait = True)
    {
       TMessage msg(message);
       Bool result = m_queue.push(msg, wait);
       if (result)
-         messageQueued();
+         onMessageQueued(msg);
       return result;
    }
    /// @brief Sends event message to this thread.
-   ///
    /// @param message the message ID.
    /// @param voidptr a void pointer to be included with the message.
    /// @param wait waits for the message to be sent.
-   ///
    /// @details
    /// Sends (posts) an event message to this threads event queue.  No
    /// additional data is posted with the event.
-   /// 
    Bool sendMessage(UInt message, pVoid voidptr, Bool wait = True)
    {
       TMessage msg(message);
       msg.setVoidPtr(voidptr);
       Bool result = m_queue.push(msg, wait);
       if (result)
-         messageQueued();
+         onMessageQueued(msg);
       return result;
    }
    /// @brief Sends event message to this thread.
-   ///
    /// @param msg the message thread message object to send.
    /// @param wait waits for the message to be sent
-   ///
    /// @details
    /// Sends (posts) the supplied event message to this thread's event queue.
-   /// 
    Bool sendMessage(const TMessage &msg, Bool wait = True)
    {
       Bool result = m_queue.push(msg, wait);
       if (result)
-         messageQueued();
+         onMessageQueued(msg);
       return result;
    }
 
@@ -1137,7 +1129,7 @@ public:
       m_queueSize = queueSize;
       m_stacksize = stackSize;
 
-      long id = m_appId * 10000 + m_threadId;
+      long id = m_appId * 100000 + 10000 + m_threadId;
 
       m_queue.init(m_queueSize, id, True, EThreadQueueMode::ReadWrite);
 
@@ -1154,19 +1146,14 @@ public:
    Void start()
    {
       if (!isInitialized())
-      {
          EThreadBasic::init(m_arg, m_stacksize);
-         sendMessage(EM_INIT);
-      }
    }
    /// @brief Suspends a running thread.
-   ///
    /// @details
    /// Suspends a running thread by posting the EM_SUSPEND message to the
    /// threads event queue.  The thread will call the onSuspend() method
    /// when the EM_SUSPEND event is processed.  The thread will not process
    /// any more thread messages until the resume() method is called.
-   ///
    Void suspend()
    {
       if (atomic_inc(m_suspendCnt) == 1)
@@ -1178,7 +1165,7 @@ public:
       if (atomic_dec(m_suspendCnt) == 0)
          m_suspendSem.Increment();
    }
-   /// @brief Called in the context of the thread when the EM_INIT event is processed.
+   /// @brief Called in the context of the thread prior to processing teh first event message.
    virtual Void onInit()
    {
    }
@@ -1191,14 +1178,11 @@ public:
    {
    }
    /// @brief Called in the context of the thread when th EM_TIMER event is processed.
-   ///
    /// @param ptimer a pointer to the EThreadBase::Timer object that expired
-   ///
    virtual Void onTimer(EThreadEventTimer *ptimer)
    {
    }
    /// @brief Intializes an EThreadEvent::Timer object and associates with this thread.
-   ///
    /// @param t the EThreadEvent::Timer object to initialize
    Void initTimer(EThreadEventTimer &t)
    {
@@ -1226,21 +1210,32 @@ protected:
    {
       return m_queue.getBumpPipe();
    }
+   Bool _sendTimerExpiration(const _EThreadEventMessageBase &msg, Bool wait = True)
+   {
+      Bool result = m_queue.push(static_cast<const TMessage &>(msg), wait);
+      if (result)
+         onMessageQueued(static_cast<const TMessage &>(msg));
+      return result;
+   }
+   Bool _sendThreadMessage(const _EThreadEventMessageBase &msg, Bool wait = True)
+   {
+      Bool result = m_queue.push(static_cast<const TMessage &>(msg), wait);
+      if (result)
+         onMessageQueued(static_cast<const TMessage &>(msg));
+      return result;
+   }
    /// @endcond
 
    /// @brief Called when an event message is queued.
-   ///
    /// @details
    /// This method is called in the context of the thread where sendMessage()
    /// is called after the message has been added to the thread's event queue.
-   virtual Void messageQueued()
+   virtual Void onMessageQueued(const TMessage &msg)
    {
    }
    /// @brief Dispatches the next thread event message.
-   ///
    /// @param msg the EThreadMessage event object
    /// @param wait waits for the next EThreadMessage to be processed
-   ///
    /// @details
    /// This method retrieves the next event message from the threads event
    /// queue and processes the event by calling the first event handler as
@@ -1259,9 +1254,7 @@ protected:
       return bMsg;
    }
    /// @brief Process event messages.
-   ///
    /// @throws EError catches and re-throws any exception raised by pumpMessage
-   ///
    /// @details
    /// Any overridden version of pumpMessages() must call pumpMessage() to
    /// process each individual message.
@@ -1269,6 +1262,8 @@ protected:
    virtual Void pumpMessages()
    {
       TMessage msg;
+
+      onInit();
 
       try
       {
@@ -1285,7 +1280,6 @@ protected:
       }
       catch (EError &e)
       {
-         //std::cout << "t1 - " << e.Name() << std::endl;
          throw;
       }
       catch (...)
@@ -1294,9 +1288,7 @@ protected:
       }
    }
    /// @brief The default event message handler.
-   ///
    /// @param msg the EThreadMessage event object
-   ///
    /// This method is called when no event handler has been defined in the
    /// class heirarchy for a specified thread event.
    ///
@@ -1349,44 +1341,15 @@ private:
       {
          switch (msg.getMessageId())
          {
-            case EM_INIT:
-            {
-               onInit();
-               break;
-            }
-            case EM_QUIT:
-            {
-               onQuit();
-               break;
-            }
-            case EM_SUSPEND:
-            {
-               onSuspend();
-               break;
-            }
-            case EM_TIMER:
-            {
-               onTimer( (EThreadEventTimer*)msg.getVoidPtr() );
-               break;
-            }
-            default:
-            {
-               break;
-            }
+            case EM_INIT:     { onInit(); break; }
+            case EM_QUIT:     { onQuit(); break; }
+            case EM_SUSPEND:  { onSuspend(); break; }
+            case EM_TIMER:    { onTimer( (EThreadEventTimer*)msg.getVoidPtr() ); break; }
+            default:          { break; }
          }
       }
 
       return keepgoing;
-   }
-
-   Bool _sendMessage(const _EThreadEventMessageBase &msg, Bool wait)
-   {
-      return sendMessage( (const TMessage &)msg, wait );
-   }
-
-   Void _destroyMessage(_EThreadEventMessageBase *msg)
-   {
-      delete (TMessage*)msg;
    }
 
    pid_t m_tid;
@@ -1403,6 +1366,534 @@ private:
 
 typedef EThreadEvent<EThreadQueuePublic<EThreadMessage>,EThreadMessage> EThreadPublic;
 typedef EThreadEvent<EThreadQueuePrivate<EThreadMessage>,EThreadMessage> EThreadPrivate;
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+class EThreadEventWorkerBase
+{
+public:
+   // typedef Void (*msgfxn_t)(TMessage &);
+   typedef Void (EThreadEventWorkerBase::*msgfxnvoid_t)();
+   typedef struct
+   {
+      UInt     nMessage; // message
+      msgfxnvoid_t pFn; // routine to call (or special value)
+   } msgentry_t;
+
+   struct msgmap_t
+   {
+      // const _msgmap_t *(*pfnGetBaseMap)();
+      const msgmap_t *(*pfnGetBaseMap)();
+      const msgentry_t *lpEntries;
+   };
+};
+
+#define BEGIN_MESSAGE_MAP2(theClass, baseClass)                            \
+   virtual const EThreadEventWorkerBase::msgmap_t *GetMessageMap() const   \
+   {                                                                       \
+      return GetThisMessageMap();                                          \
+   }                                                                       \
+   static const EThreadEventWorkerBase::msgmap_t *GetThisMessageMap()      \
+   {                                                                       \
+      typedef baseClass TheBaseClass;                                      \
+      _Pragma("GCC diagnostic push")                                       \
+      _Pragma("GCC diagnostic ignored \"-Wpmf-conversions\"")              \
+      static const EThreadEventWorkerBase::msgentry_t _msgEntries[] =      \
+      {
+
+/// @brief Defines an invidual event handler.
+#define ON_MESSAGE2(id, memberFxn)                                         \
+         {id, (EThreadEventWorkerBase::msgfxnvoid_t)&memberFxn},
+
+/// @brief Ends the message map declaration.
+#define END_MESSAGE_MAP2()                                                 \
+         {0, (EThreadEventWorkerBase::msgfxnvoid_t)NULL}                   \
+      };                                                                   \
+      _Pragma("GCC diagnostic pop")                                        \
+      static const EThreadEventWorkerBase::msgmap_t msgMap =               \
+         {&TheBaseClass::GetThisMessageMap, &_msgEntries[0]};              \
+      return &msgMap;                                                      \
+   }
+
+template <class TQueue, class TMessage>
+class EThreadEventWorker : public EThreadBasic, public EThreadEventWorkerBase
+{
+   template <class T1, class T2, class T3> friend class EThreadEventWorkGroup;
+public:
+   Int workerId() const
+   {
+      return m_workerid;
+   }
+
+   /// @brief Called in the context of the thread prior to processing teh first event message.
+   virtual Void onInit()
+   {
+   }
+   /// @brief Called in the context of the thread when the EM_QUIT event is processed.
+   virtual Void onQuit()
+   {
+   }
+   /// @brief Called in the context of the thread when th EM_TIMER event is processed.
+   /// @param ptimer a pointer to the EThreadBase::Timer object that expired
+   virtual Void onTimer(EThreadEventTimer *ptimer)
+   {
+   }
+   /// @brief Returns the semaphore associated with this work groups' event queue.
+   ESemaphoreData &getMsgSemaphore()
+   {
+      return m_queue->semMsgs();
+   }
+
+   /// @brief Sends event message to this work group.
+   /// @param message the message ID
+   /// @param wait waits for the message to be sent
+   /// @details
+   /// Sends (posts) an event message to the work group event queue.  No
+   /// additional data is posted with the event.
+   Bool sendMessage(UInt message, Bool wait = True)
+   {
+      TMessage msg(message);
+      Bool result = m_queue->push(msg, wait);
+      if (result)
+         onMessageQueued(msg);
+      return result;
+   }
+   /// @brief Sends event message to this work group.
+   /// @param message the message ID.
+   /// @param voidptr a void pointer to be included with the message.
+   /// @param wait waits for the message to be sent.
+   /// @details
+   /// Sends (posts) an event message to the work group event queue.  No
+   /// additional data is posted with the event.
+   Bool sendMessage(UInt message, pVoid voidptr, Bool wait = True)
+   {
+      TMessage msg(message);
+      msg.setVoidPtr(voidptr);
+      Bool result = m_queue->push(msg, wait);
+      if (result)
+         onMessageQueued(msg);
+      return result;
+   }
+   /// @brief Sends event message to this work group.
+   /// @param msg the message object that has been queued.
+   /// @param wait waits for the message to be sent
+   /// @details
+   /// Sends (posts) the supplied event message to the work groups' event queue.
+   Bool sendMessage(const TMessage &msg, Bool wait = True)
+   {
+      Bool result = m_queue->push(msg, wait);
+      if (result)
+         onMessageQueued(msg);
+      return result;
+   }
+
+protected:
+   /// @brief Default class constructor.
+   EThreadEventWorker()
+      : EThreadBasic(),
+        m_workerid(0),
+        m_queue(nullptr),
+        m_arg(nullptr),
+        m_stacksize(0),
+        m_tid(-1)
+   {
+   }
+   /// @brief The class destructor.
+   ~EThreadEventWorker()
+   {
+   }
+
+   /// @brief Called when an event message is queued.
+   /// @param msg the message object that has been queued.
+   /// @param appId identifies the application this thread is associated with.
+   /// @details
+   /// This method is called in the context of the thread where sendMessage()
+   /// is called after the message has been added to the thread's event queue.
+   virtual Void onMessageQueued(const TMessage &msg)
+   {
+   }
+
+   /// @brief Initializes the thread object.
+   /// @param appId identifies the application this thread is associated with.
+   /// @param threadId identifies the thread within this application.
+   /// @param arg an argument that will be passed through to the internal thread procedure.
+   ///   Currently not used.
+   /// @param queueSize the maximum number of unprocessed entries in the event queue.
+   /// @param suspended if True, the thread is not initialized until start() is called.
+   /// @param stackSize the stack size.
+   virtual Void init(TQueue &queue, Int workerid, pVoid arg, Dword stackSize = 0)
+   {
+      m_queue = &queue;
+      m_workerid = workerid;
+      m_stacksize = stackSize;
+      m_arg = arg;
+      m_queue->attach(EThreadQueueMode::ReadWrite);
+      start();
+   }
+
+   /// @brief Initializes the thread when it was suspended at init().
+   Void start()
+   {
+      if (!isInitialized())
+         EThreadBasic::init(m_arg, m_stacksize);
+   }
+
+   /// @cond DOXYGEN_EXCLUDE
+   virtual const msgmap_t *GetMessageMap() const
+   {
+      return GetThisMessageMap();
+   }
+   static const msgmap_t *GetThisMessageMap()
+   {
+      return NULL;
+   }
+   /// @endcond
+
+   /// @brief Dispatches the next thread event message.
+   /// @param msg the EThreadMessage event object
+   /// @param wait waits for the next EThreadMessage to be processed
+   /// @details
+   /// This method retrieves the next event message from the threads event
+   /// queue and processes the event by calling the first event handler as
+   /// defined by the class heirarchy.  If no event message is available and
+   /// the wait parameter is true, then the thread will block waiting on the
+   /// next event message to be sent to the thread.  If there is no event
+   /// handler defined in the class heirarchy for a particular event ID, the
+   /// default event handler, defMessageHandler(), will be called.
+   ///
+   Bool pumpMessage(TMessage &msg, Bool wait = true)
+   {
+      Bool bMsg = m_queue->pop(msg, wait);
+      if (bMsg)
+         dispatch(msg);
+
+      return bMsg;
+   }
+   /// @brief Process event messages.
+   /// @throws EError catches and re-throws any exception raised by pumpMessage
+   /// @details
+   /// Any overridden version of pumpMessages() must call pumpMessage() to
+   /// process each individual message.
+   ///
+   virtual Void pumpMessages()
+   {
+      TMessage msg;
+
+      onInit();
+
+      try
+      {
+         while (True)
+         {
+            if (pumpMessage(msg))
+            {
+               if (msg.getMessageId() == EM_QUIT)
+                  break;
+            }
+         }
+      }
+      catch (EError &e)
+      {
+         throw;
+      }
+      catch (...)
+      {
+         throw;
+      }
+   }
+   /// @brief The default event message handler.
+   /// @param msg the EThreadMessage event object
+   /// @details
+   /// This method is called when no event handler has been defined in the
+   /// class heirarchy for a specified thread event.
+   virtual Void defaultMessageHandler(TMessage &msg)
+   {
+   }
+   /// @brief Retrieves the internal thread ID.
+   /// @return the internal thread ID
+   pid_t getThreadId()
+   {
+      if (m_tid == -1)
+         m_tid = syscall(SYS_gettid);
+      return m_tid;
+   }
+
+private:
+   Dword threadProc(pVoid arg)
+   {
+      pumpMessages();
+      return 0;
+   }
+
+   Bool dispatch(TMessage &msg)
+   {
+      Bool keepgoing = True;
+      const msgmap_t *pMap;
+      const msgentry_t *pEntries;
+
+      if (msg.getMessageId() >= EM_USER)
+      {
+         // interate through each map
+         for (pMap = (msgmap_t*)GetMessageMap(); keepgoing && pMap && pMap->pfnGetBaseMap != NULL; pMap = (msgmap_t*)(*pMap->pfnGetBaseMap)())
+         {
+            // interate through each entry for the map
+            for (pEntries = pMap->lpEntries; pEntries->nMessage; pEntries++)
+            {
+               if (pEntries->nMessage == msg.getMessageId())
+               {
+                  (this->*((void(EThreadEventWorkerBase::*)(TMessage&))pEntries->pFn))(msg);
+                  keepgoing = False;
+                  break;
+               }
+            }
+         }
+
+         if (pMap == NULL)
+            defaultMessageHandler(msg);
+      }
+      else
+      {
+         switch (msg.getMessageId())
+         {
+            case EM_QUIT:     { onQuit(); break; }
+            case EM_TIMER:    { onTimer( (EThreadEventTimer*)msg.getVoidPtr() ); break; }
+            default:          { break; }
+         }
+      }
+
+      return keepgoing;
+   }
+
+   Int m_workerid;
+   TQueue *m_queue;
+   pVoid m_arg;
+   size_t m_stacksize;
+   pid_t m_tid;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+template <class TQueue, class TMessage, class TWorker>
+class EThreadEventWorkGroup : public _EThreadEventNotification
+{
+public:
+   /// @brief Default class constructor.
+   EThreadEventWorkGroup()
+      : m_initialized(False),
+        m_arg(NULL),
+        m_stacksize(0),
+        m_appId(0),
+        m_workGroupId(0),
+        m_queueSize(0),
+        m_minWorkers(0),
+        m_maxWorkers(0),
+        m_actvWorkers(0)
+   {
+   }
+   /// @brief Rhe class destructor.
+   ~EThreadEventWorkGroup()
+   {
+      for (int i=0; i<m_actvWorkers; i++)
+      {
+         delete m_workers[i];
+         m_workers[i] = nullptr;
+      }
+   }
+
+   /// @brief Retrieves indication if this work group object has been initialized.
+   /// @return True if initialized, otherwise False.
+   Bool isInitialized() { return m_initialized; }
+
+   /// @brief Sends event message to this work group.
+   /// @param message the message ID
+   /// @param wait waits for the message to be sent
+   /// @details
+   /// Sends (posts) an event message to the work group event queue.  No
+   /// additional data is posted with the event.
+   Bool sendMessage(UInt message, Bool wait = True)
+   {
+      TMessage msg(message);
+      Bool result = m_queue.push(msg, wait);
+      if (result)
+         onMessageQueued(msg);
+      return result;
+   }
+   /// @brief Sends event message to this work group.
+   /// @param message the message ID.
+   /// @param voidptr a void pointer to be included with the message.
+   /// @param wait waits for the message to be sent.
+   /// @details
+   /// Sends (posts) an event message to the work group event queue.  No
+   /// additional data is posted with the event.
+   Bool sendMessage(UInt message, pVoid voidptr, Bool wait = True)
+   {
+      TMessage msg(message);
+      msg.setVoidPtr(voidptr);
+      Bool result = m_queue.push(msg, wait);
+      if (result)
+         onMessageQueued(msg);
+      return result;
+   }
+   /// @brief Sends event message to this work group.
+   /// @param msg the message thread message object to send.
+   /// @param wait waits for the message to be sent
+   /// @details
+   /// Sends (posts) the supplied event message to the work groups' event queue.
+   Bool sendMessage(const TMessage &msg, Bool wait = True)
+   {
+      Bool result = m_queue.push(msg, wait);
+      if (result)
+         onMessageQueued(msg);
+      return result;
+   }
+
+   /// @brief Initializes the thread object.
+   /// @param appId identifies the application this thread is associated with.
+   /// @param workGroupId the ID for the work group.
+   /// @param minWorkers the minimum number of workers for this work group.
+   /// @param maxWorkers the maximum number of workers for this work group.
+   ///   Defaults to the minWorkers value.
+   /// @param queueSize the maximum number of unprocessed entries in the event queue.
+   /// @param arg an argument that will be passed through to the internal thread procedure.
+   ///   Currently not used.
+   /// @param suspended if True, the thread is not initialized until start() is called.
+   /// @param stackSize the stack size.
+   virtual Void init(Short appId, UShort workGroupId, Int minWorkers, Int maxWorkers = -1,
+      Int queueSize = 16384, pVoid arg = nullptr, Bool suspended = False, Dword stackSize = 0)
+   {
+      m_appId = appId;
+      m_workGroupId = workGroupId;
+      m_arg = arg;
+      m_queueSize = queueSize;
+      m_stacksize = stackSize;
+      m_minWorkers = minWorkers;
+      m_maxWorkers = maxWorkers < minWorkers ? minWorkers : maxWorkers;
+
+      long id = m_appId * 100000 + 20000 + m_workGroupId;
+
+      m_queue.init(m_queueSize, id, True, EThreadQueueMode::ReadWrite, True);
+
+      if (!suspended)
+         start();
+   }
+
+   /// @brief Returns after successfully joining each worker thread.
+   Void join()
+   {
+      for (auto worker : m_workers)
+         worker->join();
+   }
+   /// @brief Posts the quit message to all of the worker threads.
+   Void quit()
+   {
+      for (int i=0; i<m_actvWorkers; i++)
+         sendMessage(EM_QUIT);
+   }
+   /// @brief Initializes the thread when it was suspended at init().
+   Void start()
+   {
+      if (!isInitialized())
+      {
+         m_workers.resize(m_maxWorkers);
+         for (Int i=0; i<m_minWorkers; i++)
+         {
+            m_workers[i] = nullptr;
+            if (i < m_minWorkers)
+               addWorker();
+         }
+      }
+   }
+
+   /// @brief Creates a new worker thread if the current number of workers
+   ///   is less than the maximum configured.
+   Bool addWorker()
+   {
+      EMutexLock l(m_mutex);
+      if (m_actvWorkers >= m_maxWorkers)
+         return False;
+      addWorker(m_actvWorkers++);
+      return True;
+   }
+
+   /// @brief Intializes an EThreadEvent::Timer object and associates
+   ///   it with this work group.
+   /// @param t the EThreadEvent::Timer object to initialize
+   Void initTimer(EThreadEventTimer &t)
+   {
+      TMessage *msg = new TMessage(EM_TIMER);
+      msg->setVoidPtr(&t);
+      t.init(this, msg);
+   }
+   /// @brief Returns the semaphore associated with this thread's event queue.
+   ESemaphoreData &getMsgSemaphore()
+   {
+      return m_queue.semMsgs();
+   }
+
+protected:
+   /// @brief Called when an event message is queued.
+   /// @param msg the message object that has been queued.
+   /// @param appId identifies the application this thread is associated with.
+   /// @details
+   /// This method is called in the context of the thread where sendMessage()
+   /// is called after the message has been added to the thread's event queue.
+   virtual Void onMessageQueued(const TMessage &msg)
+   {
+   }
+   /// @brief Called when a new worker thread object is created.
+   /// @param worker a reference to the worker thread object created.
+   virtual Void onCreateWorker(TWorker &worker)
+   {
+   }
+
+private:
+   Bool _sendTimerExpiration(const _EThreadEventMessageBase &msg, Bool wait = True)
+   {
+      Bool result = m_queue.push(static_cast<const TMessage &>(msg), wait);
+      if (result)
+         onMessageQueued(static_cast<const TMessage &>(msg));
+      return result;
+   }
+   Bool _sendThreadMessage(const _EThreadEventMessageBase &msg, Bool wait = True)
+   {
+      Bool result = m_queue.push(static_cast<const TMessage &>(msg), wait);
+      if (result)
+         onMessageQueued(static_cast<const TMessage &>(msg));
+      return result;
+   }
+
+   Void addWorker(Int idx)
+   {
+      TWorker *worker = new TWorker();
+      // worker->setGroup(*this);
+      m_workers[idx] = worker;
+      worker->init(m_queue, idx + 1, m_arg, m_stacksize);
+      onCreateWorker(*worker);
+   }
+
+   EMutexPrivate m_mutex;
+   Bool m_initialized;
+   pVoid m_arg;
+   size_t m_stacksize;
+
+   Short m_appId;
+   UShort m_workGroupId;
+   Int m_queueSize;
+   TQueue m_queue;
+
+   Int m_minWorkers;
+   Int m_maxWorkers;
+   Int m_actvWorkers;
+   std::vector<TWorker*> m_workers;
+};
+
+using EThreadWorkerPublic = EThreadEventWorker<EThreadQueuePublic<EThreadMessage>,EThreadMessage>;
+template <class TWorker> using EThreadWorkGroupPublic = EThreadEventWorkGroup<EThreadQueuePublic<EThreadMessage>,EThreadMessage,TWorker>;
+
+using EThreadWorkerPrivate = EThreadEventWorker<EThreadQueuePrivate<EThreadMessage>,EThreadMessage>;
+template <class TWorker> using EThreadWorkGroupPrivate = EThreadEventWorkGroup<EThreadQueuePrivate<EThreadMessage>,EThreadMessage,TWorker>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

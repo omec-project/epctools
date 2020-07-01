@@ -191,4 +191,91 @@ private:
    Char m_wBuffer[USHRT_MAX];
 };
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#if 0
+class PointerMessage
+{
+   friend class PointerQueue;
+public:
+   virtual PointerMessage &operator=(const PointerMessage &msg) { tmr_=msg.tmr_; ptr_=msg.ptr_; return *this; }
+   epctime_t queueMicroSeconds() { return tmr_.MicroSeconds(); }
+   epctime_t queueMilliSeconds() { return tmr_.MilliSeconds(); }
+   pVoid pointer() { return ptr_; }
+   PointerMessage &pointer(pVoid p) { ptr_=p; return *this; }
+   Void start() { tmr_.Start(); }
+   Void stop() { tmr_.Stop(); }
+private:
+   ETimer tmr_;
+   pVoid ptr_;
+};
+
+class PointerQueue
+{
+public:
+   PointerQueue();
+   ~PointerQueue();
+
+   size_t maxPages() const    { return mp_; }
+   size_t messageSize() const { return ms_; }
+   UShort pageSize() const    { return ps_; }
+
+   PointerQueue &init(size_t ms, UShort ps, size_t mp_);
+
+   Bool push(pVoid ptr, Bool wait=True);
+   pVoid pop(Bool wait=True);
+
+private:
+   struct Page
+   {
+      Page *prevPage;
+      Page *nextPage;
+      pUChar data;
+   };
+
+   class PageAddress
+   {
+   public:
+      PageAddress() : pg_(nullptr), ofs_(0) {}
+      PageAddress(Page &page, UShort offset) : pg_(&page), ofs_(offset) {}
+      PageAddress(const PageAddress &addr) : pg_(addr.pg_), ofs_(addr.ofs_) {}
+
+      PageAddress &operator=(const PageAddress &addr) { pg_=addr.pg_; ofs_=addr.ofs_; return *this; }
+      Bool operator==(const PageAddress &addr) { return pg_==addr.pg_ && ofs_==addr.ofs_; }
+
+      Page &page()                     { return *pg_; }
+      PageAddress &page(Page &p)       { pg_=&p; return *this; }
+      PageAddress &page(Page *p)       { pg_=p; return *this; }
+      UShort offset() const            { return ofs_; }
+      PageAddress &offset(UShort ofs)  { ofs_=ofs; return *this; }
+
+      Page &nextPage() { return *pg_->nextPage; }
+      Page &prevPage() { return *pg_->prevPage; }
+
+   private:
+      Page *pg_;
+      UShort ofs_;
+   };
+
+   std::atomic_int rc_; // reference count
+   std::atomic_int nr_; // number of readers
+   std::atomic_int nw_; // number of writers
+
+   size_t mp_; // max pages
+   size_t ms_; // message size
+   UShort ps_; // page size (entries per page)
+   Page *head_; // write to the head
+   Page *tail_; // read from the tail
+
+   EMutexPrivate rmtx_;
+   EMutexPrivate wmtx_;
+   ESemaphorePrivate free_;
+   ESemaphorePrivate used_;
+
+   // write to the head, read from the tail
+   // if no more space in the current page and the next page contains the tail, create a new page
+};
+#endif
+
 #endif // #define __eqbase_h_included

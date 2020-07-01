@@ -1,0 +1,106 @@
+{
+   // See https://go.microsoft.com/fwlink/?LinkId=733558
+   // for the documentation about the tasks.json format
+   "version": "2.0.0",
+   "tasks": [
+      {
+         "label": "build epctools",
+         "type": "shell",
+         "command": "make",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "build epctest",
+         "type": "shell",
+         "command": "cd exampleProgram; make",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "build pfcpex",
+         "type": "shell",
+         "command": "cd exampleProgram/pfcp; make",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "clean epctools",
+         "type": "shell",
+         "command": "make clean",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         }
+      },
+      {
+         "label": "clean epctest",
+         "type": "shell",
+         "command": "cd exampleProgram; make clean",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         }
+      },
+      {
+         "label": "clean pfcpex",
+         "type": "shell",
+         "command": "cd exampleProgram/pfcp; make clean",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         }
+      },
+      {
+         "label": "rebuild epctools",
+         "type": "shell",
+         "command": "make clean; make",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "rebuild epctest",
+         "type": "shell",
+         "command": "cd exampleProgram; make clean; make",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "rebuild pfcpex",
+         "type": "shell",
+         "command": "cd exampleProgram/pfcp; make clean; make",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      }
+   ]
+}

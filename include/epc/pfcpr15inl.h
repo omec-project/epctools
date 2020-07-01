@@ -25,6 +25,15 @@ namespace PFCP_R15
 //// IE Classes
 ////////////////////////////////////////////////////////////////////////////////
 
+union AliasPointer {
+   in_addr *in_addr_ptr;
+   in_addr_t *in_addr_t_ptr;
+   in6_addr *in6_addr_ptr;
+   uint32_t *uint32_t_ptr;
+   uint16_t *uint16_t_ptr;
+   uint8_t *uint8_t_ptr;
+};
+
 inline CauseIE::CauseIE(pfcp_cause_ie_t &ie, LengthCalculator *parent)
    : IEHeader(ie.header, PFCP_IE_CAUSE, parent),
       ie_(ie)
@@ -112,12 +121,16 @@ inline uint32_t FTeidIE::teid() const
 
 inline const in_addr &FTeidIE::ipv4_address() const
 {
-   return *reinterpret_cast<in_addr*>(&ie_.ipv4_address);
+   AliasPointer u;
+   u.uint32_t_ptr = &ie_.ipv4_address;
+   return *u.in_addr_ptr;
 }
 
 inline const in6_addr &FTeidIE::ipv6_address() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.ipv6_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.ipv6_address;
+   return *u.in6_addr_ptr;
 }
 
 inline uint8_t FTeidIE::choose_id() const
@@ -2045,12 +2058,16 @@ inline uint64_t FSeidIE::seid() const
 
 inline const in_addr &FSeidIE::ipv4_address() const
 {
-   return *reinterpret_cast<in_addr*>(&ie_.ipv4_address);
+   AliasPointer u;
+   u.uint32_t_ptr = &ie_.ipv4_address;
+   return *u.in_addr_ptr;
 }
 
 inline const in6_addr &FSeidIE::ipv6_address() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.ipv6_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.ipv6_address;
+   return *u.in6_addr_ptr;
 }
 
 inline FSeidIE &FSeidIE::seid(uint64_t val)
@@ -2207,6 +2224,7 @@ inline uint16_t NodeIdIE::calculateLength()
 
 #define ADD_DATA(flag,src,srcofs,len_of,dest,destofs,destsize,value,value_length) \
 {                                                                                 \
+   AliasPointer u;                                                                \
    if (destofs + value_length + sizeof(uint16_t) > destsize)                      \
       return *this;                                                               \
    if (flag) {                                                                    \
@@ -2218,7 +2236,8 @@ inline uint16_t NodeIdIE::calculateLength()
       flag = 1;                                                                   \
    }                                                                              \
    len_of += value_length + sizeof(uint16_t);                                     \
-   *((uint16_t*)&dest[destofs]) = htons(value_length);                            \
+   u.uint8_t_ptr = &dest[destofs];                                                \
+   *u.uint16_t_ptr = htons(value_length);                                         \
    destofs += sizeof(uint16_t);                                                   \
    std::memcpy(&dest[destofs], value, value_length);                              \
    destofs += value_length;                                                       \
@@ -2916,17 +2935,23 @@ inline uint8_t FqCsidIE::number_of_csids() const
 
 inline const in_addr &FqCsidIE::ipv4_node_address() const
 {
-   return *reinterpret_cast<in_addr*>(ie_.node_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.node_address;
+   return *u.in_addr_ptr;
 }
 
 inline const in6_addr &FqCsidIE::ipv6_node_address() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.node_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.node_address;
+   return *u.in6_addr_ptr;
 }
 
 inline uint32_t FqCsidIE::mcc_mnc_id_node_address() const
 {
-   return ntohl(*reinterpret_cast<uint32_t*>(ie_.node_address));
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.node_address;
+   return ntohl(*u.uint32_t_ptr);
 }
 
 inline uint16_t FqCsidIE::pdn_conn_set_ident(uint8_t idx) const
@@ -2961,8 +2986,10 @@ inline FqCsidIE &FqCsidIE::node_address(const EIpAddress &val)
 
 inline FqCsidIE &FqCsidIE::node_address(const in_addr &val)
 {
+   AliasPointer u;
    ie_.fqcsid_node_id_type = static_cast<uint8_t>(FqCsidNodeIdTypeEnum::ipv4);
-   *((in_addr_t*)ie_.node_address) = val.s_addr;
+   u.uint8_t_ptr = ie_.node_address;
+   u.in_addr_ptr->s_addr = val.s_addr;
    setLength();
    return *this;
 }
@@ -2977,8 +3004,10 @@ inline FqCsidIE &FqCsidIE::node_address(const in6_addr &val)
 
 inline FqCsidIE &FqCsidIE::node_address(uint32_t val)
 {
+   AliasPointer u;
    ie_.fqcsid_node_id_type = static_cast<uint8_t>(FqCsidNodeIdTypeEnum::mcc_mnc_id);
-   *((uint32_t*)ie_.node_address) = htonl(val);
+   u.uint8_t_ptr = ie_.node_address;
+   *u.uint32_t_ptr = htonl(val);
    setLength();
    return *this;
 }
@@ -3545,12 +3574,16 @@ inline uint32_t OuterHeaderCreationIE::teid() const
 
 inline const in_addr &OuterHeaderCreationIE::ipv4_address() const
 {
-   return *reinterpret_cast<in_addr*>(&ie_.ipv4_address);
+   AliasPointer u;
+   u.uint32_t_ptr = &ie_.ipv4_address;
+   return *u.in_addr_ptr;
 }
 
 inline const in6_addr &OuterHeaderCreationIE::ipv6_address() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.ipv6_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.ipv6_address;
+   return *u.in6_addr_ptr;
 }
 
 inline uint32_t OuterHeaderCreationIE::port_number() const
@@ -3963,12 +3996,16 @@ inline Bool UeIpAddressIE::ipv6d() const
 
 inline const in_addr &UeIpAddressIE::ipv4_address() const
 {
-   return *reinterpret_cast<in_addr*>(&ie_.ipv4_address);
+   AliasPointer u;
+   u.uint32_t_ptr = &ie_.ipv4_address;
+   return *u.in_addr_ptr;
 }
 
 inline const in6_addr &UeIpAddressIE::ipv6_address() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.ipv6_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.ipv6_address;
+   return *u.in6_addr_ptr;
 }
 
 inline const uint8_t UeIpAddressIE::ipv6_pfx_dlgtn_bits() const
@@ -4435,12 +4472,16 @@ inline Bool RemoteGTPUPeerIE::ni() const
 
 inline const in_addr &RemoteGTPUPeerIE::ipv4_address() const
 {
-   return *reinterpret_cast<in_addr*>(&ie_.ipv4_address);
+   AliasPointer u;
+   u.uint32_t_ptr = &ie_.ipv4_address;
+   return *u.in_addr_ptr;
 }
 
 inline const in6_addr &RemoteGTPUPeerIE::ipv6_address() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.ipv6_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.ipv6_address;
+   return *u.in6_addr_ptr;
 }
 
 inline uint16_t RemoteGTPUPeerIE::len_of_dst_intfc_fld() const
@@ -4954,12 +4995,16 @@ inline UserPlaneIpResourceInformationIE &UserPlaneIpResourceInformationIE::teid_
 }
 inline const in_addr &UserPlaneIpResourceInformationIE::ipv4_address() const
 {
-   return *reinterpret_cast<in_addr*>(&ie_.ipv4_address);
+   AliasPointer u;
+   u.uint32_t_ptr = &ie_.ipv4_address;
+   return *u.in_addr_ptr;
 }
 
 inline const in6_addr &UserPlaneIpResourceInformationIE::ipv6_address() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.ipv6_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.ipv6_address;
+   return *u.in6_addr_ptr;
 }
 
 inline uint8_t UserPlaneIpResourceInformationIE::ntwk_inst_len() const
@@ -6266,12 +6311,16 @@ inline uint16_t TraceInformationIE::len_of_ip_addr_of_trc_coll_ent() const
 
 inline in_addr &TraceInformationIE::ipv4_addr_of_trc_coll_ent() const
 {
-   return *reinterpret_cast<in_addr*>(ie_.ip_addr_of_trc_coll_ent);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.ip_addr_of_trc_coll_ent;
+   return *u.in_addr_ptr;
 }
 
 inline in6_addr &TraceInformationIE::ipv6_addr_of_trc_coll_ent() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.ip_addr_of_trc_coll_ent);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.ip_addr_of_trc_coll_ent;
+   return *u.in6_addr_ptr;
 }
 
 inline TraceInformationIE &TraceInformationIE::mcc(const char *val, uint8_t len)

@@ -21,21 +21,25 @@ namespace PFCP
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-UShort Configuration::port_         = 8805;
-Int Configuration::bufsize_         = 2097152;
-LongLong Configuration::t1_         = 3000;
-LongLong Configuration::hbt1_       = 5000;
-Int Configuration::n1_              = 2;
-Int Configuration::hbn1_            = 3;
-ELogger *Configuration::logger_     = nullptr;
-size_t Configuration::naw_          = 10;
-Long Configuration::law_            = 6000; // 6 seconds
-Int Configuration::trb_             = 0;
-Bool Configuration::atr_            = False;
-Translator *Configuration::xlator_  = nullptr;
+UShort Configuration::port_                     = 8805;
+Int Configuration::bufsize_                     = 2097152;
+LongLong Configuration::t1_                     = 3000;
+LongLong Configuration::hbt1_                   = 5000;
+Int Configuration::n1_                          = 2;
+Int Configuration::hbn1_                        = 3;
+ELogger *Configuration::logger_                 = nullptr;
+size_t Configuration::naw_                      = 10;
+Long Configuration::law_                        = 6000; // 6 seconds
+Int Configuration::trb_                         = 0;
+Bool Configuration::atr_                        = False;
+Translator *Configuration::xlator_              = nullptr;
+// Int Configuration::aminw_                       = 1;
+// Int Configuration::amaxw_                       = 1;
+Int Configuration::tminw_                       = 1;
+Int Configuration::tmaxw_                       = 1;
+_EThreadEventNotification *Configuration::app_  = nullptr;
 
-ApplicationThread *ApplicationThread::this_ = nullptr;
-TranslationThread *TranslationThread::this_ = nullptr;
+TranslationThread *TranslationThread::this_     = nullptr;
 CommunicationThread *CommunicationThread::this_ = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -694,190 +698,187 @@ Translator::~Translator()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-BEGIN_MESSAGE_MAP(ApplicationThread, EThreadPrivate)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::RcvdReq), ApplicationThread::onRcvdReq)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::RcvdRsp), ApplicationThread::onRcvdRsp)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::ReqTimeout), ApplicationThread::onReqTimeout)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::RemoteNodeAdded), ApplicationThread::onRemoteNodeAdded)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::RemoteNodeFailure), ApplicationThread::onRemoteNodeFailure)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::RemoteNodeRestart), ApplicationThread::onRemoteNodeRestart)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::RemoteNodeRemoved), ApplicationThread::onRemoteNodeRemoved)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::SndReqError), ApplicationThread::onSndReqError)
-   ON_MESSAGE(static_cast<UInt>(ApplicationThread::Events::SndRspError), ApplicationThread::onSndRspError)
-END_MESSAGE_MAP()
-
-ApplicationThread::ApplicationThread()
-{
-   static EString __method__ = __METHOD_NAME__;
-
-   this_ = this;
-}
-
-ApplicationThread::~ApplicationThread()
+ApplicationWorker::ApplicationWorker()
 {
    static EString __method__ = __METHOD_NAME__;
 }
 
-Void ApplicationThread::onInit()
+ApplicationWorker::~ApplicationWorker()
+{
+   static EString __method__ = __METHOD_NAME__;
+}
+
+Void ApplicationWorker::onInit()
 {
    static EString __method__ = __METHOD_NAME__;
 
-   EThreadPrivate::onInit();
+   EThreadWorkerPrivate::onInit();
 }
 
-Void ApplicationThread::onQuit()
+Void ApplicationWorker::onQuit()
 {
    static EString __method__ = __METHOD_NAME__;
 
-   EThreadPrivate::onQuit();
+   EThreadWorkerPrivate::onQuit();
 }
 
-Void ApplicationThread::onRcvdReq(AppMsgReqPtr req)
+Void ApplicationWorker::onRcvdReq(AppMsgReqPtr req)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "ApplicationThread::onReqRcvd()"
+      " workerId={}"
       " seid={}"
       " seqNbr={}"
       " msgType={}"
       " isReq={}",
-      __method__, req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"));
+      __method__, workerId(), req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"));
 }
 
-Void ApplicationThread::onRcvdRsp(AppMsgRspPtr rsp)
+Void ApplicationWorker::onRcvdRsp(AppMsgRspPtr rsp)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " seid={}"
       " seqNbr={}"
       " msgType={}"
       " isReq={}",
-      __method__, rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"));
+      __method__, workerId(), rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"));
 }
 
-Void ApplicationThread::onReqTimeout(AppMsgReqPtr req)
+Void ApplicationWorker::onReqTimeout(AppMsgReqPtr req)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " seid={}"
       " seqNbr={}"
       " msgType={}"
       " isReq={}",
-      __method__, req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"));
+      __method__, workerId(), req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"));
 }
 
-Void ApplicationThread::onRemoteNodeAdded(RemoteNodeSPtr &rmtNode)
+Void ApplicationWorker::onRemoteNodeAdded(RemoteNodeSPtr &rmtNode)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " address={} startTime={}",
-      __method__, rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
+      __method__, workerId(), rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
 }
 
-Void ApplicationThread::onRemoteNodeFailure(RemoteNodeSPtr &rmtNode)
+Void ApplicationWorker::onRemoteNodeFailure(RemoteNodeSPtr &rmtNode)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " address={} startTime={}",
-      __method__, rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
+      __method__, workerId(), rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
 }
 
-Void ApplicationThread::onRemoteNodeRestart(RemoteNodeSPtr &rmtNode)
+Void ApplicationWorker::onRemoteNodeRestart(RemoteNodeSPtr &rmtNode)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " address={} startTime={}",
-      __method__, rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
+      __method__, workerId(), rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
 }
 
-Void ApplicationThread::onRemoteNodeRemoved(RemoteNodeSPtr &rmtNode)
+Void ApplicationWorker::onRemoteNodeRemoved(RemoteNodeSPtr &rmtNode)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " address={} startTime={}",
-      __method__, rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
+      __method__, workerId(), rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
 }
 
-Void ApplicationThread::onSndReqError(AppMsgReqPtr req, SndReqException &err)
+Void ApplicationWorker::onSndReqError(AppMsgReqPtr req, SndReqException &err)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " seid={}"
       " seqNbr={}"
       " msgType={}"
       " isReq={}"
       " exception={}",
-      __method__, req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"), err.what());
+      __method__, workerId(), req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"), err.what());
 }
 
-Void ApplicationThread::onSndRspError(AppMsgRspPtr rsp, SndRspException &err)
+Void ApplicationWorker::onSndRspError(AppMsgRspPtr rsp, SndRspException &err)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " seid={}"
       " seqNbr={}"
       " msgType={}"
       " isReq={}"
       " exception={}",
-      __method__, rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"), err.what());
+      __method__, workerId(), rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"), err.what());
 }
 
-Void ApplicationThread::onEncodeReqError(PFCP::AppMsgReqPtr req, PFCP::EncodeReqException &err)
+Void ApplicationWorker::onEncodeReqError(PFCP::AppMsgReqPtr req, PFCP::EncodeReqException &err)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " seid={}"
       " seqNbr={}"
       " msgType={}"
       " isReq={}"
       " exception={}",
-      __method__, req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"), err.what());
+      __method__, workerId(), req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"), err.what());
 }
 
-Void ApplicationThread::onEncodeRspError(PFCP::AppMsgRspPtr rsp, PFCP::EncodeRspException &err)
+Void ApplicationWorker::onEncodeRspError(PFCP::AppMsgRspPtr rsp, PFCP::EncodeRspException &err)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
+      " workerId={}"
       " seid={}"
       " seqNbr={}"
       " msgType={}"
       " isReq={}"
       " exception={}",
-      __method__, rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"), err.what());
+      __method__, workerId(), rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"), err.what());
 }
 
-Void ApplicationThread::onRcvdReq(EThreadMessage &msg)
+Void ApplicationWorker::_onRcvdReq(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    AppMsgReqPtr req = static_cast<AppMsgReqPtr>(msg.getVoidPtr());
    onRcvdReq(req);
 }
 
-Void ApplicationThread::onRcvdRsp(EThreadMessage &msg)
+Void ApplicationWorker::_onRcvdRsp(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    AppMsgRspPtr rsp =  static_cast<AppMsgRspPtr>(msg.getVoidPtr());
    onRcvdRsp(rsp);
 }
 
-Void ApplicationThread::onReqTimeout(EThreadMessage &msg)
+Void ApplicationWorker::_onReqTimeout(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    AppMsgReqPtr req = static_cast<AppMsgReqPtr>(msg.getVoidPtr());
    onReqTimeout(req);
 }
 
-Void ApplicationThread::onRemoteNodeAdded(EThreadMessage &msg)
+Void ApplicationWorker::_onRemoteNodeAdded(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
@@ -885,7 +886,7 @@ Void ApplicationThread::onRemoteNodeAdded(EThreadMessage &msg)
    delete rn;
 }
 
-Void ApplicationThread::onRemoteNodeFailure(EThreadMessage &msg)
+Void ApplicationWorker::_onRemoteNodeFailure(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
@@ -893,7 +894,7 @@ Void ApplicationThread::onRemoteNodeFailure(EThreadMessage &msg)
    delete rn;
 }
 
-Void ApplicationThread::onRemoteNodeRestart(EThreadMessage &msg)
+Void ApplicationWorker::_onRemoteNodeRestart(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
@@ -901,7 +902,7 @@ Void ApplicationThread::onRemoteNodeRestart(EThreadMessage &msg)
    delete rn;
 }
 
-Void ApplicationThread::onRemoteNodeRemoved(EThreadMessage &msg)
+Void ApplicationWorker::_onRemoteNodeRemoved(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
@@ -909,7 +910,7 @@ Void ApplicationThread::onRemoteNodeRemoved(EThreadMessage &msg)
    delete rn;
 }
 
-Void ApplicationThread::onSndReqError(EThreadMessage &msg)
+Void ApplicationWorker::_onSndReqError(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    SndReqExceptionDataPtr data = static_cast<SndReqExceptionDataPtr>(msg.getVoidPtr());
@@ -917,7 +918,7 @@ Void ApplicationThread::onSndReqError(EThreadMessage &msg)
    delete data;
 }
 
-Void ApplicationThread::onSndRspError(EThreadMessage &msg)
+Void ApplicationWorker::_onSndRspError(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    SndRspExceptionDataPtr data = static_cast<SndRspExceptionDataPtr>(msg.getVoidPtr());
@@ -925,7 +926,7 @@ Void ApplicationThread::onSndRspError(EThreadMessage &msg)
    delete data;
 }
 
-Void ApplicationThread::onEncodeReqError(EThreadMessage &msg)
+Void ApplicationWorker::_onEncodeReqError(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    EncodeReqExceptionDataPtr data = static_cast<EncodeReqExceptionDataPtr>(msg.getVoidPtr());
@@ -933,7 +934,7 @@ Void ApplicationThread::onEncodeReqError(EThreadMessage &msg)
    delete data;
 }
 
-Void ApplicationThread::onEncodeRspError(EThreadMessage &msg)
+Void ApplicationWorker::_onEncodeRspError(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    EncodeRspExceptionDataPtr data = static_cast<EncodeRspExceptionDataPtr>(msg.getVoidPtr());

@@ -677,19 +677,16 @@ public:
    EIpFilterRule &setOriginal(cpChar orig)
    {
       orig_ = orig;
-      *this = orig_;
       return *this;
    }
    EIpFilterRule &setOriginal(const EString &orig)
    {
       orig_ = orig;
-      *this = orig_;
       return *this;
    }
    EIpFilterRule &setOriginal(const std::string &orig)
    {
       orig_ = orig;
-      *this = orig_;
       return *this;
    }
    EIpFilterRule &setAction(Action action)

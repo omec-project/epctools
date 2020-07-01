@@ -65,10 +65,10 @@ ETimerPool::~ETimerPool()
 {
 }
 
-ULong ETimerPool::registerTimer(LongLong ms, _EThreadEventMessageBase *msg, _EThreadEventBase &thread)
+ULong ETimerPool::registerTimer(LongLong ms, _EThreadEventMessageBase *msg, _EThreadEventNotification &queue)
 {
    EMutexLock l(m_mutex);
-   ExpirationInfo info( thread, msg );
+   ExpirationInfo info( queue, msg );
    ULong id = _registerTimer( ms, info );
    info.clear();
    return id;
@@ -355,8 +355,8 @@ Void ETimerPool::Entry::notify()
 {
    switch (m_info.type)
    {
-      case ETimerPool::ExpirationInfoType::Thread:
-         m_info.u.thrd.thread->_sendMessage( *m_info.u.thrd.msg );
+      case ETimerPool::ExpirationInfoType::Queue:
+         m_info.u.queue.notify->_sendThreadMessage( *m_info.u.queue.msg );
          break;
       case ETimerPool::ExpirationInfoType::Callback:
          (m_info.u.cb.func)( getId(), m_info.u.cb.data );
