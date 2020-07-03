@@ -1888,6 +1888,9 @@ public:
    Void setCount(Int cnt) { m_cnt = cnt; }
    Int getCnt() { return m_cnt; }
 
+   Void setIpAddress(cpStr ipaddr) { m_ipaddress = ipaddr; }
+   cpStr getIpAddress() { return m_ipaddress; }
+
    Void setPort(UShort port) { m_port = port; }
    UShort getPort() { return m_port; }
 
@@ -1899,6 +1902,7 @@ private:
 
    ULongLong m_repeat;
    Bool m_listen;
+   EString m_ipaddress;
    UShort m_port;
    ULongLong m_attempt;
    Int m_cnt;
@@ -2083,7 +2087,9 @@ Void TcpWorker::onInit()
    if (getListen())
    {
       m_listener = new Listener(*this);
-      m_listener->listen(m_port, 10);
+      m_listener->getLocalAddress().setAddress(getIpAddress(), getPort());
+      m_listener->setBacklog(10);
+      m_listener->listen();
       std::cout.imbue(defaultLocale);
       std::cout << "waiting for client to attach on port " << m_port << std::endl
                 << std::flush;
@@ -2104,7 +2110,7 @@ Void TcpWorker::connect()
    std::cout << "connecting to server on port " << m_port << " attempt " << numberFormatWithCommas<ULongLong>(m_attempt + 1) << std::endl
                << std::flush;
    std::cout.imbue(mylocale);
-   createTalker()->connect("127.0.0.1", m_port);
+   createTalker()->connect(getIpAddress(), m_port);
 }
 
 Void TcpWorker::onQuit()
@@ -2158,6 +2164,7 @@ Void TcpWorker::errorHandler(EError &err, ESocket::BasePrivate *psocket)
 Void tcpsockettest(Bool server)
 {
    static Int messages = 100000;
+   static Char ipaddress[128] = "127.0.0.1";
    static UShort port = 12345;
    static Int repeat = 1;
    TcpWorker *pWorker = new TcpWorker();
@@ -2169,6 +2176,14 @@ Void tcpsockettest(Bool server)
    cin.getline(buffer, sizeof(buffer));
    repeat = buffer[0] ? std::stoi(buffer) : repeat;
    pWorker->setRepeat(repeat < 0 ? ULLONG_MAX : repeat);
+
+   cout.imbue(defaultLocale);
+   cout << "Enter the IP address for the connection [" << ipaddress << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      strcpy(ipaddress, buffer);
+   pWorker->setIpAddress(ipaddress);
 
    cout.imbue(defaultLocale);
    cout << "Enter the port number for the connection [" << port << "]: ";

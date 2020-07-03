@@ -1157,6 +1157,8 @@ namespace ESocket
       private:
          Void bind()
          {
+            this->setFamily( m_local.getFamily() == Family::INET ? AF_INET : AF_INET6 );
+            
             Base<TQueue,TMessage>::createSocket(this->getFamily(), this->getType(), this->getProtocol());
 
             int result = ::bind(this->getHandle(), getLocalAddress().getSockAddr(), getLocalAddress().getSockAddrLen());
@@ -1977,19 +1979,32 @@ namespace ESocket
             {
                case SocketState::Connecting:
                {
-                  Int result;
-                  socklen_t resultlen = sizeof(result);
-                  if (getsockopt(psocket->getHandle(), SOL_SOCKET, SO_ERROR, &result, &resultlen) < 0 ||
-                        result != 0)
+                  Int result, socketError;
+                  socklen_t socketErrorLen = sizeof(socketError);
+
+                  result = getsockopt(psocket->getHandle(), SOL_SOCKET, SO_ERROR, &socketError, &socketErrorLen);
+
+                  try
+                  {
+                     if (result < 1 || socketError != 0)
+                     {
+                        psocket->setError(socketError);
+                        TcpTalkerError_UnableToConnect ex;
+                        ex.appendTextf(" ESocket::Thread<TQueue,TMessage>::processSelectRead() socketError=%d (%s)",
+                           psocket->getError(), psocket->getErrorDescription());
+                        throw ex;
+                     }
+
+                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Connected );
+                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setAddresses();
+                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onConnect();
+                  }
+                  catch (EError &ex)
                   {
                      (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Undefined );
-                     psocket->setError(result);
                      processSelectError(psocket);
                      return False;
                   }
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Connected );
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setAddresses();
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onConnect();
                   // fall thru
                }
                case SocketState::Connected:
@@ -2018,8 +2033,11 @@ namespace ESocket
                }
                default:
                {
-                  throw TcpTalkerError_InvalidReadState(
-                     static_cast<TCP::Talker<TQueue,TMessage>*>(psocket)->getStateDescription());
+                  // throw TcpTalkerError_InvalidReadState(
+                  //    static_cast<TCP::Talker<TQueue,TMessage>*>(psocket)->getStateDescription());
+                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Undefined );
+                  processSelectError(psocket);
+                  return False;
                }
             }
          }
@@ -2054,19 +2072,32 @@ namespace ESocket
             {
                case SocketState::Connecting:
                {
-                  Int result;
-                  socklen_t resultlen = sizeof(result);
-                  if (getsockopt(psocket->getHandle(), SOL_SOCKET, SO_ERROR, &result, &resultlen) < 0 ||
-                        result != 0)
+                  Int result, socketError;
+                  socklen_t socketErrorLen = sizeof(socketError);
+
+                  result = getsockopt(psocket->getHandle(), SOL_SOCKET, SO_ERROR, &socketError, &socketErrorLen);
+
+                  try
+                  {
+                     if (result < 1 || socketError != 0)
+                     {
+                        psocket->setError(socketError);
+                        TcpTalkerError_UnableToConnect ex;
+                        ex.appendTextf(" ESocket::Thread<TQueue,TMessage>::processSelectWrite() socketError=%d (%s)",
+                           psocket->getError(), psocket->getErrorDescription());
+                        throw ex;
+                     }
+
+                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Connected );
+                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setAddresses();
+                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onConnect();
+                  }
+                  catch (EError &ex)
                   {
                      (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Undefined );
-                     psocket->setError(result);
                      processSelectError(psocket);
                      return;
                   }
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState(SocketState::Connected);
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setAddresses();
-                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->onConnect();
                   break;
                }
                case SocketState::Connected:
@@ -2077,16 +2108,18 @@ namespace ESocket
                   }
                   catch (EError &err)
                   {
-                     //printf("errorHandler() 3\n");
-                     errorHandler(err, psocket);
+                     // errorHandler(err, psocket);
+                     processSelectError(psocket);
                   }
                   break;
                }
                default:
                {
-                  throw TcpTalkerError_InvalidWriteState(
-                     (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getStateDescription());
-                  break;
+                  // throw TcpTalkerError_InvalidWriteState(
+                  //    (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->getStateDescription());
+                  (static_cast<TCP::Talker<TQueue,TMessage>*>(psocket))->setState( SocketState::Undefined );
+                  processSelectError(psocket);
+                  return;
                }
             }
          }
