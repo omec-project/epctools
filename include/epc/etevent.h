@@ -27,6 +27,7 @@
 #include "eshmem.h"
 #include "esynch.h"
 #include "esynch2.h"
+#include "etime.h"
 #include "etimer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -926,7 +927,18 @@ public:
    Long getInterval() { return m_interval; }
    /// @brief sets the timer interval
    /// @param interval the timer interval in milliseconds.
-   Void setInterval(Long interval) { m_interval = interval; }
+   Void setInterval(LongLong interval) { m_interval = interval; }
+   /// @brief sets the timer interval.
+   /// @param interval the timer interval in milliseconds.
+   /// @details The ETime parameter represents either a specific time in
+   ///   the future or a duration (the result of ETime.subtract()).  The
+   ///   ETime parameter is assumed to be a duration if the value is less
+   ///   than the current system time.
+   Void setInterval(const ETime &t)
+   {
+      ETime dur = t >= ETime::Now() ? t - ETime::Now() : t;
+      m_interval = dur.getTimeVal().tv_sec * 1000 + dur.getTimeVal().tv_usec / 1000;
+   }
    /// @brief sets the type of timer
    /// @param oneshot True - one shot timer, False - periodic (recurring timer)
    Void setOneShot(Bool oneshot) { m_oneshot = oneshot; }
@@ -958,7 +970,7 @@ private:
    _EThreadEventNotification *m_notify;
    _EThreadEventMessageBase *m_msg;
    Bool m_oneshot;
-   Long m_interval;
+   LongLong m_interval;
    timer_t m_timer;
 };
 

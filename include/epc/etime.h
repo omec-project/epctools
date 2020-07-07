@@ -352,7 +352,7 @@ public:
    /// @brief Subtraction operator.
    /// @param a the ETime value to subtract from this value.
    /// @return a reference to this object.
-   ETime operator-(const ETime &a)
+   ETime operator-(const ETime &a) const
    {
       return subtract(a.m_time);
    }
@@ -360,7 +360,7 @@ public:
    /// @brief Subtraction operator.
    /// @param t the timeval value to subtract from this value.
    /// @return a reference to this object.
-   ETime operator-(const timeval &t)
+   ETime operator-(const timeval &t) const
    {
       return subtract(t);
    }
@@ -410,7 +410,7 @@ public:
    /// @param secs the number of seconds to subtract.
    /// @param usecs the number of microseconds to subtract.
    /// @return a new ETime object.
-   ETime subtract(Int days, Int hrs, Int mins, Int secs, Int usecs)
+   ETime subtract(Int days, Int hrs, Int mins, Int secs, Int usecs) const
    {
       timeval t;
       t.tv_sec =
@@ -426,7 +426,7 @@ public:
    /// @brief Subtracts the timeval amount to the current value.
    /// @param t the timeval amount to subtract.
    /// @return a new ETime object.
-   ETime subtract(const timeval &t)
+   ETime subtract(const timeval &t) const
    {
       ETime nt(*this);
 
@@ -443,7 +443,7 @@ public:
 
    /// @brief Retrieves a reference to the timeval structure.
    /// @return a reference to the timeval structure.
-   const timeval &getTimeVal()
+   const timeval &getTimeVal() const
    {
       return m_time;
    }

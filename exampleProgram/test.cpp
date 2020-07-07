@@ -1165,12 +1165,24 @@ public:
       std::cout << "EThreadTimerTest::onInit()" << std::endl << std::flush;
       if (m_oneshot)
       {
+         ETime t;
+         std::cout << "the time now is " << t.Format("%i", True) << std::endl;
+
          m_cnt = 0;
+         std::cout << "setting m_timer1 to " << m_timerLength << " milliseconds" << std::endl;
          m_timer1.setInterval(m_timerLength);
          m_timer1.setOneShot(True);
+
+         std::cout << "setting m_timer2 to " << m_timerLength * 2 << " milliseconds" << std::endl;
          m_timer2.setInterval(m_timerLength * 2);
          m_timer2.setOneShot(True);
-         m_timer3.setInterval(m_timerLength * 3);
+
+         timeval tv;
+         tv.tv_sec = (m_timerLength * 3) / 1000;
+         tv.tv_usec = ((m_timerLength *3) % 1000) * 1000;
+         t = t.add(tv);
+         std::cout << "setting m_timer3 to expire at " << t.Format("%i", True) << std::endl;
+         m_timer3.setInterval(t);
          m_timer3.setOneShot(True);
 
          initTimer(m_timer1);
@@ -1224,7 +1236,8 @@ public:
    DECLARE_MESSAGE_MAP()
 
 private:
-   Long m_timerLength;
+   LongLong m_timerLength;
+   ETime m_time;
    Int m_cnt;
    Bool m_oneshot;
    EThreadEventTimer m_timer1;
@@ -1238,7 +1251,7 @@ END_MESSAGE_MAP()
 
 Void EThreadTimerPeriodic_test()
 {
-   static Long timerLength = 5000;
+   static LongLong timerLength = 5000;
    Char buffer[256];
 
    cout << "Enter the timer length in milliseconds [" << timerLength << "]: ";
