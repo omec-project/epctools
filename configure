@@ -3992,6 +3992,8 @@ ac_config_commands="$ac_config_commands freeDiameter"
 
 ac_config_commands="$ac_config_commands bzip2"
 
+ac_config_commands="$ac_config_commands PcapPlusPlus"
+
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4752,6 +4754,7 @@ do
     "pistache") CONFIG_COMMANDS="$CONFIG_COMMANDS pistache" ;;
     "freeDiameter") CONFIG_COMMANDS="$CONFIG_COMMANDS freeDiameter" ;;
     "bzip2") CONFIG_COMMANDS="$CONFIG_COMMANDS bzip2" ;;
+    "PcapPlusPlus") CONFIG_COMMANDS="$CONFIG_COMMANDS PcapPlusPlus" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -5330,6 +5333,15 @@ $as_echo X"$file" |
     "bzip2":C)
     if [ ! -f modules/bzip2/libbz2.a ]; then
         pushd modules/bzip2
+        make
+        sudo make install
+        popd
+    fi
+ ;;
+    "PcapPlusPlus":C)
+    if [ ! -d modules/PcapPlusPlus/Dist ]; then
+        pushd modules/PcapPlusPlus
+        ./configure-linux.sh --default
         make
         sudo make install
         popd
