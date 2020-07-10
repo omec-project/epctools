@@ -1986,7 +1986,7 @@ namespace ESocket
 
                   try
                   {
-                     if (result < 1 || socketError != 0)
+                     if (result == -1 || socketError != 0)
                      {
                         psocket->setError(socketError);
                         TcpTalkerError_UnableToConnect ex;
@@ -2079,7 +2079,7 @@ namespace ESocket
 
                   try
                   {
-                     if (result < 1 || socketError != 0)
+                     if (result == -1 || socketError != 0)
                      {
                         psocket->setError(socketError);
                         TcpTalkerError_UnableToConnect ex;

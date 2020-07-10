@@ -42,6 +42,7 @@ DECLARE_ERROR(EThreadQueuePublicError_UnInitialized);
 
 DECLARE_ERROR_ADVANCED(EThreadTimerError_UnableToInitialize);
 DECLARE_ERROR_ADVANCED(EThreadTimerError_NotInitialized);
+DECLARE_ERROR_ADVANCED(EThreadTimerError_AlreadyInitialized);
 DECLARE_ERROR_ADVANCED(EThreadTimerError_UnableToStart);
 DECLARE_ERROR_ADVANCED(EThreadTimerError_UnableToRegisterTimerHandler);
 
@@ -833,6 +834,9 @@ class EThreadEventTimer : public EStatic
 protected:
    Void init(_EThreadEventNotification *notify, _EThreadEventMessageBase *msg)
    {
+      if (isInitialized())
+         throw EThreadTimerError_AlreadyInitialized();
+
       m_notify = notify;
       m_msg = msg;
 
@@ -842,6 +846,7 @@ protected:
       sev.sigev_value.sival_ptr = this;
       if (timer_create(CLOCK_REALTIME, &sev, &m_timer) == -1)
          throw EThreadTimerError_UnableToInitialize();
+      m_initialized = True;
    }
 /// @endcond
 
@@ -849,6 +854,7 @@ public:
    /// @brief Default class constructor.
    EThreadEventTimer()
    {
+      m_initialized = False;
       // assign the id
       m_id = atomic_inc(m_nextid);
       // m_thread = NULL;
@@ -863,6 +869,7 @@ public:
    /// @param oneshot True - one shot timer, False - periodic (recurring) timer
    EThreadEventTimer(Long milliseconds, Bool oneshot = False)
    {
+      m_initialized = False;
       // assign the id
       m_id = atomic_inc(m_nextid);
       // m_thread = NULL;
@@ -881,11 +888,12 @@ public:
    /// underlying timer object.  This method is called by the destructor.
    Void destroy()
    {
-      if (m_timer != NULL)
+      if (isInitialized())
       {
          stop();
          timer_delete(m_timer);
          m_timer = NULL;
+         m_initialized = False;
       }
       if (m_msg)
       {
@@ -899,7 +907,7 @@ public:
    /// @throws EThreadTimerError_UnableToStart unable to start the timer
    Void start()
    {
-      if (m_timer == NULL)
+      if (!isInitialized())
          throw EThreadTimerError_NotInitialized();
 
       struct itimerspec its;
@@ -913,7 +921,7 @@ public:
    /// @brief Stops the timer.
    Void stop()
    {
-      if (m_timer != NULL)
+      if (isInitialized())
       {
          struct itimerspec its;
          its.it_value.tv_sec = 0;  // seconds
@@ -951,7 +959,7 @@ public:
    /// @details
    /// The timer ID is created internally when the timer object is
    /// instantiated.
-   Bool isInitialized() { return m_timer != NULL; }
+   Bool isInitialized() { return m_initialized; }
 
 protected:
    /// @cond DOXYGEN_EXCLUDE
@@ -966,6 +974,7 @@ protected:
 private:
    static Long m_nextid;
 
+   Bool m_initialized;
    Long m_id;
    _EThreadEventNotification *m_notify;
    _EThreadEventMessageBase *m_msg;
