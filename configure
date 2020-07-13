@@ -3974,7 +3974,7 @@ else
 fi
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile include/Makefile pfcpr15/Makefile exampleProgram/Makefile exampleProgram/pfcp/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile include/Makefile pfcpr15/Makefile exampleProgram/Makefile exampleProgram/pfcp/Makefile pfcptest/Makefile"
 
 
 #AC_CONFIG_COMMANDS([submodules],[git submodule update --init --recursive])
@@ -4747,6 +4747,7 @@ do
     "pfcpr15/Makefile") CONFIG_FILES="$CONFIG_FILES pfcpr15/Makefile" ;;
     "exampleProgram/Makefile") CONFIG_FILES="$CONFIG_FILES exampleProgram/Makefile" ;;
     "exampleProgram/pfcp/Makefile") CONFIG_FILES="$CONFIG_FILES exampleProgram/pfcp/Makefile" ;;
+    "pfcptest/Makefile") CONFIG_FILES="$CONFIG_FILES pfcptest/Makefile" ;;
     "submodules") CONFIG_COMMANDS="$CONFIG_COMMANDS submodules" ;;
     "rapidjson") CONFIG_COMMANDS="$CONFIG_COMMANDS rapidjson" ;;
     "spdlog") CONFIG_COMMANDS="$CONFIG_COMMANDS spdlog" ;;

@@ -28,5 +28,9 @@ exampleProgram/pfcp/src/.deps
 exampleProgram/pfcp/src/.dirstamp
 exampleProgram/pfcp/src/*.o
 exampleProgram/libpfcp
+pfcptest/.deps
+pfcptest/pcaps/.deps
+pfcptest/pcaps/.dirstamp
+pfcptest/pfcptest
 docDoxyfile.bak
 epctools.code-workspace

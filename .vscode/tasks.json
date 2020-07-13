@@ -101,6 +101,21 @@
          "problemMatcher": [
             "$gcc"
          ]
-      }
+      },
+      {
+         "label": "build test",
+         "type": "shell",
+         "command": "make Tutorial-PacketParsing",
+         "options": {
+             "cwd": "${workspaceFolder}/test"
+         },
+         "group": {
+             "kind": "build",
+             "isDefault": true
+          },
+          "problemMatcher": [
+             "$gcc"
+          ]
+     }
    ]
 }

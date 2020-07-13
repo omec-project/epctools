@@ -44,7 +44,8 @@ AC_CONFIG_FILES(Makefile
                 include/Makefile
                 pfcpr15/Makefile
                 exampleProgram/Makefile
-                exampleProgram/pfcp/Makefile)
+                exampleProgram/pfcp/Makefile
+                pfcptest/Makefile)
 
 #AC_CONFIG_COMMANDS([submodules],[git submodule update --init --recursive])
 AC_CONFIG_COMMANDS([submodules],[git submodule update --init])
