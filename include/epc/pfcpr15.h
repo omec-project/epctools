@@ -269,7 +269,7 @@ class ApplicationIdIE : public IEHeader
    friend class ApplicationDetectionInformationIE;
 public:
    const uint8_t *app_ident() const;
-   ApplicationIdIE &app_ident(const uint8_t *app_id);
+   ApplicationIdIE &app_ident(const uint8_t *app_id, uint16_t len);
    pfcp_application_id_ie_t &data();
 
 protected:
