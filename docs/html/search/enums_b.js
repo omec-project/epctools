@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['upfappprotocolenum',['UPFAppProtocolEnum',['../namespaceEPCDNS.html#a9342407c49fe0b6a9612fed8e51f2d90',1,'EPCDNS']]]
+  ['nodeidtypeenum',['NodeIdTypeEnum',['../namespacePFCP__R15.html#a24bf377335e7e1c0847631ad3c6753e7',1,'PFCP_R15']]]
 ];

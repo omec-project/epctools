@@ -83,7 +83,6 @@ Inheritance diagram for EThreadEvent&lt; TQueue, TMessage &gt;:</div>
   <img src="classEThreadEvent.png" usemap="#EThreadEvent_3C_20TQueue_2C_20TMessage_20_3E_map" alt=""/>
   <map id="EThreadEvent_3C_20TQueue_2C_20TMessage_20_3E_map" name="EThreadEvent_3C_20TQueue_2C_20TMessage_20_3E_map">
 <area href="classEThreadBasic.html" title="An abstract class that represents contains the threadProc() that will be run in a separate thread." alt="EThreadBasic" shape="rect" coords="0,0,240,24"/>
-<area href="class__EThreadEventBase.html" alt="_EThreadEventBase" shape="rect" coords="250,0,490,24"/>
 <area href="classESocket_1_1Thread.html" title="The socket thread base class. An event based thread class capable of surfacing socket events." alt="ESocket::Thread&lt; TQueue, TMessage &gt;" shape="rect" coords="125,112,365,136"/>
   </map>
 </div></div>
@@ -94,7 +93,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a41b03009493fc1f10b8a60f112655868"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default class constructor.  <a href="classEThreadEvent.html#a41b03009493fc1f10b8a60f112655868">More...</a><br /></td></tr>
 <tr class="separator:a41b03009493fc1f10b8a60f112655868"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d549f8c942e4ea3bea9fa105e2c9c16"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">~EThreadEvent</a> ()</td></tr>
-<tr class="memdesc:a5d549f8c942e4ea3bea9fa105e2c9c16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rhe class destructor.  <a href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">More...</a><br /></td></tr>
+<tr class="memdesc:a5d549f8c942e4ea3bea9fa105e2c9c16"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class destructor.  <a href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">More...</a><br /></td></tr>
 <tr class="separator:a5d549f8c942e4ea3bea9fa105e2c9c16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbdfea9c7c873363a05241dd166fa65b"><td class="memItemLeft" align="right" valign="top">Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a> (UInt message, Bool wait=<a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</td></tr>
 <tr class="memdesc:adbdfea9c7c873363a05241dd166fa65b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends event message to this thread.  <a href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">More...</a><br /></td></tr>
@@ -121,7 +120,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aa1f46a5c4d47de47cc81899998b1f73d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resumes a suspended thread.  <a href="classEThreadEvent.html#aa1f46a5c4d47de47cc81899998b1f73d">More...</a><br /></td></tr>
 <tr class="separator:aa1f46a5c4d47de47cc81899998b1f73d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3003651d73c57459305d073e0f1ad389"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">onInit</a> ()</td></tr>
-<tr class="memdesc:a3003651d73c57459305d073e0f1ad389"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in the context of the thread when the EM_INIT event is processed.  <a href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">More...</a><br /></td></tr>
+<tr class="memdesc:a3003651d73c57459305d073e0f1ad389"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in the context of the thread prior to processing teh first event message.  <a href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">More...</a><br /></td></tr>
 <tr class="separator:a3003651d73c57459305d073e0f1ad389"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18fbce94b1fdc44d69cac2ca712fb90e"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">onQuit</a> ()</td></tr>
 <tr class="memdesc:a18fbce94b1fdc44d69cac2ca712fb90e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in the context of the thread when the EM_QUIT event is processed.  <a href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">More...</a><br /></td></tr>
@@ -174,9 +173,9 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a149cda0565f258faf0c963b3009da8f5"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a> ()</td></tr>
-<tr class="memdesc:a149cda0565f258faf0c963b3009da8f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when an event message is queued.  <a href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">More...</a><br /></td></tr>
-<tr class="separator:a149cda0565f258faf0c963b3009da8f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00b71ae6e4f0a208dde323e0ccaef6a8"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a00b71ae6e4f0a208dde323e0ccaef6a8">onMessageQueued</a> (const TMessage &amp;msg)</td></tr>
+<tr class="memdesc:a00b71ae6e4f0a208dde323e0ccaef6a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when an event message is queued.  <a href="classEThreadEvent.html#a00b71ae6e4f0a208dde323e0ccaef6a8">More...</a><br /></td></tr>
+<tr class="separator:a00b71ae6e4f0a208dde323e0ccaef6a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a433f8511addca1ec1eb6d3bf6f1c22a1"><td class="memItemLeft" align="right" valign="top">Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">pumpMessage</a> (TMessage &amp;msg, Bool wait=true)</td></tr>
 <tr class="memdesc:a433f8511addca1ec1eb6d3bf6f1c22a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatches the next thread event message.  <a href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">More...</a><br /></td></tr>
 <tr class="separator:a433f8511addca1ec1eb6d3bf6f1c22a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -275,7 +274,7 @@ template&lt;class TQueue, class TMessage&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Rhe class destructor. </p>
+<p>The class destructor. </p>
 
 </div>
 </div>
@@ -309,11 +308,10 @@ template&lt;class TQueue, class TMessage&gt; </div>
 <p>The default event message handler. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">msg</td><td>the <a class="el" href="classEThreadMessage.html" title="An event message that is to be sent to a thread.">EThreadMessage</a> event object</td></tr>
+    <tr><td class="paramname">msg</td><td>the <a class="el" href="classEThreadMessage.html" title="An event message that is to be sent to a thread.">EThreadMessage</a> event object This method is called when no event handler has been defined in the class heirarchy for a specified thread event. </td></tr>
   </table>
   </dd>
 </dl>
-<p>This method is called when no event handler has been defined in the class heirarchy for a specified thread event. </p>
 
 </div>
 </div>
@@ -487,36 +485,6 @@ template&lt;class TQueue, class TMessage&gt; </div>
 
 </div>
 </div>
-<a id="a149cda0565f258faf0c963b3009da8f5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a149cda0565f258faf0c963b3009da8f5">&#9670;&nbsp;</a></span>messageQueued()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TQueue, class TMessage&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual Void <a class="el" href="classEThreadEvent.html">EThreadEvent</a>&lt; TQueue, TMessage &gt;::messageQueued </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Called when an event message is queued. </p>
-<p>This method is called in the context of the thread where <a class="el" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b" title="Sends event message to this thread.">sendMessage()</a> is called after the message has been added to the thread's event queue. </p>
-
-</div>
-</div>
 <a id="a3003651d73c57459305d073e0f1ad389"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3003651d73c57459305d073e0f1ad389">&#9670;&nbsp;</a></span>onInit()</h2>
 
@@ -542,7 +510,38 @@ template&lt;class TQueue, class TMessage&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Called in the context of the thread when the EM_INIT event is processed. </p>
+<p>Called in the context of the thread prior to processing teh first event message. </p>
+
+</div>
+</div>
+<a id="a00b71ae6e4f0a208dde323e0ccaef6a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00b71ae6e4f0a208dde323e0ccaef6a8">&#9670;&nbsp;</a></span>onMessageQueued()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TQueue, class TMessage&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual Void <a class="el" href="classEThreadEvent.html">EThreadEvent</a>&lt; TQueue, TMessage &gt;::onMessageQueued </td>
+          <td>(</td>
+          <td class="paramtype">const TMessage &amp;&#160;</td>
+          <td class="paramname"><em>msg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when an event message is queued. </p>
+<p>This method is called in the context of the thread where <a class="el" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b" title="Sends event message to this thread.">sendMessage()</a> is called after the message has been added to the thread's event queue. </p>
 
 </div>
 </div>
@@ -993,7 +992,7 @@ template&lt;class TQueue, class TMessage&gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/vagrant/share/code/epctools-omec/include/epc/<a class="el" href="etevent_8h_source.html">etevent.h</a></li>
+<li>/home/vagrant/share/code/epctools-omec-pfcp/include/epc/<a class="el" href="etevent_8h_source.html">etevent.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

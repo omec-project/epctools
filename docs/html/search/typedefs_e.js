@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['void',['Void',['../etypes_8h.html#afdf0f22c576e6ee1b982f64b839c4bea',1,'etypes.h']]]
+  ['udpprivate',['UdpPrivate',['../namespaceESocket.html#a24cc0ce3fc2469d0913def48e8a7f4dd',1,'ESocket']]],
+  ['udppublic',['UdpPublic',['../namespaceESocket.html#a01c287e132584ba636fcc4021566ad7b',1,'ESocket']]]
 ];

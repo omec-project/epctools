@@ -88,7 +88,6 @@ Inheritance diagram for ESocket::Thread&lt; TQueue, TMessage &gt;:</div>
   <map id="ESocket::Thread_3C_20TQueue_2C_20TMessage_20_3E_map" name="ESocket::Thread_3C_20TQueue_2C_20TMessage_20_3E_map">
 <area href="classEThreadEvent.html" title="base class for EThreadPrivate and EThreadPublic" alt="EThreadEvent&lt; TQueue, TMessage &gt;" shape="rect" coords="125,56,365,80"/>
 <area href="classEThreadBasic.html" title="An abstract class that represents contains the threadProc() that will be run in a separate thread." alt="EThreadBasic" shape="rect" coords="0,0,240,24"/>
-<area href="class__EThreadEventBase.html" alt="_EThreadEventBase" shape="rect" coords="250,0,490,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -114,7 +113,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a41b03009493fc1f10b8a60f112655868 inherit pub_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default class constructor.  <a href="classEThreadEvent.html#a41b03009493fc1f10b8a60f112655868">More...</a><br /></td></tr>
 <tr class="separator:a41b03009493fc1f10b8a60f112655868 inherit pub_methods_classEThreadEvent"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d549f8c942e4ea3bea9fa105e2c9c16 inherit pub_methods_classEThreadEvent"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">~EThreadEvent</a> ()</td></tr>
-<tr class="memdesc:a5d549f8c942e4ea3bea9fa105e2c9c16 inherit pub_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rhe class destructor.  <a href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">More...</a><br /></td></tr>
+<tr class="memdesc:a5d549f8c942e4ea3bea9fa105e2c9c16 inherit pub_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">The class destructor.  <a href="classEThreadEvent.html#a5d549f8c942e4ea3bea9fa105e2c9c16">More...</a><br /></td></tr>
 <tr class="separator:a5d549f8c942e4ea3bea9fa105e2c9c16 inherit pub_methods_classEThreadEvent"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbdfea9c7c873363a05241dd166fa65b inherit pub_methods_classEThreadEvent"><td class="memItemLeft" align="right" valign="top">Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">sendMessage</a> (UInt message, Bool wait=<a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</td></tr>
 <tr class="memdesc:adbdfea9c7c873363a05241dd166fa65b inherit pub_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends event message to this thread.  <a href="classEThreadEvent.html#adbdfea9c7c873363a05241dd166fa65b">More...</a><br /></td></tr>
@@ -141,7 +140,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aa1f46a5c4d47de47cc81899998b1f73d inherit pub_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resumes a suspended thread.  <a href="classEThreadEvent.html#aa1f46a5c4d47de47cc81899998b1f73d">More...</a><br /></td></tr>
 <tr class="separator:aa1f46a5c4d47de47cc81899998b1f73d inherit pub_methods_classEThreadEvent"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3003651d73c57459305d073e0f1ad389 inherit pub_methods_classEThreadEvent"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">onInit</a> ()</td></tr>
-<tr class="memdesc:a3003651d73c57459305d073e0f1ad389 inherit pub_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in the context of the thread when the EM_INIT event is processed.  <a href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">More...</a><br /></td></tr>
+<tr class="memdesc:a3003651d73c57459305d073e0f1ad389 inherit pub_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in the context of the thread prior to processing teh first event message.  <a href="classEThreadEvent.html#a3003651d73c57459305d073e0f1ad389">More...</a><br /></td></tr>
 <tr class="separator:a3003651d73c57459305d073e0f1ad389 inherit pub_methods_classEThreadEvent"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18fbce94b1fdc44d69cac2ca712fb90e inherit pub_methods_classEThreadEvent"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">onQuit</a> ()</td></tr>
 <tr class="memdesc:a18fbce94b1fdc44d69cac2ca712fb90e inherit pub_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in the context of the thread when the EM_QUIT event is processed.  <a href="classEThreadEvent.html#a18fbce94b1fdc44d69cac2ca712fb90e">More...</a><br /></td></tr>
@@ -218,9 +217,9 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memdesc:a36312dfda1c19fc7f40bd82c3f9e4550 inherit pub_static_methods_classEThreadBasic"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquishes the CPU.  <a href="classEThreadBasic.html#a36312dfda1c19fc7f40bd82c3f9e4550">More...</a><br /></td></tr>
 <tr class="separator:a36312dfda1c19fc7f40bd82c3f9e4550 inherit pub_static_methods_classEThreadBasic"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classEThreadEvent"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classEThreadEvent')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classEThreadEvent.html">EThreadEvent&lt; TQueue, TMessage &gt;</a></td></tr>
-<tr class="memitem:a149cda0565f258faf0c963b3009da8f5 inherit pro_methods_classEThreadEvent"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">messageQueued</a> ()</td></tr>
-<tr class="memdesc:a149cda0565f258faf0c963b3009da8f5 inherit pro_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when an event message is queued.  <a href="classEThreadEvent.html#a149cda0565f258faf0c963b3009da8f5">More...</a><br /></td></tr>
-<tr class="separator:a149cda0565f258faf0c963b3009da8f5 inherit pro_methods_classEThreadEvent"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00b71ae6e4f0a208dde323e0ccaef6a8 inherit pro_methods_classEThreadEvent"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a00b71ae6e4f0a208dde323e0ccaef6a8">onMessageQueued</a> (const TMessage &amp;msg)</td></tr>
+<tr class="memdesc:a00b71ae6e4f0a208dde323e0ccaef6a8 inherit pro_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when an event message is queued.  <a href="classEThreadEvent.html#a00b71ae6e4f0a208dde323e0ccaef6a8">More...</a><br /></td></tr>
+<tr class="separator:a00b71ae6e4f0a208dde323e0ccaef6a8 inherit pro_methods_classEThreadEvent"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a433f8511addca1ec1eb6d3bf6f1c22a1 inherit pro_methods_classEThreadEvent"><td class="memItemLeft" align="right" valign="top">Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">pumpMessage</a> (TMessage &amp;msg, Bool wait=true)</td></tr>
 <tr class="memdesc:a433f8511addca1ec1eb6d3bf6f1c22a1 inherit pro_methods_classEThreadEvent"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatches the next thread event message.  <a href="classEThreadEvent.html#a433f8511addca1ec1eb6d3bf6f1c22a1">More...</a><br /></td></tr>
 <tr class="separator:a433f8511addca1ec1eb6d3bf6f1c22a1 inherit pro_methods_classEThreadEvent"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -481,7 +480,7 @@ template&lt;class TQueue, class TMessage&gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/vagrant/share/code/epctools-omec/include/epc/<a class="el" href="esocket_8h_source.html">esocket.h</a></li>
+<li>/home/vagrant/share/code/epctools-omec-pfcp/include/epc/<a class="el" href="esocket_8h_source.html">esocket.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

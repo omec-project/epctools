@@ -22,11 +22,12 @@
 
 #include "eerror.h"
 
+/// @cond DOXYGEN_EXCLUDE
 DECLARE_ERROR_ADVANCED(ETeidManager_InvalidNumberOfRangeBits);
-
 inline ETeidManager_InvalidNumberOfRangeBits::ETeidManager_InvalidNumberOfRangeBits(){
    setText("The range bits must be between 0 and 7");
 }
+/// @endcond
 
 class ETeidManager_InvalidRangeValue : public EError {
 public:

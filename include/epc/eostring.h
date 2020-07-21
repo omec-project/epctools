@@ -24,14 +24,19 @@
 #include "eerror.h"
 #include "ehash.h"
 
+/// @file
+/// @brief Defines the EOctetString and ETbcdString classes.
+
 DECLARE_ERROR(EOctetString_OutOfRange);
 
+/// @brief Represents an OctetString as defined in RFC 6733.
 class EOctetString
 {
 public:
    typedef size_t size_type;
    static const size_type npos { std::string::npos };
 
+   /// @brief Default constructor.
    EOctetString()
        : capacity_(0),
          length_(0),
@@ -39,6 +44,8 @@ public:
    {
       reserve(minCapacity_);
    }
+   /// @brief Class constructor.
+   /// @param n initial internal buffer size.
    EOctetString(size_type n)
       : capacity_(0),
         length_(0),
@@ -46,6 +53,8 @@ public:
    {
       reserve(n);
    }
+   /// @brief Class constructor.
+   /// @param s string used to initialize this EOctetString object.
    EOctetString(cpStr s)
       : capacity_(0),
         length_(0),
@@ -55,6 +64,9 @@ public:
       reserve(n);
       assign(s);
    }
+   /// @brief Class constructor.
+   /// @param data pointer to buffer used to initialize this EOctetString object.
+   /// @param n length of the buffer.
    EOctetString(cpUChar data, size_type n)
       : capacity_(0),
         length_(0),
@@ -63,6 +75,8 @@ public:
       reserve(n);
       assign(data, n);
    }
+   /// @brief Copy constructor.
+   /// @param ostr EOctetString object to copy.
    EOctetString(const EOctetString &ostr)
        : capacity_(0),
          length_(0),
@@ -70,6 +84,12 @@ public:
    {
       *this = ostr;
    }
+   /// @brief Class constructor. Initializes this EOctetString from a subset of
+   ///   another EOctetString object.
+   /// @param ostr EOctetString object to copy from.
+   /// @param pos starting position of data to copy.
+   /// @param len length of data to copy.  A value of "npos" causes data to be
+   ///   from the starting position to the end of the EOctetString.
    EOctetString(const EOctetString &ostr, size_type pos, size_type len = npos)
        : capacity_(0),
          length_(0),
@@ -77,45 +97,96 @@ public:
    {
       assign(ostr, pos, len);
    }
-
+   /// @brief Class destructor.
    ~EOctetString()
    {
       dealloc();
    }
 
+   /// @brief Assignment operator
+   /// @param ostr a reference to the EOctetString object to copy.
    EOctetString &operator=(const EOctetString &ostr)  { return assign(ostr); }
+   /// @brief Assignment operator
+   /// @param s copies the NULL terminated string.
    EOctetString &operator=(cpStr s)                   { return assign(s);    }
+   /// @brief Assignment operator
+   /// @param c a single character to assign.
    EOctetString &operator=(Char c)                    { return assign(1, c); }
+   /// @brief Assignment operator
+   /// @param c a single unsigned character to assign.
    EOctetString &operator=(UChar c)                   { return assign(1, c); }
+   /// @brief Assignment operator.  Performs a move assignment.
+   /// @param ostr the EOctetString to assign to this object.
    EOctetString &operator=(EOctetString &&ostr)       { return assign(std::move(ostr)); }
 
+   /// @brief Append operator.
+   /// @param ostr a reference to the EOctetString to append to this object.
    EOctetString &operator+=(const EOctetString &ostr) { return append(ostr); }
+   /// @brief Append operator.
+   /// @param s the NULL terminated string to append to this object.
    EOctetString &operator+=(cpStr s)                  { return append(s);    }
+   /// @brief Append operator.
+   /// @param c the character to append to this object.
    EOctetString &operator+=(Char c)                   { return append((UChar)c); }
+   /// @brief Append operator.
+   /// @param c the unsigned character to append to this object.
    EOctetString &operator+=(UChar c)                  { return append(c); }
 
+   /// @brief Array index operator.  Returns a reference to the specified array member.
+   /// @param pos the array index.
+   /// @{
    UChar &operator[](size_type pos)                   { if (pos >= length_) throw EOctetString_OutOfRange(); return data_[pos]; }
    cUChar &operator[](size_type pos) const            { if (pos >= length_) throw EOctetString_OutOfRange(); return data_[pos]; }
+   /// @}
 
+   /// @brief Equality operator.
+   /// @param ostr the EOctetString object to compare to.
    bool operator==(const EOctetString &ostr) const { return compare(ostr) == 0; }
+   /// @brief Not equal operator.
+   /// @param ostr the EOctetString object to compare to.
    bool operator!=(const EOctetString &ostr) const { return compare(ostr) != 0; }
+   /// @brief Less than operator.
+   /// @param ostr the EOctetString object to compare to.
    bool operator<(const EOctetString &ostr)  const { return compare(ostr) < 0; }
+   /// @brief Greater than operator.
+   /// @param ostr the EOctetString object to compare to.
    bool operator>(const EOctetString &ostr)  const { return compare(ostr) > 0; }
+   /// @brief Less than or equal to operator.
+   /// @param ostr the EOctetString object to compare to.
    bool operator<=(const EOctetString &ostr) const { return !(compare(ostr) > 0); }
+   /// @brief Greater than or equal to operator.
+   /// @param ostr the EOctetString object to compare to.
    bool operator>=(const EOctetString &ostr) const { return !(compare(ostr) < 0); }
 
+   /// @brief Equality operator.
+   /// @param str the NULL terminated string to compare against.
    bool operator==(cpStr str) const { return compare(str) == 0; }
+   /// @brief Not equal operator.
+   /// @param str the NULL terminated string to compare against.
    bool operator!=(cpStr str) const { return compare(str) != 0; }
+   /// @brief Less than operator.
+   /// @param str the NULL terminated string to compare against.
    bool operator<(cpStr str)  const { return compare(str) < 0; }
+   /// @param str the NULL terminated string to compare against.
+   /// @brief Greater than operator.
    bool operator>(cpStr str)  const { return compare(str) > 0; }
+   /// @param str the NULL terminated string to compare against.
+   /// @brief Less than or equal to operator.
    bool operator<=(cpStr str) const { return !(compare(str) > 0); }
+   /// @param str the NULL terminated string to compare against.
+   /// @brief Greater than or equal to operator.
    bool operator>=(cpStr str) const { return !(compare(str) < 0); }
 
+   /// @brief Appends to this object.
+   /// @param ostr a reference to the EOctetString object copy.
    EOctetString &append(const EOctetString &ostr)
    {
       return append(ostr.data_, ostr.length_);
    }
-
+   /// @brief Appends to this object.
+   /// @param ostr a reference to the EOctetString object to copy from.
+   /// @param subpos the position to start copying from.
+   /// @param sublen the number of bytes to copy.
    EOctetString &append(const EOctetString &ostr, size_type subpos, size_type sublen)
    {
       if (subpos >= ostr.length_)
@@ -123,17 +194,21 @@ public:
 
       return append(&ostr.data_[subpos], sublen);
    }
-
+   /// @brief Appends to this object.
+   /// @param s the NULL terminated string to append.
    EOctetString &append(cpStr s)
    {
       return append(reinterpret_cast<cpUChar>(s), strlen(s));
    }
-
+   /// @brief Appends to this object.
+   /// @param s the NULL terminated string to append.
+   /// @param n the number of bytes to copy from the string.
    EOctetString &append(cpStr s, size_type n)
    {
       return append(reinterpret_cast<cpUChar>(s), n);
    }
-
+   /// @brief Appends to this object.
+   /// @param c the unsigned character to append.
    EOctetString &append(cUChar c)
    {
       if (length_ + 1 > capacity_)
@@ -146,7 +221,9 @@ public:
       data_[length_++] = c;
       return *this;
    }
-
+   /// @brief Appends to this object.
+   /// @param data a pointer to where to start appending data from.
+   /// @param n the number of bytes to append.
    EOctetString &append(cpUChar data, size_type n)
    {
       if (length_ + n > capacity_)
@@ -160,7 +237,9 @@ public:
       length_ += n;
       return *this;
    }
-
+   /// @brief Appends to this object.
+   /// @param n the number of times to append the specified value.
+   /// @param c the value to repeat.
    EOctetString &append(size_type n, UChar c)
    {
       if (length_ + n > capacity_)
@@ -175,6 +254,8 @@ public:
       return *this;
    }
 
+   /// @brief Assigns the specified value to this object.
+   /// @param ostr a reference to the EOctetString to assign to this object.
    EOctetString &assign(const EOctetString &ostr)
    {
       if (capacity_ < ostr.capacity_)
@@ -183,6 +264,10 @@ public:
       memcpy(data_, ostr.data_, length_);
       return *this;
    }
+   /// @brief Assigns the specified value to this object.
+   /// @param ostr a reference to the EOctetString to assign from.
+   /// @param subpos the position in the EOctetString to start assigning from.
+   /// @param sublen the number of bytes to assign.
    EOctetString &assign(const EOctetString &ostr, size_type subpos, size_type sublen)
    {
       if (subpos >= ostr.length_)
@@ -195,6 +280,8 @@ public:
       memcpy(data_, &ostr.data_[subpos], length_);
       return *this;
    }
+   /// @brief Assigns the specified value to this object.
+   /// @param s a pointer to a NULL terminated string to assign to this object.
    EOctetString &assign(cpStr s)
    {
       size_type len = strlen(s);
@@ -204,10 +291,16 @@ public:
       memcpy(data_, s, length_);
       return *this;
    }
+   /// @brief Assigns the specified value to this object.
+   /// @param s a pointer to the character buffer to assign to this object.
+   /// @param n the number of bytes to assign.
    EOctetString &assign(cpChar s, size_type n)
    {
       return assign(reinterpret_cast<cpUChar>(s), n);
    }
+   /// @brief Assigns the specified value to this object.
+   /// @param data pointer to the unsigned character buffer to assign to this object.
+   /// @param n teh number of bytes to assign.
    EOctetString &assign(cpUChar data, size_type n)
    {
       if (capacity_ < n)
@@ -216,6 +309,9 @@ public:
       memcpy(data_, data, length_);
       return *this;
    }
+   /// @brief Assigns the specified value to this object.
+   /// @param n the number of times to repeat the specified value.
+   /// @param c the value to repeat.
    EOctetString &assign(size_type n, UChar c)
    {
       if (capacity_ < n)
@@ -224,6 +320,8 @@ public:
       memset(data_, c, length_);
       return *this;
    }
+   /// @brief Assign the specified value to this object using move semantics.
+   /// @param ostr the EOctetString object to move to this object.
    EOctetString &assign(EOctetString &&ostr)
    {
       dealloc();
@@ -239,13 +337,16 @@ public:
       return *this;
    }
 
+   /// @brief Returns a reference to the data at the specified offset.
+   /// @param pos the offset of the data to return.
    UChar &at(size_type pos)
    {
       if (pos > length_)
          throw EOctetString_OutOfRange();
       return data_[pos];
    }
-
+   /// @brief Returns a constant reference to the data at the specified offset.
+   /// @param pos the offset of the data to return.
    cUChar &at(size_type pos) const
    {
       if (pos > length_)
@@ -253,61 +354,136 @@ public:
       return data_[pos];
    }
 
+   /// @brief Returns a reference to the element at the end of the buffer.
    UChar &back()
    {
       return data_[length_ - 1];
    }
-
+   /// @brief Returns a constant reference to the element at the end of the buffer.
    cUChar &back() const
    {
       return data_[length_ - 1];
    }
 
+   /// @brief Returns the size of the currently allocated internal buffer.
    size_type capacity() const { return capacity_; }
 
+   /// @brief Sets the internal buffer to all NULL's and sets the length to zero.
    Void clear()
    {
       memset(data_, 0, length_);
       length_ = 0;
    }
 
+   /// @brief Compares two EOctetString objects.
+   /// @param ostr the EOctetString to compare this object to.
+   /// @return an integral value indicating the relation ship between the octet strings.
+   ///   0 they are equal, <0 either the value of the first byte that does not match
+   ///   is lower in the compared string or all compared bytes match but the compared
+   ///   octet string is shorter, >0 either the value of the first byte that does not
+   ///   match is greater in the compared object or all compared bytes match but the
+   ///   compared string is longer.
    Int compare(const EOctetString &ostr) const
    {
       return compare(0, length_, ostr.data_, ostr.length_);
    }
-
+   /// @brief Compares a subset of the supplied EOctetString to this object.
+   /// @param pos the offset in this object to start comparing.
+   /// @param len the number of bytes to compare.
+   /// @param ostr the EOctetString to compare this object to.
+   /// @return an integral value indicating the relation ship between the octet strings.
+   ///   0 they are equal, <0 either the value of the first byte that does not match
+   ///   is lower in the compared string or all compared bytes match but the compared
+   ///   octet string is shorter, >0 either the value of the first byte that does not
+   ///   match is greater in the compared object or all compared bytes match but the
+   ///   compared string is longer.
    Int compare(size_type pos, size_type len, const EOctetString &ostr) const
    {
       return compare(pos, len, ostr.data_, ostr.length_);
    }
-
+   /// @brief Compares a subset of the supplied EOctetString to this object.
+   /// @param pos the offset in this object to start comparing.
+   /// @param len the number of bytes to compare.
+   /// @param ostr the EOctetString to compare this object to.
+   /// @param subpos the offset in the supplied object to start comparing.
+   /// @param sublen the number of bytes in the supplied object to compare.
+   /// @return an integral value indicating the relation ship between the octet strings.
+   ///   0 they are equal, <0 either the value of the first byte that does not match
+   ///   is lower in the compared string or all compared bytes match but the compared
+   ///   octet string is shorter, >0 either the value of the first byte that does not
+   ///   match is greater in the compared object or all compared bytes match but the
+   ///   compared string is longer.
    Int compare(size_type pos, size_type len, const EOctetString &ostr, size_type subpos, size_type sublen) const
    {
       if (subpos >= ostr.length_)
          throw EOctetString_OutOfRange();
       return compare(pos, len, &ostr.data_[subpos], std::min(ostr.length_ - subpos, sublen));
    }
-
+   /// @brief Compares the supplied NULL terminated string to this object.
+   /// @param s a pointer to the NULL terminated to string to compare.
+   /// @return an integral value indicating the relation ship between the octet strings.
+   ///   0 they are equal, <0 either the value of the first byte that does not match
+   ///   is lower in the compared string or all compared bytes match but the compared
+   ///   octet string is shorter, >0 either the value of the first byte that does not
+   ///   match is greater in the compared object or all compared bytes match but the
+   ///   compared string is longer.
    Int compare(cpStr s) const
    {
       return compare(0, length_, reinterpret_cast<cpUChar>(s), strlen(s));
    }
-
+   /// @brief Compares the supplied buffer to this object.
+   /// @param data a pointer to the buffer to compare.
+   /// @param n the number of bytes to compare.
+   /// @return an integral value indicating the relation ship between the octet strings.
+   ///   0 they are equal, <0 either the value of the first byte that does not match
+   ///   is lower in the compared string or all compared bytes match but the compared
+   ///   octet string is shorter, >0 either the value of the first byte that does not
+   ///   match is greater in the compared object or all compared bytes match but the
+   ///   compared string is longer.
    Int compare(cpUChar data, size_type n) const
    {
       return compare(0, length_, data, n);
    }
-
+   /// @brief Compares a NULL terminated string to this object starting at the supplied offset.
+   /// @param pos the offset in this object to start the comparison.
+   /// @param len the number of bytes to compare.
+   /// @param s a pointer to the NULL terminated string to compare against.
+   /// @return an integral value indicating the relation ship between the octet strings.
+   ///   0 they are equal, <0 either the value of the first byte that does not match
+   ///   is lower in the compared string or all compared bytes match but the compared
+   ///   octet string is shorter, >0 either the value of the first byte that does not
+   ///   match is greater in the compared object or all compared bytes match but the
+   ///   compared string is longer.
    Int compare(size_type pos, size_type len, cpStr s) const
    {
       return compare(pos, len, reinterpret_cast<cpUChar>(s), strlen(s));
    }
-
+   /// @brief Compares a NULL terminated string to this object starting at the supplied offset.
+   /// @param pos the offset in this object to start the comparison.
+   /// @param len the number of bytes to compare.
+   /// @param s a pointer to the NULL terminated string to compare against.
+   /// @param n the maximum number of bytes in the supplied NULL terminated string to compare.
+   /// @return an integral value indicating the relation ship between the octet strings.
+   ///   0 they are equal, <0 either the value of the first byte that does not match
+   ///   is lower in the compared string or all compared bytes match but the compared
+   ///   octet string is shorter, >0 either the value of the first byte that does not
+   ///   match is greater in the compared object or all compared bytes match but the
+   ///   compared string is longer.
    Int compare(size_type pos, size_type len, cpStr s, size_type n) const
    {
       return compare(pos, len, reinterpret_cast<cpUChar>(s), n);
    }
-
+   /// @brief Compares buffer to this object starting at the supplied offset.
+   /// @param pos the offset in this object to start the comparison.
+   /// @param len the number of bytes to compare.
+   /// @param data a pointer to the buffer to compare against.
+   /// @param n the maximum number of bytes in the supplied buffer to compare.
+   /// @return an integral value indicating the relation ship between the octet strings.
+   ///   0 they are equal, <0 either the value of the first byte that does not match
+   ///   is lower in the compared string or all compared bytes match but the compared
+   ///   octet string is shorter, >0 either the value of the first byte that does not
+   ///   match is greater in the compared object or all compared bytes match but the
+   ///   compared string is longer.
    Int compare(size_type pos, size_type len, cpUChar data, size_type n) const
    {
       if (pos >= length_)
@@ -322,6 +498,10 @@ public:
       return result;
    }
 
+   /// @brief Copies data from this object to the supplied buffer.
+   /// @param dst a pointer to the destination buffer.
+   /// @param len the maximum number of bytes to copy.
+   /// @param pos the array offset in the internal buffer to start copying from.
    size_type copy(pUChar dst, size_type len, size_type pos = 0) const
    {
       if (pos >= length_)
@@ -331,21 +511,55 @@ public:
       return len;
    }
 
+   /// @brief Returns a pointer to the internal data buffer.
+   /// @return a pointer to the internal data buffer.
    cpUChar data() const { return data_; }
+   /// @brief Returns whether this object is empty.
+   /// @return True if length is zero, False otherwise.
    Bool empty() const { return length_ == 0; }
 
+   /// @brief Erases the specified number of bytes.  Supports erasing
+   ///   bytes from the middle of the octet string.
+   /// @param pos the offset where to start erasing.
+   /// @param len the number of bytes to erase.
+   /// @return a referenc to this object.
    EOctetString &erase(size_type pos = 0, size_type len = npos)
    {
+      // make sure that "pos" is in bounds
       if (pos >= length_)
          throw EOctetString_OutOfRange();
+
+      // adjust length to not delete more bytes than are present
       len = std::min(length_ - pos, len);
-      memset(&data_[pos], 0, len);
+
+      // calculate the offet to start erasing and the length
+      size_type erase_start = length_ - len;
+
+      // check for erasing x bytes from the middle
+      if (erase_start > pos)
+      {
+         size_type copy_dst = pos;
+         size_type copy_src = pos + len;
+         for (; copy_src<length_; copy_dst++, copy_src++)
+            data_[copy_dst] = data_[copy_src];
+      }
+      
+      // clear the "erased" bytes
+      std::memset(&data_[erase_start], 0, len);
+
+      // reduce the length
       length_ -= len;
       return *this;
    }
 
+   /// @brief Returns the length of the assigned value of this object.
+   /// @return the length of the assigned value of this object.
+   /// @{
    size_type length() const { return length_; }
+   size_type size() const { return length_; }
+   /// @}
 
+   /// @brief Removes the last byte.
    Void pop_back()
    {
       if (length_ > 0)
@@ -355,9 +569,16 @@ public:
       }
    }
 
+   /// @brief Appends the specified value to the end of the octet string.
+   /// @param c the value to append.
+   /// @{
    Void push_back(Char c)  { append(1, static_cast<UChar>(c)); }
    Void push_back(UChar c) { append(1, c); }
+   /// @}
 
+   /// @brief Sets the internal buffer size to the specified value and
+   ///   reallocates the buffer if necessary.
+   /// @param n the number of bytes to reserve.
    Void reserve(size_type n = 0)
    {
       n = std::max(n, length_);
@@ -376,12 +597,15 @@ public:
          delete [] oldData;
       }
    }
-
+   /// @brief Resizes the buffer to the specified and fills the "new"
+   ///   space with the specified value.
+   /// @param n the new buffer size.
+   /// @param c the fill value.
+   /// @{
    Void resize(size_type n, Char c)
    {
       resize(n, static_cast<UChar>(c));
    }
-
    Void resize(size_type n, UChar c = 0)
    {
       if (n > length_)
@@ -392,14 +616,15 @@ public:
          length_ = n;
       }
    }
+   /// @}
 
+   /// @brief reduces the capacity of the buffer to match it's current length.
    void shrink_to_fit()
    {
       reserve();
    }
 
-   size_type size() const { return length_; }
-
+   /// @brief Insertion oeprator for serialization.
    friend std::ostream &operator<<(std::ostream &output, const EOctetString &ostr);
 
 private:
@@ -429,6 +654,7 @@ private:
    pUChar data_;
 };
 
+/// @cond DOXYGEN_EXCLUDE
 typedef std::vector<EOctetString> EOctetStringVec;
 
 inline std::ostream &operator<<(std::ostream &output, const EOctetString &ostr)
@@ -439,9 +665,11 @@ inline std::ostream &operator<<(std::ostream &output, const EOctetString &ostr)
    std::cout.flags(f);
    return output;
 }
+/// @endcond
 
 namespace std
 {
+   /// @brief Calcuates a hash value for the specified EOctetString object.
    template <>
    struct hash<EOctetString>
    {
@@ -455,6 +683,7 @@ namespace std
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @cond DOXYGEN_EXCLUDE
 #ifndef LOW_NIBBLE
 #define LOW_NIBBLE(a) (((unsigned char)a) & 0x0f)
 #endif
@@ -470,7 +699,10 @@ namespace std
    (c == 'b' || c == 'B') ? 13 :    \
    (c == 'c' || c == 'C') ? 14 : 15 \
 )
+/// @endcond
 
+/// @brief Represents an TBCD String (Telephony Binary Coded Decimal String) as
+///   defined by ITU-T Recommendation Q.825.
 class ETbcdString : public EOctetString
 {
 public:
@@ -487,22 +719,28 @@ public:
    // successive 4-bit fields.
    //
 
+   /// @brief Default constructor.
    ETbcdString()
       : EOctetString(),
         len_(0)
    {
    }
+   /// @brief Class constructor.
+   /// @param len the initial length of the TBCD string.
    ETbcdString(size_t len)
       : EOctetString((len / 2) + (len % 2)),
         len_(len)
    {
    }
+   /// @brief Copy constructor.
+   /// @param tbcd a reference to the ETbcdString object to copy.
    ETbcdString(const ETbcdString &tbcd)
       : EOctetString(tbcd),
         len_(tbcd.len_)
    {
    }
-
+   /// @brief Assignment operator.
+   /// @param tbcd a reference to the ETbcdString object to copy.
    ETbcdString &operator=(const ETbcdString &tbcd)
    {
       EOctetString::operator=(tbcd);
@@ -510,7 +748,8 @@ public:
       return *this;
    }
 
-
+   /// @brief Converts a TBCD string to a printable string.
+   /// @return the printable string.
    EString toString() const
    {
       static cpChar tbcdChars = (cpChar)"0123456789*#abc";
@@ -531,12 +770,14 @@ public:
 
       return str;
    }
-
+   /// @brief Converts the printable string to a TBCD string.
+   /// @param str the string to convert.
+   /// @return a reference to this object.
+   /// @{
    ETbcdString &fromString(const std::string &str)
    {
       return fromString(str.c_str());
    }
-
    ETbcdString &fromString(cpStr str)
    {
       EOctetString::clear();
@@ -568,9 +809,14 @@ public:
 
       return *this;
    }
+   /// @}
 
+   /// @brief Returns the length of the TBCD string.
+   /// @return the length of the TBCD string.
    size_t length() const { return len_; }
 
+   /// @brief Clears the TBCD string setting it's length to zero.
+   /// @return a reference to this object.
    ETbcdString &clear() { EOctetString::clear(); len_ = 0; return *this; }
 
 private:

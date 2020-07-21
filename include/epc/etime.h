@@ -482,7 +482,8 @@ public:
    /// @param ntp the ntp_time_t object to assign.
    Void setNTPTime(const ntp_time_t &ntp);
    /// @brief Assigns the time represented by the NTP time seconds (only) to this ETime object.
-   /// @param ntp the ntp_time_t seconds to assign.
+   /// @param seconds the ntp_time_t seconds to assign.
+   /// @param fraction the fractional seconds to assign.
    Void setNTPTime(const UInt seconds, const UInt fraction=0)
    {
       ntp_time_t t;

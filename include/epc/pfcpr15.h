@@ -24,6 +24,8 @@
 #include "pfcp_messages_encoder.h"
 #include "pfcp_messages_decoder.h"
 
+/// @brief Contains the class definitions for the PFCP release 15
+///   messages and information elements.
 namespace PFCP_R15
 {
 ////////////////////////////////////////////////////////////////////////////////

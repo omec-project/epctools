@@ -20,6 +20,7 @@
 #include "eutil.h"
 #include "eip.h"
 
+/// @cond DOXYGEN_EXCLUDE
 EIpFilterRule_InvalidAction::EIpFilterRule_InvalidAction(cpStr msg)
 {
    setSevere();
@@ -67,6 +68,7 @@ EIpFilterRule_InvalidOptionMissingSpec::EIpFilterRule_InvalidOptionMissingSpec(c
    setSevere();
    setText(msg);
 }
+/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

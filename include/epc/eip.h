@@ -26,36 +26,53 @@
 #include "epctools.h"
 #include "ehash.h"
 
+/// @file
+/// @brief Defines the EIpAddress and EIpFilterRule classes.
+
+/// @cond DOXYGEN_EXCLUDE
 DECLARE_ERROR_ADVANCED2(EIpAddress_UnrecognizedAddressFamily);
 inline EIpAddress_UnrecognizedAddressFamily::EIpAddress_UnrecognizedAddressFamily(Int af) {
    setTextf("Unrecognized address family %d", af);
 }
+/// @endcond
 
+/// @brief Represents an IP address with mask.
 class EIpAddress
 {
 public:
+   /// @brief Default class constructor.
    EIpAddress()
        : family_(AF_UNSPEC)
    {
       memset(&address_, 0, sizeof(address_));
    }
+   /// @brief Class constructor.
+   /// @param addr a NULL terminated string representing the IP address.
    EIpAddress(cpStr addr)
    {
       *this = addr;
    }
+   /// @brief Class constructor.
+   /// @param addr a string object representing the IP address.
    EIpAddress(const std::string &addr)
    {
       *this = addr.c_str();
    }
+   /// @brief Copy constructor.
+   /// @param ipaddr the EIpAddress object to copy.
    EIpAddress(const EIpAddress &ipaddr)
    {
       *this = ipaddr;
    }
+   /// @brief Class constructor.
+   /// @param saddr a reference to a sockaddr_storage used to initialize the object.
    EIpAddress(const struct sockaddr_storage &saddr)
    {
       *this = saddr;
    }
 
+   /// @brief Assignment operator.
+   /// @param addr a NULL terminated string representing the IP address.
    EIpAddress &operator=(cpStr addr)
    {
       auto parts = EUtility::split(addr, "/");
@@ -81,6 +98,8 @@ public:
       return *this;
    }
 
+   /// @brief Assignment operator.
+   /// @param ipaddr a string object representing the IP address to assign.
    EIpAddress &operator=(const EIpAddress &ipaddr)
    {
       family_ = ipaddr.family_;
@@ -95,6 +114,8 @@ public:
       return *this;
    }
 
+   /// @brief Assignment operator.
+   /// @param saddr a reference to a sockaddr_storage structure to assign.
    EIpAddress &operator=(const struct sockaddr_storage &saddr)
    {
       switch (saddr.ss_family)
@@ -109,6 +130,8 @@ public:
       return *this;
    }
 
+   /// @brief Assignment operator.
+   /// @param addr a reference to an in_addr structure representing an IPv4 address.
    EIpAddress &operator=(const in_addr &addr)
    {
       if (family_ != AF_INET)
@@ -120,6 +143,8 @@ public:
       return *this;
    }
 
+   /// @brief Assignment operator.
+   /// @param addr a reference to an in6_addr structure representing an IPv6 address.
    EIpAddress &operator=(const in6_addr &addr)
    {
       if (family_ != AF_INET6)
@@ -131,6 +156,8 @@ public:
       return *this;
    }
 
+   /// @brief Assignment operator.
+   /// @param ip a reference to the EIpAddress object to copy.
    Bool operator==(const EIpAddress &ip) const
    {
       return
@@ -161,13 +188,14 @@ public:
       ;
    }
 
-   std::string address() const
+   /// @brief Retrieves a string object that is the string representation of the IP address.
+   /// @param includeMask if TRUE, the mask will be appended to the IP address.
+   /// @return the string representation of the IP address.
+   std::string address(Bool includeMask = True) const
    {
-      std::string str;
-      
       if (isAny())
       {
-         str = "any";
+         std::string str = "any";
          return str;
       }
 
@@ -181,22 +209,37 @@ public:
       }
 
       std::stringstream ss;
-      ss << buf << "/" << static_cast<Int>(maskWidth());
-      str = ss.str();
+      ss << buf;
+      if (includeMask)
+         ss << "/" << static_cast<Int>(maskWidth());
 
-      return str;
+      return ss.str();
    }
 
+   /// @brief Returns a reference to the in_addr structure that represents an IPv4 address.
+   /// @return a reference to the in_addr structure that represents an IPv4 address.
    const in_addr &ipv4Address() const { return address_.ipv4; }
+   /// @brief Returns a reference to the in6_addr structure that represents an IPv6 address.
+   /// @return a reference to the in6_addr structure that represents an IPv6 address.
    const in6_addr &ipv6Address() const { return address_.ipv6; }
+   /// @brief Returns the address family associated with this address object.
+   /// @return the address family associated with this address object.
    const sa_family_t family() const { return family_; }
+   /// @brief Returns the mask width (number of signficant bits) for this address object.
+   /// @return the mask width for this address object.
    UChar maskWidth() const { return maskWidth_; }
 
+   /// @brief Assigns the address family for this address object.
+   /// @param family the new address family.
+   /// @return a reference to this object.
    EIpAddress &setFamily(const sa_family_t family)
    {
       family_ = family;
       return *this;
    }
+   /// @brief Assigns the mask width, in number of bits, for this address object.
+   /// @param maskWidth the number of signficant address bits..
+   /// @return a reference to this object.
    EIpAddress &setMaskWidth(UChar maskWidth)
    {
       switch (family_)
@@ -208,6 +251,9 @@ public:
       return *this;
    }
 
+   /// @brief Sets the IP address as "any" for the specified address family.
+   /// @param family the address family.
+   /// @return a reference to this object.
    EIpAddress &setAny(sa_family_t family)
    {
       setFamily(family);
@@ -216,6 +262,8 @@ public:
       return *this;
    }
 
+   /// @brief determines if this IP address represents "any".
+   /// @return True if address represents "any", otherwise False.
    Bool isAny() const
    {
       if (maskWidth_ != 0)
@@ -240,6 +288,7 @@ private:
 
 namespace std
 {
+/// @brief Calculates a hash value for the EIpAddress object.
 template <>
 struct hash<EIpAddress>
 {
@@ -267,6 +316,7 @@ DECLARE_ERROR_ADVANCED4(EIpFilterRule_InvalidPort);
 DECLARE_ERROR_ADVANCED4(EIpFilterRule_InvalidOption);
 DECLARE_ERROR_ADVANCED4(EIpFilterRule_InvalidOptionMissingSpec);
 
+/// @brief Represents an IPFilterRule as defined by RFC 6733.
 class EIpFilterRule
 {
 public:
@@ -405,16 +455,28 @@ public:
       ProtoMax = 255
    };
 
+   /// @brief Represents a single port or a range of ports.
    class Port
    {
    public:
-      Port() : first_(0), last_(0) {}
+      /// @brief Default constructor.
+      /// @param first the first port number in the range.
+      /// @param last the last port number in the range.
       Port(UShort first = 0, UShort last = 0) : first_(first), last_(!last ? first : last) {}
+      /// @brief Copy constructor.
+      /// @param p the Port object to copy.
       Port(const Port &p) : first_(p.first_), last_(p.last_) {}
 
+      /// @brief retrieves the first port in the range.
+      /// @return the first port in the range.
       UShort first() const { return first_; }
+      /// @brief retrieves the last port in the range.
+      /// @return the last port in the range.
       UShort last() const { return last_; }
 
+      /// @brief sets the first port in the range.
+      /// @param first the first port in the range.
+      /// @return a reference to this object.
       Port &setFirst(UShort first)
       {
          first_ = first;
@@ -422,6 +484,9 @@ public:
             last_ = first_;
          return *this;
       }
+      /// @brief sets the last port in the range.
+      /// @param last the last port in the range.
+      /// @return a reference to this object.
       Port &setLast(UShort last)
       {
          last_ = last;
@@ -429,6 +494,10 @@ public:
             first_ = last_;
          return *this;
       }
+      /// @brief sets the first and last port in the range.
+      /// @param first the first port in the range.
+      /// @param last the last port in the range.
+      /// @return a reference to this object.
       Port &setFirstLast(UShort first, UShort last)
       {
          setLast(last).setFirst(first);
@@ -441,6 +510,7 @@ public:
    };
    typedef std::vector<Port> PortVec;
 
+   /// @brief The base class for IPFilterRule options.
    class Option
    {
    public:
@@ -462,6 +532,7 @@ public:
    typedef std::shared_ptr<Option> OptionPtr;
    typedef std::vector<OptionPtr> OptionPtrVec;
 
+   /// @brief Represents an IPFilterRule "frag" option.
    class Fragment : public Option
    {
    public:
@@ -474,6 +545,7 @@ public:
       }
    };
 
+   /// @brief Represents an IPFilterRule "ipoptions" option.
    class IpOptions : public Option
    {
    public:
@@ -509,6 +581,7 @@ public:
       EString spec_;
    };
 
+   /// @brief Represents an IPFilterRule "tcpoptions" option.
    class TcpOptions : public Option
    {
    public:
@@ -544,6 +617,7 @@ public:
       EString spec_;
    };
 
+   /// @brief Represents an IPFilterRule "established" option.
    class Established : public Option
    {
    public:
@@ -554,6 +628,8 @@ public:
          return std::hash<Int>{}(static_cast<Int>(type()));
       }
    };
+
+   /// @brief Represents an IPFilterRule "setup" option.
    class Setup : public Option
    {
    public:
@@ -565,6 +641,7 @@ public:
       }
    };
 
+   /// @brief Represents an IPFilterRule "tcpflags" option.
    class TcpFlags : public Option
    {
    public:
@@ -599,6 +676,7 @@ public:
       EString flags_;
    };
 
+   /// @brief Represents an IPFilterRule "icmptypes" option.
    class IcmpTypes : public Option
    {
    public:
@@ -633,8 +711,13 @@ public:
       EString types_;
    };
 
+   /// @brief Default constructor.
    EIpFilterRule() : action_(Action::Undefined), dir_(Direction::Undefined), proto_(Protocol::Undefined) {}
+   /// @brief Class constructor.
+   /// @param raw a null terminated string of the IPFilterRule definition.
    EIpFilterRule(cpChar raw) : action_(Action::Undefined), dir_(Direction::Undefined), proto_(Protocol::Undefined) { parse(raw); }
+   /// @brief Copy constructor.
+   /// @param r the EIpFilterRule object to copy.
    EIpFilterRule(const EIpFilterRule &r)
        : orig_(r.original()),
          action_(r.action()),
@@ -648,6 +731,8 @@ public:
    {
    }
 
+   /// @brief Assignment operator.
+   /// @param r the EIpFilterRule object to copy.
    EIpFilterRule &operator=(const EIpFilterRule &r)
    {
       orig_     = r.orig_;
@@ -661,19 +746,36 @@ public:
       return *this;
    }
 
+   /// @brief Assignment operator.
+   /// @param r a string object containing the IPFilterRule definition to parse.
    EIpFilterRule &operator=(const std::string &r)  { return parse(r); }
+   /// @brief Assignment operator.
+   /// @param r a NULL terminated string containing the IPFilterRule definition to parse.
    EIpFilterRule &operator=(cpStr r)               { return parse(r); }
 
+   /// @brief The original IPFilterRule string.
    const EString &original()         const { return orig_;     }
+   /// @brief Returns the action for this IPFilterRule.
    const Action action()             const { return action_;   }
+   /// @brief Returns the direction for this IPFilterRule.
    const Direction direction()       const { return dir_;      }
+   /// @brief Returns the protocol for this IPFilterRule.
    const Protocol protocol()         const { return proto_;    }
+   /// @brief Returns the source IP address.
    const EIpAddress &source()        const { return src_;      }
+   /// @brief Returns the collection of source ports.
    const PortVec &sourcePorts()      const { return srcPorts_; }
+   /// @brief Returns the destination IP address.
    const EIpAddress &destination()   const { return dst_;      }
+   /// @brief Returns the collection of destination ports.
    const PortVec &destinationPorts() const { return dstPorts_; }
+   /// @brief Returns a collection of options.
    const OptionPtrVec &options()     const { return options_;  }
 
+   /// @brief Sets the original string value.
+   /// @param orig the original string value.
+   /// @return a reference to this object.
+   /// @{
    EIpFilterRule &setOriginal(cpChar orig)
    {
       orig_ = orig;
@@ -689,57 +791,95 @@ public:
       orig_ = orig;
       return *this;
    }
+   /// @}
+
+   /// @brief Sets the action for this IPFilterRule.
+   /// @param action the action for this IPFilterRule.
+   /// @return a reference to this object.
    EIpFilterRule &setAction(Action action)
    {
       action_ = action;
       return *this;
    }
+   /// @brief Sets the direction for this IPFilterRule.
+   /// @param dir the direction for this IPFilterRule.
+   /// @return a reference to this object.
    EIpFilterRule &setDirection(Direction dir)
    {
       dir_ = dir;
       return *this;
    }
+   /// @brief Sets the protocol for this IPFilterRule.
+   /// @param proto the protocol for this IPFilterRule.
+   /// @return a reference to this object.
    EIpFilterRule &setProtocol(Protocol proto)
    {
       proto_ = proto;
       return *this;
    }
+   /// @brief Sets the source IP address for this IPFilterRule.
+   /// @param src the source IP address for this IPFilterRule.
+   /// @return a reference to this object.
    EIpFilterRule &setSource(const EIpAddress &src)
    {
       src_ = src;
       return *this;
    }
+   /// @brief Sets the destination IP address for this IPFilterRule.
+   /// @param dst the destination IP address for this IPFilterRule.
+   /// @return a reference to this object.
    EIpFilterRule &setDestination(const EIpAddress &dst)
    {
       dst_ = dst;
       return *this;
    }
-
+   /// @brief Sets the source port for this IPFilterRule.
+   /// @param first the starting source port for this IPFilterRule.
+   /// @param last the ending source port for this IPFilterRule.
+   /// @return a reference to this object.
    EIpFilterRule &addSourcePort(UShort first = 0, UShort last = 0)
    {
       srcPorts_.push_back(Port(first, last));
       return *this;
    }
+   /// @brief Sets the source port for this IPFilterRule.
+   /// @param p the source Port object to copy.
+   /// @return a reference to this object.
    EIpFilterRule &addSourcePort(const Port &p)
    {
       srcPorts_.push_back(p);
       return *this;
    }
+   /// @brief Sets the destination port for this IPFilterRule.
+   /// @param first the starting destination port for this IPFilterRule.
+   /// @param last the ending destination port for this IPFilterRule.
+   /// @return a reference to this object.
    EIpFilterRule &addDestinationPort(UShort first = 0, UShort last = 0)
    {
       dstPorts_.push_back(Port(first, last));
       return *this;
    }
+   /// @brief Sets the destination port for this IPFilterRule.
+   /// @param p the destination Port object to copy.
+   /// @return a reference to this object.
    EIpFilterRule &addDestinationPort(const Port &p)
    {
       dstPorts_.push_back(p);
       return *this;
    }
-
+   /// @brief Parses the IPFilterRule definition.
+   /// @param raw the NULL terminated string to parse.
+   /// @return a reference to this object.
    EIpFilterRule &parse(cpChar raw) { return parse(std::string(raw)); }
+   /// @brief Parses the IPFilterRule definition.
+   /// @param raw the string object containing the IPFilterRule definition.
+   /// @return a reference to this object.
    EIpFilterRule &parse(const std::string &raw);
-
+   /// @brief Prints the contents of the current EIpFilterRule object to stdout.
+   /// @param padding prepends the "padding" string to each line output.
    Void dump(cpStr padding="");
+   /// @brief Reconstructs the string version of the IPFilterRule based on the parsed data.
+   /// @return the string version of the IPFilterRule.
    EString final();
 
 private:
@@ -763,6 +903,7 @@ private:
 
 namespace std
 {
+/// @brief Generates a hash value for the EIpFilterRule::Port object.
 template <>
 struct hash<EIpFilterRule::Port>
 {
@@ -773,7 +914,7 @@ struct hash<EIpFilterRule::Port>
       return EMurmurHash64::combine(firsthash, lasthash);
    }
 };
-
+/// @brief Generates a hash value for the EIpFilterRule::PortVec object.
 template <>
 struct hash<EIpFilterRule::PortVec>
 {
@@ -788,7 +929,7 @@ struct hash<EIpFilterRule::PortVec>
       return hash;
    }
 };
-
+/// @brief Generates a hash value for the EIpFilterRule::Option object.
 template <>
 struct hash<EIpFilterRule::Option>
 {
@@ -797,7 +938,7 @@ struct hash<EIpFilterRule::Option>
       return option.hash();
    }
 };
-
+/// @brief Generates a hash value for the EIpFilterRule::OptionPrtVec object.
 template <>
 struct hash<EIpFilterRule::OptionPtrVec>
 {
@@ -809,7 +950,7 @@ struct hash<EIpFilterRule::OptionPtrVec>
       return hash;
    }
 };
-
+/// @brief Generates a hash value for the EIpFilterRule object.
 template <>
 struct hash<EIpFilterRule>
 {

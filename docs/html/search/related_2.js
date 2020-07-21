@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['udp_3c_20tqueue_2c_20tmessage_20_3e',['UDP&lt; TQueue, TMessage &gt;',['../classESocket_1_1Base.html#a9d6b6b8d2a2080e52f6bbb1172223783',1,'ESocket::Base::UDP&lt; TQueue, TMessage &gt;()'],['../classESocket_1_1Thread.html#a9d6b6b8d2a2080e52f6bbb1172223783',1,'ESocket::Thread::UDP&lt; TQueue, TMessage &gt;()']]]
+  ['downlinkdatareportie',['DownlinkDataReportIE',['../classPFCP__R15_1_1DownlinkDataServiceInformationIE.html#a2470a41b81adb11a797389e304e6b2b6',1,'PFCP_R15::DownlinkDataServiceInformationIE::DownlinkDataReportIE()'],['../classPFCP__R15_1_1PdrIdIE.html#a2470a41b81adb11a797389e304e6b2b6',1,'PFCP_R15::PdrIdIE::DownlinkDataReportIE()']]],
+  ['duplicatingparametersie',['DuplicatingParametersIE',['../classPFCP__R15_1_1TransportLevelMarkingIE.html#a5d088a3daa4ba23226a7410600f435b2',1,'PFCP_R15::TransportLevelMarkingIE::DuplicatingParametersIE()'],['../classPFCP__R15_1_1ForwardingPolicyIE.html#a5d088a3daa4ba23226a7410600f435b2',1,'PFCP_R15::ForwardingPolicyIE::DuplicatingParametersIE()'],['../classPFCP__R15_1_1DestinationInterfaceIE.html#a5d088a3daa4ba23226a7410600f435b2',1,'PFCP_R15::DestinationInterfaceIE::DuplicatingParametersIE()'],['../classPFCP__R15_1_1OuterHeaderCreationIE.html#a5d088a3daa4ba23226a7410600f435b2',1,'PFCP_R15::OuterHeaderCreationIE::DuplicatingParametersIE()']]]
 ];

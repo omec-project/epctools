@@ -105,12 +105,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a17a08de23dee0ea2bba52164580cbf1d"><td class="memItemLeft" align="right" valign="top">Int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classECircularBuffer.html#a17a08de23dee0ea2bba52164580cbf1d">readData</a> (pUChar dest, Int offset, Int length)</td></tr>
 <tr class="memdesc:a17a08de23dee0ea2bba52164580cbf1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads and removes data from the buffer.  <a href="classECircularBuffer.html#a17a08de23dee0ea2bba52164580cbf1d">More...</a><br /></td></tr>
 <tr class="separator:a17a08de23dee0ea2bba52164580cbf1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b97a142e516db13769c6cb0c9a34bfb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classECircularBuffer.html#a0b97a142e516db13769c6cb0c9a34bfb">writeData</a> (pUChar src, Int offset, Int length, Bool nolock=<a class="el" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>)</td></tr>
-<tr class="memdesc:a0b97a142e516db13769c6cb0c9a34bfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data to the circular buffer.  <a href="classECircularBuffer.html#a0b97a142e516db13769c6cb0c9a34bfb">More...</a><br /></td></tr>
-<tr class="separator:a0b97a142e516db13769c6cb0c9a34bfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af029508863be8b87dc7aae1a0748fab6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classECircularBuffer.html#af029508863be8b87dc7aae1a0748fab6">modifyData</a> (pUChar src, Int offset, Int length, Bool nolock=<a class="el" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>)</td></tr>
-<tr class="memdesc:af029508863be8b87dc7aae1a0748fab6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies data within the buffer.  <a href="classECircularBuffer.html#af029508863be8b87dc7aae1a0748fab6">More...</a><br /></td></tr>
-<tr class="separator:af029508863be8b87dc7aae1a0748fab6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f7fa2d97abda1d5bf89602152d8eec7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classECircularBuffer.html#a2f7fa2d97abda1d5bf89602152d8eec7">writeData</a> (cpUChar src, Int offset, Int length, Bool nolock=<a class="el" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>)</td></tr>
+<tr class="memdesc:a2f7fa2d97abda1d5bf89602152d8eec7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data to the circular buffer.  <a href="classECircularBuffer.html#a2f7fa2d97abda1d5bf89602152d8eec7">More...</a><br /></td></tr>
+<tr class="separator:a2f7fa2d97abda1d5bf89602152d8eec7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3713db16f56774f3fc6349c32cc8acda"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classECircularBuffer.html#a3713db16f56774f3fc6349c32cc8acda">modifyData</a> (cpUChar src, Int offset, Int length, Bool nolock=<a class="el" href="ebase_8h.html#a306ebd41c0cd1303b1372c6153f0caf8">False</a>)</td></tr>
+<tr class="memdesc:a3713db16f56774f3fc6349c32cc8acda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies data within the buffer.  <a href="classECircularBuffer.html#a3713db16f56774f3fc6349c32cc8acda">More...</a><br /></td></tr>
+<tr class="separator:a3713db16f56774f3fc6349c32cc8acda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7417f282cc2c0f62af72c3272ad3b4c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classEMutexPrivate.html">EMutexPrivate</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classECircularBuffer.html#a7417f282cc2c0f62af72c3272ad3b4c2">getMutex</a> ()</td></tr>
 <tr class="memdesc:a7417f282cc2c0f62af72c3272ad3b4c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the mutex;.  <a href="classECircularBuffer.html#a7417f282cc2c0f62af72c3272ad3b4c2">More...</a><br /></td></tr>
 <tr class="separator:a7417f282cc2c0f62af72c3272ad3b4c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -292,8 +292,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="af029508863be8b87dc7aae1a0748fab6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af029508863be8b87dc7aae1a0748fab6">&#9670;&nbsp;</a></span>modifyData()</h2>
+<a id="a3713db16f56774f3fc6349c32cc8acda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3713db16f56774f3fc6349c32cc8acda">&#9670;&nbsp;</a></span>modifyData()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -301,7 +301,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void ECircularBuffer::modifyData </td>
           <td>(</td>
-          <td class="paramtype">pUChar&#160;</td>
+          <td class="paramtype">cpUChar&#160;</td>
           <td class="paramname"><em>src</em>, </td>
         </tr>
         <tr>
@@ -489,8 +489,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a0b97a142e516db13769c6cb0c9a34bfb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0b97a142e516db13769c6cb0c9a34bfb">&#9670;&nbsp;</a></span>writeData()</h2>
+<a id="a2f7fa2d97abda1d5bf89602152d8eec7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f7fa2d97abda1d5bf89602152d8eec7">&#9670;&nbsp;</a></span>writeData()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -498,7 +498,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void ECircularBuffer::writeData </td>
           <td>(</td>
-          <td class="paramtype">pUChar&#160;</td>
+          <td class="paramtype">cpUChar&#160;</td>
           <td class="paramname"><em>src</em>, </td>
         </tr>
         <tr>
@@ -549,8 +549,8 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/vagrant/share/code/epctools-omec/include/epc/<a class="el" href="ecbuf_8h_source.html">ecbuf.h</a></li>
-<li>/home/vagrant/share/code/epctools-omec/src/<a class="el" href="ecbuf_8cpp.html">ecbuf.cpp</a></li>
+<li>/home/vagrant/share/code/epctools-omec-pfcp/include/epc/<a class="el" href="ecbuf_8h_source.html">ecbuf.h</a></li>
+<li>/home/vagrant/share/code/epctools-omec-pfcp/src/<a class="el" href="ecbuf_8cpp.html">ecbuf.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

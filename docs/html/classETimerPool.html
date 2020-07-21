@@ -117,9 +117,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af55c0dda878a4fa3df6404ed07be50e0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classETimerPool.html">ETimerPool</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classETimerPool.html#af55c0dda878a4fa3df6404ed07be50e0">setQuitSignal</a> (Int sig)</td></tr>
 <tr class="memdesc:af55c0dda878a4fa3df6404ed07be50e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns the quit signal value.  <a href="classETimerPool.html#af55c0dda878a4fa3df6404ed07be50e0">More...</a><br /></td></tr>
 <tr class="separator:af55c0dda878a4fa3df6404ed07be50e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc6159dcf045147c11e90f8c09328f08"><td class="memItemLeft" align="right" valign="top">ULong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classETimerPool.html#adc6159dcf045147c11e90f8c09328f08">registerTimer</a> (LongLong ms, <a class="el" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *msg, <a class="el" href="class__EThreadEventBase.html">_EThreadEventBase</a> &amp;thread)</td></tr>
-<tr class="memdesc:adc6159dcf045147c11e90f8c09328f08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers an expiration timer.  <a href="classETimerPool.html#adc6159dcf045147c11e90f8c09328f08">More...</a><br /></td></tr>
-<tr class="separator:adc6159dcf045147c11e90f8c09328f08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81eaa8306abe07ad1427cb9455453e3e"><td class="memItemLeft" align="right" valign="top">ULong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classETimerPool.html#a81eaa8306abe07ad1427cb9455453e3e">registerTimer</a> (LongLong ms, <a class="el" href="class__EThreadEventMessageBase.html">_EThreadEventMessageBase</a> *msg, _EThreadEventNotification &amp;notify)</td></tr>
+<tr class="memdesc:a81eaa8306abe07ad1427cb9455453e3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers an expiration timer.  <a href="classETimerPool.html#a81eaa8306abe07ad1427cb9455453e3e">More...</a><br /></td></tr>
+<tr class="separator:a81eaa8306abe07ad1427cb9455453e3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a06698e19cccef3a7088f7e4040fcce79"><td class="memItemLeft" align="right" valign="top">ULong&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classETimerPool.html#a06698e19cccef3a7088f7e4040fcce79">registerTimer</a> (LongLong ms, <a class="el" href="etimerpool_8h.html#a5202a1aeb2e4319724e0f4a3bd055d52">ETimerPoolExpirationCallback</a> func, pVoid data)</td></tr>
 <tr class="memdesc:a06698e19cccef3a7088f7e4040fcce79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers an expiration timer.  <a href="classETimerPool.html#a06698e19cccef3a7088f7e4040fcce79">More...</a><br /></td></tr>
 <tr class="separator:a06698e19cccef3a7088f7e4040fcce79"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -575,8 +575,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="adc6159dcf045147c11e90f8c09328f08"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc6159dcf045147c11e90f8c09328f08">&#9670;&nbsp;</a></span>registerTimer() <span class="overload">[1/2]</span></h2>
+<a id="a81eaa8306abe07ad1427cb9455453e3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81eaa8306abe07ad1427cb9455453e3e">&#9670;&nbsp;</a></span>registerTimer() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -596,8 +596,8 @@ Protected Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="class__EThreadEventBase.html">_EThreadEventBase</a> &amp;&#160;</td>
-          <td class="paramname"><em>thread</em>&#160;</td>
+          <td class="paramtype">_EThreadEventNotification &amp;&#160;</td>
+          <td class="paramname"><em>notify</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -612,7 +612,7 @@ Protected Attributes</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">ms</td><td>the length of the timer in milliseconds. </td></tr>
     <tr><td class="paramname">msg</td><td>the thread message to post when the timer expires. </td></tr>
-    <tr><td class="paramname">thread</td><td>the thread to post the message to when the timer expires. </td></tr>
+    <tr><td class="paramname">notify</td><td>a reference to the event notification object. </td></tr>
   </table>
   </dd>
 </dl>
@@ -876,8 +876,8 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/vagrant/share/code/epctools-omec/include/epc/<a class="el" href="etimerpool_8h_source.html">etimerpool.h</a></li>
-<li>/home/vagrant/share/code/epctools-omec/src/<a class="el" href="etimerpool_8cpp.html">etimerpool.cpp</a></li>
+<li>/home/vagrant/share/code/epctools-omec-pfcp/include/epc/<a class="el" href="etimerpool_8h_source.html">etimerpool.h</a></li>
+<li>/home/vagrant/share/code/epctools-omec-pfcp/src/<a class="el" href="etimerpool_8cpp.html">etimerpool.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
