@@ -3558,15 +3558,7 @@ public:
    {
    }
 
-   Void handler(EThreadMessage &msg)
-   {
-      std::cout << "TestWorker::handler() workerId=" << this->workerId() << " data=" << msg.data().data().int32[0] << std::endl;
-      m_val++;
-
-      EThreadMessage m(EM_USER1, this->workerId() * 1000 + m_val);
-      group().sendMessage(m);
-      sleep(100);
-   }
+   Void handler(EThreadMessage &msg);
 
    TestWorkGroup &group()
    {
@@ -3584,12 +3576,7 @@ public:
    END_MESSAGE_MAP2()
 
 private:
-   Void myOnTimer(EThreadEventTimer *pTimer)
-   {
-      std::cout << "TestWorker::onTimer() workerId=" << workerId() << " timerId=" << pTimer->getId() << std::endl;
-      if (!group().keepGoing())
-         group().quit();
-   }
+   Void myOnTimer(EThreadEventTimer *pTimer);
 
    TestWorkGroup *m_twg;
    Int m_val;
@@ -3622,6 +3609,23 @@ protected:
 private:
    Int m_cnt;
 };
+
+Void TestWorker::handler(EThreadMessage &msg)
+{
+   std::cout << "TestWorker::handler() workerId=" << this->workerId() << " data=" << msg.data().data().int32[0] << std::endl;
+   m_val++;
+
+   EThreadMessage m(EM_USER1, this->workerId() * 1000 + m_val);
+   group().sendMessage(m);
+   sleep(100);
+}
+
+Void TestWorker::myOnTimer(EThreadEventTimer *pTimer)
+{
+   std::cout << "TestWorker::onTimer() workerId=" << workerId() << " timerId=" << pTimer->getId() << std::endl;
+   if (!group().keepGoing())
+      group().quit();
+}
 
 Void workGroup_test()
 {

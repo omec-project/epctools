@@ -39,8 +39,10 @@ Int Configuration::tminw_                       = 1;
 Int Configuration::tmaxw_                       = 1;
 _EThreadEventNotification *Configuration::app_  = nullptr;
 
+/// @cond DOXYGEN_EXCLUDE
 TranslationThread *TranslationThread::this_     = nullptr;
 CommunicationThread *CommunicationThread::this_ = nullptr;
+/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,6 +79,7 @@ Void Uninitialize()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @cond DOXYGEN_EXCLUDE
 TeidRangeManager::TeidRangeManager(Int rangeBits)
    : bits_(rangeBits)
 {
@@ -114,6 +117,7 @@ Void TeidRangeManager::release(RemoteNodeSPtr &n)
       free_.push_back(trv);
    n->setTeidRangeValue(-1);
 }
+/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +161,7 @@ RemoteNode::~RemoteNode()
    static EString __method__ = __METHOD_NAME__;
 }
 
+/// @cond DOXYGEN_EXCLUDE
 Bool RemoteNode::addRcvdReq(ULong sn)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -251,6 +256,7 @@ Void RemoteNode::removeOldReqs(Int rw)
          entry++;
    }
 }
+/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -300,6 +306,7 @@ Void LocalNode::freeSeqNbr(ULong sn)
    seqmgr_.free(sn);
 }
 
+/// @cond DOXYGEN_EXCLUDE
 Bool LocalNode::rqstOutExists(ULong seqnbr) const
 {
    static EString __method__ = __METHOD_NAME__;
@@ -350,6 +357,7 @@ Void LocalNode::removeRqstOutEntries(Int wnd)
       }
    }
 }
+/// @endcond
 
 Void LocalNode::setNbrActivityWnds(size_t nbr)
 {
@@ -359,6 +367,7 @@ Void LocalNode::setNbrActivityWnds(size_t nbr)
       kv.second->setNbrActivityWnds(nbr);
 }
 
+/// @cond DOXYGEN_EXCLUDE
 Void LocalNode::nextActivityWnd(Int wnd)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -386,6 +395,7 @@ Void LocalNode::checkActivity(LocalNodeSPtr &ln)
       }
    }
 }
+/// @endcond
 
 RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
 {
@@ -434,6 +444,7 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
    }
 }
 
+/// @cond DOXYGEN_EXCLUDE
 Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const ESocket::Address &dst, cpUChar msg, Int len)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -683,6 +694,7 @@ Void LocalNode::sndRsp(RspOutPtr ro)
    // delete the RspOut object
    delete ro;
 }
+/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -698,6 +710,7 @@ Translator::~Translator()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @cond DOXYGEN_EXCLUDE
 ApplicationWorker::ApplicationWorker()
 {
    static EString __method__ = __METHOD_NAME__;
@@ -707,6 +720,7 @@ ApplicationWorker::~ApplicationWorker()
 {
    static EString __method__ = __METHOD_NAME__;
 }
+/// @endcond
 
 Void ApplicationWorker::onInit()
 {
@@ -857,6 +871,7 @@ Void ApplicationWorker::onEncodeRspError(PFCP::AppMsgRspPtr rsp, PFCP::EncodeRsp
       __method__, workerId(), rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"), err.what());
 }
 
+/// @cond DOXYGEN_EXCLUDE
 Void ApplicationWorker::_onRcvdReq(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -941,6 +956,7 @@ Void ApplicationWorker::_onEncodeRspError(EThreadMessage &msg)
    onEncodeRspError(data->rsp, data->err);
    delete data;
 }
+/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -953,6 +969,7 @@ BEGIN_MESSAGE_MAP(TranslationThread, EThreadPrivate)
    ON_MESSAGE(static_cast<UInt>(TranslationThread::Events::SndHeartbeatRsp), TranslationThread::onSndHeartbeatRsp)
 END_MESSAGE_MAP()
 
+/// @cond DOXYGEN_EXCLUDE
 TranslationThread::TranslationThread()
    : xlator_(Configuration::translator())
 {
@@ -1199,6 +1216,7 @@ Void TranslationThread::onSndHeartbeatRsp(EThreadMessage &msg)
          delete rspout;
    }
 }
+/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1215,6 +1233,7 @@ BEGIN_MESSAGE_MAP(CommunicationThread, ESocket::ThreadPrivate)
    ON_MESSAGE(static_cast<UInt>(CommunicationThread::Events::ReqTimeout), CommunicationThread::onReqTimeout)
 END_MESSAGE_MAP()
 
+/// @cond DOXYGEN_EXCLUDE
 CommunicationThread::CommunicationThread()
    : trm_(Configuration::teidRangeBits()),
      caw_(0),
@@ -1539,6 +1558,7 @@ Void CommunicationThread::onReqTimeout(EThreadMessage &msg)
    if (ro && !ro->localNode()->onReqOutTimeout(ro))
       delete ro;
 }
+/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
