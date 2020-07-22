@@ -19,6 +19,7 @@
 
 #include "pfcpr15.h"
 
+/// @cond DOXYGEN_EXCLUDE
 namespace PFCP_R15
 {
 ////////////////////////////////////////////////////////////////////////////////
@@ -11563,5 +11564,6 @@ inline pfcp_sess_rpt_rsp_t &SessionReportRsp::data()
 }
 
 } // namespace PFCP_R15
+/// @endcond
 
 #endif // __PFCPR15INL_H

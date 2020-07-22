@@ -17,6 +17,9 @@
 #ifndef __EPFCP_H
 #define __EPFCP_H
 
+/// @file
+/// @brief Contains the class definitions to support the PFCP protocol stack.
+
 #include <atomic>
 #include <unordered_map>
 #include <utility>
@@ -27,16 +30,22 @@
 #include "eteid.h"
 #include "etimerpool.h"
 
+/// @brief PFCP stack namespace
 namespace PFCP
 {
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Initializes/starts the PFCP stack.  This should be called after setting
+   ///   the initial configuration values.
    Void Initialize();
+   /// @brief Uninitializes/stops the PFCP stack.
    Void Uninitialize();
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
+
+   /// @cond DOXYGEN_EXCLUDE
 
    class Translator;
    template<class TWorker> class ApplicationWorkGroup;
@@ -60,14 +69,14 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
 
    #define SEND_TO_APPLICATION(a,b)                                                       \
-      (PFCP::Configuration::application()._sendThreadMessage(EThreadMessage(                    \
+      (PFCP::Configuration::application()._sendThreadMessage(EThreadMessage(              \
          static_cast<UInt>(PFCP::ApplicationEvents::a),static_cast<pVoid>(b))))
    #define SEND_TO_TRANSLATION(a,b)                                                       \
       (PFCP::TranslationThread::Instance().sendMessage(EThreadMessage(                    \
          static_cast<UInt>(PFCP::TranslationThread::Events::a),static_cast<pVoid>(b))))
    #define SEND_TO_COMMUNICATION(a,b)                                                     \
       (PFCP::CommunicationThread::Instance().sendMessage(EThreadMessage(                  \
-         static_cast<UInt>(PFCP::CommunicationThread::Events::a),static_cast<pVoid>(b)))) 
+         static_cast<UInt>(PFCP::CommunicationThread::Events::a),static_cast<pVoid>(b))))
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
@@ -75,7 +84,7 @@ namespace PFCP
    typedef ULongLong Seid;
    typedef UChar MsgType;
 
-   const MsgType PfcpHeartbeatReq    = 1;
+   const MsgType PfcpHeartbeatReq   = 1;
    const MsgType PfcpHeartbeatRsp   = 2;
 
    /////////////////////////////////////////////////////////////////////////////
@@ -84,6 +93,9 @@ namespace PFCP
    DECLARE_ERROR(Configuration_LoggerNotDefined);
    DECLARE_ERROR(Configuration_ApplicationNotDefined);
 
+   /// @endcond
+
+   /// @brief Contains all of the configuration values used in the PFCP stack.
    class Configuration
    {
    public:
@@ -164,10 +176,15 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Allocates and deallocates sequence numbers used in PFCP request
+   ///   messages.  Each "slice" should have it's own instance of this object.
    class SequenceManager
    {
    public:
+      /// @brief Default constructor.
       SequenceManager(): next_(SEQUENCE_MIN) {}
+      /// @brief Assigns the next available sequence number.  This operation
+      ///   is thread safe.
       ULong alloc()
       {
          unsigned long sn;
@@ -175,7 +192,8 @@ namespace PFCP
             next_.compare_exchange_strong(++sn, SEQUENCE_MIN);
          return sn;
       }
-      static Void free(ULong sn)
+      /// @brief Releases a previously allocated sequence number.
+      Void free(ULong sn)
       {
          // currently, nothing is done to "free" a sequence number
       }
@@ -188,10 +206,14 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Allocates and deallocates SEID's (PFCP session ID's).  Each "slice"
+   ///   should have it's own instance of this object.
    class SeidManager
    {
    public:
+      /// @brief Default constructor.
       SeidManager() : next_(SEID_MINIMUM) {}
+      /// @brief Assigns the next available SEID.  This operation is thread safe.
       Seid alloc()
       {
          Seid seid;
@@ -200,7 +222,8 @@ namespace PFCP
          while ((seid = next_++) < SEID_MINIMUM);
          return seid;
       }
-      static Void free(Seid seid)
+      /// @brief Releases a previously allocated SEID.
+      Void free(Seid seid)
       {
          // currently, nothing is done to "free" a SEID
       }
@@ -212,20 +235,27 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Represents a Fully Qualified SEID.  This combines an IP address
+   ///   with a SEID.
    class FqSeid
    {
    public:
+      /// @brief Default constructor.
       FqSeid()
          : addr_(),
            seid_(0)
       {
       }
+      /// @brief Copy constructor.
+      /// @param fqseid the FqSeid object to copy.
       FqSeid(const FqSeid &fqseid)
          : addr_(fqseid.addr_),
            seid_(fqseid.seid_)
       {
       }
 
+      /// @brief Assignment operator.
+      /// @param fqseid the FqSeid object to copy.
       FqSeid &operator=(const FqSeid &fqseid)
       {
          addr_ = fqseid.addr_;
@@ -233,10 +263,19 @@ namespace PFCP
          return *this;
       }
 
+      /// @brief Retrieves the IP address object associated with the FqSeid.
+      /// @return the IP address object associated with the FqSeid.
       const EIpAddress &address() const   { return addr_; }
+      /// @brief Returns a modifiable reference to the IP address.
+      /// @return a reference to the IP address object.
       EIpAddress &setAddress()            { return addr_; }
 
+      /// @brief Returns the SEID.
+      /// @return the SEID.
       const Seid seid() const             { return seid_; }
+      /// @brief Assigns the SEID value.
+      /// @param seid the SEID value to assign.
+      /// @return a reference to this object.
       FqSeid &setSeid(Seid seid)          { seid_ = seid; return *this; }
 
    private:
@@ -247,6 +286,7 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class RcvdReq
    {
    public:
@@ -276,24 +316,42 @@ namespace PFCP
       ULong sn_;
       Int rw_;
    };
-
    typedef std::unordered_map<ULong,RcvdReq> RcvdReqUMap;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Encapsulates the UDP Socket functionality used to communicate with
+   ///   a PFCP peer.
    class NodeSocket : public ESocket::UdpPrivate
    {
    public:
+      /// @brief Default constructor.
       NodeSocket();
+      /// @brief Class destructor.
       virtual ~NodeSocket();
 
+      /// @brief Assigns the LocalNode that this socket is associated with.
+      /// @param ln a shared pointer to the LocalNode object.
+      /// @return a reference to this object.
+      NodeSocket &setLocalNode(LocalNodeSPtr &ln)  { ln_ = ln; return *this; }
+      /// @brief Clears the assigned LocalNode.
+      /// @return a reference to this object.
+      NodeSocket &clearLocalNode()                 { ln_.reset(); return *this; }
+
+   protected:
+      /// @brief Called by the ESocket infrastructure when a UDP message is
+      ///   received.
+      /// @param src the originating message IP address.
+      /// @param dst the destination (local) IP address where the message was received.
+      /// @param data a pointer to the received data buffer.
+      /// @param len the number of bytes received (and present in the buffer).
       Void onReceive(const ESocket::Address &src, const ESocket::Address &dst, cpUChar data, Int len);
+      /// @brief Called by the ESocket infrastructure when an error has been
+      ///   detected on the socket.
       Void onError();
 
-      NodeSocket &setLocalNode(LocalNodeSPtr &ln)  { ln_ = ln; return *this; }
-      NodeSocket &clearLocalNode()                 { ln_.reset(); return *this; }
-   
    private:
       LocalNodeSPtr ln_;
    };
@@ -301,56 +359,89 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
-   class Session
+   /// @brief Represents a PFCP session.  It is expected that a developer
+   ///   utilizing this library will derive their own specialized session
+   ///   object from this class.
+   class SessionBase
    {
    public:
-      Session(LocalNodeSPtr &ln, RemoteNodeSPtr &rn)
+      /// @brief Class constructor.
+      /// @param ln the LocalNode for this session.
+      /// @param rn the RemoteNode for this session.
+      SessionBase(LocalNodeSPtr &ln, RemoteNodeSPtr &rn)
          : ln_(ln),
            rn_(rn),
            ls_(0),
            rs_(0)
       {
       }
-      Session(const Session &s)
+      /// @brief Copy constructor.
+      /// @param s the SessionBase object to copy.
+      SessionBase(const SessionBase &s)
          : ln_(s.ln_),
            rn_(s.rn_),
            ls_(s.ls_),
            rs_(s.rs_)
       {
       }
-      virtual ~Session()
+      /// @brief Class destructor.
+      virtual ~SessionBase()
       {
       }
 
+      /// @brief Returns the LocalNode object associated with this session.
+      /// @return the LocalNode object associated with this session.
       LocalNodeSPtr &localNode()    { return ln_; }
+      /// @brief Returns the RemoteNode object associated with this session.
+      /// @return the RemoteNode object associated with this session.
       RemoteNodeSPtr &remoteNode()  { return rn_; }
+      /// @brief Returns the SEID associated with this session.
+      /// @return the SEID associated with this session.
       const Seid seid() const       { return ls_; }
+      /// @brief Returns the remote SEID associated with this session.
+      /// @return the remote SEID associated with this session.
       const Seid remoteSeid() const { return rs_; }
 
    private:
-      Session();
+      SessionBase();
       LocalNodeSPtr &ln_;
       RemoteNodeSPtr &rn_;
       Seid ls_;
       Seid rs_;
    };
-   typedef std::shared_ptr<Session> SessionSPtr;
-   typedef std::unordered_map<Seid,SessionSPtr> SessionSPtrUMap;
+   typedef std::shared_ptr<SessionBase> SessionBaseSPtr;
+   typedef std::unordered_map<Seid,SessionBaseSPtr> SessionBaseSPtrUMap;
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Contains the basic Node functionality common to both a LocalNode
+   ///   and a RemoteNode.
    class Node
    {
    public:
+      /// @brief Default constructor.
       Node() {}
+      /// @brief Class destructor.
       virtual ~Node() {}
 
-      
+      /// @brief Returns the IP address associated with this node.
+      /// @return the IP address associated with this node.
       EIpAddress &ipAddress()                            { return ipaddr_; }
+      /// @brief Assigns the IP address for this node.
+      /// @param ipaddr the IP address for this node.
+      /// @return a reference to this object.
       Node &setIpAddress(const EIpAddress &ipaddr)       {  ipaddr_ = ipaddr; return *this; }
 
+      /// @brief Returns the ESocket::Address object representing the IP
+      ///   address for this node.
+      /// @return the ESocket::Address object representing the IP address
+      ///   for this node.
       ESocket::Address &address()                        { return addr_; }
+      /// @brief Assigns the ESocket::Address object representing the IP
+      ///   address for this node.
+      /// @param addr a reference to the ESocket::Address to assign.
+      /// @return a reference to this object.
       Node &setAddress(const ESocket::Address &addr)
       {
           addr_ = addr;
@@ -358,18 +449,28 @@ namespace PFCP
           return *this;
       }
 
+      /// @brief Returns the Node start time.
+      /// @return the Node start time.
       const ETime &startTime() const                     { return st_; }
+      /// @brief Assigns the Node start time.
+      /// @param st the start time object to assign.
+      /// @return a reference to this object.
       Node &setStartTime(const ETime &st = ETime::Now()) { st_ = st; return *this; }
 
-      SessionSPtr getSession(Seid seid)
+      /// @brief Returns the session object for the specified SEID.
+      /// @param seid the SEID of the session to return.
+      /// @return the session object.
+      SessionBaseSPtr getSession(Seid seid)
       {
          auto it = sessions_.find(seid);
          if (it != sessions_.end())
-            return SessionSPtr();
+            return SessionBaseSPtr();
          return it->second;
       }
-
-      Node &addSession(SessionSPtr &session)
+      /// @brief Adds a new session to the node.
+      /// @param session a shared pointer to the session object to add.
+      /// @return a reference to this object.
+      Node &addSession(SessionBaseSPtr &session)
       {
          auto it = sessions_.find(session->seid());
          if (it == sessions_.end())
@@ -381,7 +482,7 @@ namespace PFCP
       ETime st_;
       EIpAddress ipaddr_;
       ESocket::Address addr_;
-      SessionSPtrUMap sessions_;
+      SessionBaseSPtrUMap sessions_;
    };
 
    typedef std::shared_ptr<Node> NodeSPtr;
@@ -389,18 +490,36 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    DECLARE_ERROR(RemoteNodeException_UnableToAssignTeidRangeValue);
+   /// @endcond
 
+   /// @brief Represents a remote or peer PFCP node or host.
    class RemoteNode : public Node
    {
+      friend LocalNode;
+      friend class CommunicationThread;
    public:
+      /// @brief Defalut constructor.
       RemoteNode();
+      /// @brief Class destructor.
       virtual ~RemoteNode();
 
+      /// @brief Returns the currently configured TEID range value.
+      /// @return the currently configured TEID range value.
       Int teidRangeValue() const                            { return trv_; }
+      /// @brief Sets the TEID range value.
+      /// @param trv the new TEID range value.
+      /// @return a reference to this object.
       RemoteNode &setTeidRangeValue(Int trv)                { trv_ = trv; return *this; }
 
-      // methods related to receiving a req
+      /// @brief Sets the number of activity windows.
+      /// @param nbr the number of activity windows.
+      /// @return a reference to this object.
+      RemoteNode &setNbrActivityWnds(size_t nbr);
+
+   protected:
+      /// @cond DOXYGEN_EXCLUDE
       Bool addRcvdReq(ULong sn);
       Bool delRcvdReq(ULong sn)                             { return rrumap_.erase(sn) == 1; }
       Bool setRcvdReqRspWnd(ULong sn, Int wnd);
@@ -408,13 +527,12 @@ namespace PFCP
       Void removeRcvdRqstEntries(Int wnd);
       Bool rcvdReqExists(ULong sn) const                    { return rrumap_.find(sn) != rrumap_.end(); }
 
-      // activity related methods
-      RemoteNode &setNbrActivityWnds(size_t nbr);
       Void nextActivityWnd(Int wnd);
       Bool checkActivity();
       Void incrementActivity()                              { awnds_[aw_]++; }
 
       Void removeOldReqs(Int rw);
+      /// @endcond
 
    private:
       ESocket::Address addr_;
@@ -424,48 +542,74 @@ namespace PFCP
       size_t awndcnt_;
       size_t aw_;
    };
-
    typedef std::unordered_map<EIpAddress,RemoteNodeSPtr> RemoteNodeUMap;
    typedef std::pair<EIpAddress,RemoteNodeSPtr> RemoteNodeUMapPair;
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    DECLARE_ERROR(LocalNodeException_UnableToCreateRemoteNode);
    DECLARE_ERROR(LocalNodeException_RemoteNodeUMapInsertFailed);
+   /// @endcond
 
+   /// @brief Represents the local PFCP node.
    class LocalNode : public Node
    {
       friend NodeSocket;
       friend CommunicationThread;
    public:
+      /// @brief Default constructor.
       LocalNode();
+      /// @brief Class destructor.
       virtual ~LocalNode();
 
+      /// @brief Creates a new SEID.
+      /// @return the newly created SEID.
       Seid allocSeid();
+      /// @brief Deallocates a SEID.
+      /// @param seid the SEID to deallocate.
       Void freeSeid(Seid seid);
+      /// @brief Allocates a message sequence number for a request message.
+      /// @return the newly created sequence number.
       ULong allocSeqNbr();
+      /// @brief Deallocates a sequence number.
+      /// @param sn the sequence number to deallocate.
       Void freeSeqNbr(ULong sn);
 
-      Bool rqstOutExists(ULong seqnbr) const;
-      Bool addRqstOut(ReqOut *ro);
-      Bool setRqstOutRespWnd(ULong seqnbr, Int wnd);
-      Void removeRqstOutEntries(Int wnd);
-
+      /// @brief Sets the number of activity windows.
+      /// @param nbr the number of activity windows.
       Void setNbrActivityWnds(size_t nbr);
-      Void nextActivityWnd(Int wnd);
-      Void checkActivity(LocalNodeSPtr &ln);
 
+      /// @brief Creates a remote Node that this local node will "talk" to.
+      /// @param addr the IP address of the remote host.
+      /// @param port the port that messages will be sent to.
       RemoteNodeSPtr createRemoteNode(cpStr addr, UShort port)
       {
          EIpAddress ipaddr(addr);
          return createRemoteNode(ipaddr, port);
       }
+      /// @brief Creates a remote Node that this local node will "talk" to.
+      /// @param address the IP address of the remote host.
+      /// @param port the port that messages will be sent to.
+      /// @return a reference to this object.
       RemoteNodeSPtr createRemoteNode(EIpAddress &address, UShort port);
 
+      /// @brief Returns a reference to the underlying socket object for this local host.
+      /// @return a reference to the underlying socket object.
       NodeSocket &socket() { return socket_; }
 
    protected:
+
+      /// @cond DOXYGEN_EXCLUDE
+      Bool rqstOutExists(ULong seqnbr) const;
+      Bool addRqstOut(ReqOut *ro);
+      Bool setRqstOutRespWnd(ULong seqnbr, Int wnd);
+      Void removeRqstOutEntries(Int wnd);
+
+      Void nextActivityWnd(Int wnd);
+      Void checkActivity(LocalNodeSPtr &ln);
+
       Void onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const ESocket::Address &dst, cpUChar msg, Int len);
       Bool onReqOutTimeout(ReqOutPtr ro);
       Void removeOldReqs(Int rw);
@@ -473,6 +617,7 @@ namespace PFCP
       Void sndInitialReq(ReqOutPtr ro);
       Bool sndReq(ReqOutPtr ro);
       Void sndRsp(RspOutPtr ro);
+      /// @endcond
 
    private:
       SeidManager seidmgr_;
@@ -489,20 +634,35 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Contains the base functionality for all aplication messages.
    class AppMsg
    {
    public:
+      /// @brief Class destructor.
       virtual ~AppMsg()
       {
       }
 
+      /// @brief Returns the SEID associated with this message.
+      /// @return the SEID associated with this message.
       Seid seid() const                     { return seid_; }
+      /// @brief Returns the sequence number associated wtih this message.
+      /// @return the sequence number associated wtih this message.
       ULong seqNbr() const                  { return seq_; }
+      /// @brief Returns the message type for this message.
+      /// @return the message type for this message.
       MsgType msgType() const               { return mt_; }
+      /// @brief Returns True if this message is a request message, otherwise False.
       Bool isReq() const                    { return rqst_; }
 
+      /// @brief Assigns the SEID associated with this message.
+      /// @return a reference to this object.
       AppMsg &setSeid(const Seid seid)      { seid_ = seid; return *this; }
+      /// @brief Assigns the sequence number for this message.
+      /// @return a reference to this object.
       AppMsg &setSeqNbr(const ULong sn)     { seq_ = sn; return *this; }
+      /// @brief Assigns the message type for this message.
+      /// @return a reference to this object.
       AppMsg &setMsgType(const MsgType mt)  { mt_ = mt; return*this; }
 
    protected:
@@ -535,27 +695,35 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Represents a request application message.
    class AppMsgReq : public AppMsg
    {
    public:
+      /// @brief Default constructor.
       AppMsgReq()
       {
          setIsReq(True);
       }
+      /// @brief Class constructor.
+      /// @param ln the local node this message is associated with.
+      /// @param rn the remote node this message is associated with.
       AppMsgReq(LocalNodeSPtr &ln, RemoteNodeSPtr &rn)
          : ln_(ln),
            rn_(rn)
       {
          setIsReq(True);
       }
+      /// @brief Class destructor.
       virtual ~AppMsgReq()
       {
       }
 
+      /// @brief Returns a reference to the local node object for this message.
+      /// @return a reference to the local node object for this message.
       LocalNodeSPtr &localNode()    { return ln_; }
+      /// @brief Returns a reference to the remote node object for this message.
+      /// @return a reference to the remote node object for this message.
       RemoteNodeSPtr &remoteNode()  { return rn_; }
-
-      //Bool sendToTranslator();
 
    private:
       LocalNodeSPtr ln_;
@@ -567,32 +735,44 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief Represents a response application message.
    class AppMsgRsp : public AppMsg
    {
    public:
+      /// @brief Default construtor.
       AppMsgRsp()
          : amrq_(nullptr)
       {
          setIsReq(False);
       }
+      /// @brief Class constructor.
+      /// @param amrq a shared pointer reference to the request this response is
+      ///   associated with.
       AppMsgRsp(AppMsgReqPtr &amrq)
          : amrq_(amrq)
       {
          setIsReq(False);
       }
+      /// @brief Class destructor.
       virtual ~AppMsgRsp()
       {
          if (amrq_)
             delete amrq_;
       }
 
-      AppMsgReqPtr req()           { return amrq_; }
+      /// @brief Returns a shared pointer to the request application message.
+      /// @return a shared pointer to the request application message.
+      AppMsgReqPtr req()            { return amrq_; }
+      /// @brief Returns a reference to the local node object for this message.
+      /// @return a reference to the local node object for this message.
       LocalNodeSPtr &localNode()    { return amrq_->localNode(); }
+      /// @brief Returns a reference to the remote node object for this message.
+      /// @return a reference to the remote node object for this message.
       RemoteNodeSPtr &remoteNode()  { return amrq_->remoteNode(); }
 
+      /// @brief Sets the request message that this response is associated with.
+      /// @return a reference to this object.
       AppMsgRsp &setReq(AppMsgReqPtr req) { amrq_ = req; return *this; }
-
-      //Bool sendToTranslator();
 
    private:
       AppMsgReqPtr amrq_;
@@ -603,6 +783,7 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class SndHeartbeatReqData
    {
    public:
@@ -630,12 +811,13 @@ namespace PFCP
       LocalNodeSPtr ln_;
       RemoteNodeSPtr rn_;
    };
-
    typedef SndHeartbeatReqData *SndHeartbeatReqDataPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class RcvdHeartbeatReqData
    {
    public:
@@ -659,12 +841,13 @@ namespace PFCP
       AppMsgReqPtr am_;
       ETime started_;
    };
-
    typedef RcvdHeartbeatReqData *RcvdHeartbeatReqDataPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class SndHeartbeatRspData
    {
    public:
@@ -684,12 +867,13 @@ namespace PFCP
    private:
       AppMsgReqPtr am_;
    };
-
    typedef SndHeartbeatRspData *SndHeartbeatRspDataPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class RcvdHeartbeatRspData
    {
    public:
@@ -712,12 +896,13 @@ namespace PFCP
       AppMsgReqPtr am_;
       ETime started_;
    };
-
    typedef RcvdHeartbeatRspData *RcvdHeartbeatRspDataPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    DECLARE_ERROR(InternalMsg_OutOfMemory);
 
    class InternalMsg
@@ -815,10 +1000,12 @@ namespace PFCP
    };
 
    typedef InternalMsg *InternalMsgPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class RspOut : public InternalMsg
    {
    public:
@@ -849,12 +1036,13 @@ namespace PFCP
    private:
       AppMsgRspPtr am_;
    };
-
    typedef RspOut *RspOutPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class RspIn : public InternalMsg
    {
    public:
@@ -883,12 +1071,13 @@ namespace PFCP
    private:
       AppMsgReqPtr am_;
    };
-
    typedef RspIn *RspInPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class ReqOut : public InternalMsg
    {
    public:
@@ -956,10 +1145,12 @@ namespace PFCP
       ULong t1id_;
       Int rw_;
    };
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class ReqIn : public InternalMsg
    {
    public:
@@ -974,8 +1165,8 @@ namespace PFCP
       {
       }
    };
-
    typedef ReqIn *ReqInPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
@@ -1067,6 +1258,7 @@ Receiving a msg
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    DECLARE_ERROR_ADVANCED(TeidRangeManager_InvalidRangeBits);
    inline TeidRangeManager_InvalidRangeBits::TeidRangeManager_InvalidRangeBits() {
       setText("The number of range bits must be between 0 and 7");
@@ -1085,10 +1277,12 @@ Receiving a msg
       std::list<Int> free_;
       std::unordered_map<Int,RemoteNodeSPtr> used_;
    };
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    class TranslatorMsgInfo
    {
    public:
@@ -1120,32 +1314,75 @@ Receiving a msg
       UChar ver_;
       Bool rqst_;
    };
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief The PFCP Translator is used to encode and decode PFCP messages.
+   ///   This is a pure virtual base class that needs to be overridden to support
+   ///   each 3GPP PFCP release.
    class Translator
    {
    public:
+      /// @brief Default constructor.
       Translator();
+      /// @brief Class destructor.
       virtual ~Translator();
 
+      /// @brief Encodes a heartbeat request message.
+      /// @param hb the data associated with this heartbeat request message.
+      /// @return a pointer to the encoded heartbeat request message.
       virtual ReqOutPtr encodeHeartbeatReq(SndHeartbeatReqData &hb) = 0;
+      /// @brief Encodes a heartbeat response message.
+      /// @param hb the data associated with this heartbeat response message.
+      /// @return a pointer to the encoded heartbeat response message.
       virtual RspOutPtr encodeHeartbeatRsp(SndHeartbeatRspData &hb) = 0;
+      /// @brief Encodes a version not supported message.
+      /// @param msg a pointer to the request messge that is not supported.
+      /// @return a pointer to the encoded version not supported message.
       virtual RspOutPtr encodeVersionNotSupportedRsp(ReqInPtr msg) = 0;
 
+      /// @brief Encodes the PFCP request message specified by the application
+      ///   message request.
+      /// @param msg a pointer to the application message request.
+      /// @return a pointer to the encoded request.
       virtual ReqOutPtr encodeReq(AppMsgReqPtr msg) = 0;
+      /// @brief Encodes the PFCP response message specified by the application
+      ///   message response.
+      /// @param msg a pointer to the application message response.
+      /// @return a pointer to the encoded response.
       virtual RspOutPtr encodeRsp(AppMsgRspPtr msg) = 0;
+      /// @brief Decodes the PFCP request message.
+      /// @param msg a pointer to the application message request.
+      /// @return a pointer to the decoded application message request.
       virtual AppMsgReqPtr decodeReq(ReqInPtr msg) = 0;
+      /// @brief Decodes the PFCP response message.
+      /// @param msg a pointer to the application message response.
+      /// @return a pointer to the decoded application message response.
       virtual AppMsgRspPtr decodeRsp(RspInPtr msg) = 0;
+      /// @brief Decodes the PFCP heartbeat request message.
+      /// @param msg a pointer to the raw request message.
+      /// @return a pointer to the decoded heartbeat request message.
       virtual RcvdHeartbeatReqDataPtr decodeHeartbeatReq(ReqInPtr msg) = 0;
+      /// @brief Decodes the PFCP heartbeat response message.
+      /// @param msg a pointer to the raw response message.
+      /// @return a pointer to the decoded heartbeat response message.
       virtual RcvdHeartbeatRspDataPtr decodeHeartbeatRsp(RspInPtr msg) = 0;
 
+      /// @brief Returns basic information about a message.
+      /// @param info a reference to message info object to populate.
+      /// @param msg a pointer to the raw message buffer.
+      /// @param len the length of the raw message buffer.
       virtual Void getMsgInfo(TranslatorMsgInfo &info, cpUChar msg, Int len) = 0;
+      /// @brief Returns True if the specified version is supported by the
+      ///   Translator.
       virtual Bool isVersionSupported(UChar ver) = 0;
 
    protected:
+      /// @cond DOXYGEN_EXCLUDE
       pUChar data() { return data_; }
+      /// @endcond
 
    private:
       UChar data_[ESocket::UPD_MAX_MSG_LENGTH];
@@ -1154,6 +1391,7 @@ Receiving a msg
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    DECLARE_ERROR(SndReqException);
    struct SndReqExceptionData
    {
@@ -1217,36 +1455,60 @@ Receiving a msg
       EncodeRspException err;
    };
    typedef EncodeRspExceptionData *EncodeRspExceptionDataPtr;
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    #define APPLICATION_BASE_EVENT (EM_USER + 10000)
+   /// @endcond
 
+   /// @brief The events that will be received by the application work group.
    enum class ApplicationEvents : UInt
    {
-      RcvdReq              = (APPLICATION_BASE_EVENT + 1),     // TranslationThread --> ApplicationWorkGroup - AppMsgReqPtr
-      RcvdRsp              = (APPLICATION_BASE_EVENT + 2),     // TranslationThread --> ApplicationWorkGroup - AppMsgRspPtr
-      ReqTimeout           = (APPLICATION_BASE_EVENT + 3),     // CommunicationThread --> ApplicationWorkGroup - AppMsgReqPtr
-      RemoteNodeAdded      = (APPLICATION_BASE_EVENT + 4),     // CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
-      RemoteNodeFailure    = (APPLICATION_BASE_EVENT + 5),     // CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
-      RemoteNodeRestart    = (APPLICATION_BASE_EVENT + 6),     // CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
-      RemoteNodeRemoved    = (APPLICATION_BASE_EVENT + 7),     // CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
-      SndReqError          = (APPLICATION_BASE_EVENT + 8),     // CommunicationThread --> ApplicationWorkGroup - SndReqExceptionDataPtr
-      SndRspError          = (APPLICATION_BASE_EVENT + 9),     // CommunicationThread --> ApplicationWorkGroup - SndRspExceptionDataPtr
-      EncodeReqError       = (APPLICATION_BASE_EVENT + 10),    // TranslationThread --> ApplicationWorkGroup - EncodeReqExceptionDataPtr
-      EncodeRspError       = (APPLICATION_BASE_EVENT + 11)     // TranslationThread --> ApplicationWorkGroup - EncodeRspExceptionDataPtr
+      /// RcvdReq - TranslationThread --> ApplicationWorkGroup - AppMsgReqPtr
+      RcvdReq              = (APPLICATION_BASE_EVENT + 1),
+      /// RcvdRsp - TranslationThread --> ApplicationWorkGroup - AppMsgRspPtr
+      RcvdRsp              = (APPLICATION_BASE_EVENT + 2),
+      /// ReqTimeout - CommunicationThread --> ApplicationWorkGroup - AppMsgReqPtr
+      ReqTimeout           = (APPLICATION_BASE_EVENT + 3),
+      /// RemoteNodeAdded - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
+      RemoteNodeAdded      = (APPLICATION_BASE_EVENT + 4),
+      /// RemoteNodeFailure - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
+      RemoteNodeFailure    = (APPLICATION_BASE_EVENT + 5),
+      /// RemoteNodeRestart - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
+      RemoteNodeRestart    = (APPLICATION_BASE_EVENT + 6),
+      /// RemoteNodeRemoved - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
+      RemoteNodeRemoved    = (APPLICATION_BASE_EVENT + 7),
+      /// SndReqError - CommunicationThread --> ApplicationWorkGroup - SndReqExceptionDataPtr
+      SndReqError          = (APPLICATION_BASE_EVENT + 8),
+      /// SndRspError - CommunicationThread --> ApplicationWorkGroup - SndRspExceptionDataPtr
+      SndRspError          = (APPLICATION_BASE_EVENT + 9),
+      /// EncodeReqError - TranslationThread --> ApplicationWorkGroup - EncodeReqExceptionDataPtr
+      EncodeReqError       = (APPLICATION_BASE_EVENT + 10),
+      /// EncodeRspError - TranslationThread --> ApplicationWorkGroup - EncodeRspExceptionDataPtr
+      EncodeRspError       = (APPLICATION_BASE_EVENT + 11)
    };
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    DECLARE_ERROR(ApplicationWorkGroup_UnrecognizedAddressFamily);
+   /// @endcond
 
+   /// @brief The PFCP application work group template.  This template contains
+   ///   the common event queue for the application worker threads.
    template <class TWorker>
    class ApplicationWorkGroup : public EThreadWorkGroupPrivate<TWorker>
    {
    public:
+      /// @brief Creates a local node.
+      /// @param ipaddr the IP address of the local node.
+      /// @param port the port of the local node.
+      /// @return a shared pointer to the local node.
+      /// @{
       LocalNodeSPtr createLocalNode(cpStr ipaddr, UShort port)
       {
          ESocket::Address addr(ipaddr, port);
@@ -1266,32 +1528,79 @@ Receiving a msg
          }
          return createLocalNode(addr);
       }
+      /// @}
+
+      /// @brief Creates a local node.
+      /// @param addr the IP address/port of the local node.
+      /// @return a shared pointer to hte local node.
       LocalNodeSPtr createLocalNode(ESocket::Address &addr);
    };
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @brief The application worker thread class.  The various virtual methods
+   ///   should be overridden to implement application specific behavior.  Any
+   ///   additional event handlers can be added to handle application specific
+   ///   (non PFCP) events.
    class ApplicationWorker : public EThreadWorkerPrivate
    {
       friend Void Uninitialize();
    public:
-      Void onInit();
-      Void onQuit();
+      /// @brief Called when the worker thread is initialized.  When overriding,
+      ///   the overriding method should call the associated base class method.
+      virtual Void onInit();
+      /// @brief Called when the worker thread is has received the EM_QUIT event.
+      ///   When overriding, the overriding method should call the associated
+      ///   base class method.
+      virtual Void onQuit();
 
+      /// @brief Called when a PFCP request message has been received.
+      /// @param req a pointer to the request message.
       virtual Void onRcvdReq(AppMsgReqPtr req);
+      /// @brief Called when a PFCP response message has been received.
+      /// @param rsp a pointer to the response message.
       virtual Void onRcvdRsp(AppMsgRspPtr rsp);
+      /// @brief Called when a PFCP request message has timed out waiting
+      ///   for the associated response message.
+      /// @param req a pointer to the request message that did not receive
+      ///   a response.
       virtual Void onReqTimeout(AppMsgReqPtr req);
+      /// @brief Called when a new remote node/peer has been added.
+      /// @param rmtNode a shared pointer to the remote node object.
       virtual Void onRemoteNodeAdded(RemoteNodeSPtr &rmtNode);
+      /// @brief Called when a remote node/peer has failed to respond.
+      /// @param rmtNode a shared pointer to the remote node object.
       virtual Void onRemoteNodeFailure(RemoteNodeSPtr &rmtNode);
+      /// @brief Called when a remote node/peer restart has been detected.
+      /// @param rmtNode a shared pointer to the remote node object.
       virtual Void onRemoteNodeRestart(RemoteNodeSPtr &rmtNode);
+      /// @brief Called when a remote node/peer object is removed.
+      /// @param rmtNode a shared pointer to the remote node object.
       virtual Void onRemoteNodeRemoved(RemoteNodeSPtr &rmtNode);
+      /// @brief Called when an error is encountered while sending a request
+      ///   message.
+      /// @param req the appication request message that failed.
+      /// @param err a reference to the associated exception.
       virtual Void onSndReqError(AppMsgReqPtr req, SndReqException &err);
+      /// @brief Called when an error is encountered while sending a response
+      ///   message.
+      /// @param rsp the appication response message that failed.
+      /// @param err a reference to the associated exception.
       virtual Void onSndRspError(AppMsgRspPtr rsp, SndRspException &err);
+      /// @brief Called when an error is encountered while encoding a request
+      ///   message.
+      /// @param req the appication request message that failed.
+      /// @param err a reference to the associated exception.
       virtual Void onEncodeReqError(AppMsgReqPtr req, EncodeReqException &err);
+      /// @brief Called when an error is encountered while encoding a response
+      ///   message.
+      /// @param rsp the appication response message that failed.
+      /// @param err a reference to the associated exception.
       virtual Void onEncodeRspError(AppMsgRspPtr rsp, EncodeRspException &err);
 
    protected:
+      /// @cond DOXYGEN_EXCLUDE
       ApplicationWorker();
       ~ApplicationWorker();
 
@@ -1318,12 +1627,14 @@ Receiving a msg
          ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::SndReqError), ApplicationWorker::_onSndReqError)
          ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::SndRspError), ApplicationWorker::_onSndRspError)
       END_MESSAGE_MAP2()
+      /// @endcond
    private:
    };
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    #define TRANSLATION_BASE_EVENT (EM_USER + 20000)
 
    class TranslationThread : public EThreadPrivate
@@ -1385,10 +1696,12 @@ Receiving a msg
       TranslationThread();
       Translator &xlator_;
    };
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    #define COMMUNICATION_BASE_EVENT (EM_USER + 30000)
 
    class CommunicationThread : public ESocket::ThreadPrivate
@@ -1492,10 +1805,12 @@ Receiving a msg
       size_t caw_;
       Int crw_;
    };
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   /// @cond DOXYGEN_EXCLUDE
    inline Void ReqOut::startT1()
    {
       stopT1();
@@ -1507,7 +1822,7 @@ Receiving a msg
 
    inline Bool RemoteNode::setRcvdReqRspWnd(ULong sn)
    {
-      return setRcvdReqRspWnd(sn, CommunicationThread::Instance().currentRspWnd());
+      return setRcvdReqRspWnd(sn, PFCP::CommunicationThread::Instance().currentRspWnd());
    }
 
    template<class TWorker>
@@ -1515,8 +1830,10 @@ Receiving a msg
    {
       return CommunicationThread::Instance().createLocalNode(addr);
    }
+   /// @endcond
 }
 
+/// @cond DOXYGEN_EXCLUDE
 namespace std
 {
 template <>
@@ -1527,6 +1844,8 @@ struct hash<PFCP::RemoteNodeSPtr>
       return std::hash<ESocket::Address>{}(rn->address());
    }
 };
+/// @endcond
+
 }
 
 #endif // #ifndef __EPFCP_H

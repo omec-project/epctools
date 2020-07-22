@@ -113,7 +113,7 @@ public:
    /// @brief Registers an expiration timer.
    /// @param ms the length of the timer in milliseconds.
    /// @param msg the thread message to post when the timer expires.
-   /// @param queue the thread queue to post the message to when the timer expires.
+   /// @param notify a reference to the event notification object.
    /// @return the ID for this timer.
    ULong registerTimer(LongLong ms, _EThreadEventMessageBase *msg, _EThreadEventNotification &notify);
    /// @brief Registers an expiration timer.

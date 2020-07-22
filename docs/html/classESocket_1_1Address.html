@@ -88,6 +88,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1ada497e7ac581b4a3f1eb8f8866f5ad"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a1ada497e7ac581b4a3f1eb8f8866f5ad">Address</a> (cpStr addr, UShort port)</td></tr>
 <tr class="memdesc:a1ada497e7ac581b4a3f1eb8f8866f5ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class constructor.  <a href="classESocket_1_1Address.html#a1ada497e7ac581b4a3f1eb8f8866f5ad">More...</a><br /></td></tr>
 <tr class="separator:a1ada497e7ac581b4a3f1eb8f8866f5ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8287faa21207c06774217133934ca512"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a8287faa21207c06774217133934ca512">Address</a> (const struct in_addr &amp;addr, UShort port)</td></tr>
+<tr class="memdesc:a8287faa21207c06774217133934ca512"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class constructor.  <a href="classESocket_1_1Address.html#a8287faa21207c06774217133934ca512">More...</a><br /></td></tr>
+<tr class="separator:a8287faa21207c06774217133934ca512"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b6ee6142eb56c31899124e1a805d89a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a2b6ee6142eb56c31899124e1a805d89a">Address</a> (const struct in6_addr &amp;addr, UShort port)</td></tr>
+<tr class="memdesc:a2b6ee6142eb56c31899124e1a805d89a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class constructor.  <a href="classESocket_1_1Address.html#a2b6ee6142eb56c31899124e1a805d89a">More...</a><br /></td></tr>
+<tr class="separator:a2b6ee6142eb56c31899124e1a805d89a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a01b7887a4e697067a36085c9fbc1af2f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a01b7887a4e697067a36085c9fbc1af2f">Address</a> (struct sockaddr_in &amp;addr)</td></tr>
 <tr class="memdesc:a01b7887a4e697067a36085c9fbc1af2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class constructor.  <a href="classESocket_1_1Address.html#a01b7887a4e697067a36085c9fbc1af2f">More...</a><br /></td></tr>
 <tr class="separator:a01b7887a4e697067a36085c9fbc1af2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -109,33 +115,55 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1b42334880b30590e0d3e8e7ef6ff558"><td class="memItemLeft" align="right" valign="top">UShort&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a1b42334880b30590e0d3e8e7ef6ff558">getPort</a> () const</td></tr>
 <tr class="memdesc:a1b42334880b30590e0d3e8e7ef6ff558"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrievs the port.  <a href="classESocket_1_1Address.html#a1b42334880b30590e0d3e8e7ef6ff558">More...</a><br /></td></tr>
 <tr class="separator:a1b42334880b30590e0d3e8e7ef6ff558"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a224d9853e3343284f3732b280434efd1"><td class="memItemLeft" align="right" valign="top">struct sockaddr *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a224d9853e3343284f3732b280434efd1">getSockAddr</a> ()</td></tr>
-<tr class="memdesc:a224d9853e3343284f3732b280434efd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a sockaddr pointer to the socket address.  <a href="classESocket_1_1Address.html#a224d9853e3343284f3732b280434efd1">More...</a><br /></td></tr>
-<tr class="separator:a224d9853e3343284f3732b280434efd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f4e67dde6bc03d295229fdbfb05ced6"><td class="memItemLeft" align="right" valign="top">const struct sockaddr_storage &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a9f4e67dde6bc03d295229fdbfb05ced6">getSockAddrStorage</a> () const</td></tr>
+<tr class="memdesc:a9f4e67dde6bc03d295229fdbfb05ced6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a sockaddr pointer to the socket address.  <a href="classESocket_1_1Address.html#a9f4e67dde6bc03d295229fdbfb05ced6">More...</a><br /></td></tr>
+<tr class="separator:a9f4e67dde6bc03d295229fdbfb05ced6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17072b3178ef1072542e0e730653107a"><td class="memItemLeft" align="right" valign="top">struct sockaddr *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a17072b3178ef1072542e0e730653107a">getSockAddr</a> () const</td></tr>
+<tr class="memdesc:a17072b3178ef1072542e0e730653107a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a sockaddr_storage reference to the socket address.  <a href="classESocket_1_1Address.html#a17072b3178ef1072542e0e730653107a">More...</a><br /></td></tr>
+<tr class="separator:a17072b3178ef1072542e0e730653107a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49c365cd9ef8aa23a2775275772e1a33"><td class="memItemLeft" align="right" valign="top">socklen_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a49c365cd9ef8aa23a2775275772e1a33">getSockAddrLen</a> () const</td></tr>
 <tr class="memdesc:a49c365cd9ef8aa23a2775275772e1a33"><td class="mdescLeft">&#160;</td><td class="mdescRight">retrieves the length of the current socket address.  <a href="classESocket_1_1Address.html#a49c365cd9ef8aa23a2775275772e1a33">More...</a><br /></td></tr>
 <tr class="separator:a49c365cd9ef8aa23a2775275772e1a33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51bcc8698de1de33625055f47f97c388"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a51bcc8698de1de33625055f47f97c388">operator=</a> (const <a class="el" href="classESocket_1_1Address.html">Address</a> &amp;addr)</td></tr>
 <tr class="memdesc:a51bcc8698de1de33625055f47f97c388"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment operator.  <a href="classESocket_1_1Address.html#a51bcc8698de1de33625055f47f97c388">More...</a><br /></td></tr>
 <tr class="separator:a51bcc8698de1de33625055f47f97c388"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3320e9d6e75d493667bf71b21f8d6d1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a3320e9d6e75d493667bf71b21f8d6d1d">operator=</a> (const sockaddr_in &amp;addr)</td></tr>
+<tr class="memdesc:a3320e9d6e75d493667bf71b21f8d6d1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment operator.  <a href="classESocket_1_1Address.html#a3320e9d6e75d493667bf71b21f8d6d1d">More...</a><br /></td></tr>
+<tr class="separator:a3320e9d6e75d493667bf71b21f8d6d1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada1f07e943fbd457bd524fc718dca978"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#ada1f07e943fbd457bd524fc718dca978">operator=</a> (const sockaddr_in6 &amp;addr)</td></tr>
+<tr class="memdesc:ada1f07e943fbd457bd524fc718dca978"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment operator.  <a href="classESocket_1_1Address.html#ada1f07e943fbd457bd524fc718dca978">More...</a><br /></td></tr>
+<tr class="separator:ada1f07e943fbd457bd524fc718dca978"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc4fa6ddf71554e2744fb2a9985e903a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#adc4fa6ddf71554e2744fb2a9985e903a">operator=</a> (UShort port)</td></tr>
 <tr class="memdesc:adc4fa6ddf71554e2744fb2a9985e903a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a port value (allowing IPADDR_ANY).  <a href="classESocket_1_1Address.html#adc4fa6ddf71554e2744fb2a9985e903a">More...</a><br /></td></tr>
 <tr class="separator:adc4fa6ddf71554e2744fb2a9985e903a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3c327b9a9a5d9320ef362e13691c101"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceESocket.html#a1c4699facd27add9989fa67b3c63316e">Family</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#ac3c327b9a9a5d9320ef362e13691c101">getFamily</a> () const</td></tr>
 <tr class="memdesc:ac3c327b9a9a5d9320ef362e13691c101"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the address family for this address.  <a href="classESocket_1_1Address.html#ac3c327b9a9a5d9320ef362e13691c101">More...</a><br /></td></tr>
 <tr class="separator:ac3c327b9a9a5d9320ef362e13691c101"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a359a57f4e4d3bc04b5f5aa823c144ea4"><td class="memItemLeft" align="right" valign="top">struct sockaddr_in &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a359a57f4e4d3bc04b5f5aa823c144ea4">getInet</a> ()</td></tr>
-<tr class="memdesc:a359a57f4e4d3bc04b5f5aa823c144ea4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a reference to this address as an IPv4 address.  <a href="classESocket_1_1Address.html#a359a57f4e4d3bc04b5f5aa823c144ea4">More...</a><br /></td></tr>
-<tr class="separator:a359a57f4e4d3bc04b5f5aa823c144ea4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a28dc28cb4343a9c33edf551ae69a544b"><td class="memItemLeft" align="right" valign="top">struct sockaddr_in6 &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a28dc28cb4343a9c33edf551ae69a544b">getInet6</a> ()</td></tr>
-<tr class="memdesc:a28dc28cb4343a9c33edf551ae69a544b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a reference to this address as an IPv6 address.  <a href="classESocket_1_1Address.html#a28dc28cb4343a9c33edf551ae69a544b">More...</a><br /></td></tr>
-<tr class="separator:a28dc28cb4343a9c33edf551ae69a544b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c8f217591f2923c7d3039913a90356f"><td class="memItemLeft" align="right" valign="top">const struct sockaddr_storage &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a6c8f217591f2923c7d3039913a90356f">getStorage</a> () const</td></tr>
+<tr class="memdesc:a6c8f217591f2923c7d3039913a90356f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the sockaddr_storage.  <a href="classESocket_1_1Address.html#a6c8f217591f2923c7d3039913a90356f">More...</a><br /></td></tr>
+<tr class="separator:a6c8f217591f2923c7d3039913a90356f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ffa5db8e7ecb1bda7245be6934893eb"><td class="memItemLeft" align="right" valign="top">const struct sockaddr_in &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a3ffa5db8e7ecb1bda7245be6934893eb">getInet</a> () const</td></tr>
+<tr class="memdesc:a3ffa5db8e7ecb1bda7245be6934893eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a reference to this address as an IPv4 address.  <a href="classESocket_1_1Address.html#a3ffa5db8e7ecb1bda7245be6934893eb">More...</a><br /></td></tr>
+<tr class="separator:a3ffa5db8e7ecb1bda7245be6934893eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a350d40d0561f6440d9080a378ee62ba1"><td class="memItemLeft" align="right" valign="top">const struct sockaddr_in6 &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a350d40d0561f6440d9080a378ee62ba1">getInet6</a> () const</td></tr>
+<tr class="memdesc:a350d40d0561f6440d9080a378ee62ba1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a reference to this address as an IPv6 address.  <a href="classESocket_1_1Address.html#a350d40d0561f6440d9080a378ee62ba1">More...</a><br /></td></tr>
+<tr class="separator:a350d40d0561f6440d9080a378ee62ba1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40c99c6f9534a2161cb8c6750788fd86"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a40c99c6f9534a2161cb8c6750788fd86">setAddress</a> (cpStr addr, UShort port)</td></tr>
 <tr class="memdesc:a40c99c6f9534a2161cb8c6750788fd86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns the socket address.  <a href="classESocket_1_1Address.html#a40c99c6f9534a2161cb8c6750788fd86">More...</a><br /></td></tr>
 <tr class="separator:a40c99c6f9534a2161cb8c6750788fd86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a270d2b8579917468b60be40e11b3f456"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a270d2b8579917468b60be40e11b3f456">setAddress</a> (UShort port)</td></tr>
-<tr class="memdesc:a270d2b8579917468b60be40e11b3f456"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns the socket address.  <a href="classESocket_1_1Address.html#a270d2b8579917468b60be40e11b3f456">More...</a><br /></td></tr>
-<tr class="separator:a270d2b8579917468b60be40e11b3f456"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaff079c5bea59f2810ca3d42e2b55c4b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#aaff079c5bea59f2810ca3d42e2b55c4b">setAddress</a> (const struct in_addr &amp;addr, UShort port)</td></tr>
+<tr class="memdesc:aaff079c5bea59f2810ca3d42e2b55c4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns the IPv4 socket address.  <a href="classESocket_1_1Address.html#aaff079c5bea59f2810ca3d42e2b55c4b">More...</a><br /></td></tr>
+<tr class="separator:aaff079c5bea59f2810ca3d42e2b55c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17710d1cfd1d294139f97470b966e7f5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a17710d1cfd1d294139f97470b966e7f5">setAddress</a> (const struct in6_addr &amp;addr, UShort port)</td></tr>
+<tr class="memdesc:a17710d1cfd1d294139f97470b966e7f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns the IPv6 socket address.  <a href="classESocket_1_1Address.html#a17710d1cfd1d294139f97470b966e7f5">More...</a><br /></td></tr>
+<tr class="separator:a17710d1cfd1d294139f97470b966e7f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a365f3c9a4f4079cbf95573c5c87b6893"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a365f3c9a4f4079cbf95573c5c87b6893">setAddress</a> (UShort port, <a class="el" href="namespaceESocket.html#a1c4699facd27add9989fa67b3c63316e">Family</a> fam=<a class="el" href="namespaceESocket.html#a1c4699facd27add9989fa67b3c63316ea3a1be585a9d1d7af08b562f200a982bb">Family::INET6</a>)</td></tr>
+<tr class="memdesc:a365f3c9a4f4079cbf95573c5c87b6893"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns the socket address.  <a href="classESocket_1_1Address.html#a365f3c9a4f4079cbf95573c5c87b6893">More...</a><br /></td></tr>
+<tr class="separator:a365f3c9a4f4079cbf95573c5c87b6893"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d2fbdb74d73698e64513e114c579bd9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a6d2fbdb74d73698e64513e114c579bd9">setAddress</a> (const sockaddr_in &amp;addr)</td></tr>
+<tr class="separator:a6d2fbdb74d73698e64513e114c579bd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d4fdd2ec4432a2257525c658247662b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#a0d4fdd2ec4432a2257525c658247662b">setAddress</a> (const sockaddr_in6 &amp;addr)</td></tr>
+<tr class="separator:a0d4fdd2ec4432a2257525c658247662b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acbabd17beaeb3f6ceac8010d3e406274"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classESocket_1_1Address.html">Address</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classESocket_1_1Address.html#acbabd17beaeb3f6ceac8010d3e406274">clear</a> ()</td></tr>
 <tr class="memdesc:acbabd17beaeb3f6ceac8010d3e406274"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears this address.  <a href="classESocket_1_1Address.html#acbabd17beaeb3f6ceac8010d3e406274">More...</a><br /></td></tr>
 <tr class="separator:acbabd17beaeb3f6ceac8010d3e406274"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,7 +172,7 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p>Encapsulates a sockaddr_storage structure that represents a socket address. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a8712e4354e4b8949ea934b7db00add67"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8712e4354e4b8949ea934b7db00add67">&#9670;&nbsp;</a></span>Address() <span class="overload">[1/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a8712e4354e4b8949ea934b7db00add67">&#9670;&nbsp;</a></span>Address() <span class="overload">[1/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -171,7 +199,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a1ada497e7ac581b4a3f1eb8f8866f5ad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1ada497e7ac581b4a3f1eb8f8866f5ad">&#9670;&nbsp;</a></span>Address() <span class="overload">[2/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ada497e7ac581b4a3f1eb8f8866f5ad">&#9670;&nbsp;</a></span>Address() <span class="overload">[2/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -215,8 +243,98 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a8287faa21207c06774217133934ca512"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8287faa21207c06774217133934ca512">&#9670;&nbsp;</a></span>Address() <span class="overload">[3/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ESocket::Address::Address </td>
+          <td>(</td>
+          <td class="paramtype">const struct in_addr &amp;&#160;</td>
+          <td class="paramname"><em>addr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UShort&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Class constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">addr</td><td>the IPv4 address. </td></tr>
+    <tr><td class="paramname">port</td><td>the IP port. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a2b6ee6142eb56c31899124e1a805d89a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b6ee6142eb56c31899124e1a805d89a">&#9670;&nbsp;</a></span>Address() <span class="overload">[4/7]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ESocket::Address::Address </td>
+          <td>(</td>
+          <td class="paramtype">const struct in6_addr &amp;&#160;</td>
+          <td class="paramname"><em>addr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UShort&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Class constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">addr</td><td>the IP IPv6 address. </td></tr>
+    <tr><td class="paramname">port</td><td>the IP port. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a01b7887a4e697067a36085c9fbc1af2f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a01b7887a4e697067a36085c9fbc1af2f">&#9670;&nbsp;</a></span>Address() <span class="overload">[3/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a01b7887a4e697067a36085c9fbc1af2f">&#9670;&nbsp;</a></span>Address() <span class="overload">[5/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -250,7 +368,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a79bd454fcf00d25f3d93d022dc52e897"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79bd454fcf00d25f3d93d022dc52e897">&#9670;&nbsp;</a></span>Address() <span class="overload">[4/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a79bd454fcf00d25f3d93d022dc52e897">&#9670;&nbsp;</a></span>Address() <span class="overload">[6/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -284,7 +402,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="abed795d8cf24afa21adbe9458219c683"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abed795d8cf24afa21adbe9458219c683">&#9670;&nbsp;</a></span>Address() <span class="overload">[5/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#abed795d8cf24afa21adbe9458219c683">&#9670;&nbsp;</a></span>Address() <span class="overload">[7/7]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -402,8 +520,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a359a57f4e4d3bc04b5f5aa823c144ea4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a359a57f4e4d3bc04b5f5aa823c144ea4">&#9670;&nbsp;</a></span>getInet()</h2>
+<a id="a3ffa5db8e7ecb1bda7245be6934893eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ffa5db8e7ecb1bda7245be6934893eb">&#9670;&nbsp;</a></span>getInet()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -412,10 +530,10 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">struct sockaddr_in&amp; ESocket::Address::getInet </td>
+          <td class="memname">const struct sockaddr_in&amp; ESocket::Address::getInet </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -430,8 +548,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a28dc28cb4343a9c33edf551ae69a544b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a28dc28cb4343a9c33edf551ae69a544b">&#9670;&nbsp;</a></span>getInet6()</h2>
+<a id="a350d40d0561f6440d9080a378ee62ba1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a350d40d0561f6440d9080a378ee62ba1">&#9670;&nbsp;</a></span>getInet6()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -440,10 +558,10 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">struct sockaddr_in6&amp; ESocket::Address::getInet6 </td>
+          <td class="memname">const struct sockaddr_in6&amp; ESocket::Address::getInet6 </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -486,8 +604,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a224d9853e3343284f3732b280434efd1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a224d9853e3343284f3732b280434efd1">&#9670;&nbsp;</a></span>getSockAddr()</h2>
+<a id="a17072b3178ef1072542e0e730653107a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a17072b3178ef1072542e0e730653107a">&#9670;&nbsp;</a></span>getSockAddr()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -499,7 +617,7 @@ Public Member Functions</h2></td></tr>
           <td class="memname">struct sockaddr* ESocket::Address::getSockAddr </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -509,8 +627,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Retrieves a sockaddr pointer to the socket address. </p>
-<dl class="section return"><dt>Returns</dt><dd>a sockaddr pointer to the socket address. </dd></dl>
+<p>Retrieves a sockaddr_storage reference to the socket address. </p>
+<dl class="section return"><dt>Returns</dt><dd>a sockaddr_storage reference to the socket address. </dd></dl>
 
 </div>
 </div>
@@ -539,6 +657,62 @@ Public Member Functions</h2></td></tr>
 
 <p>retrieves the length of the current socket address. </p>
 <dl class="section return"><dt>Returns</dt><dd>the length of the current socket address. </dd></dl>
+
+</div>
+</div>
+<a id="a9f4e67dde6bc03d295229fdbfb05ced6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f4e67dde6bc03d295229fdbfb05ced6">&#9670;&nbsp;</a></span>getSockAddrStorage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const struct sockaddr_storage&amp; ESocket::Address::getSockAddrStorage </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves a sockaddr pointer to the socket address. </p>
+<dl class="section return"><dt>Returns</dt><dd>a sockaddr pointer to the socket address. </dd></dl>
+
+</div>
+</div>
+<a id="a6c8f217591f2923c7d3039913a90356f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c8f217591f2923c7d3039913a90356f">&#9670;&nbsp;</a></span>getStorage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const struct sockaddr_storage&amp; ESocket::Address::getStorage </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves the sockaddr_storage. </p>
+<dl class="section return"><dt>Returns</dt><dd>a reference to the sockaddr_storage member. </dd></dl>
 
 </div>
 </div>
@@ -599,7 +773,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a51bcc8698de1de33625055f47f97c388"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a51bcc8698de1de33625055f47f97c388">&#9670;&nbsp;</a></span>operator=() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a51bcc8698de1de33625055f47f97c388">&#9670;&nbsp;</a></span>operator=() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -633,8 +807,78 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a3320e9d6e75d493667bf71b21f8d6d1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3320e9d6e75d493667bf71b21f8d6d1d">&#9670;&nbsp;</a></span>operator=() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classESocket_1_1Address.html">Address</a>&amp; ESocket::Address::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const sockaddr_in &amp;&#160;</td>
+          <td class="paramname"><em>addr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assignment operator. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">addr</td><td>the IPV4 address object to copy. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a reference to this <a class="el" href="classESocket_1_1Address.html" title="Encapsulates a sockaddr_storage structure that represents a socket address.">Address</a> object. </dd></dl>
+
+</div>
+</div>
+<a id="ada1f07e943fbd457bd524fc718dca978"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada1f07e943fbd457bd524fc718dca978">&#9670;&nbsp;</a></span>operator=() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classESocket_1_1Address.html">Address</a>&amp; ESocket::Address::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const sockaddr_in6 &amp;&#160;</td>
+          <td class="paramname"><em>addr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assignment operator. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">addr</td><td>the IPV6 address object to copy. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a reference to this <a class="el" href="classESocket_1_1Address.html" title="Encapsulates a sockaddr_storage structure that represents a socket address.">Address</a> object. </dd></dl>
+
+</div>
+</div>
 <a id="adc4fa6ddf71554e2744fb2a9985e903a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc4fa6ddf71554e2744fb2a9985e903a">&#9670;&nbsp;</a></span>operator=() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#adc4fa6ddf71554e2744fb2a9985e903a">&#9670;&nbsp;</a></span>operator=() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -668,8 +912,152 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a6d2fbdb74d73698e64513e114c579bd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d2fbdb74d73698e64513e114c579bd9">&#9670;&nbsp;</a></span>setAddress() <span class="overload">[1/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classESocket_1_1Address.html">Address</a>&amp; ESocket::Address::setAddress </td>
+          <td>(</td>
+          <td class="paramtype">const sockaddr_in &amp;&#160;</td>
+          <td class="paramname"><em>addr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0d4fdd2ec4432a2257525c658247662b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d4fdd2ec4432a2257525c658247662b">&#9670;&nbsp;</a></span>setAddress() <span class="overload">[2/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classESocket_1_1Address.html">Address</a>&amp; ESocket::Address::setAddress </td>
+          <td>(</td>
+          <td class="paramtype">const sockaddr_in6 &amp;&#160;</td>
+          <td class="paramname"><em>addr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a17710d1cfd1d294139f97470b966e7f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a17710d1cfd1d294139f97470b966e7f5">&#9670;&nbsp;</a></span>setAddress() <span class="overload">[3/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classESocket_1_1Address.html">Address</a>&amp; ESocket::Address::setAddress </td>
+          <td>(</td>
+          <td class="paramtype">const struct in6_addr &amp;&#160;</td>
+          <td class="paramname"><em>addr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UShort&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assigns the IPv6 socket address. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">addr</td><td>the IPv6 address. </td></tr>
+    <tr><td class="paramname">port</td><td>the port. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a reference to this address object. </dd></dl>
+
+</div>
+</div>
+<a id="aaff079c5bea59f2810ca3d42e2b55c4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaff079c5bea59f2810ca3d42e2b55c4b">&#9670;&nbsp;</a></span>setAddress() <span class="overload">[4/6]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classESocket_1_1Address.html">Address</a>&amp; ESocket::Address::setAddress </td>
+          <td>(</td>
+          <td class="paramtype">const struct in_addr &amp;&#160;</td>
+          <td class="paramname"><em>addr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">UShort&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assigns the IPv4 socket address. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">addr</td><td>the IPv4 address. </td></tr>
+    <tr><td class="paramname">port</td><td>the port. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a reference to this address object. </dd></dl>
+
+</div>
+</div>
 <a id="a40c99c6f9534a2161cb8c6750788fd86"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a40c99c6f9534a2161cb8c6750788fd86">&#9670;&nbsp;</a></span>setAddress() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a40c99c6f9534a2161cb8c6750788fd86">&#9670;&nbsp;</a></span>setAddress() <span class="overload">[5/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -714,8 +1102,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a270d2b8579917468b60be40e11b3f456"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a270d2b8579917468b60be40e11b3f456">&#9670;&nbsp;</a></span>setAddress() <span class="overload">[2/2]</span></h2>
+<a id="a365f3c9a4f4079cbf95573c5c87b6893"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a365f3c9a4f4079cbf95573c5c87b6893">&#9670;&nbsp;</a></span>setAddress() <span class="overload">[6/6]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -727,8 +1115,18 @@ Public Member Functions</h2></td></tr>
           <td class="memname"><a class="el" href="classESocket_1_1Address.html">Address</a>&amp; ESocket::Address::setAddress </td>
           <td>(</td>
           <td class="paramtype">UShort&#160;</td>
-          <td class="paramname"><em>port</em></td><td>)</td>
+          <td class="paramname"><em>port</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="namespaceESocket.html#a1c4699facd27add9989fa67b3c63316e">Family</a>&#160;</td>
+          <td class="paramname"><em>fam</em> = <code><a class="el" href="namespaceESocket.html#a1c4699facd27add9989fa67b3c63316ea3a1be585a9d1d7af08b562f200a982bb">Family::INET6</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -742,6 +1140,7 @@ Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">port</td><td>the port. </td></tr>
+    <tr><td class="paramname">fam</td><td>the address family. </td></tr>
   </table>
   </dd>
 </dl>
@@ -750,7 +1149,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/vagrant/share/code/epctools-omec/include/epc/<a class="el" href="esocket_8h_source.html">esocket.h</a></li>
+<li>/home/vagrant/share/code/epctools-omec-pfcp/include/epc/<a class="el" href="esocket_8h_source.html">esocket.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

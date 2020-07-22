@@ -3610,13 +3610,6 @@ private:
    Int m_cnt;
 };
 
-Void TestWorker::myOnTimer(EThreadEventTimer *pTimer)
-{
-   std::cout << "TestWorker::onTimer() workerId=" << workerId() << " timerId=" << pTimer->getId() << std::endl;
-   if (!group().keepGoing())
-      group().quit();
-}
-
 Void TestWorker::handler(EThreadMessage &msg)
 {
    std::cout << "TestWorker::handler() workerId=" << this->workerId() << " data=" << msg.data().data().int32[0] << std::endl;
@@ -3625,6 +3618,13 @@ Void TestWorker::handler(EThreadMessage &msg)
    EThreadMessage m(EM_USER1, this->workerId() * 1000 + m_val);
    group().sendMessage(m);
    sleep(100);
+}
+
+Void TestWorker::myOnTimer(EThreadEventTimer *pTimer)
+{
+   std::cout << "TestWorker::onTimer() workerId=" << workerId() << " timerId=" << pTimer->getId() << std::endl;
+   if (!group().keepGoing())
+      group().quit();
 }
 
 Void workGroup_test()
@@ -3783,98 +3783,6 @@ Void run(EGetOpt &options)
 #define BUFFER_SIZE 262144
 int main(int argc, char *argv[])
 {
-   typedef uint8_t ThreeBytes[3];
-   typedef std::array<uint8_t,3> AnotherThreeBytes;
-   typedef struct
-   {
-      UChar f1_ : 1;
-      UChar f2_ : 1;
-      UChar f3_ : 1;
-      UChar f4_ : 1;
-      UChar f5_ : 1;
-   } Flags;
-
-   class Brian
-   {
-   public:
-      ThreeBytes &threeBytes() { return threebytes_; }
-      AnotherThreeBytes &anotherThreeBytes() { return anotherthreebytes_; }
-      Flags &flags() { return flags_; }
-      ThreeBytes threebytes_;
-      AnotherThreeBytes anotherthreebytes_;
-      Flags flags_;
-   };
-
-   Brian b;
-
-   std::cout << "sizeof Brian::ThreeBytes() = " << sizeof(b.threeBytes()) << std::endl;
-   std::cout << "sizeof Brian::AnotherThreeBytes() = " << sizeof(b.anotherThreeBytes()) << std::endl;
-   std::cout << "sizeof Brian::flags() = " << sizeof(b.flags()) << std::endl;
-
-   //EString s;
-   //ETime t1, t2;
-   //t1.Format(s, "%i", True);	cout << s << endl;
-   //t2 = t1.add(1,0,0,0,0);
-   //t1.Format(s, "%i", True);	cout << s << endl;
-   //t2.Format(s, "%i", True);	cout << s << endl;
-   //LongLong chk;
-   //chk = t1.year() * 10000000000LL + t1.month() * 100000000LL + t1.day() * 1000000LL + t1.hour() * 10000LL + t1.minute() * 100LL + t1.second();
-   //cout << chk << endl;
-
-   //try
-   //{
-   //	EBzip2 bz;
-
-   //	Int block = 0;
-   //	ULongLong tamt = 0;
-   //	pChar buf = new Char[BUFFER_SIZE];
-   //	memset(buf, 0x7f, BUFFER_SIZE);
-   //	//bz.readOpen("C:\\Users\\bwaters\\Downloads\\cdr1.txt.20140730110101.bz2");
-   //	//for (;;)
-   //	//{
-   //	//	Int amt = bz.read((pUChar)buf, BUFFER_SIZE);
-   //	//	cout << "\r" << block++ << ":" << amt;
-   //	//	tamt += (ULong)amt;
-   //	//	if (amt < sizeof(buf))
-   //	//		break;
-   //	//}
-   //	//cout << "\r" << block << ":" << tamt << endl;
-   //	//bz.close();
-
-   //	Int amt=1;
-   //	block = 0;
-   //	bz.readOpen("C:\\Users\\bwaters\\Downloads\\cdr1.txt.20140730110101.bz2");
-   //	while (amt)
-   //	{
-   //		amt = bz.readLine(buf, BUFFER_SIZE);
-   //		if (block % 1000 == 0)
-   //			cout << "\r" << block << ":" << amt;
-   //		block++;
-   //	}
-   //	cout << "\r" << block++ << ":" << amt << endl;
-   //	bz.close();
-   //}
-   //catch (EError  e)
-   //{
-   //	cout << e->getText() << endl;
-   //}
-
-   //{
-   //   EMutexData d;
-   //   EMutexDataPublic dp;
-   //
-   //   cout << "sizeof EMutexPrivate = " << sizeof(EMutexPrivate) << endl;
-   //   cout << "sizeof EMutexPublic = " << sizeof(EMutexPublic) << endl;
-   //   cout << "sizeof EMutexData = " << sizeof(EMutexData) << endl;
-   //   cout << "sizeof EMutexData.m_initialized = " << sizeof(d.initialized()) << endl;
-   //   cout << "sizeof EMutexData.m_mutex = " << sizeof(d.mutex()) << endl;
-   //   cout << "sizeof EMutexDataPublic = " << sizeof(dp) << endl;
-   //   cout << "sizeof EMutexDataPublic.m_initialized = " << sizeof(dp.initialized()) << endl;
-   //   cout << "sizeof EMutexDataPublic.m_mutex = " << sizeof(dp.mutex()) << endl;
-   //   cout << "sizeof EMutexDataPublic.m_nextIndex = " << sizeof(dp.nextIndex()) << endl;
-   //   cout << "sizeof EMutexDataPublic.m_mutexId = " << sizeof(dp.mutexId()) << endl;
-   //}
-
    EGetOpt::Option options[] = {
        {"-h", "--help", EGetOpt::no_argument, EGetOpt::dtNone},
        {"-f", "--file", EGetOpt::required_argument, EGetOpt::dtString},
@@ -3916,20 +3824,6 @@ int main(int argc, char *argv[])
 
    std::cout.imbue(mylocale);
 
-// ETime now = ETime::Now();
-// std::cout
-//    << "timeval.tv_sec="
-//    << now.getTimeVal().tv_sec
-//    << " sizeof(timeval.tv_sec)="
-//    << sizeof(now.getTimeVal().tv_sec)
-//    << " timeval.tv_usec="
-//    << now.getTimeVal().tv_usec
-//    << " sizeof(timeval.tv_usec)="
-//    << sizeof(now.getTimeVal().tv_usec)
-//    << " (timeval.tv_sec * 1000000 + timeval.tv_usec % 1000000)="
-//    << now.getTimeVal().tv_sec * 1000000 + now.getTimeVal().tv_usec % 1000000
-//    << std::endl << std::flush;
-
    try
    {
       {
@@ -3958,74 +3852,3 @@ int main(int argc, char *argv[])
 
    return 0;
 }
-
-#if 0
-typedef enum {
-   itS11,
-   itS5S8,
-   itSxa,
-   itSxb,
-   itSxaSxb,
-   itGx
-} EInterfaceType;
-
-typedef enum {
-   dIn,
-   dOut,
-   dBoth,
-   dNone
-} EDirection;
-
-typedef struct {
-   int msgtype;
-   const char *msgname;
-   EDirection dir;
-} MessageType;
-
-typedef struct {
-   int cnt;
-   time_t ts;
-} Statistic;
-
-#define SENT 0
-#define RCVD 1
-
-typedef struct {
-   struct in_addr ipaddr;
-   EInterfaceType intfctype;
-   int hcsent[2];
-   int hcrcvd[2];
-   union {
-      Statistic s11[51][2];
-      Statistic s5s8[37];
-      Statistic sxa[21];
-      Statistic sxb[21];
-      Statistic sxasxb[23];
-   } stats;
-} SPeer;
-
-MessageType s11MessageDefs[] = {
-   { 3, "Version Not Supported Indication", dBoth },
-   { 1, NULL, dNone }
-};
-
-int s11MessageTypes [] = {
-   -1, -1, -1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 3, 4, 7, 8, 5, 6, 11, 12, 9, 10, 
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
-   -1, -1, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, -1, -1, -1, -1, -1, -1, -1, -1, 
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, 26, 27, 28, 29, 30, 31, 
-   32, 33, 34, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 37, 38, 
-   35, 36, 13, 14, 39, 40, 41, 42, 43, 44, -1, -1, -1, -1, 45, 46, -1, 47, 48, -1, 
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, 49, 50, };
-
-loop through peers
-{
-   csAddPeer();
-   csAddPeerStats( SPeer*, Statistic*, MessageType*, msgcnt );
-}
-csAddPeer()
-#endif

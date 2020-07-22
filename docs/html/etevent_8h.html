@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.16"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>EpcTools: /home/vagrant/share/code/epctools-omec/include/epc/etevent.h File Reference</title>
+<title>EpcTools: /home/vagrant/share/code/epctools-omec-pfcp/include/epc/etevent.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -85,6 +85,7 @@ $(function() {
 <code>#include &quot;<a class="el" href="eshmem_8h_source.html">eshmem.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="esynch_8h_source.html">esynch.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="esynch2_8h_source.html">esynch2.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="etime_8h_source.html">etime.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="etimer_8h_source.html">etimer.h</a>&quot;</code><br />
 </div>
 <p><a href="etevent_8h_source.html">Go to the source code of this file.</a></p>
@@ -115,13 +116,17 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadQueuePrivate.html">EThreadQueuePrivate&lt; T &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definition of a private event thread message queue.  <a href="classEThreadQueuePrivate.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class__EThreadEventBase.html">_EThreadEventBase</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEventTimer.html">EThreadEventTimer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread timer class.  <a href="classEThreadEventTimer.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEvent.html">EThreadEvent&lt; TQueue, TMessage &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">base class for EThreadPrivate and EThreadPublic  <a href="classEThreadEvent.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEventWorker.html">EThreadEventWorker&lt; TQueue, TMessage &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a worker thread that is part of a work group.  <a href="classEThreadEventWorker.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEventWorkGroup.html">EThreadEventWorkGroup&lt; TQueue, TMessage, TWorker &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Work group template definition. The work group contains the event queue that all of the associated worker threads will process. Worker threads can be added and removed at runtime as more or lessing processing capacity is requried.  <a href="classEThreadEventWorkGroup.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
@@ -165,6 +170,14 @@ Macros</h2></td></tr>
 <tr class="memitem:ae52a1e808bcf6220acbef40e8351b8e7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="etevent_8h.html#ae52a1e808bcf6220acbef40e8351b8e7">END_MESSAGE_MAP</a>()</td></tr>
 <tr class="memdesc:ae52a1e808bcf6220acbef40e8351b8e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ends the message map declaration.  <a href="etevent_8h.html#ae52a1e808bcf6220acbef40e8351b8e7">More...</a><br /></td></tr>
 <tr class="separator:ae52a1e808bcf6220acbef40e8351b8e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2870a0bc02ee666898aafae0ce69218b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="etevent_8h.html#a2870a0bc02ee666898aafae0ce69218b">BEGIN_MESSAGE_MAP2</a>(theClass,  baseClass)</td></tr>
+<tr class="separator:a2870a0bc02ee666898aafae0ce69218b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b108bcdd362fcebce2b859dba1040ad"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="etevent_8h.html#a5b108bcdd362fcebce2b859dba1040ad">ON_MESSAGE2</a>(id,  memberFxn)&#160;&#160;&#160;{id, (EThreadEventWorkerBase::msgfxnvoid_t)&amp;memberFxn},</td></tr>
+<tr class="memdesc:a5b108bcdd362fcebce2b859dba1040ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines an invidual event handler.  <a href="etevent_8h.html#a5b108bcdd362fcebce2b859dba1040ad">More...</a><br /></td></tr>
+<tr class="separator:a5b108bcdd362fcebce2b859dba1040ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91f8777d4f9199a3281a9246a8068eab"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="etevent_8h.html#a91f8777d4f9199a3281a9246a8068eab">END_MESSAGE_MAP2</a>()</td></tr>
+<tr class="memdesc:a91f8777d4f9199a3281a9246a8068eab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ends the message map declaration.  <a href="etevent_8h.html#a91f8777d4f9199a3281a9246a8068eab">More...</a><br /></td></tr>
+<tr class="separator:a91f8777d4f9199a3281a9246a8068eab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -174,6 +187,16 @@ Typedefs</h2></td></tr>
 <tr class="separator:a8954bda7259449b5e33a0c90f00f3e4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ec0f12a7073f7d1375468685b80b8dd"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classEThreadEvent.html">EThreadEvent</a>&lt; <a class="el" href="classEThreadQueuePrivate.html">EThreadQueuePrivate</a>&lt; <a class="el" href="classEThreadMessage.html">EThreadMessage</a> &gt;, <a class="el" href="classEThreadMessage.html">EThreadMessage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="etevent_8h.html#a8ec0f12a7073f7d1375468685b80b8dd">EThreadPrivate</a></td></tr>
 <tr class="separator:a8ec0f12a7073f7d1375468685b80b8dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad17af7f232a51a4f4858e56fd00f40d8"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="etevent_8h.html#ad17af7f232a51a4f4858e56fd00f40d8">EThreadWorkerPublic</a> = <a class="el" href="classEThreadEventWorker.html">EThreadEventWorker</a>&lt; <a class="el" href="classEThreadQueuePublic.html">EThreadQueuePublic</a>&lt; <a class="el" href="classEThreadMessage.html">EThreadMessage</a> &gt;, <a class="el" href="classEThreadMessage.html">EThreadMessage</a> &gt;</td></tr>
+<tr class="separator:ad17af7f232a51a4f4858e56fd00f40d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d613b9baecf134df959cec84e701406"><td class="memTemplParams" colspan="2">template&lt;class TWorker &gt; </td></tr>
+<tr class="memitem:a7d613b9baecf134df959cec84e701406"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="etevent_8h.html#a7d613b9baecf134df959cec84e701406">EThreadWorkGroupPublic</a> = <a class="el" href="classEThreadEventWorkGroup.html">EThreadEventWorkGroup</a>&lt; <a class="el" href="classEThreadQueuePublic.html">EThreadQueuePublic</a>&lt; <a class="el" href="classEThreadMessage.html">EThreadMessage</a> &gt;, <a class="el" href="classEThreadMessage.html">EThreadMessage</a>, TWorker &gt;</td></tr>
+<tr class="separator:a7d613b9baecf134df959cec84e701406"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0732dcbd38592a53a4fc2314cfe7ab4d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="etevent_8h.html#a0732dcbd38592a53a4fc2314cfe7ab4d">EThreadWorkerPrivate</a> = <a class="el" href="classEThreadEventWorker.html">EThreadEventWorker</a>&lt; <a class="el" href="classEThreadQueuePrivate.html">EThreadQueuePrivate</a>&lt; <a class="el" href="classEThreadMessage.html">EThreadMessage</a> &gt;, <a class="el" href="classEThreadMessage.html">EThreadMessage</a> &gt;</td></tr>
+<tr class="separator:a0732dcbd38592a53a4fc2314cfe7ab4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a89e47edbc411261c915841f216027b"><td class="memTemplParams" colspan="2">template&lt;class TWorker &gt; </td></tr>
+<tr class="memitem:a5a89e47edbc411261c915841f216027b"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="etevent_8h.html#a5a89e47edbc411261c915841f216027b">EThreadWorkGroupPrivate</a> = <a class="el" href="classEThreadEventWorkGroup.html">EThreadEventWorkGroup</a>&lt; <a class="el" href="classEThreadQueuePrivate.html">EThreadQueuePrivate</a>&lt; <a class="el" href="classEThreadMessage.html">EThreadMessage</a> &gt;, <a class="el" href="classEThreadMessage.html">EThreadMessage</a>, TWorker &gt;</td></tr>
+<tr class="separator:a5a89e47edbc411261c915841f216027b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -225,6 +248,45 @@ Enumerations</h2></td></tr>
 <p>Begins the message map declaration. </p>
 <p>The event message map establishes the relationship of the event ID's to the individual event handlers defined in the class. "theClass" is the name of the class containing the message handlers. "baseClass" is the class name that "theClass" is derived from. </p>
 
+</div>
+</div>
+<a id="a2870a0bc02ee666898aafae0ce69218b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2870a0bc02ee666898aafae0ce69218b">&#9670;&nbsp;</a></span>BEGIN_MESSAGE_MAP2</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BEGIN_MESSAGE_MAP2</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">theClass, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">baseClass&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line"><span class="keyword">virtual</span> <span class="keyword">const</span> EThreadEventWorkerBase::msgmap_t *GetMessageMap() const   \</div>
+<div class="line">   {                                                                       \</div>
+<div class="line">      return GetThisMessageMap();                                          \</div>
+<div class="line">   }                                                                       \</div>
+<div class="line">   static <span class="keyword">const</span> EThreadEventWorkerBase::msgmap_t *GetThisMessageMap()      \</div>
+<div class="line">   {                                                                       \</div>
+<div class="line">      typedef baseClass TheBaseClass;                                      \</div>
+<div class="line">      _Pragma(<span class="stringliteral">&quot;GCC diagnostic push&quot;</span>)                                       \</div>
+<div class="line">      _Pragma(<span class="stringliteral">&quot;GCC diagnostic ignored \&quot;-Wpmf-conversions\&quot;&quot;</span>)              \</div>
+<div class="line">      static <span class="keyword">const</span> EThreadEventWorkerBase::msgentry_t _msgEntries[] =      \</div>
+<div class="line">      {</div>
+</div><!-- fragment -->
 </div>
 </div>
 <a id="a3e0395c0f948348673c39d06c8bd12bf"></a>
@@ -420,6 +482,32 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
+<a id="a91f8777d4f9199a3281a9246a8068eab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91f8777d4f9199a3281a9246a8068eab">&#9670;&nbsp;</a></span>END_MESSAGE_MAP2</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define END_MESSAGE_MAP2</td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">{0, (EThreadEventWorkerBase::msgfxnvoid_t)NULL}                   \</div>
+<div class="line">      };                                                                   \</div>
+<div class="line">      _Pragma(<span class="stringliteral">&quot;GCC diagnostic pop&quot;</span>)                                        \</div>
+<div class="line">      static <span class="keyword">const</span> EThreadEventWorkerBase::msgmap_t msgMap =               \</div>
+<div class="line">         {&amp;TheBaseClass::GetThisMessageMap, &amp;_msgEntries[0]};              \</div>
+<div class="line">      return &amp;msgMap;                                                      \</div>
+<div class="line">   }</div>
+</div><!-- fragment -->
+<p>Ends the message map declaration. </p>
+
+</div>
+</div>
 <a id="a1fbc3aa077e4e82c9f1fa82d32653273"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1fbc3aa077e4e82c9f1fa82d32653273">&#9670;&nbsp;</a></span>ON_MESSAGE</h2>
 
@@ -442,6 +530,36 @@ Enumerations</h2></td></tr>
           <td></td>
           <td>)</td>
           <td></td><td>&#160;&#160;&#160;{id, (msgfxn_t)&amp;memberFxn},</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Defines an invidual event handler. </p>
+
+</div>
+</div>
+<a id="a5b108bcdd362fcebce2b859dba1040ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b108bcdd362fcebce2b859dba1040ad">&#9670;&nbsp;</a></span>ON_MESSAGE2</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ON_MESSAGE2</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">id, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">memberFxn&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;{id, (EThreadEventWorkerBase::msgfxnvoid_t)&amp;memberFxn},</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -487,6 +605,66 @@ Enumerations</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">typedef <a class="el" href="classEThreadEvent.html">EThreadEvent</a>&lt;<a class="el" href="classEThreadQueuePublic.html">EThreadQueuePublic</a>&lt;<a class="el" href="classEThreadMessage.html">EThreadMessage</a>&gt;,<a class="el" href="classEThreadMessage.html">EThreadMessage</a>&gt; <a class="el" href="etevent_8h.html#a8954bda7259449b5e33a0c90f00f3e4a">EThreadPublic</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0732dcbd38592a53a4fc2314cfe7ab4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0732dcbd38592a53a4fc2314cfe7ab4d">&#9670;&nbsp;</a></span>EThreadWorkerPrivate</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="etevent_8h.html#a0732dcbd38592a53a4fc2314cfe7ab4d">EThreadWorkerPrivate</a> =  <a class="el" href="classEThreadEventWorker.html">EThreadEventWorker</a>&lt;<a class="el" href="classEThreadQueuePrivate.html">EThreadQueuePrivate</a>&lt;<a class="el" href="classEThreadMessage.html">EThreadMessage</a>&gt;,<a class="el" href="classEThreadMessage.html">EThreadMessage</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad17af7f232a51a4f4858e56fd00f40d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad17af7f232a51a4f4858e56fd00f40d8">&#9670;&nbsp;</a></span>EThreadWorkerPublic</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="etevent_8h.html#ad17af7f232a51a4f4858e56fd00f40d8">EThreadWorkerPublic</a> =  <a class="el" href="classEThreadEventWorker.html">EThreadEventWorker</a>&lt;<a class="el" href="classEThreadQueuePublic.html">EThreadQueuePublic</a>&lt;<a class="el" href="classEThreadMessage.html">EThreadMessage</a>&gt;,<a class="el" href="classEThreadMessage.html">EThreadMessage</a>&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5a89e47edbc411261c915841f216027b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a89e47edbc411261c915841f216027b">&#9670;&nbsp;</a></span>EThreadWorkGroupPrivate</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TWorker &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="etevent_8h.html#a5a89e47edbc411261c915841f216027b">EThreadWorkGroupPrivate</a> =  <a class="el" href="classEThreadEventWorkGroup.html">EThreadEventWorkGroup</a>&lt;<a class="el" href="classEThreadQueuePrivate.html">EThreadQueuePrivate</a>&lt;<a class="el" href="classEThreadMessage.html">EThreadMessage</a>&gt;,<a class="el" href="classEThreadMessage.html">EThreadMessage</a>,TWorker&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7d613b9baecf134df959cec84e701406"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d613b9baecf134df959cec84e701406">&#9670;&nbsp;</a></span>EThreadWorkGroupPublic</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TWorker &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="etevent_8h.html#a7d613b9baecf134df959cec84e701406">EThreadWorkGroupPublic</a> =  <a class="el" href="classEThreadEventWorkGroup.html">EThreadEventWorkGroup</a>&lt;<a class="el" href="classEThreadQueuePublic.html">EThreadQueuePublic</a>&lt;<a class="el" href="classEThreadMessage.html">EThreadMessage</a>&gt;,<a class="el" href="classEThreadMessage.html">EThreadMessage</a>,TWorker&gt;</td>
         </tr>
       </table>
 </div><div class="memdoc">

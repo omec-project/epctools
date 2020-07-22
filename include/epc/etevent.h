@@ -560,7 +560,7 @@ private:
 /// @brief Definition of a public event thread message queue.
 /// @details The template parameter to this class template is the class of for
 ///   the message that will be stored in this event thread message queue.  This
-///   class is derived from template <class T> class EThreadQueueBase.
+///   class is derived from template \<class T\> class EThreadQueueBase.
 /// @tparam T the event message class name.
 template <class T>
 class EThreadQueuePublic : public EThreadQueueBase<T>
@@ -675,7 +675,7 @@ private:
 /// @brief Definition of a private event thread message queue.
 /// @details The template parameter to this class template is the class of for
 ///   the message that will be stored in this event thread message queue.  This
-///   class is derived from template <class T> class EThreadQueueBase.
+///   class is derived from template \<class T\> class EThreadQueueBase.
 /// @tparam T the event message class name.
 template <class T>
 class EThreadQueuePrivate : public EThreadQueueBase<T>
@@ -937,7 +937,7 @@ public:
    /// @param interval the timer interval in milliseconds.
    Void setInterval(LongLong interval) { m_interval = interval; }
    /// @brief sets the timer interval.
-   /// @param interval the timer interval in milliseconds.
+   /// @param t a reference to an ETime object that represents the absolute expiration time.
    /// @details The ETime parameter represents either a specific time in
    ///   the future or a duration (the result of ETime.subtract()).  The
    ///   ETime parameter is assumed to be a duration if the value is less
@@ -1087,7 +1087,7 @@ public:
         m_suspendSem(0)
    {
    }
-   /// @brief Rhe class destructor.
+   /// @brief The class destructor.
    ~EThreadEvent()
    {
    }
@@ -1391,6 +1391,7 @@ typedef EThreadEvent<EThreadQueuePrivate<EThreadMessage>,EThreadMessage> EThread
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @cond DOXYGEN_EXCLUDE
 class EThreadEventWorkerBase
 {
 public:
@@ -1409,6 +1410,7 @@ public:
       const msgentry_t *lpEntries;
    };
 };
+/// @endcond
 
 #define BEGIN_MESSAGE_MAP2(theClass, baseClass)                            \
    virtual const EThreadEventWorkerBase::msgmap_t *GetMessageMap() const   \
@@ -1437,6 +1439,7 @@ public:
       return &msgMap;                                                      \
    }
 
+/// @brief Represents a worker thread that is part of a work group.
 template <class TQueue, class TMessage>
 class EThreadEventWorker : public EThreadBasic, public EThreadEventWorkerBase
 {
@@ -1527,7 +1530,6 @@ protected:
 
    /// @brief Called when an event message is queued.
    /// @param msg the message object that has been queued.
-   /// @param appId identifies the application this thread is associated with.
    /// @details
    /// This method is called in the context of the thread where sendMessage()
    /// is called after the message has been added to the thread's event queue.
@@ -1536,12 +1538,10 @@ protected:
    }
 
    /// @brief Initializes the thread object.
-   /// @param appId identifies the application this thread is associated with.
-   /// @param threadId identifies the thread within this application.
+   /// @param queue a reference to the work group event queue.
+   /// @param workerid identifies the worker thread within the work group.
    /// @param arg an argument that will be passed through to the internal thread procedure.
    ///   Currently not used.
-   /// @param queueSize the maximum number of unprocessed entries in the event queue.
-   /// @param suspended if True, the thread is not initialized until start() is called.
    /// @param stackSize the stack size.
    virtual Void init(TQueue &queue, Int workerid, pVoid arg, Dword stackSize = 0)
    {
@@ -1696,6 +1696,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Work group template definition.  The work group contains the event
+///   queue that all of the associated worker threads will process.  Worker
+///   threads can be added and removed at runtime as more or lessing processing
+///   capacity is requried.
 template <class TQueue, class TMessage, class TWorker>
 class EThreadEventWorkGroup : public _EThreadEventNotification
 {
@@ -1713,7 +1717,7 @@ public:
         m_actvWorkers(0)
    {
    }
-   /// @brief Rhe class destructor.
+   /// @brief The class destructor.
    ~EThreadEventWorkGroup()
    {
       for (int i=0; i<m_actvWorkers; i++)
@@ -1856,7 +1860,6 @@ public:
 protected:
    /// @brief Called when an event message is queued.
    /// @param msg the message object that has been queued.
-   /// @param appId identifies the application this thread is associated with.
    /// @details
    /// This method is called in the context of the thread where sendMessage()
    /// is called after the message has been added to the thread's event queue.

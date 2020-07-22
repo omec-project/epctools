@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['queryptr',['QueryPtr',['../namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e',1,'DNS']]]
+  ['optionptr',['OptionPtr',['../classEIpFilterRule.html#a1bd01aa4b7811daa3c00b563529d78fd',1,'EIpFilterRule']]],
+  ['optionptrvec',['OptionPtrVec',['../classEIpFilterRule.html#aa6012846df615293bd707a0913b8caab',1,'EIpFilterRule']]]
 ];

@@ -1378,6 +1378,7 @@ namespace ESocket
       }
       /// @brief Called for each message that is received.
       /// @param from the socket address that the data was received from.
+      /// @param to the socket address that the message was sent to.
       /// @param msg pointer to the received data.
       /// @param len number of bytes received.
       virtual Void onReceive(const Address &from, const Address &to, cpUChar msg, Int len)

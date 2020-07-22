@@ -88,15 +88,15 @@ Inheritance diagram for EThreadQueueBase&lt; T &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a8282351055dd80146871732a9123c63d"><td class="memItemLeft" align="right" valign="top">Int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadQueueBase.html#a8282351055dd80146871732a9123c63d">queueSize</a> () const</td></tr>
+<tr class="memdesc:a8282351055dd80146871732a9123c63d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the maximum number of events that can be present in the event queue.  <a href="classEThreadQueueBase.html#a8282351055dd80146871732a9123c63d">More...</a><br /></td></tr>
+<tr class="separator:a8282351055dd80146871732a9123c63d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aada3403d7740768b7234a560762db379"><td class="memItemLeft" align="right" valign="top">Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadQueueBase.html#aada3403d7740768b7234a560762db379">push</a> (const T &amp;msg, Bool wait=<a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</td></tr>
 <tr class="memdesc:aada3403d7740768b7234a560762db379"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds the specified message to the thread event queue.  <a href="classEThreadQueueBase.html#aada3403d7740768b7234a560762db379">More...</a><br /></td></tr>
 <tr class="separator:aada3403d7740768b7234a560762db379"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09c1cd0ae04bbee23931ba741da75229"><td class="memItemLeft" align="right" valign="top">Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadQueueBase.html#a09c1cd0ae04bbee23931ba741da75229">pop</a> (T &amp;msg, Bool wait=<a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</td></tr>
 <tr class="memdesc:a09c1cd0ae04bbee23931ba741da75229"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the next message from the thread event queue.  <a href="classEThreadQueueBase.html#a09c1cd0ae04bbee23931ba741da75229">More...</a><br /></td></tr>
 <tr class="separator:a09c1cd0ae04bbee23931ba741da75229"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2682d0db5d80d5522d13109ec7b3571"><td class="memItemLeft" align="right" valign="top">Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadQueueBase.html#ac2682d0db5d80d5522d13109ec7b3571">peek</a> (T &amp;msg, Bool wait=<a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</td></tr>
-<tr class="memdesc:ac2682d0db5d80d5522d13109ec7b3571"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrievees the next message from the thread event queue without removing the message from the queue.  <a href="classEThreadQueueBase.html#ac2682d0db5d80d5522d13109ec7b3571">More...</a><br /></td></tr>
-<tr class="separator:ac2682d0db5d80d5522d13109ec7b3571"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff101e8dbddee7c8aea63710f7fc349f"><td class="memItemLeft" align="right" valign="top">Bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadQueueBase.html#aff101e8dbddee7c8aea63710f7fc349f">isInitialized</a> ()</td></tr>
 <tr class="memdesc:aff101e8dbddee7c8aea63710f7fc349f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves indication if this queue object has been initialized.  <a href="classEThreadQueueBase.html#aff101e8dbddee7c8aea63710f7fc349f">More...</a><br /></td></tr>
 <tr class="separator:aff101e8dbddee7c8aea63710f7fc349f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -168,54 +168,6 @@ template&lt;class T &gt; </div>
 
 <p>Retrieves the access mode associated with this queue object. </p>
 <dl class="section return"><dt>Returns</dt><dd>the access mode associated with this queue object. </dd></dl>
-
-</div>
-</div>
-<a id="ac2682d0db5d80d5522d13109ec7b3571"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac2682d0db5d80d5522d13109ec7b3571">&#9670;&nbsp;</a></span>peek()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class T &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">Bool <a class="el" href="classEThreadQueueBase.html">EThreadQueueBase</a>&lt; T &gt;::peek </td>
-          <td>(</td>
-          <td class="paramtype">T &amp;&#160;</td>
-          <td class="paramname"><em>msg</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Bool&#160;</td>
-          <td class="paramname"><em>wait</em> = <code><a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a></code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Retrievees the next message from the thread event queue without removing the message from the queue. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">msg</td><td>a reference to a message object that will be populated with the message. </td></tr>
-    <tr><td class="paramname">wait</td><td>indicates whether this function should wait for space to become available in the queue. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>True indicates that a message was successfully popped from the queue, otherwise False. </dd></dl>
 
 </div>
 </div>
@@ -315,8 +267,38 @@ template&lt;class T &gt; </div>
 
 </div>
 </div>
+<a id="a8282351055dd80146871732a9123c63d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8282351055dd80146871732a9123c63d">&#9670;&nbsp;</a></span>queueSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Int <a class="el" href="classEThreadQueueBase.html">EThreadQueueBase</a>&lt; T &gt;::queueSize </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the maximum number of events that can be present in the event queue. </p>
+<dl class="section return"><dt>Returns</dt><dd>The maximum number of events that can be present in the event queue. </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/vagrant/share/code/epctools-omec/include/epc/<a class="el" href="etevent_8h_source.html">etevent.h</a></li>
+<li>/home/vagrant/share/code/epctools-omec-pfcp/include/epc/<a class="el" href="etevent_8h_source.html">etevent.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

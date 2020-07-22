@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.16"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>EpcTools: /home/vagrant/share/code/epctools-omec/include/epc/eqbase.h Source File</title>
+<title>EpcTools: /home/vagrant/share/code/epctools-omec-pfcp/include/epc/eqbase.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -208,7 +208,92 @@ $(function() {
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;   Char m_wBuffer[USHRT_MAX];</div>
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;};</div>
 <div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160; </div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="preprocessor">#endif // #define __eqbase_h_included</span></div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160; </div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="preprocessor">#if 0</span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="keyword">class </span>PointerMessage</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;{</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;   <span class="keyword">friend</span> <span class="keyword">class </span>PointerQueue;</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;   <span class="keyword">virtual</span> PointerMessage &amp;operator=(<span class="keyword">const</span> PointerMessage &amp;msg) { tmr_=msg.tmr_; ptr_=msg.ptr_; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;   <a class="code" href="ebase_8h.html#a2017da1a7bf300a2d47bae722cec5e70">epctime_t</a> queueMicroSeconds() { <span class="keywordflow">return</span> tmr_.MicroSeconds(); }</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;   <a class="code" href="ebase_8h.html#a2017da1a7bf300a2d47bae722cec5e70">epctime_t</a> queueMilliSeconds() { <span class="keywordflow">return</span> tmr_.MilliSeconds(); }</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;   pVoid pointer() { <span class="keywordflow">return</span> ptr_; }</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;   PointerMessage &amp;pointer(pVoid p) { ptr_=p; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;   Void start() { tmr_.Start(); }</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;   Void stop() { tmr_.Stop(); }</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;   <a class="code" href="classETimer.html">ETimer</a> tmr_;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;   pVoid ptr_;</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;};</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160; </div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;<span class="keyword">class </span>PointerQueue</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;{</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;   PointerQueue();</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;   ~PointerQueue();</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160; </div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;   <span class="keywordtype">size_t</span> maxPages()<span class="keyword"> const    </span>{ <span class="keywordflow">return</span> mp_; }</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;   <span class="keywordtype">size_t</span> messageSize()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> ms_; }</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;   UShort pageSize()<span class="keyword"> const    </span>{ <span class="keywordflow">return</span> ps_; }</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160; </div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;   PointerQueue &amp;init(<span class="keywordtype">size_t</span> ms, UShort ps, <span class="keywordtype">size_t</span> mp_);</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160; </div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;   Bool push(pVoid ptr, Bool wait=<a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>);</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;   pVoid pop(Bool wait=<a class="code" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>);</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160; </div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;   <span class="keyword">struct </span>Page</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;   {</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;      Page *prevPage;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;      Page *nextPage;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;      pUChar data;</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;   };</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160; </div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;   <span class="keyword">class </span>PageAddress</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;   {</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;   <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;      PageAddress() : pg_(nullptr), ofs_(0) {}</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;      PageAddress(Page &amp;page, UShort offset) : pg_(&amp;page), ofs_(offset) {}</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;      PageAddress(<span class="keyword">const</span> PageAddress &amp;addr) : pg_(addr.pg_), ofs_(addr.ofs_) {}</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160; </div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;      PageAddress &amp;operator=(<span class="keyword">const</span> PageAddress &amp;addr) { pg_=addr.pg_; ofs_=addr.ofs_; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;      Bool operator==(<span class="keyword">const</span> PageAddress &amp;addr) { <span class="keywordflow">return</span> pg_==addr.pg_ &amp;&amp; ofs_==addr.ofs_; }</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160; </div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;      Page &amp;page()                     { <span class="keywordflow">return</span> *pg_; }</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;      PageAddress &amp;page(Page &amp;p)       { pg_=&amp;p; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;      PageAddress &amp;page(Page *p)       { pg_=p; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;      UShort offset()<span class="keyword"> const            </span>{ <span class="keywordflow">return</span> ofs_; }</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;      PageAddress &amp;offset(UShort ofs)  { ofs_=ofs; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160; </div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;      Page &amp;nextPage() { <span class="keywordflow">return</span> *pg_-&gt;nextPage; }</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;      Page &amp;prevPage() { <span class="keywordflow">return</span> *pg_-&gt;prevPage; }</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160; </div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;   <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;      Page *pg_;</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;      UShort ofs_;</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;   };</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160; </div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;   std::atomic_int rc_; <span class="comment">// reference count</span></div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;   std::atomic_int nr_; <span class="comment">// number of readers</span></div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;   std::atomic_int nw_; <span class="comment">// number of writers</span></div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160; </div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;   <span class="keywordtype">size_t</span> mp_; <span class="comment">// max pages</span></div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;   <span class="keywordtype">size_t</span> ms_; <span class="comment">// message size</span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;   UShort ps_; <span class="comment">// page size (entries per page)</span></div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;   Page *head_; <span class="comment">// write to the head</span></div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;   Page *tail_; <span class="comment">// read from the tail</span></div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160; </div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;   <a class="code" href="classEMutexPrivate.html">EMutexPrivate</a> rmtx_;</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;   <a class="code" href="classEMutexPrivate.html">EMutexPrivate</a> wmtx_;</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;   <a class="code" href="classESemaphorePrivate.html">ESemaphorePrivate</a> free_;</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;   <a class="code" href="classESemaphorePrivate.html">ESemaphorePrivate</a> used_;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160; </div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;   <span class="comment">// write to the head, read from the tail</span></div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;   <span class="comment">// if no more space in the current page and the next page contains the tail, create a new page</span></div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;};</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160; </div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;<span class="preprocessor">#endif // #define __eqbase_h_included</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclassEQueueMessage_html_af001a37d24975f70833267232b1c0acc"><div class="ttname"><a href="classEQueueMessage.html#af001a37d24975f70833267232b1c0acc">EQueueMessage::getLength</a></div><div class="ttdeci">virtual Void getLength(ULong &amp;length)</div><div class="ttdoc">Calculates the length of the message.</div><div class="ttdef"><b>Definition:</b> eqbase.cpp:24</div></div>
 <div class="ttc" id="aeerror_8h_html_ab71591f350ed65d99a1349f90b65f2af"><div class="ttname"><a href="eerror_8h.html#ab71591f350ed65d99a1349f90b65f2af">DECLARE_ERROR</a></div><div class="ttdeci">#define DECLARE_ERROR(__e__)</div><div class="ttdoc">Declares exception class derived from EError with no constructor parameters.</div><div class="ttdef"><b>Definition:</b> eerror.h:53</div></div>
@@ -219,23 +304,27 @@ $(function() {
 <div class="ttc" id="aclassEQueueBase_html"><div class="ttname"><a href="classEQueueBase.html">EQueueBase</a></div><div class="ttdoc">The message queue base class.</div><div class="ttdef"><b>Definition:</b> eqbase.h:120</div></div>
 <div class="ttc" id="aebase_8h_html"><div class="ttname"><a href="ebase_8h.html">ebase.h</a></div><div class="ttdoc">Macros for various standard C library functions and standard includes.</div></div>
 <div class="ttc" id="aclassEQueueMessage_html"><div class="ttname"><a href="classEQueueMessage.html">EQueueMessage</a></div><div class="ttdoc">Represents a message to be written to/read from a message queue.</div><div class="ttdef"><b>Definition:</b> eqbase.h:55</div></div>
+<div class="ttc" id="aclassEMutexPrivate_html"><div class="ttname"><a href="classEMutexPrivate.html">EMutexPrivate</a></div><div class="ttdoc">A private mutex (the mutex data is allocated from either the heap or stack).</div><div class="ttdef"><b>Definition:</b> esynch.h:175</div></div>
 <div class="ttc" id="aclassEQueueMessage_html_a3236366140cdb177b50577f2cee6f8ef"><div class="ttname"><a href="classEQueueMessage.html#a3236366140cdb177b50577f2cee6f8ef">EQueueMessage::setMsgType</a></div><div class="ttdeci">Void setMsgType(Long msgType)</div><div class="ttdoc">Assigns the message type value.</div><div class="ttdef"><b>Definition:</b> eqbase.h:103</div></div>
 <div class="ttc" id="aesynch_8h_html"><div class="ttname"><a href="esynch_8h.html">esynch.h</a></div><div class="ttdoc">Contains definitions for synchronization objects.</div></div>
 <div class="ttc" id="aclassEQueueMessage_html_a8a073b83c6eb60a8313eb1d3025f8845"><div class="ttname"><a href="classEQueueMessage.html#a8a073b83c6eb60a8313eb1d3025f8845">EQueueMessage::serialize</a></div><div class="ttdeci">virtual Void serialize(pVoid pBuffer, ULong &amp;nOffset)</div><div class="ttdoc">Serializes the message.</div><div class="ttdef"><b>Definition:</b> eqbase.cpp:30</div></div>
 <div class="ttc" id="aetimer_8h_html"><div class="ttname"><a href="etimer_8h.html">etimer.h</a></div></div>
 <div class="ttc" id="aclassEQueueMessage_html_a526a9c415e66ab7f2d1cf2cdfe79aa95"><div class="ttname"><a href="classEQueueMessage.html#a526a9c415e66ab7f2d1cf2cdfe79aa95">EQueueMessage::getTimer</a></div><div class="ttdeci">ETime &amp; getTimer()</div><div class="ttdoc">Retrieves the message lifetime timer.</div><div class="ttdef"><b>Definition:</b> eqbase.h:96</div></div>
 <div class="ttc" id="aclassEQueueBase_html_adf83a626534ef857ba365cef9778e7f0"><div class="ttname"><a href="classEQueueBase.html#adf83a626534ef857ba365cef9778e7f0">EQueueBase::Mode</a></div><div class="ttdeci">Mode</div><div class="ttdoc">The queue access modes.</div><div class="ttdef"><b>Definition:</b> eqbase.h:127</div></div>
+<div class="ttc" id="aclassETimer_html"><div class="ttname"><a href="classETimer.html">ETimer</a></div><div class="ttdoc">Implements a stopwatch style timer.</div><div class="ttdef"><b>Definition:</b> etimer.h:26</div></div>
 <div class="ttc" id="aetime_8h_html"><div class="ttname"><a href="etime_8h.html">etime.h</a></div><div class="ttdoc">Provides class for manipulating time of day values.</div></div>
 <div class="ttc" id="aclassEQueueBase_html_afd7e86bdbaa63071881b55ff9bad2710"><div class="ttname"><a href="classEQueueBase.html#afd7e86bdbaa63071881b55ff9bad2710">EQueueBase::push</a></div><div class="ttdeci">Bool push(EQueueMessage &amp;msg, Bool wait=True)</div><div class="ttdoc">Writes a message to the queue.</div><div class="ttdef"><b>Definition:</b> eqbase.cpp:154</div></div>
 <div class="ttc" id="aclassEQueueBase_html_adf83a626534ef857ba365cef9778e7f0a6350ffe1e4c32eede95bd656ca75a507"><div class="ttname"><a href="classEQueueBase.html#adf83a626534ef857ba365cef9778e7f0a6350ffe1e4c32eede95bd656ca75a507">EQueueBase::WriteOnly</a></div><div class="ttdoc">provides write only access</div><div class="ttdef"><b>Definition:</b> eqbase.h:132</div></div>
 <div class="ttc" id="aclassEQueuePrivate_html"><div class="ttname"><a href="classEQueuePrivate.html">EQueuePrivate</a></div><div class="ttdoc">The private queue class.</div><div class="ttdef"><b>Definition:</b> eqpriv.h:27</div></div>
+<div class="ttc" id="aclassESemaphorePrivate_html"><div class="ttname"><a href="classESemaphorePrivate.html">ESemaphorePrivate</a></div><div class="ttdoc">Represents a private semaphore, the semaphore data is allocated from either the stack or heap.</div><div class="ttdef"><b>Definition:</b> esynch.h:382</div></div>
 <div class="ttc" id="aclassEQueueBase_html_adf83a626534ef857ba365cef9778e7f0a46c41a76bf9b8b691bfc455215367602"><div class="ttname"><a href="classEQueueBase.html#adf83a626534ef857ba365cef9778e7f0a46c41a76bf9b8b691bfc455215367602">EQueueBase::ReadWrite</a></div><div class="ttdoc">provides read/write access</div><div class="ttdef"><b>Definition:</b> eqbase.h:134</div></div>
 <div class="ttc" id="aclassEQueueMessage_html_ad032447289237fe63f6b6b117ca80edc"><div class="ttname"><a href="classEQueueMessage.html#ad032447289237fe63f6b6b117ca80edc">EQueueMessage::~EQueueMessage</a></div><div class="ttdeci">~EQueueMessage()</div><div class="ttdoc">Class destructor.</div><div class="ttdef"><b>Definition:</b> eqbase.h:66</div></div>
 <div class="ttc" id="aemsg_8h_html"><div class="ttname"><a href="emsg_8h.html">emsg.h</a></div><div class="ttdoc">Classes used to encode and decode messages sent to and recieved from a message queue.</div></div>
-<div class="ttc" id="aclassEQueuePublic_html"><div class="ttname"><a href="classEQueuePublic.html">EQueuePublic</a></div><div class="ttdef"><b>Definition:</b> eqpub.h:33</div></div>
+<div class="ttc" id="aclassEQueuePublic_html"><div class="ttname"><a href="classEQueuePublic.html">EQueuePublic</a></div><div class="ttdef"><b>Definition:</b> eqpub.h:36</div></div>
 <div class="ttc" id="aclassEQueuePrivate_html_aebaf0769b1f181e144970c8ca4c751a2"><div class="ttname"><a href="classEQueuePrivate.html#aebaf0769b1f181e144970c8ca4c751a2">EQueuePrivate::init</a></div><div class="ttdeci">Void init(Int nMsgSize, Int nMsgCnt, Int queueId, Bool bMultipleReaders, Bool bMultipleWriters, EQueueBase::Mode eMode)</div><div class="ttdoc">Initializes the private message queue.</div><div class="ttdef"><b>Definition:</b> eqpriv.h:42</div></div>
 <div class="ttc" id="aclassEQueueMessage_html_ae6c6479b85fe9d55752bfed034780516"><div class="ttname"><a href="classEQueueMessage.html#ae6c6479b85fe9d55752bfed034780516">EQueueMessage::operator=</a></div><div class="ttdeci">EQueueMessage &amp; operator=(const EQueueMessage &amp;a)</div><div class="ttdoc">Assignment operator.</div><div class="ttdef"><b>Definition:</b> eqbase.h:73</div></div>
 <div class="ttc" id="aclassEMessage_html"><div class="ttname"><a href="classEMessage.html">EMessage</a></div><div class="ttdoc">The message queue base message class.</div><div class="ttdef"><b>Definition:</b> emsg.h:29</div></div>
+<div class="ttc" id="aebase_8h_html_a2017da1a7bf300a2d47bae722cec5e70"><div class="ttname"><a href="ebase_8h.html#a2017da1a7bf300a2d47bae722cec5e70">epctime_t</a></div><div class="ttdeci">long long int epctime_t</div><div class="ttdoc">time typedef</div><div class="ttdef"><b>Definition:</b> ebase.h:34</div></div>
 <div class="ttc" id="aclassEQueueMessage_html_ae009309b11a70546ac08a867b43cf02b"><div class="ttname"><a href="classEQueueMessage.html#ae009309b11a70546ac08a867b43cf02b">EQueueMessage::unserialize</a></div><div class="ttdeci">virtual Void unserialize(pVoid pBuffer, ULong &amp;nOffset)</div><div class="ttdoc">Deserializes the message.</div><div class="ttdef"><b>Definition:</b> eqbase.cpp:36</div></div>
 <div class="ttc" id="aclassEQueueMessage_html_a360ae27882013bb47a31e39d5cd54eec"><div class="ttname"><a href="classEQueueMessage.html#a360ae27882013bb47a31e39d5cd54eec">EQueueMessage::getMsgType</a></div><div class="ttdeci">Long getMsgType()</div><div class="ttdoc">Retrieves the message type value.</div><div class="ttdef"><b>Definition:</b> eqbase.h:106</div></div>
 <div class="ttc" id="aclassEQueueBase_html_a6a9115253f51690fd3426bceea0ec723"><div class="ttname"><a href="classEQueueBase.html#a6a9115253f51690fd3426bceea0ec723">EQueueBase::destroy</a></div><div class="ttdeci">Void destroy()</div><div class="ttdoc">Destroys the message queue.</div><div class="ttdef"><b>Definition:</b> eqbase.cpp:121</div></div>
