@@ -415,6 +415,11 @@ inline ApplicationIdIE::ApplicationIdIE(pfcp_application_id_ie_t &ie, LengthCalc
 {
 }
 
+inline uint16_t ApplicationIdIE::app_ident_len() const
+{
+   return ie_.header.len;
+}
+
 inline const uint8_t *ApplicationIdIE::app_ident() const
 {
    return ie_.app_ident;
@@ -424,9 +429,8 @@ inline ApplicationIdIE &ApplicationIdIE::app_ident(const uint8_t *app_id, uint16
 {
    if (len > sizeof(ie_.app_ident))
       len = sizeof(ie_.app_ident);
-   ie_.app_ident_len = len;
    std::memcpy(ie_.app_ident, app_id, len);
-   setLength();
+   ie_.header.len = len;
    return *this;
 }
 
@@ -437,10 +441,7 @@ inline pfcp_application_id_ie_t &ApplicationIdIE::data()
 
 inline uint16_t ApplicationIdIE::calculateLength()
 {
-   return
-      sizeof(ie_.app_ident_len) +
-      ie_.app_ident_len
-   ;
+   return ie_.header.len;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
