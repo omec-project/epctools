@@ -1097,6 +1097,14 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+DECLARE_ERROR_ADVANCED2(NodeIdException_UnrecognizedNodeIdType);
+inline NodeIdException_UnrecognizedNodeIdType::NodeIdException_UnrecognizedNodeIdType(Int err)
+{
+   setTextf("Unrecognized NodeIdType (%d)", err);
+}
+
+DECLARE_ERROR(NodeIdException_NodeIdTypeLengthMismatch);
+
 enum class NodeIdTypeEnum : uint8_t
 {
    ipv4_address   = 0,
@@ -1120,7 +1128,9 @@ class NodeIdIE : public IEHeader
    friend class SessionSetDeletionRsp;
 public:
    NodeIdTypeEnum node_id_type() const;
-   const uint8_t *node_id_value() const;
+   const in_addr &node_id_value_ipv4_address() const;
+   const in6_addr &node_id_value_ipv6_address() const;
+   const uint8_t *node_id_value_fqdn() const;
    NodeIdIE &node_id_value(const ESocket::Address &val);
    NodeIdIE &node_id_value(const EIpAddress &val);
    NodeIdIE &node_id_value(const in_addr &val);
@@ -3157,8 +3167,8 @@ class TgppInterfaceTypeIE : public IEHeader
    friend class PdiIE;
    friend class UpdateForwardingParametersIE;
 public:
-   TgppInterfaceTypeEnum intfc_type_val() const;
-   TgppInterfaceTypeIE &intfc_type_val(TgppInterfaceTypeEnum val);
+   TgppInterfaceTypeEnum interface_type_value() const;
+   TgppInterfaceTypeIE &interface_type_value(TgppInterfaceTypeEnum val);
    pfcp_3gpp_intfc_type_ie_t &data();
 
 protected:
