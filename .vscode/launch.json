@@ -43,13 +43,13 @@
          ]
       },
       {
-         "name": "debug test",
+         "name": "debug pfcptest",
          "type": "cppdbg",
          "request": "launch",
-         "program": "${workspaceFolder}/test/Tutorial-PacketParsing",
+         "program": "${workspaceFolder}/pfcptest/pfcptest",
          "args": [],
          "stopAtEntry": false,
-         "cwd": "${workspaceFolder}/test",
+         "cwd": "${workspaceFolder}/pfcptest",
          "environment": [],
          "externalConsole": false,
          "MIMode": "gdb",
@@ -60,7 +60,7 @@
                  "ignoreFailures": true
              }
          ],
-         "preLaunchTask": "build test",
+         "preLaunchTask": "build pfcptest",
          "miDebuggerPath": "/usr/bin/gdb"
      }
    ]

@@ -40,6 +40,21 @@
          ]
       },
       {
+         "label": "build pfcptest",
+         "type": "shell",
+         "command": "make",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcptest"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
          "label": "clean epctools",
          "type": "shell",
          "command": "make clean",
@@ -101,21 +116,6 @@
          "problemMatcher": [
             "$gcc"
          ]
-      },
-      {
-         "label": "build test",
-         "type": "shell",
-         "command": "make Tutorial-PacketParsing",
-         "options": {
-             "cwd": "${workspaceFolder}/test"
-         },
-         "group": {
-             "kind": "build",
-             "isDefault": true
-          },
-          "problemMatcher": [
-             "$gcc"
-          ]
-     }
+      }
    ]
 }
