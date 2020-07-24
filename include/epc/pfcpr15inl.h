@@ -2161,6 +2161,11 @@ inline const uint8_t *NodeIdIE::node_id_value_fqdn() const
    return ie_.node_id_value_fqdn;
 }
 
+uint16_t NodeIdIE::node_id_valud_fqdn_len() const
+{
+   return ie_.header.len - 1;
+}
+
 inline NodeIdIE &NodeIdIE::node_id_value(const ESocket::Address &val)
 {
    if (val.getFamily() == ESocket::Family::INET)

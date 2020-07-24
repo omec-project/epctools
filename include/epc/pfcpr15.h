@@ -1131,6 +1131,7 @@ public:
    const in_addr &node_id_value_ipv4_address() const;
    const in6_addr &node_id_value_ipv6_address() const;
    const uint8_t *node_id_value_fqdn() const;
+   uint16_t node_id_valud_fqdn_len() const;
    NodeIdIE &node_id_value(const ESocket::Address &val);
    NodeIdIE &node_id_value(const EIpAddress &val);
    NodeIdIE &node_id_value(const in_addr &val);
