@@ -415,6 +415,11 @@ inline ApplicationIdIE::ApplicationIdIE(pfcp_application_id_ie_t &ie, LengthCalc
 {
 }
 
+inline uint16_t ApplicationIdIE::app_ident_len() const
+{
+   return ie_.header.len;
+}
+
 inline const uint8_t *ApplicationIdIE::app_ident() const
 {
    return ie_.app_ident;
@@ -424,9 +429,8 @@ inline ApplicationIdIE &ApplicationIdIE::app_ident(const uint8_t *app_id, uint16
 {
    if (len > sizeof(ie_.app_ident))
       len = sizeof(ie_.app_ident);
-   ie_.app_ident_len = len;
    std::memcpy(ie_.app_ident, app_id, len);
-   setLength();
+   ie_.header.len = len;
    return *this;
 }
 
@@ -437,10 +441,7 @@ inline pfcp_application_id_ie_t &ApplicationIdIE::data()
 
 inline uint16_t ApplicationIdIE::calculateLength()
 {
-   return
-      sizeof(ie_.app_ident_len) +
-      ie_.app_ident_len
-   ;
+   return ie_.header.len;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2145,9 +2146,24 @@ inline NodeIdTypeEnum NodeIdIE::node_id_type() const
    return static_cast<NodeIdTypeEnum>(ie_.node_id_type);
 }
 
-inline const uint8_t *NodeIdIE::node_id_value() const
+inline const in_addr &NodeIdIE::node_id_value_ipv4_address() const
 {
-   return ie_.node_id_value;
+   return *reinterpret_cast<in_addr*>(&ie_.node_id_value_ipv4_address);
+}
+
+inline const in6_addr &NodeIdIE::node_id_value_ipv6_address() const
+{
+   return *reinterpret_cast<in6_addr*>(ie_.node_id_value_ipv6_address);
+}
+
+inline const uint8_t *NodeIdIE::node_id_value_fqdn() const
+{
+   return ie_.node_id_value_fqdn;
+}
+
+uint16_t NodeIdIE::node_id_valud_fqdn_len() const
+{
+   return ie_.header.len - 1;
 }
 
 inline NodeIdIE &NodeIdIE::node_id_value(const ESocket::Address &val)
@@ -2171,7 +2187,7 @@ inline NodeIdIE &NodeIdIE::node_id_value(const EIpAddress &val)
 inline NodeIdIE &NodeIdIE::node_id_value(const in_addr &val)
 {
    ie_.node_id_type = static_cast<uint8_t>(NodeIdTypeEnum::ipv4_address);
-   std::memcpy(ie_.node_id_value, &val, sizeof(val));
+   std::memcpy(&ie_.node_id_value_ipv4_address, &val, sizeof(val));
    setLength();
    return *this;
 }
@@ -2179,18 +2195,46 @@ inline NodeIdIE &NodeIdIE::node_id_value(const in_addr &val)
 inline NodeIdIE &NodeIdIE::node_id_value(const in6_addr &val)
 {
    ie_.node_id_type = static_cast<uint8_t>(NodeIdTypeEnum::ipv6_address);
-   std::memcpy(ie_.node_id_value, val.s6_addr, sizeof(val));
+   std::memcpy(ie_.node_id_value_ipv6_address, val.s6_addr, sizeof(val));
    setLength();
    return *this;
 }
 
 inline NodeIdIE &NodeIdIE::node_id_value(const uint8_t *val, uint8_t len, NodeIdTypeEnum type)
 {
-   if (len > sizeof(ie_.node_id_value))
-      len = sizeof(ie_.node_id_value);
    ie_.node_id_type = static_cast<uint8_t>(type);
-   std::memcpy(ie_.node_id_value, val, len);
-   ie_.header.len = 1 + len;
+
+   switch(type)
+   {
+      case NodeIdTypeEnum::ipv4_address:
+      {
+         if(len != sizeof(ie_.node_id_value_ipv4_address))
+            throw NodeIdException_NodeIdTypeLengthMismatch();
+         std::memcpy(&ie_.node_id_value_ipv4_address, val, sizeof(ie_.node_id_value_ipv4_address));
+         break;
+      }
+      case NodeIdTypeEnum::ipv6_address:
+      {
+         if(len != sizeof(ie_.node_id_value_ipv6_address))
+            throw NodeIdException_NodeIdTypeLengthMismatch();
+         std::memcpy(ie_.node_id_value_ipv6_address, val, sizeof(ie_.node_id_value_ipv6_address));
+         break;
+      }
+      case NodeIdTypeEnum::FQDN:
+      {
+         if (len > sizeof(ie_.node_id_value_fqdn))
+            len = sizeof(ie_.node_id_value_fqdn);
+         std::memcpy(ie_.node_id_value_fqdn, val, len);
+         ie_.header.len = 1 + len;
+         break;
+      }
+      default:
+      {
+         throw NodeIdException_UnrecognizedNodeIdType((Int) type);
+         break;
+      }
+   }
+   
    return *this;
 }
    
@@ -6733,14 +6777,14 @@ inline uint16_t ApnDnnIE::calculateLength()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline TgppInterfaceTypeEnum TgppInterfaceTypeIE::intfc_type_val() const
+inline TgppInterfaceTypeEnum TgppInterfaceTypeIE::interface_type_value() const
 {
-   return static_cast<TgppInterfaceTypeEnum>(ie_.intfc_type_val);
+   return static_cast<TgppInterfaceTypeEnum>(ie_.interface_type_value);
 }
 
-inline TgppInterfaceTypeIE &TgppInterfaceTypeIE::intfc_type_val(TgppInterfaceTypeEnum val)
+inline TgppInterfaceTypeIE &TgppInterfaceTypeIE::interface_type_value(TgppInterfaceTypeEnum val)
 {
-   ie_.intfc_type_val = static_cast<uint8_t>(val);
+   ie_.interface_type_value = static_cast<uint8_t>(val);
    setLength();
    return *this;
 }
