@@ -2161,7 +2161,7 @@ inline const uint8_t *NodeIdIE::node_id_value_fqdn() const
    return ie_.node_id_value_fqdn;
 }
 
-uint16_t NodeIdIE::node_id_valud_fqdn_len() const
+inline uint16_t NodeIdIE::node_id_valud_fqdn_len() const
 {
    return ie_.header.len - 1;
 }
