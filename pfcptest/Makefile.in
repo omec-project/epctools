@@ -114,10 +114,9 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_pfcptest_OBJECTS = pfcptest-main.$(OBJEXT) \
-	pcaps/pfcptest-pcap.$(OBJEXT)
+am_pfcptest_OBJECTS = pfcptest-main.$(OBJEXT) pfcptest-test.$(OBJEXT) \
+	pcaps/pfcptest-pcaps.$(OBJEXT)
 pfcptest_OBJECTS = $(am_pfcptest_OBJECTS)
-pfcptest_DEPENDENCIES =
 pfcptest_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(pfcptest_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
@@ -274,18 +273,24 @@ top_srcdir = @top_srcdir@
 
 #######################################
 # Build information for each library
+pfcptest_DEPENDENCIES = \
+   $(top_builddir)/exampleProgram/libpfcp/lib/libpfcp.so \
+   $(top_builddir)/src/libepc.a \
+   $(top_builddir)/src/libpfcpr15.a
+
 
 # Sources for pfcptest
 pfcptest_SOURCES = \
-   main.cpp         \
-   pcaps/pcap.cpp
+   main.cpp          \
+   test.cpp          \
+   pcaps/pcaps.cpp
 
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
 pfcptest_CPPFLAGS = -Wall -std=c++11 $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -I../exampleProgram/pfcp/include -I../include/epc -I../exampleProgram/libpfcp/include
 pfcptest_LDFLAGS = -Wl,-rpath='../exampleProgram/libpfcp/lib' -static-libstdc++ 
-pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L../src -L../exampleProgram/libpfcp/lib $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt
+pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L../src -L../exampleProgram/libpfcp/lib $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt -lssl -lcrypto
 all: all-am
 
 .SUFFIXES:
@@ -328,7 +333,7 @@ pcaps/$(am__dirstamp):
 pcaps/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) pcaps/$(DEPDIR)
 	@: > pcaps/$(DEPDIR)/$(am__dirstamp)
-pcaps/pfcptest-pcap.$(OBJEXT): pcaps/$(am__dirstamp) \
+pcaps/pfcptest-pcaps.$(OBJEXT): pcaps/$(am__dirstamp) \
 	pcaps/$(DEPDIR)/$(am__dirstamp)
 
 pfcptest$(EXEEXT): $(pfcptest_OBJECTS) $(pfcptest_DEPENDENCIES) $(EXTRA_pfcptest_DEPENDENCIES) 
@@ -343,7 +348,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pfcptest-main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@pcaps/$(DEPDIR)/pfcptest-pcap.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pfcptest-test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pcaps/$(DEPDIR)/pfcptest-pcaps.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -375,19 +381,33 @@ pfcptest-main.obj: main.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pfcptest-main.obj `if test -f 'main.cpp'; then $(CYGPATH_W) 'main.cpp'; else $(CYGPATH_W) '$(srcdir)/main.cpp'; fi`
 
-pcaps/pfcptest-pcap.o: pcaps/pcap.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pcaps/pfcptest-pcap.o -MD -MP -MF pcaps/$(DEPDIR)/pfcptest-pcap.Tpo -c -o pcaps/pfcptest-pcap.o `test -f 'pcaps/pcap.cpp' || echo '$(srcdir)/'`pcaps/pcap.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) pcaps/$(DEPDIR)/pfcptest-pcap.Tpo pcaps/$(DEPDIR)/pfcptest-pcap.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pcaps/pcap.cpp' object='pcaps/pfcptest-pcap.o' libtool=no @AMDEPBACKSLASH@
+pfcptest-test.o: test.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pfcptest-test.o -MD -MP -MF $(DEPDIR)/pfcptest-test.Tpo -c -o pfcptest-test.o `test -f 'test.cpp' || echo '$(srcdir)/'`test.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pfcptest-test.Tpo $(DEPDIR)/pfcptest-test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test.cpp' object='pfcptest-test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pcaps/pfcptest-pcap.o `test -f 'pcaps/pcap.cpp' || echo '$(srcdir)/'`pcaps/pcap.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pfcptest-test.o `test -f 'test.cpp' || echo '$(srcdir)/'`test.cpp
 
-pcaps/pfcptest-pcap.obj: pcaps/pcap.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pcaps/pfcptest-pcap.obj -MD -MP -MF pcaps/$(DEPDIR)/pfcptest-pcap.Tpo -c -o pcaps/pfcptest-pcap.obj `if test -f 'pcaps/pcap.cpp'; then $(CYGPATH_W) 'pcaps/pcap.cpp'; else $(CYGPATH_W) '$(srcdir)/pcaps/pcap.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) pcaps/$(DEPDIR)/pfcptest-pcap.Tpo pcaps/$(DEPDIR)/pfcptest-pcap.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pcaps/pcap.cpp' object='pcaps/pfcptest-pcap.obj' libtool=no @AMDEPBACKSLASH@
+pfcptest-test.obj: test.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pfcptest-test.obj -MD -MP -MF $(DEPDIR)/pfcptest-test.Tpo -c -o pfcptest-test.obj `if test -f 'test.cpp'; then $(CYGPATH_W) 'test.cpp'; else $(CYGPATH_W) '$(srcdir)/test.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pfcptest-test.Tpo $(DEPDIR)/pfcptest-test.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test.cpp' object='pfcptest-test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pcaps/pfcptest-pcap.obj `if test -f 'pcaps/pcap.cpp'; then $(CYGPATH_W) 'pcaps/pcap.cpp'; else $(CYGPATH_W) '$(srcdir)/pcaps/pcap.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pfcptest-test.obj `if test -f 'test.cpp'; then $(CYGPATH_W) 'test.cpp'; else $(CYGPATH_W) '$(srcdir)/test.cpp'; fi`
+
+pcaps/pfcptest-pcaps.o: pcaps/pcaps.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pcaps/pfcptest-pcaps.o -MD -MP -MF pcaps/$(DEPDIR)/pfcptest-pcaps.Tpo -c -o pcaps/pfcptest-pcaps.o `test -f 'pcaps/pcaps.cpp' || echo '$(srcdir)/'`pcaps/pcaps.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) pcaps/$(DEPDIR)/pfcptest-pcaps.Tpo pcaps/$(DEPDIR)/pfcptest-pcaps.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pcaps/pcaps.cpp' object='pcaps/pfcptest-pcaps.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pcaps/pfcptest-pcaps.o `test -f 'pcaps/pcaps.cpp' || echo '$(srcdir)/'`pcaps/pcaps.cpp
+
+pcaps/pfcptest-pcaps.obj: pcaps/pcaps.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pcaps/pfcptest-pcaps.obj -MD -MP -MF pcaps/$(DEPDIR)/pfcptest-pcaps.Tpo -c -o pcaps/pfcptest-pcaps.obj `if test -f 'pcaps/pcaps.cpp'; then $(CYGPATH_W) 'pcaps/pcaps.cpp'; else $(CYGPATH_W) '$(srcdir)/pcaps/pcaps.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) pcaps/$(DEPDIR)/pfcptest-pcaps.Tpo pcaps/$(DEPDIR)/pfcptest-pcaps.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pcaps/pcaps.cpp' object='pcaps/pfcptest-pcaps.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(pfcptest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pcaps/pfcptest-pcaps.obj `if test -f 'pcaps/pcaps.cpp'; then $(CYGPATH_W) 'pcaps/pcaps.cpp'; else $(CYGPATH_W) '$(srcdir)/pcaps/pcaps.cpp'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

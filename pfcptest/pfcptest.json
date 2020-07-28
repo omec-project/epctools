@@ -55,19 +55,6 @@
                         "RolloverMinute": 55
                      }
                   ]
-               },
-               {
-                  "SinkID": 2,
-                  "Sinks": [
-                     {
-                        "SinkType": "rotating_file",
-                        "LogLevel": "debug",
-                        "Pattern": "%v",
-                        "FileName": "./logs/epctest.stats.rotating.log",
-                        "MaxSizeMB": 1,
-                        "MaxNumberFiles": 2
-                     }
-                  ]
                }
             ],
             "Logs": [
@@ -85,8 +72,8 @@
                },
                {
                   "LogID": 3,
-                  "Category": "stats",
-                  "SinkID": 2,
+                  "Category": "tests",
+                  "SinkID": 1,
                   "LogLevel": "debug"
                }
             ]
