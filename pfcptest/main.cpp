@@ -1,12 +1,15 @@
 #include <stdlib.h>
 #include <vector>
+#include <set>
 #include <signal.h>
 
 #include "pfcpr15.h"
 #include "epctools.h"
 #include "epfcp.h"
+#include "edir.h"
 
 #include "test.h"
+#include "pcaps/pcaps.h"
 
 #define LOG_SYSTEM 1
 #define LOG_PFCP 2
@@ -63,6 +66,41 @@ int main(int argc, char *argv[])
          PFCP::Configuration::setLogger(ELogger::log(LOG_PFCP));
 
          unsigned int failure_count = 0;
+
+         // Load pcap tests
+         std::set<EString> pcap_files;
+         std::vector<EString> pcap_args;
+         {
+            EString pcaps_path = "./pcaps/originals";
+            EDirectory pcaps_dir;
+            cpStr pcap_file = pcaps_dir.getFirstEntry(pcaps_path, "*.pcap");
+            while(pcap_file)
+            {
+               pcap_files.emplace(pcap_file);
+
+               EString name = EPath::getFileNameWithoutExtension(pcap_file);
+               pcap_args.push_back(name);
+               TestSuite::add(name, PcapTest, &pcap_args.back());
+
+               pcap_file = pcaps_dir.getNextEntry();
+            }
+         }
+
+         EString results_path = "./pcaps/results/";
+         EPath::verify(results_path);
+         EDirectory dir;
+         cpStr fn = dir.getFirstEntry(results_path, "*");
+         while (fn)
+         {
+            EString file(fn);
+            if(pcap_files.count(file) > 0)
+            {
+               EString file_path;
+               EPath::combine(results_path, file, file_path);
+               EUtility::delete_file(file_path);
+            }
+            fn = dir.getNextEntry();
+         }
 
          for(auto itest : TestSuite::tests())
          {

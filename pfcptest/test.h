@@ -1,11 +1,11 @@
 #include <functional>
 #include <map>
-#include <string>
 
+#include "estring.h"
 #include "eerror.h"
 
 #define TEST(name)                     \
-bool name();                           \
+bool name(void *);                     \
 class name##_TEST                      \
 {                                      \
 public:                                \
@@ -15,7 +15,7 @@ public:                                \
     }                                  \
 };                                     \
 static name##_TEST name##_TEST_STATIC; \
-bool name()
+bool name(void *args)
 
 namespace PFCPTest
 {
@@ -34,13 +34,28 @@ namespace PFCPTest
     class TestSuite
     {
     public:
-        using Test = std::function<bool()>;
-        using TestLookup = std::map<std::string, Test>;
+        class Test
+        {
+        public:
+            using Func = std::function<bool(void *)>;
+            using Args = void *;
+
+            Test() = default;
+            Test(Func func, Args args) : m_func(func), m_args(args) {}
+
+        private:
+            friend class TestSuite;
+
+            Func m_func = nullptr;
+            Args m_args = nullptr;
+        };
+        
+        using TestLookup = std::map<EString, Test>;
         
         static inline TestLookup &tests() { return s_tests; };
-        static bool run(const std::string &name);
-        static void add(const std::string &name, Test test);
-        static std::string calculateSHA1Hash(const std::string &filename);
+        static bool run(const EString &name);
+        static void add(const EString &name, Test::Func func, Test::Args args = nullptr);
+        static EString calculateSHA1Hash(const EString &filename);
 
     private:
         static TestLookup s_tests;

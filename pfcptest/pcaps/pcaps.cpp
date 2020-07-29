@@ -19,14 +19,19 @@
 
 namespace PFCPTest
 {
-    bool PcapTest(const std::string &input_pcap, const std::string &output_pcap)
+    bool PcapTest(void *args)
     {
-        std::string baseline_hash = TestSuite::calculateSHA1Hash(output_pcap);
+        EString &name = *reinterpret_cast<EString *>(args);
+        EString original_pcap = "./pcaps/originals/" + name + ".pcap";
+        EString baseline_pcap = "./pcaps/baselines/" + name + ".pcap";
+        EString result_pcap = "./pcaps/results/" + name + ".pcap";
+
+        EString baseline_hash = TestSuite::calculateSHA1Hash(baseline_pcap);
         ELogger::log(LOG_TEST).info("baseline hash: {}", baseline_hash);
 
         // use the IFileReaderDevice interface to automatically identify file type (pcap/pcap-ng)
         // and create an interface instance that both readers implement
-        pcpp::IFileReaderDevice *reader = pcpp::IFileReaderDevice::getReader(input_pcap.c_str());
+        pcpp::IFileReaderDevice *reader = pcpp::IFileReaderDevice::getReader(original_pcap.c_str());
 
         // verify that a reader interface was indeed created
         if (reader == NULL)
@@ -97,12 +102,12 @@ namespace PFCPTest
         parsedPacket.computeCalculateFields();
 
         // write the modified packet to a pcap file
-        pcpp::PcapFileWriterDevice writer(output_pcap.c_str(), parsedPacket.getRawPacket()->getLinkLayerType());
+        pcpp::PcapFileWriterDevice writer(result_pcap.c_str(), parsedPacket.getRawPacket()->getLinkLayerType());
         writer.open();
         writer.writePacket(*(parsedPacket.getRawPacket()));
         writer.close();
 
-        std::string result_hash = TestSuite::calculateSHA1Hash(output_pcap);
+        EString result_hash = TestSuite::calculateSHA1Hash(result_pcap);
         ELogger::log(LOG_TEST).info("result hash:   {}", result_hash);
 
         if(baseline_hash.empty())
@@ -110,12 +115,4 @@ namespace PFCPTest
 
         return baseline_hash.compare(result_hash) == 0;
     }
-
-    #define PCAP_TEST(name)                                                                      \
-    TEST(name)                                                                                   \
-    {                                                                                            \
-        return PcapTest("./pcaps/originals/" #name ".pcap", "./pcaps/baselines/" #name ".pcap"); \
-    }
-
-    PCAP_TEST(pfcp_pfd_management_request)
 }
