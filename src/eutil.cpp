@@ -110,9 +110,9 @@ void EUtility::copy_file( const char *dst, const char *src )
    fdst << fsrc.rdbuf();
 }
 
-void EUtility::delete_file( const char *fn )
+Bool EUtility::delete_file( const char *fn )
 {
-   remove( fn );
+   return remove( fn ) == 0;
 }
 
 void EUtility::_string_format( std::string &dest, const char *format, va_list &args )

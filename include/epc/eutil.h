@@ -93,9 +93,9 @@ public:
 
    /// @brief Deletes the supplied file.
    /// @param fn the file name to delete.
-   static Void delete_file( const std::string &fn ) { delete_file( fn.c_str() ); }
+   static Bool delete_file( const std::string &fn ) { return delete_file( fn.c_str() ); }
    /// @copydoc delete_file(const std::string &)
-   static Void delete_file( const char *fn );
+   static Bool delete_file( const char *fn );
 
    /// @brief Determines if the supplied file exists.
    /// @return True if the file exists, otherwise False.
