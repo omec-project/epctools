@@ -17,7 +17,6 @@
 
 #include <vector>
 #include <unordered_map>
-#include <sys/stat.h>
 
 #include "einternal.h"
 #include "elogger.h"
@@ -54,17 +53,6 @@ ELoggerError_SinkSetNotFound::ELoggerError_SinkSetNotFound(Int err)
 ELoggerError_SinkSetExists::ELoggerError_SinkSetExists(Int err)
 {
    setTextf("Sink set ID [%d] already exists", err);
-}
-
-ELoggerError_SinkSetCreatePath::ELoggerError_SinkSetCreatePath(Int err, cpStr msg)
-{
-   setTextf( "Error creating directory [%s]", msg );
-   appendLastOsError( err );
-}
-
-ELoggerError_SinkSetNotDirectory::ELoggerError_SinkSetNotDirectory(cpStr msg)
-{
-   setText( msg );
 }
 
 ELoggerError_SinkSetUnrecognizedSinkType::ELoggerError_SinkSetUnrecognizedSinkType(cpStr msg)
@@ -171,7 +159,7 @@ Void ELogger::init(EGetOpt &opt)
                EString filename = opt.get( j, pth, MEMBER_LOGGER_FILE_NAME, "" );
                Bool truncate = opt.get( j, pth, MEMBER_LOGGER_FILE_TRUNCATE, false );
 
-               verifyPath( filename );
+               EPath::verify( filename );
 
                std::shared_ptr<ELoggerSink> sp = std::make_shared<ELoggerSinkBasicFile>(
                   loglevel, pattern, filename, truncate );
@@ -185,7 +173,7 @@ Void ELogger::init(EGetOpt &opt)
                size_t maxfiles = opt.get( j, pth, MEMBER_LOGGER_MAX_FILES, 2 );
                Bool rotateonopen = opt.get( j, pth, MEMBER_LOGGER_FILE_ROTATE_ON_OPEN, false );
 
-               verifyPath( filename );
+               EPath::verify( filename );
 
                std::shared_ptr<ELoggerSink> sp = std::make_shared<ELoggerSinkRotatingFile>(
                   loglevel, pattern, filename, maxsizemb, maxfiles, rotateonopen );
@@ -199,7 +187,7 @@ Void ELogger::init(EGetOpt &opt)
                Int hr = opt.get( j, pth, MEMBER_LOGGER_ROLLOVER_HOUR, 0 );
                Int mi = opt.get( j, pth, MEMBER_LOGGER_ROLLOVER_MINUTE, 0 );
 
-               verifyPath( filename );
+               EPath::verify( filename );
 
                std::shared_ptr<ELoggerSink> sp = std::make_shared<ELoggerSinkDailyFile>(
                   loglevel, pattern, filename, truncate, hr, mi );
@@ -298,29 +286,6 @@ ELoggerSinkSet &ELogger::createSinkSet(Int sinkid)
    m_sinksets[sinkid] = sssp;
 
    return sinkSet(sinkid);
-}
-
-Void ELogger::verifyPath(cpStr filename)
-{
-   struct stat st;
-   EString dir;
-   EPath::getDirectoryName( filename, dir );
-   std::vector<EString> dirs = EUtility::split( dir, "/" );
-
-   dir = "";
-   for (auto d : dirs)
-   {
-      dir = EPath::combine( dir, d );
-      if ( stat(dir, &st) != 0 )
-      {
-         if ( mkdir(dir,0777) && errno != EEXIST )
-            throw ELoggerError_SinkSetCreatePath( errno, dir );
-      }
-      else if ( !S_ISDIR(st.st_mode) )
-      {
-         throw ELoggerError_SinkSetNotDirectory( dir );
-      }
-   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

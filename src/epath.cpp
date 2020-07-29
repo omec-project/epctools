@@ -19,6 +19,8 @@
 #include "edir.h"
 #include "eutil.h"
 
+#include <sys/stat.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,6 +30,17 @@ EPathError_ArgumentException::EPathError_ArgumentException(cpStr arg)
 {
    setSevere();
    setTextf("Invalid argument - %s", arg);
+}
+
+EPathError_VerifyCreatePath::EPathError_VerifyCreatePath(Int err, cpStr msg)
+{
+   setTextf( "Error creating directory [%s]", msg );
+   appendLastOsError( err );
+}
+
+EPathError_VerifyNotDirectory::EPathError_VerifyNotDirectory(cpStr msg)
+{
+   setText( msg );
 }
 
 /// @endcond
@@ -139,6 +152,28 @@ EString EPath::combine(cpStr path1, cpStr path2, cpStr path3, cpStr path4)
    return path;
 }
 
+Void EPath::verify(cpStr path, mode_t mode)
+{
+   struct stat st;
+   EString dir;
+   EPath::getDirectoryName( path, dir );
+   std::vector<EString> dirs = EUtility::split( dir, "/" );
+
+   dir = "";
+   for (auto d : dirs)
+   {
+      dir = EPath::combine( dir, d );
+      if ( stat(dir, &st) != 0 )
+      {
+         if ( mkdir(dir,mode) && errno != EEXIST )
+            throw EPathError_VerifyCreatePath( errno, dir );
+      }
+      else if ( !S_ISDIR(st.st_mode) )
+      {
+         throw EPathError_VerifyNotDirectory( dir );
+      }
+   }
+}
 
 Void EPath::getDirectoryName(cpStr path, EString &dirName)
 {

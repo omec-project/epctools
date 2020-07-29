@@ -67,8 +67,6 @@ DECLARE_ERROR(ELoggerError_SinkSetSinkIdNotSpecified);
 DECLARE_ERROR(ELoggerError_SinkSetCategoryNotSpecified);
 DECLARE_ERROR(ELoggerError_SinkSetSinkTypeNotSpecified);
 
-DECLARE_ERROR_ADVANCED3(ELoggerError_SinkSetCreatePath);
-DECLARE_ERROR_ADVANCED4(ELoggerError_SinkSetNotDirectory);
 DECLARE_ERROR_ADVANCED4(ELoggerError_SinkSetUnrecognizedSinkType);
 /// @endcond
 
@@ -223,8 +221,6 @@ private:
    static std::unordered_map<Int,std::shared_ptr<ELoggerSinkSet>> m_sinksets;
    static std::unordered_map<Int,std::shared_ptr<ELogger>> m_logs;
    static std::map<std::string,std::shared_ptr<ELogger>> m_logs_by_name;
-
-   static Void verifyPath(cpStr filename);
 
    Int m_logid;
    Int m_sinkid;
