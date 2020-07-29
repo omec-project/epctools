@@ -41,4 +41,4 @@ pfcptest_SOURCES =   \
 # to be searched for headers included in the source code.
 pfcptest_CPPFLAGS = -Wall -std=c++11 $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -I../exampleProgram/pfcp/include -I../include/epc -I../exampleProgram/libpfcp/include
 pfcptest_LDFLAGS = -Wl,-rpath='../exampleProgram/libpfcp/lib' -static-libstdc++ 
-pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L../src -L../exampleProgram/libpfcp/lib $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt -lssl -lcrypto
+pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L../src -L../exampleProgram/libpfcp/lib $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt
