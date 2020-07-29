@@ -1,3 +1,6 @@
+#ifndef __pfcptest_test_h_included
+#define __pfcptest_test_h_included
+
 #include <functional>
 #include <map>
 
@@ -20,44 +23,36 @@ bool name(void *args)
 namespace PFCPTest
 {
     DECLARE_ERROR_ADVANCED4(TestSuite_UnrecognizedTestName);
-    inline TestSuite_UnrecognizedTestName::TestSuite_UnrecognizedTestName(cpStr msg)
-    {
-        setTextf("Unrecognized test name (%s)", msg);
-    }
-
     DECLARE_ERROR_ADVANCED4(TestSuite_TestException);
-    inline TestSuite_TestException::TestSuite_TestException(cpStr msg)
+
+    class Test
     {
-        setTextf("Test threw an exception: (%s)", msg);
-    }
+    public:
+        using Func = std::function<bool(Test *)>;
+
+        Test() = default;
+        Test(Func func) : m_func(func) {}
+
+        virtual ~Test() {}
+
+    private:
+        friend class TestSuite;
+
+        Func m_func = nullptr;
+    };
 
     class TestSuite
     {
     public:
-        class Test
-        {
-        public:
-            using Func = std::function<bool(void *)>;
-            using Args = void *;
-
-            Test() = default;
-            Test(Func func, Args args) : m_func(func), m_args(args) {}
-
-        private:
-            friend class TestSuite;
-
-            Func m_func = nullptr;
-            Args m_args = nullptr;
-        };
-        
-        using TestLookup = std::map<EString, Test>;
+        using TestLookup = std::map<EString, std::unique_ptr<Test>>;
         
         static inline TestLookup &tests() { return s_tests; };
         static bool run(const EString &name);
-        static void add(const EString &name, Test::Func func, Test::Args args = nullptr);
-        static EString calculateSHA1Hash(const EString &filename);
+        static void add(const EString &name, std::unique_ptr<Test> test);
 
     private:
         static TestLookup s_tests;
     };
 }
+
+#endif // #define __pfcptest_test_h_included

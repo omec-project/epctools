@@ -1,10 +1,17 @@
 #include "test.h"
 
-#include <fstream>
-#include <sstream>
-
 namespace PFCPTest
 {
+    TestSuite_UnrecognizedTestName::TestSuite_UnrecognizedTestName(cpStr msg)
+    {
+        setTextf("Unrecognized test name (%s)", msg);
+    }
+
+    TestSuite_TestException::TestSuite_TestException(cpStr msg)
+    {
+        setTextf("Test threw an exception: (%s)", msg);
+    }
+
     TestSuite::TestLookup TestSuite::s_tests;
 
     bool TestSuite::run(const EString &name)
@@ -16,7 +23,7 @@ namespace PFCPTest
 
         try
         {
-            return test->second.m_func(test->second.m_args);
+            return test->second.get()->m_func(test->second.get());
         }
         catch(const std::exception& e)
         {
@@ -24,9 +31,8 @@ namespace PFCPTest
         }
     }
 
-    void TestSuite::add(const EString &name, Test::Func func, Test::Args args)
+    void TestSuite::add(const EString &name, std::unique_ptr<Test> test)
     {
-        Test test(func, args);
-        s_tests[name] = test;
+        s_tests[name] = std::move(test);
     }
 }
