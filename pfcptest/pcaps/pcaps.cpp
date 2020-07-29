@@ -63,9 +63,9 @@ namespace PFCPTest::pcaps
         }
     }
 
-    bool RunPcapTest(Test *test)
+    bool RunPcapTest(Test &test)
     {
-        PcapTest &pcap_test = *dynamic_cast<PcapTest*>(test);
+        PcapTest &pcap_test = CAST_TEST(PcapTest);
         EString original_pcap = "./pcaps/originals/" + pcap_test.name() + ".pcap";
         EString baseline_pcap = "./pcaps/baselines/" + pcap_test.name() + ".pcap";
         EString result_pcap = "./pcaps/results/" + pcap_test.name() + ".pcap";
@@ -161,4 +161,10 @@ namespace PFCPTest::pcaps
 
         return result;
     }
-} // namespace PFCPTest:pcaps
+
+    TEST(my_test)
+    {
+        ELogger::log(LOG_TEST).info("my_test");
+        return true;
+    }
+} // namespace PFCPTest::pcaps

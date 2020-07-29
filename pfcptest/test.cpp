@@ -23,7 +23,7 @@ namespace PFCPTest
 
         try
         {
-            return test->second.get()->m_func(test->second.get());
+            return test->second.get()->m_func(*test->second.get());
         }
         catch(const std::exception& e)
         {

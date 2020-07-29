@@ -7,18 +7,22 @@
 #include "estring.h"
 #include "eerror.h"
 
-#define TEST(name)                     \
-bool name(void *);                     \
-class name##_TEST                      \
-{                                      \
-public:                                \
-    name##_TEST()                      \
-    {                                  \
-        TestSuite::add(#name, name);   \
-    }                                  \
-};                                     \
-static name##_TEST name##_TEST_STATIC; \
-bool name(void *args)
+#define TEST(name)                                  \
+bool name(Test &);                                  \
+class name##_TEST                                   \
+{                                                   \
+public:                                             \
+    name##_TEST()                                   \
+    {                                               \
+        std::unique_ptr<Test> test(new Test(name)); \
+        TestSuite::add(#name, std::move(test));     \
+    }                                               \
+};                                                  \
+static name##_TEST name##_TEST_STATIC;              \
+bool name(Test &test)
+
+#define CAST_TEST(name) *dynamic_cast<name*>(&test);
+
 
 namespace PFCPTest
 {
@@ -28,7 +32,7 @@ namespace PFCPTest
     class Test
     {
     public:
-        using Func = std::function<bool(Test *)>;
+        using Func = std::function<bool(Test &)>;
 
         Test() = default;
         Test(Func func) : m_func(func) {}

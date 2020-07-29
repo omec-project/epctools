@@ -6,7 +6,7 @@
 namespace PFCPTest::pcaps
 {
     void InitTests();
-    bool RunPcapTest(Test *test);
+    bool RunPcapTest(Test &test);
 
     class PcapTest : public Test
     {
