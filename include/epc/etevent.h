@@ -374,7 +374,7 @@ public:
       if (m_mode == EThreadQueueMode::ReadOnly)
          throw EThreadQueueBaseError_NotOpenForWriting();
 
-      if (semFree().Decrement(wait) < 0)
+      if (!semFree().Decrement(wait))
          return False;
 
       {

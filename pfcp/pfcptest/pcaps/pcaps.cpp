@@ -118,8 +118,9 @@ namespace PFCPTest::pcaps
             {
             case PFCP_PFD_MGMT_REQ:
             {
-                PFCP_R15::PfdMgmtReq &pfd_mgmt_req = *(static_cast<PFCP_R15::PfdMgmtReq *>(app_msg));
-                // // TEMP fixup
+                //PFCP_R15::PfdMgmtReq &pfd_mgmt_req = *(static_cast<PFCP_R15::PfdMgmtReq *>(app_msg));
+                
+                // // TEMP fixup for Application ID spare byte
                 // pfd_mgmt_req.data().header.message_len += 1;
                 // pfd_mgmt_req.data().app_ids_pfds[0].header.len += 1;
                 // pfd_mgmt_req.data().app_ids_pfds[0].pfd_context[0].header.len += 1;

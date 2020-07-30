@@ -332,7 +332,7 @@ Void ESemaphore_test_cancel_wait()
       cout << "Decrementing";
       for (int i = 1; i <= 5; i++)
       {
-         if (s1.Decrement() < 0)
+         if (!s1.Decrement())
             cout << "Error decrementing semaphore on pass " << i << endl;
          cout << ".";
       }
