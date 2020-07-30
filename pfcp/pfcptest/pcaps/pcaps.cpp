@@ -161,10 +161,4 @@ namespace PFCPTest::pcaps
 
         return result;
     }
-
-    TEST(my_test)
-    {
-        ELogger::log(LOG_TEST).info("my_test");
-        return true;
-    }
 } // namespace PFCPTest::pcaps
