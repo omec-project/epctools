@@ -20,7 +20,6 @@ include /usr/local/etc/PcapPlusPlus.mk
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example #usr#lib
-#bin_PROGRAMS = epctest
 noinst_PROGRAMS = pfcptest
 
 #######################################
@@ -39,6 +38,6 @@ pfcptest_SOURCES =   \
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-pfcptest_CPPFLAGS = -Wall -std=c++11 $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -I../exampleProgram/pfcp/include -I../include/epc -I../exampleProgram/libpfcp/include
-pfcptest_LDFLAGS = -Wl,-rpath='../exampleProgram/libpfcp/lib' -static-libstdc++ 
-pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L../src -L../exampleProgram/libpfcp/lib $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt
+pfcptest_CPPFLAGS = -Wall -std=c++11 $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -I$(top_builddir)/exampleProgram/pfcp/include -I$(top_builddir)/include/epc -I$(top_builddir)/exampleProgram/libpfcp/include
+pfcptest_LDFLAGS = -Wl,-rpath='$(top_builddir)/exampleProgram/libpfcp/lib' -static-libstdc++ 
+pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L$(top_builddir)/src -L$(top_builddir)/exampleProgram/libpfcp/lib $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt

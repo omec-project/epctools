@@ -25,12 +25,12 @@ lib_LIBRARIES = libpfcpr15.a
 # Build information for each library
 
 # Sources for epc
-libpfcpr15_a_SOURCES =     \
-   ../src/pfcpr15.cpp
+libpfcpr15_a_SOURCES = \
+   ../../src/pfcpr15.cpp
 
-nobase_include_HEADERS =   \
-   ../include/epc/pfcpr15.h           \
-   ../include/epc/pfcpr15inl.h
+nobase_include_HEADERS =       \
+   ../../include/epc/pfcpr15.h    \
+   ../../include/epc/pfcpr15inl.h
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.

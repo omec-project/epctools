@@ -42,10 +42,10 @@ AC_PROG_RANLIB
 AC_CONFIG_FILES(Makefile
                 src/Makefile
                 include/Makefile
-                pfcpr15/Makefile
+                pfcp/pfcpr15/Makefile
                 exampleProgram/Makefile
                 exampleProgram/pfcp/Makefile
-                pfcptest/Makefile)
+                pfcp/pfcptest/Makefile)
 
 #AC_CONFIG_COMMANDS([submodules],[git submodule update --init --recursive])
 AC_CONFIG_COMMANDS([submodules],[git submodule update --init])

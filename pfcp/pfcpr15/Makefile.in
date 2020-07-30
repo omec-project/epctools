@@ -104,7 +104,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = pfcpr15
+subdir = pfcp/pfcpr15
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -152,7 +152,7 @@ am__v_AR_1 =
 libpfcpr15_a_AR = $(AR) $(ARFLAGS)
 libpfcpr15_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libpfcpr15_a_OBJECTS = ../src/libpfcpr15_a-pfcpr15.$(OBJEXT)
+am_libpfcpr15_a_OBJECTS = ../../src/libpfcpr15_a-pfcpr15.$(OBJEXT)
 libpfcpr15_a_OBJECTS = $(am_libpfcpr15_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -318,11 +318,11 @@ lib_LIBRARIES = libpfcpr15.a
 
 # Sources for epc
 libpfcpr15_a_SOURCES = \
-   ../src/pfcpr15.cpp
+   ../../src/pfcpr15.cpp
 
 nobase_include_HEADERS = \
-   ../include/epc/pfcpr15.h           \
-   ../include/epc/pfcpr15inl.h
+   ../../include/epc/pfcpr15.h    \
+   ../../include/epc/pfcpr15inl.h
 
 
 # Compiler options. Here we are adding the include directory
@@ -341,9 +341,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu pfcpr15/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu pfcp/pfcpr15/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu pfcpr15/Makefile
+	  $(AUTOMAKE) --gnu pfcp/pfcpr15/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -392,14 +392,14 @@ uninstall-libLIBRARIES:
 
 clean-libLIBRARIES:
 	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
-../src/$(am__dirstamp):
-	@$(MKDIR_P) ../src
-	@: > ../src/$(am__dirstamp)
-../src/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ../src/$(DEPDIR)
-	@: > ../src/$(DEPDIR)/$(am__dirstamp)
-../src/libpfcpr15_a-pfcpr15.$(OBJEXT): ../src/$(am__dirstamp) \
-	../src/$(DEPDIR)/$(am__dirstamp)
+../../src/$(am__dirstamp):
+	@$(MKDIR_P) ../../src
+	@: > ../../src/$(am__dirstamp)
+../../src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ../../src/$(DEPDIR)
+	@: > ../../src/$(DEPDIR)/$(am__dirstamp)
+../../src/libpfcpr15_a-pfcpr15.$(OBJEXT): ../../src/$(am__dirstamp) \
+	../../src/$(DEPDIR)/$(am__dirstamp)
 
 libpfcpr15.a: $(libpfcpr15_a_OBJECTS) $(libpfcpr15_a_DEPENDENCIES) $(EXTRA_libpfcpr15_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libpfcpr15.a
@@ -408,12 +408,12 @@ libpfcpr15.a: $(libpfcpr15_a_OBJECTS) $(libpfcpr15_a_DEPENDENCIES) $(EXTRA_libpf
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../src/*.$(OBJEXT)
+	-rm -f ../../src/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -431,19 +431,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-../src/libpfcpr15_a-pfcpr15.o: ../src/pfcpr15.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpfcpr15_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../src/libpfcpr15_a-pfcpr15.o -MD -MP -MF ../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Tpo -c -o ../src/libpfcpr15_a-pfcpr15.o `test -f '../src/pfcpr15.cpp' || echo '$(srcdir)/'`../src/pfcpr15.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Tpo ../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/pfcpr15.cpp' object='../src/libpfcpr15_a-pfcpr15.o' libtool=no @AMDEPBACKSLASH@
+../../src/libpfcpr15_a-pfcpr15.o: ../../src/pfcpr15.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpfcpr15_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../../src/libpfcpr15_a-pfcpr15.o -MD -MP -MF ../../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Tpo -c -o ../../src/libpfcpr15_a-pfcpr15.o `test -f '../../src/pfcpr15.cpp' || echo '$(srcdir)/'`../../src/pfcpr15.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Tpo ../../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../../src/pfcpr15.cpp' object='../../src/libpfcpr15_a-pfcpr15.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpfcpr15_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../src/libpfcpr15_a-pfcpr15.o `test -f '../src/pfcpr15.cpp' || echo '$(srcdir)/'`../src/pfcpr15.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpfcpr15_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../../src/libpfcpr15_a-pfcpr15.o `test -f '../../src/pfcpr15.cpp' || echo '$(srcdir)/'`../../src/pfcpr15.cpp
 
-../src/libpfcpr15_a-pfcpr15.obj: ../src/pfcpr15.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpfcpr15_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../src/libpfcpr15_a-pfcpr15.obj -MD -MP -MF ../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Tpo -c -o ../src/libpfcpr15_a-pfcpr15.obj `if test -f '../src/pfcpr15.cpp'; then $(CYGPATH_W) '../src/pfcpr15.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/pfcpr15.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Tpo ../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../src/pfcpr15.cpp' object='../src/libpfcpr15_a-pfcpr15.obj' libtool=no @AMDEPBACKSLASH@
+../../src/libpfcpr15_a-pfcpr15.obj: ../../src/pfcpr15.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpfcpr15_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../../src/libpfcpr15_a-pfcpr15.obj -MD -MP -MF ../../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Tpo -c -o ../../src/libpfcpr15_a-pfcpr15.obj `if test -f '../../src/pfcpr15.cpp'; then $(CYGPATH_W) '../../src/pfcpr15.cpp'; else $(CYGPATH_W) '$(srcdir)/../../src/pfcpr15.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Tpo ../../src/$(DEPDIR)/libpfcpr15_a-pfcpr15.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../../src/pfcpr15.cpp' object='../../src/libpfcpr15_a-pfcpr15.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpfcpr15_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../src/libpfcpr15_a-pfcpr15.obj `if test -f '../src/pfcpr15.cpp'; then $(CYGPATH_W) '../src/pfcpr15.cpp'; else $(CYGPATH_W) '$(srcdir)/../src/pfcpr15.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libpfcpr15_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../../src/libpfcpr15_a-pfcpr15.obj `if test -f '../../src/pfcpr15.cpp'; then $(CYGPATH_W) '../../src/pfcpr15.cpp'; else $(CYGPATH_W) '$(srcdir)/../../src/pfcpr15.cpp'; fi`
 install-nobase_includeHEADERS: $(nobase_include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(nobase_include_HEADERS)'; test -n "$(includedir)" || list=; \
@@ -584,8 +584,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../src/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ../src/$(am__dirstamp)
+	-rm -f ../../src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ../../src/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -595,7 +595,7 @@ clean: clean-am
 clean-am: clean-generic clean-libLIBRARIES mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ../src/$(DEPDIR)
+	-rm -rf ../../src/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -641,7 +641,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ../src/$(DEPDIR)
+	-rm -rf ../../src/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
