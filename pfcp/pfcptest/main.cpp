@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
 
          pcaps::InitTests();
 
-         for(const auto &itest : TestSuite::tests())
+         for (const auto &itest : TestSuite::tests())
          {
             ELogger::log(LOG_TEST).info("Running test: {}", itest.first);
             bool result = TestSuite::run(itest.first);
-            if(result)
+            if (result)
             {
                ELogger::log(LOG_TEST).info("Test: {}....{}", itest.first, "PASSED");
             }
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
             }
          }
 
-         if(failure_count > 0)
+         if (failure_count > 0)
          {
             ELogger::log(LOG_TEST).major("{} tests failed.", failure_count);
             return 1;
