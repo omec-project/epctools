@@ -42,6 +42,7 @@ AC_PROG_RANLIB
 AC_CONFIG_FILES(Makefile
                 src/Makefile
                 include/Makefile
+                pfcpr15/Makefile
 		exampleProgram/Makefile
                 exampleProgram/pfcp/Makefile)
 

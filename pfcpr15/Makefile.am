@@ -25,17 +25,13 @@ lib_LIBRARIES = libpfcpr15.a
 # Build information for each library
 
 # Sources for epc
-libpfcpr15_a_SOURCES =   \
+libpfcpr15_a_SOURCES =     \
    ../src/pfcpr15.cpp
 
-#   etbase.cpp        
-#   ethread.cpp
-#   etq.cpp
-
-
-# Linker options libTestProgram
-#libepc_a_LDFLAGS = 
+nobase_include_HEADERS =   \
+   ../include/epc/pfcpr15.h           \
+   ../include/epc/pfcpr15inl.h
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares
+libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/exampleProgram/libpfcp/include

@@ -227,6 +227,22 @@ namespace DNS
       /// @return the refresh interval.
       static long setRefreshInterval(long interval) { return m_interval = interval; }
 
+      /// @brief Retrieves the query timeout setting.
+      /// @return the query timeout setting.
+      static int getQueryTimeoutMS() { return m_querytimeout; }
+      /// @brief Assigns the query timeout value.
+      /// @param timeout the timeout value in milliseconds.
+      /// @return the timeout value in milliseconds.
+      static int setQueryTimeoutMS(int timeout) { return m_querytimeout = timeout; }
+
+      /// @brief Retrives the query "tries" (attempts) value.
+      /// @return the query "tries" (attempts) value.
+      static int getQueryTries() { return m_querytries; }
+      /// @brief Assigns the query "tries" (attempts) value.
+      /// @param timeout the query "tries" (attempts) value.
+      /// @return the query "tries" (attempts) value.
+      static int setQueryTries(int tries) { return m_querytries = tries; }
+
       /// @brief Adds a named server to this DNS cache object.
       /// @param address the address of the named server.
       /// @param udp_port the UDP port to communicate with the DNS server on.
@@ -292,6 +308,8 @@ namespace DNS
       static unsigned int m_concur;
       static int m_percent;
       static long m_interval;
+      static int m_querytimeout;
+      static int m_querytries;
 
       QueryProcessor m_qp;
       CacheRefresher m_refresher;

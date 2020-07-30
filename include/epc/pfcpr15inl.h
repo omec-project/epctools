@@ -2148,12 +2148,16 @@ inline NodeIdTypeEnum NodeIdIE::node_id_type() const
 
 inline const in_addr &NodeIdIE::node_id_value_ipv4_address() const
 {
-   return *reinterpret_cast<in_addr*>(&ie_.node_id_value_ipv4_address);
+   AliasPointer u;
+   u.uint32_t_ptr = &ie_.node_id_value_ipv4_address;
+   return *u.in_addr_ptr;
 }
 
 inline const in6_addr &NodeIdIE::node_id_value_ipv6_address() const
 {
-   return *reinterpret_cast<in6_addr*>(ie_.node_id_value_ipv6_address);
+   AliasPointer u;
+   u.uint8_t_ptr = ie_.node_id_value_ipv6_address;
+   return *u.in6_addr_ptr;
 }
 
 inline const uint8_t *NodeIdIE::node_id_value_fqdn() const
