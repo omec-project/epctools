@@ -116,7 +116,7 @@ Void ESharedMemory::init(cpStr file, Int id, Int size)
    epc_sprintf_s(m_szShMem, sizeof(m_szShMem), "shmem_%s_%d", file, id);
    epc_sprintf_s(m_szMutex, sizeof(m_szMutex), "shmem_mutex_%s_%d", file, id);
 
-   Char szFile[EPC_FILENAME_MAX];
+   Char szFile[sizeof(m_szShMem) + sizeof(P_tmpdir) + 2];
 
    snprintf(szFile, sizeof(szFile), "%s/%s", P_tmpdir, m_szShMem);
 
