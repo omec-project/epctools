@@ -28,7 +28,7 @@ lib_LIBRARIES = libpfcpr15.a
 libpfcpr15_a_SOURCES = \
    ../../src/pfcpr15.cpp
 
-nobase_include_HEADERS =       \
+nobase_include_HEADERS =          \
    ../../include/epc/pfcpr15.h    \
    ../../include/epc/pfcpr15inl.h
 
