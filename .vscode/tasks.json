@@ -44,7 +44,7 @@
          "type": "shell",
          "command": "make",
          "options": {
-            "cwd": "${workspaceFolder}/pfcptest"
+            "cwd": "${workspaceFolder}/pfcp/pfcptest"
          },
          "group": {
             "kind": "build",
