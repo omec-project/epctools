@@ -93,6 +93,7 @@ public:
 
    /// @brief Deletes the supplied file.
    /// @param fn the file name to delete.
+   /// @return True if the file was deleted, otherwise False.
    static Bool delete_file( const std::string &fn ) { return delete_file( fn.c_str() ); }
    /// @copydoc delete_file(const std::string &)
    static Bool delete_file( const char *fn );
