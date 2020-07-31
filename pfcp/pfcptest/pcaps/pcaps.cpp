@@ -29,12 +29,15 @@
 #include "pfcpr15.h"
 #include "epctools.h"
 #include "epfcp.h"
+#include "eutil.h"
 
 #include "test.h"
 
 #define LOG_SYSTEM 1
 #define LOG_PFCP 2
 #define LOG_TEST 3
+
+#define MAX_PACKET_COUNT 65536
 
 namespace PFCPTest::pcaps
 {
@@ -79,45 +82,63 @@ namespace PFCPTest::pcaps
       }
    }
 
-   bool RunPcapTest(Test &test)
+   pcpp::RawPacketVector GetPackets(const EString &pcap)
    {
-      PcapTest &pcapTest = CAST_TEST(PcapTest);
-
-      EString originalPcap = "./pcaps/originals/" + pcapTest.name() + ".pcap";
-      EString baselinePcap = "./pcaps/baselines/" + pcapTest.name() + ".pcap";
-      EString resultPcap =   "./pcaps/results/"   + pcapTest.name() + ".pcap";
-
-      // Open the original pcap
-      pcpp::IFileReaderDevice *originalReader = pcpp::IFileReaderDevice::getReader(originalPcap.c_str());
+      pcpp::IFileReaderDevice *reader = pcpp::IFileReaderDevice::getReader(pcap.c_str());
 
       if (reader == nullptr || !reader->open())
          throw EError(EError::Error, errno, "Can't open pcap");
 
-      bool result = true;
+      pcpp::RawPacketVector packets;
+      reader->getNextPackets(packets, MAX_PACKET_COUNT);
+      reader->close();
 
+      return packets;
+   }
+
+   std::vector<uint8_t> ExtractPFCPPayload(const pcpp::Packet &packet)
+   {
+      // Find the UDP layer
+      const pcpp::UdpLayer *udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
+      if (udpLayer == nullptr)
+         throw EError(EError::Error, errno, "Missing UDP layer");
+
+      // Get the PFCP payload
+      std::vector<uint8_t> payload;
+      payload.assign(udpLayer->getLayerPayload(), udpLayer->getLayerPayload() + udpLayer->getLayerPayloadSize());
+
+      return payload;
+   }
+
+   void ReplacePFCPPayload(pcpp::Packet &packet, const std::vector<uint8_t> &payload)
+   {
+      // Find the UDP layer
+      pcpp::UdpLayer *udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
+      if (udpLayer == nullptr)
+         throw EError(EError::Error, errno, "Missing UDP layer");
+
+      // Remove the PFCP layer
+      packet.removeAllLayersAfter(udpLayer);
+
+      // Add the new layer (the packet owns the layer pointer)
+      pcpp::PayloadLayer *newLayer = new pcpp::PayloadLayer(payload.data(), payload.size(), false);
+      packet.addLayer(newLayer, true);
+
+      // Update the other layer lengths
+      packet.computeCalculateFields();
+   }
+
+   std::unique_ptr<PFCP::AppMsg> DecodeAppMsg(const std::vector<uint8_t> &payload)
+   {
       PFCP_R15::Translator trans;
 
-      // Process each packet in the pcap
-      pcpp::RawPacket rawPacket;
-      pcpp::RawPacketVector resultPackets;
-      while (reader->getNextPacket(rawPacket))
+      // Extract PFCP header data
+      PFCP::TranslatorMsgInfo info;
+      trans.getMsgInfo(info, payload.data(), payload.size());
+
+      if(info.isReq())
       {
-         pcpp::Packet parsedPacket(&rawPacket);
-
-         // Find the UDP layer
-         pcpp::UdpLayer *udpLayer = parsedPacket.getLayerOfType<pcpp::UdpLayer>();
-         if (udpLayer == nullptr)
-            throw EError(EError::Error, errno, "Missing UDP layer");
-
-         // Get the PFCP payload
-         std::vector<uint8_t> payload;
-         payload.assign(udpLayer->getLayerPayload(), udpLayer->getLayerPayload() + udpLayer->getLayerPayloadSize());
-
-         // Extract PFCP header data
-         PFCP::TranslatorMsgInfo info;
-         trans.getMsgInfo(info, payload.data(), payload.size());
-
-         PFCP::ReqInPtr msgIn = new PFCP::ReqIn();
+         std::unique_ptr<PFCP::ReqIn> msgIn(new PFCP::ReqIn());
          msgIn->setSeid(info.seid());
          msgIn->setSeqNbr(info.seqNbr());
          msgIn->setMsgType(info.msgType());
@@ -126,10 +147,73 @@ namespace PFCPTest::pcaps
          msgIn->assign(payload.data(), payload.size());
 
          // Decode the PFCP message
-         PFCP::AppMsgReqPtr appMsg = trans.decodeReq(msgIn);
+         return std::unique_ptr<PFCP::AppMsg>(trans.decodeReq(msgIn.get()));
+      }
+      else
+      {
+         std::unique_ptr<PFCP::RspIn> msgIn(new PFCP::RspIn());
+         msgIn->setSeid(info.seid());
+         msgIn->setSeqNbr(info.seqNbr());
+         msgIn->setMsgType(info.msgType());
+         msgIn->setIsReq(info.isReq());
+         msgIn->setVersion(info.version());
+         msgIn->assign(payload.data(), payload.size());
 
+         // Decode the PFCP message
+         return std::unique_ptr<PFCP::AppMsg>(trans.decodeRsp(msgIn.get()));
+      }
+   }
+
+   std::vector<uint8_t> EncodeAppMsg(PFCP::AppMsgPtr appMsg)
+   {
+      PFCP_R15::Translator trans;
+      PFCP::InternalMsgPtr msg;
+
+      if(appMsg->isReq())
+         msg = trans.encodeReq(dynamic_cast<PFCP::AppMsgReqPtr>(appMsg));
+      else
+         msg = trans.encodeRsp(dynamic_cast<PFCP::AppMsgRspPtr>(appMsg));
+
+      std::vector<uint8_t> payload;
+      payload.assign(msg->data(), msg->data() + msg->len());
+
+      return payload;
+   }
+
+   void WritePcap(const EString &pcap, pcpp::RawPacketVector &packets)
+   {
+      pcpp::PcapFileWriterDevice writer(pcap.c_str(), packets.front()->getLinkLayerType());
+      writer.open();
+      for (auto packet : packets)
+         writer.writePacket(*packet);
+      writer.close();
+   }
+
+   bool RunPcapTest(Test &test)
+   {
+      PcapTest &pcapTest = CAST_TEST(PcapTest);
+
+      EString originalPcap = "./pcaps/originals/" + pcapTest.name() + ".pcap";
+      EString baselinePcap = "./pcaps/baselines/" + pcapTest.name() + ".pcap";
+      EString resultPcap   = "./pcaps/results/"   + pcapTest.name() + ".pcap";
+
+      // Load each packet from the original pcap, decode and then encode it and
+      // add it to result packets
+      pcpp::RawPacketVector originalPackets = GetPackets(originalPcap);
+      pcpp::RawPacketVector resultPackets;
+      for(auto originalPacket : originalPackets)
+      {
+         // Add to result packets (the packet vector owns the packet pointer)
+         pcpp::RawPacket *resultPacket = new pcpp::RawPacket(*originalPacket);
+         resultPackets.pushBack(resultPacket);
+
+         pcpp::Packet packet(resultPacket);
+
+         std::vector<uint8_t> payload = ExtractPFCPPayload(packet);
+         std::unique_ptr<PFCP::AppMsg> appMsg = DecodeAppMsg(payload);
+         
          // Cast it to the proper application layer type
-         switch (appMsg->msgType())
+         switch (appMsg.get()->msgType())
          {
          case PFCP_PFD_MGMT_REQ:
          {
@@ -146,38 +230,36 @@ namespace PFCPTest::pcaps
             ELogger::log(LOG_PFCP).major("Unhandled PFCP message type {}", appMsg->msgType());
          }
 
-         // Encode the PFCP message
-         PFCP::ReqOutPtr msgOut = trans.encodeReq(appMsg);
-
-         std::vector<uint8_t> payloadOut;
-         payloadOut.assign(msgOut->data(), msgOut->data() + msgOut->len());
-
-         // Compare the original PFCP message with the encoded message
-         if (payload.size() != payloadOut.size() ||
-             memcmp(payload.data(), payloadOut.data(), payload.size()) != 0)
-            result = false;
-
-         // Replace the PFCP message in the packet
-         parsedPacket.removeAllLayersAfter(udpLayer);
-
-         pcpp::PayloadLayer *newLayer = new pcpp::PayloadLayer(payloadOut.data(), payloadOut.size(), false);
-         parsedPacket.addLayer(newLayer, true);
-
-         parsedPacket.computeCalculateFields();
-         resultPackets.pushBack(new pcpp::RawPacket(*parsedPacket.getRawPacket()));
+         std::vector<uint8_t> payloadOut = EncodeAppMsg(appMsg.get());
+         ReplacePFCPPayload(packet, payloadOut);
       }
 
-      originalReader->close();
-
-      // pcpp::IFileReaderDevice *baselineReader = pcpp::IFileReaderDevice::getReader(baselinePcap.c_str());
-      // baselineReader->close();
-
       // Write the result pcap
-      pcpp::PcapFileWriterDevice writer(resultPcap.c_str(), resultPackets.front()->getLinkLayerType());
-      writer.open();
-      for (auto packet : resultPackets)
-         writer.writePacket(*packet);
-      writer.close();
+      WritePcap(resultPcap, resultPackets);
+
+      // If a baseline pcap exists, compare all the result pcaps for equality
+      bool result = true;
+      if (EUtility::file_exists(baselinePcap.c_str()))
+      {
+         pcpp::RawPacketVector baselinePackets = GetPackets(originalPcap);
+         
+         if(baselinePackets.size() != resultPackets.size())
+            return false;
+
+         for (size_t ipacket = 0; ipacket < baselinePackets.size(); ++ipacket)
+         {
+            pcpp::Packet baselinePacket(baselinePackets.at(ipacket));
+            pcpp::Packet resultPacket(resultPackets.at(ipacket));
+
+            std::vector<uint8_t> baselinePayload = ExtractPFCPPayload(baselinePacket);
+            std::vector<uint8_t> resultPayload = ExtractPFCPPayload(resultPacket);
+
+            // Compare the original PFCP message with the encoded message
+            if (baselinePayload.size() != resultPayload.size() ||
+                memcmp(baselinePayload.data(), resultPayload.data(), baselinePayload.size()) != 0)
+               result = false;
+         }
+      }
 
       return result;
    }
