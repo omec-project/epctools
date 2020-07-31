@@ -136,7 +136,7 @@ namespace PFCPTest::pcaps
       PFCP::TranslatorMsgInfo info;
       trans.getMsgInfo(info, payload.data(), payload.size());
 
-      if(info.isReq())
+      if (info.isReq())
       {
          std::unique_ptr<PFCP::ReqIn> msgIn(new PFCP::ReqIn());
          msgIn->setSeid(info.seid());
@@ -169,7 +169,7 @@ namespace PFCPTest::pcaps
       PFCP_R15::Translator trans;
       PFCP::InternalMsgPtr msg;
 
-      if(appMsg->isReq())
+      if (appMsg->isReq())
          msg = trans.encodeReq(dynamic_cast<PFCP::AppMsgReqPtr>(appMsg));
       else
          msg = trans.encodeRsp(dynamic_cast<PFCP::AppMsgRspPtr>(appMsg));
@@ -195,13 +195,13 @@ namespace PFCPTest::pcaps
 
       EString originalPcap = "./pcaps/originals/" + pcapTest.name() + ".pcap";
       EString baselinePcap = "./pcaps/baselines/" + pcapTest.name() + ".pcap";
-      EString resultPcap   = "./pcaps/results/"   + pcapTest.name() + ".pcap";
+      EString resultPcap = "./pcaps/results/" + pcapTest.name() + ".pcap";
 
       // Load each packet from the original pcap, decode and then encode it and
       // add it to result packets
       pcpp::RawPacketVector originalPackets = GetPackets(originalPcap);
       pcpp::RawPacketVector resultPackets;
-      for(auto originalPacket : originalPackets)
+      for (auto originalPacket : originalPackets)
       {
          // Add to result packets (the packet vector owns the packet pointer)
          pcpp::RawPacket *resultPacket = new pcpp::RawPacket(*originalPacket);
@@ -211,7 +211,7 @@ namespace PFCPTest::pcaps
 
          std::vector<uint8_t> payload = ExtractPFCPPayload(packet);
          std::unique_ptr<PFCP::AppMsg> appMsg = DecodeAppMsg(payload);
-         
+
          // Cast it to the proper application layer type
          switch (appMsg.get()->msgType())
          {
@@ -242,8 +242,8 @@ namespace PFCPTest::pcaps
       if (EUtility::file_exists(baselinePcap.c_str()))
       {
          pcpp::RawPacketVector baselinePackets = GetPackets(originalPcap);
-         
-         if(baselinePackets.size() != resultPackets.size())
+
+         if (baselinePackets.size() != resultPackets.size())
             return false;
 
          for (size_t ipacket = 0; ipacket < baselinePackets.size(); ++ipacket)
