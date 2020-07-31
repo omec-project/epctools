@@ -42,9 +42,10 @@ AC_PROG_RANLIB
 AC_CONFIG_FILES(Makefile
                 src/Makefile
                 include/Makefile
-                pfcpr15/Makefile
-		exampleProgram/Makefile
-                exampleProgram/pfcp/Makefile)
+                pfcp/pfcpr15/Makefile
+                exampleProgram/Makefile
+                exampleProgram/pfcp/Makefile
+                pfcp/pfcptest/Makefile)
 
 #AC_CONFIG_COMMANDS([submodules],[git submodule update --init --recursive])
 AC_CONFIG_COMMANDS([submodules],[git submodule update --init])
@@ -103,6 +104,15 @@ AC_CONFIG_COMMANDS([freeDiameter],[
 AC_CONFIG_COMMANDS([bzip2],[
     if [[ ! -f modules/bzip2/libbz2.a ]]; then
         pushd modules/bzip2
+        make
+        sudo make install
+        popd
+    fi
+])
+AC_CONFIG_COMMANDS([PcapPlusPlus],[
+    if [[ ! -d modules/PcapPlusPlus/Dist ]]; then
+        pushd modules/PcapPlusPlus
+        ./configure-linux.sh --default
         make
         sudo make install
         popd

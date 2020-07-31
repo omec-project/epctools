@@ -1,6 +1,5 @@
 ############################################################################
-# Copyright (c) 2009-2019 Brian Waters
-# Copyright (c) 2019 Sprint
+# Copyright (c) 2020 T-Mobile
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,23 +14,30 @@
 # limitations under the License.
 ############################################################################
 
+include /usr/local/etc/PcapPlusPlus.mk
+
 #######################################
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example #usr#lib
-lib_LIBRARIES = libpfcpr15.a
+noinst_PROGRAMS = pfcptest
 
 #######################################
 # Build information for each library
 
-# Sources for epc
-libpfcpr15_a_SOURCES =     \
-   ../src/pfcpr15.cpp
+pfcptest_DEPENDENCIES = \
+   $(top_builddir)/exampleProgram/libpfcp/lib/libpfcp.so \
+   $(top_builddir)/src/libepc.a \
+   $(top_builddir)/src/libpfcpr15.a
 
-nobase_include_HEADERS =   \
-   ../include/epc/pfcpr15.h           \
-   ../include/epc/pfcpr15inl.h
+# Sources for pfcptest
+pfcptest_SOURCES =   \
+   main.cpp          \
+   test.cpp          \
+   pcaps/pcaps.cpp
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/exampleProgram/libpfcp/include
+pfcptest_CPPFLAGS = -Wall -std=c++11 $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -I$(top_builddir)/exampleProgram/pfcp/include -I$(top_builddir)/include/epc -I$(top_builddir)/exampleProgram/libpfcp/include
+pfcptest_LDFLAGS = -Wl,-rpath='$(top_builddir)/exampleProgram/libpfcp/lib' -static-libstdc++ 
+pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L$(top_builddir)/src -L$(top_builddir)/exampleProgram/libpfcp/lib $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt

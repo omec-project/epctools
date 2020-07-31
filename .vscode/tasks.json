@@ -40,6 +40,21 @@
          ]
       },
       {
+         "label": "build pfcptest",
+         "type": "shell",
+         "command": "make",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcp/pfcptest"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
          "label": "clean epctools",
          "type": "shell",
          "command": "make clean",

@@ -120,11 +120,11 @@ $ sudo apt-get update
 ```
 ***Install Ubuntu 16.04 prerequisites.***
 ```sh
-sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnutls-dev libgcrypt-dev libidn11-dev m4 automake libtool
+sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnutls-dev libgcrypt-dev libidn11-dev libpcap-dev m4 automake libtool
 ```
 ***Install Ubuntu 18.04 prerequisites.***
 ```sh
-sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnutls28-dev libgcrypt-dev libidn11-dev m4 automake libtool
+sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnutls28-dev libgcrypt-dev libidn11-dev libpcap-dev m4 automake libtool
 ```
 ***Clone the project, install the dependencies (via configure), build the static library and install.***
 ```sh

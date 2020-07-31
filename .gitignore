@@ -1,6 +1,7 @@
 src/*.o
 src/*.a
 src/.deps
+src/.dirstamp
 src/st*
 autom4te.cache
 *.swp
@@ -28,5 +29,11 @@ exampleProgram/pfcp/src/.deps
 exampleProgram/pfcp/src/.dirstamp
 exampleProgram/pfcp/src/*.o
 exampleProgram/libpfcp
+pfcp/pfcpr15/*.a
+pfcp/src/.deps
+pfcp/pfcptest/.deps
+pfcp/pfcptest/pcaps/.deps
+pfcp/pfcptest/pcaps/.dirstamp
+pfcp/pfcptest/pfcptest
 docDoxyfile.bak
 epctools.code-workspace

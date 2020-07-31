@@ -41,6 +41,27 @@
                "ignoreFailures": true
             }
          ]
-      }
+      },
+      {
+         "name": "debug pfcptest",
+         "type": "cppdbg",
+         "request": "launch",
+         "program": "${workspaceFolder}/pfcp/pfcptest/pfcptest",
+         "args": [],
+         "stopAtEntry": false,
+         "cwd": "${workspaceFolder}/pfcp/pfcptest",
+         "environment": [],
+         "externalConsole": false,
+         "MIMode": "gdb",
+         "setupCommands": [
+             {
+                 "description": "Enable pretty-printing for gdb",
+                 "text": "-enable-pretty-printing",
+                 "ignoreFailures": true
+             }
+         ],
+         "preLaunchTask": "build pfcptest",
+         "miDebuggerPath": "/usr/bin/gdb"
+     }
    ]
 }
