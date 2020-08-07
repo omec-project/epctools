@@ -101,7 +101,7 @@ namespace PFCPTest::pcaps
       // Find the UDP layer
       const pcpp::UdpLayer *udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
       if (udpLayer == nullptr)
-         throw EError(EError::Error, errno, "Missing UDP layer");
+         throw EError(EError::Error, "Missing UDP layer");
 
       // Get the PFCP payload
       std::vector<uint8_t> payload;
@@ -115,7 +115,7 @@ namespace PFCPTest::pcaps
       // Find the UDP layer
       pcpp::UdpLayer *udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
       if (udpLayer == nullptr)
-         throw EError(EError::Error, errno, "Missing UDP layer");
+         throw EError(EError::Error, "Missing UDP layer");
 
       // Remove the PFCP layer
       packet.removeAllLayersAfter(udpLayer);
@@ -148,7 +148,7 @@ namespace PFCPTest::pcaps
       }
       else
       {
-         std::unique_ptr<PFCP::RspIn> msgIn(new PFCP::RspIn(ln, rn, info, payload.data(), payload.size(), nullptr));
+         std::unique_ptr<PFCP::RspIn> msgIn(new PFCP::RspIn(ln, rn, info, payload.data(), payload.size(), new PFCP::AppMsgReq()));
 
          // Decode the PFCP message
          return std::unique_ptr<PFCP::AppMsg>(trans.decodeRsp(msgIn.get()));
@@ -192,6 +192,7 @@ namespace PFCPTest::pcaps
       // add it to result packets
       pcpp::RawPacketVector originalPackets = GetPackets(originalPcap);
       pcpp::RawPacketVector resultPackets;
+      int packetNumber = 1;
       for (auto originalPacket : originalPackets)
       {
          // Add to result packets (the packet vector owns the packet pointer)
@@ -202,13 +203,19 @@ namespace PFCPTest::pcaps
 
          std::vector<uint8_t> payload = ExtractPFCPPayload(packet);
          std::unique_ptr<PFCP::AppMsg> appMsg = DecodeAppMsg(payload);
+         if (!appMsg)
+         {
+            ELogger::log(LOG_TEST).major("Unhandled PFCP message type in packet {}", packetNumber);
+            ++packetNumber;
+            continue;
+         }
 
          // Cast it to the proper application layer type
          switch (appMsg.get()->msgType())
          {
          case PFCP_PFD_MGMT_REQ:
          {
-            //PFCP_R15::PfdMgmtReq &pfdMgmtReq = *(static_cast<PFCP_R15::PfdMgmtReq *>(appMsg));
+            //PFCP_R15::PfdMgmtReq &pfdMgmtReq = *(static_cast<PFCP_R15::PfdMgmtReq *>(appMsg.get()));
 
             // // TEMP fixup for Application ID spare byte
             // pfdMgmtReq.data().header.message_len += 1;
@@ -217,12 +224,20 @@ namespace PFCPTest::pcaps
             // pfdMgmtReq.data().app_ids_pfds[0].pfd_context[0].pfd_contents[0].header.len += 1;
             break;
          }
+         case PFCP_SESS_ESTAB_RSP:
+         {
+            //PFCP_R15::SessionEstablishmentRsp &sessEstRsp = *(static_cast<PFCP_R15::SessionEstablishmentRsp *>(appMsg.get()));
+            break;
+         }
          default:
-            ELogger::log(LOG_PFCP).major("Unhandled PFCP message type {}", appMsg->msgType());
+            //ELogger::log(LOG_PFCP).major("Unhandled PFCP message type {}", appMsg->msgType());
+            break;
          }
 
          std::vector<uint8_t> payloadOut = EncodeAppMsg(appMsg.get());
          ReplacePFCPPayload(packet, payloadOut);
+
+         ++packetNumber;
       }
 
       // Write the result pcap
@@ -235,7 +250,10 @@ namespace PFCPTest::pcaps
          pcpp::RawPacketVector baselinePackets = GetPackets(originalPcap);
 
          if (baselinePackets.size() != resultPackets.size())
+         {
+            ELogger::log(LOG_TEST).major("Missing packets in pcap. Expected {}, found {}.", baselinePackets.size(), resultPackets.size());
             return false;
+         }
 
          for (size_t ipacket = 0; ipacket < baselinePackets.size(); ++ipacket)
          {
@@ -248,7 +266,10 @@ namespace PFCPTest::pcaps
             // Compare the original PFCP message with the encoded message
             if (baselinePayload.size() != resultPayload.size() ||
                 memcmp(baselinePayload.data(), resultPayload.data(), baselinePayload.size()) != 0)
+            {
                result = false;
+               ELogger::log(LOG_TEST).major("Differences found in packet {}", ipacket + 1);
+            }
          }
       }
 
