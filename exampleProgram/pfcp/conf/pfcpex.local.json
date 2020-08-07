@@ -3,6 +3,8 @@
       "localIp": "192.168.3.106",
       "remoteIp": "192.168.3.247",
       "sendAssnSetup": true,
+      "sessionCreateCount": 5000,
+      "sessionConcurrent": 10,
       "minApplicationWorkers": 2,
       "maxApplicationWorkers": 2,
       "PFCP": {
@@ -40,12 +42,12 @@
                   },
                   {
                      "SinkType": "stdout",
-                     "LogLevel": "debug",
+                     "LogLevel": "info",
                      "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [stdout] [%^__APPNAME__%$] [%n] [%^%l%$] %v"
                   },
                   {
                      "SinkType": "basic_file",
-                     "LogLevel": "debug",
+                     "LogLevel": "info",
                      "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [%^__APPNAME__%$] [%n] [%^%l%$] %v",
                      "FileName": "./logs/pfcpex.local.log",
                      "Truncate": false
@@ -57,12 +59,12 @@
                "Sinks": [
                   {
                      "SinkType": "stdout",
-                     "LogLevel": "debug",
+                     "LogLevel": "info",
                      "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [stdout] [%^__APPNAME__%$] [%n] [%^%l%$] %v"
                   },
                   {
                      "SinkType": "basic_file",
-                     "LogLevel": "debug",
+                     "LogLevel": "info",
                      "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [%^__APPNAME__%$] [%n] [%^%l%$] %v",
                      "FileName": "./logs/pfcp.local.log",
                      "Truncate": false

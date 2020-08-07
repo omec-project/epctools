@@ -17,6 +17,7 @@
 #ifndef __PFCPEX_H
 #define __PFCPEX_H
 
+#include "etimer.h"
 #include "epfcp.h"
 
 #include "pfcpr15.h"
@@ -37,6 +38,7 @@ public:
 
    Void onInit();
    Void onQuit();
+   Void onTimer(EThreadEventTimer *pTimer);
 
    Void onRcvdReq(PFCP::AppMsgReqPtr req);
    Void onRcvdRsp(PFCP::AppMsgRspPtr rsp);
@@ -68,10 +70,31 @@ public:
    static Void shutdown();
    Void startup(EGetOpt &opt);
 
-   Void sendAssociationSetupReq();
-   Void sendAssociationSetupRsp(PFCP_R15::AssnSetupReq *am);
+   Void startProcessing();
+
+   Void addSession();
+   Void delSession();
+   // Void delSession(PFCP::SessionBaseSPtr &ses);
+   Void onSessionEstablished(PFCP_R15::SessionEstablishmentRsp &rsp);
+   Void onSessionDeleted(PFCP_R15::SessionDeletionRsp &rsp);
+
+   Void sendAssnSetupReq();
+   Void sendAssnSetupRsp(PFCP_R15::AssnSetupReq *req);
+   Void sendAssnReleaseReq();
+   Void sendAssnReleaseRsp(PFCP_R15::AssnReleaseReq *req);
+   Void sendSessionEstablishmentReq(PFCP::SessionBaseSPtr &session);
+   Void sendSessionEstablishmentRsp(PFCP_R15::SessionEstablishmentReq *req);
+   Void sendSessionDeletionReq(PFCP::SessionBaseSPtr &session);
+   Void sendSessionDeletionRsp(PFCP_R15::SessionDeletionReq *req);
 
    Void onCreateWorker(ExamplePfcpApplicationWorker &worker);
+
+   PFCP::LocalNodeSPtr _createLocalNode() override
+      { return std::make_shared<PFCP::LocalNode>(); }
+   PFCP::RemoteNodeSPtr _createRemoteNode() override
+      { return std::make_shared<PFCP::RemoteNode>(); }
+   PFCP::SessionBaseSPtr _createSession(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn) override
+      { return std::make_shared<PFCP::SessionBase>(ln, rn); }
 
 private:
    static ExamplePfcpApplicationWorkGroup *this_;
@@ -84,6 +107,19 @@ private:
    EString rnip_;
    UShort port_;
    Bool sndAssnSetup_;
+   Int sesCreateCnt_;
+   Int sesConcurrent_;
+   ETimer elapsedTimer_;
+   ETimer totalTimer_;
+   Int sesCreateStarted_;
+   Int sesCreateCompleted_;
+   Int sesCreateFailed_;
+   Int sesDeleteStarted_;
+   Int sesDeleteCompleted_;
+   Int sesDeleteFailed_;
+
+   EMutexPrivate sessionsMutex_;
+   PFCP::SessionBaseSPtrUMap sessions_;
 };
 
 #endif // #ifndef __PFCPEX_H

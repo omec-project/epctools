@@ -4540,13 +4540,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class HeartbeatReq : public PFCP::AppMsgReq
+class HeartbeatReq : public PFCP::AppMsgNodeReq
 {
 public:
    HeartbeatReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   HeartbeatReq &sequenceNumber(uint32_t val);
    RecoveryTimeStampIE &recoveryTimeStamp();
    HeartbeatReq &encode(uint8_t *dest);
    pfcp_hrtbeat_req_t &data();
@@ -4558,13 +4556,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class HeartbeatRsp : public PFCP::AppMsgRsp
+class HeartbeatRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    HeartbeatRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   HeartbeatRsp &sequenceNumber(uint32_t val);
    RecoveryTimeStampIE &recoveryTimeStamp();
    HeartbeatRsp &encode(uint8_t *dest);
    pfcp_hrtbeat_rsp_t &data();
@@ -4575,13 +4571,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class PfdMgmtReq : public PFCP::AppMsgReq
+class PfdMgmtReq : public PFCP::AppMsgNodeReq
 {
 public:
    PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   PfdMgmtReq &sequenceNumber(uint32_t val);
    ApplicationIdsPfdsIE &app_ids_pfds(uint8_t idx);
    PfdMgmtReq &encode(uint8_t *dest);
    pfcp_pfd_mgmt_req_t &data();
@@ -4592,13 +4586,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class PfdMgmtRsp : public PFCP::AppMsgRsp
+class PfdMgmtRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    PfdMgmtRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   PfdMgmtRsp &sequenceNumber(uint32_t val);
    CauseIE &cause();
    OffendingIeIE &offending_ie();
    PfdMgmtRsp &encode(uint8_t *dest);
@@ -4611,13 +4603,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class AssnSetupReq : public PFCP::AppMsgReq
+class AssnSetupReq : public PFCP::AppMsgNodeReq
 {
 public:
    AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   AssnSetupReq &sequenceNumber(uint32_t val);
    NodeIdIE &node_id();
    RecoveryTimeStampIE &rcvry_time_stmp();
    UpFunctionFeaturesIE &up_func_feat();
@@ -4637,13 +4627,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class AssnSetupRsp : public PFCP::AppMsgRsp
+class AssnSetupRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    AssnSetupRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   AssnSetupRsp &sequenceNumber(uint32_t val);
    NodeIdIE &node_id();
    CauseIE &cause();
    RecoveryTimeStampIE &rcvry_time_stmp();
@@ -4665,13 +4653,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class AssnUpdateReq : public PFCP::AppMsgReq
+class AssnUpdateReq : public PFCP::AppMsgNodeReq
 {
 public:
    AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   AssnUpdateReq &sequenceNumber(uint32_t val);
    NodeIdIE &node_id();
    UpFunctionFeaturesIE &up_func_feat();
    CpFunctionFeaturesIE &cp_func_feat();
@@ -4693,13 +4679,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class AssnUpdateRsp : public PFCP::AppMsgRsp
+class AssnUpdateRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    AssnUpdateRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   AssnUpdateRsp &sequenceNumber(uint32_t val);
    NodeIdIE &node_id();
    CauseIE &cause();
    UpFunctionFeaturesIE &up_func_feat();
@@ -4716,13 +4700,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class AssnReleaseReq : public PFCP::AppMsgReq
+class AssnReleaseReq : public PFCP::AppMsgNodeReq
 {
 public:
    AssnReleaseReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   AssnReleaseReq &sequenceNumber(uint32_t val);
    NodeIdIE &node_id();
    AssnReleaseReq &encode(uint8_t *dest);
    pfcp_assn_rel_req_t &data();
@@ -4733,13 +4715,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class AssnReleaseRsp : public PFCP::AppMsgRsp
+class AssnReleaseRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    AssnReleaseRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   AssnReleaseRsp &sequenceNumber(uint32_t val);
    NodeIdIE &node_id();
    CauseIE &cause();
    AssnReleaseRsp &encode(uint8_t *dest);
@@ -4753,13 +4733,11 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 #define PFCP_VERSION_NOT_SUPPORTED (11)
-class VersionNotSupportedRsp : public PFCP::AppMsgRsp
+class VersionNotSupportedRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    VersionNotSupportedRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   VersionNotSupportedRsp &sequenceNumber(uint32_t val);
    VersionNotSupportedRsp &encode(uint8_t *dest);
    pfcp_header_t &data();
 private:
@@ -4768,13 +4746,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class NodeReportReq : public PFCP::AppMsgReq
+class NodeReportReq : public PFCP::AppMsgNodeReq
 {
 public:
    NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   NodeReportReq &sequenceNumber(uint32_t val);
    NodeIdIE &node_id();
    NodeReportTypeIE &node_rpt_type();
    UserPlanePathFailureReportIE &user_plane_path_fail_rpt();
@@ -4789,13 +4765,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class NodeReportRsp : public PFCP::AppMsgRsp
+class NodeReportRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    NodeReportRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   NodeReportRsp &sequenceNumber(uint32_t val);
    NodeIdIE &node_id();
    CauseIE &cause();
    OffendingIeIE &offending_ie();
@@ -4810,14 +4784,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionSetDeletionReq : public PFCP::AppMsgReq
+class SessionSetDeletionReq : public PFCP::AppMsgNodeReq
 {
 public:
    SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionSetDeletionReq &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
    SessionSetDeletionReq &seid(uint64_t val);
    NodeIdIE &node_id();
    FqCsidIE &sgw_c_fqcsid();
@@ -4841,14 +4812,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionSetDeletionRsp : public PFCP::AppMsgRsp
+class SessionSetDeletionRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    SessionSetDeletionRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionSetDeletionRsp &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
    SessionSetDeletionRsp &seid(uint64_t val);
    NodeIdIE &node_id();
    CauseIE &cause();
@@ -4864,15 +4832,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionEstablishmentReq : public PFCP::AppMsgReq
+class SessionEstablishmentReq : public PFCP::AppMsgSessionReq
 {
 public:
-   SessionEstablishmentReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionEstablishmentReq &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
-   SessionEstablishmentReq &seid(uint64_t val);
    NodeIdIE &node_id();
    FSeidIE &cp_fseid();
    CreateBarIE &create_bar();
@@ -4922,15 +4886,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionEstablishmentRsp : public PFCP::AppMsgRsp
+class SessionEstablishmentRsp : public PFCP::AppMsgSessionRsp
 {
 public:
    SessionEstablishmentRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionEstablishmentRsp &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
-   SessionEstablishmentRsp &seid(uint64_t val);
    NodeIdIE &node_id();
    CauseIE &cause();
    OffendingIeIE &offending_ie();
@@ -4962,15 +4922,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionModificationReq : public PFCP::AppMsgReq
+class SessionModificationReq : public PFCP::AppMsgSessionReq
 {
 public:
-   SessionModificationReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   SessionModificationReq(PFCP::SessionBaseSPtr &ses);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionModificationReq &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
-   SessionModificationReq &seid(uint64_t val);
    FSeidIE &cp_fseid();
    RemoveBarIE &remove_bar();
    RemoveTrafficEndpointIE &rmv_traffic_endpt();
@@ -5050,15 +5006,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionModificationRsp : public PFCP::AppMsgRsp
+class SessionModificationRsp : public PFCP::AppMsgSessionRsp
 {
 public:
    SessionModificationRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionModificationRsp &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
-   SessionModificationRsp &seid(uint64_t val);
    CauseIE &cause();
    OffendingIeIE &offending_ie();
    CreatedPdrIE &created_pdr();
@@ -5086,15 +5038,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionDeletionReq : public PFCP::AppMsgReq
+class SessionDeletionReq : public PFCP::AppMsgSessionReq
 {
 public:
-   SessionDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   SessionDeletionReq(PFCP::SessionBaseSPtr &ses);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionDeletionReq &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
-   SessionDeletionReq &seid(uint64_t val);
    SessionDeletionReq &encode(uint8_t *dest);
    pfcp_sess_del_req_t &data();
 private:
@@ -5103,15 +5051,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionDeletionRsp : public PFCP::AppMsgRsp
+class SessionDeletionRsp : public PFCP::AppMsgSessionRsp
 {
 public:
    SessionDeletionRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionDeletionRsp &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
-   SessionDeletionRsp &seid(uint64_t val);
    CauseIE &cause();
    OffendingIeIE &offending_ie();
    LoadControlInformationIE &load_ctl_info();
@@ -5131,15 +5075,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionReportReq : public PFCP::AppMsgReq
+class SessionReportReq : public PFCP::AppMsgSessionReq
 {
 public:
-   SessionReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   SessionReportReq(PFCP::SessionBaseSPtr &ses);
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionReportReq &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
-   SessionReportReq &seid(uint64_t val);
    ReportTypeIE &report_type();
    DownlinkDataReportIE &dnlnk_data_rpt();
    ErrorIndicationReportIE &err_indctn_rpt();
@@ -5162,15 +5102,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionReportRsp : public PFCP::AppMsgRsp
+class SessionReportRsp : public PFCP::AppMsgSessionRsp
 {
 public:
    SessionReportRsp();
    uint16_t length() const;
-   uint32_t sequenceNumber() const;
-   SessionReportRsp &sequenceNumber(uint32_t val);
-   uint64_t seid() const;
-   SessionReportRsp &seid(uint64_t val);
    CauseIE &cause();
    OffendingIeIE &offending_ie();
    UpdateBarSessionReportRspIE &update_bar();
@@ -5207,6 +5143,14 @@ public:
 
    Void getMsgInfo(PFCP::TranslatorMsgInfo &info, cpUChar msg, Int len);
    Bool isVersionSupported(UChar ver);
+   PFCP::MsgClass messageClass(PFCP::MsgType mt);
+
+   PFCP::MsgType pfcpHeartbeatReq();
+   PFCP::MsgType pfcpHeartbeatRsp();
+   PFCP::MsgType pfcpSessionEstablishmentReq();
+   PFCP::MsgType pfcpSessionEstablishmentRsp();
+   PFCP::MsgType pfcpAssociationSetupReq();
+   PFCP::MsgType pfcpAssociationSetupRsp();
 };
 
 }

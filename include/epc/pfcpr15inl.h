@@ -9625,7 +9625,7 @@ inline uint16_t UpdateBarSessionReportRspIE::calculateLength()
 ////////////////////////////////////////////////////////////////////////////////
 
 inline HeartbeatReq::HeartbeatReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+   : PFCP::AppMsgNodeReq(ln,rn),
      data_({}),
      rts_(data_.rcvry_time_stmp, nullptr)
 {
@@ -9640,18 +9640,6 @@ inline uint16_t HeartbeatReq::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t HeartbeatReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline HeartbeatReq &HeartbeatReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline RecoveryTimeStampIE &HeartbeatReq::recoveryTimeStamp()
 {
    return rts_;
@@ -9659,7 +9647,9 @@ inline RecoveryTimeStampIE &HeartbeatReq::recoveryTimeStamp()
 
 inline HeartbeatReq &HeartbeatReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = seqNbr();
    UShort len = encode_pfcp_hrtbeat_req_t(&data_, dest);
+   data_.header.seid_seqno.no_seid.seq_no = seqNbr();
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
    return *this;
@@ -9686,18 +9676,6 @@ inline uint16_t HeartbeatRsp::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t HeartbeatRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline HeartbeatRsp &HeartbeatRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline RecoveryTimeStampIE &HeartbeatRsp::recoveryTimeStamp()
 {
    return rts_;
@@ -9705,6 +9683,7 @@ inline RecoveryTimeStampIE &HeartbeatRsp::recoveryTimeStamp()
 
 inline HeartbeatRsp &HeartbeatRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = req()->seqNbr();
    UShort len = encode_pfcp_hrtbeat_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -9719,7 +9698,7 @@ inline pfcp_hrtbeat_rsp_t &HeartbeatRsp::data()
 ////////////////////////////////////////////////////////////////////////////////
 
 inline PfdMgmtReq::PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+   : PFCP::AppMsgNodeReq(ln,rn),
      data_({})
 {
    setMsgType(PFCP_PFD_MGMT_REQ);
@@ -9735,18 +9714,6 @@ inline uint16_t PfdMgmtReq::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t PfdMgmtReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline PfdMgmtReq &PfdMgmtReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline ApplicationIdsPfdsIE &PfdMgmtReq::app_ids_pfds(uint8_t idx)
 {
    return appids_[idx];
@@ -9754,6 +9721,7 @@ inline ApplicationIdsPfdsIE &PfdMgmtReq::app_ids_pfds(uint8_t idx)
 
 inline PfdMgmtReq &PfdMgmtReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = seqNbr();
    UShort len = encode_pfcp_pfd_mgmt_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -9782,18 +9750,6 @@ inline uint16_t PfdMgmtRsp::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t PfdMgmtRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline PfdMgmtRsp &PfdMgmtRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline CauseIE &PfdMgmtRsp::cause()
 {
    return c_;
@@ -9806,6 +9762,7 @@ inline OffendingIeIE &PfdMgmtRsp::offending_ie()
 
 inline PfdMgmtRsp &PfdMgmtRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = req()->seqNbr();
    uint16_t len = encode_pfcp_pfd_mgmt_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -9820,7 +9777,7 @@ inline pfcp_pfd_mgmt_rsp_t &PfdMgmtRsp::data()
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnSetupReq::AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+   : PFCP::AppMsgNodeReq(ln,rn),
      data_({}),
      ni_(data_.node_id, nullptr),
      rts_(data_.rcvry_time_stmp, nullptr),
@@ -9838,18 +9795,6 @@ inline AssnSetupReq::AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr 
 inline uint16_t AssnSetupReq::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t AssnSetupReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline AssnSetupReq &AssnSetupReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
 }
 
 inline NodeIdIE &AssnSetupReq::node_id()
@@ -9885,6 +9830,7 @@ inline int AssnSetupReq::next_user_plane_ip_rsrc_info()
 
 inline AssnSetupReq &AssnSetupReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = seqNbr();
    uint16_t len = encode_pfcp_assn_setup_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -9917,18 +9863,6 @@ inline AssnSetupRsp::AssnSetupRsp()
 inline uint16_t AssnSetupRsp::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t AssnSetupRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline AssnSetupRsp &AssnSetupRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
 }
 
 inline NodeIdIE &AssnSetupRsp::node_id()
@@ -9969,6 +9903,7 @@ inline int AssnSetupRsp::next_user_plane_ip_rsrc_info()
 
 inline AssnSetupRsp &AssnSetupRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = req()->seqNbr();
    uint16_t len = encode_pfcp_assn_setup_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -9983,7 +9918,7 @@ inline pfcp_assn_setup_rsp_t &AssnSetupRsp::data()
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnUpdateReq::AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+   : PFCP::AppMsgNodeReq(ln,rn),
      data_({}),
      ni_(data_.node_id, nullptr),
      uff_(data_.up_func_feat, nullptr),
@@ -10002,18 +9937,6 @@ inline AssnUpdateReq::AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPt
 inline uint16_t AssnUpdateReq::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t AssnUpdateReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline AssnUpdateReq &AssnUpdateReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
 }
 
 inline NodeIdIE &AssnUpdateReq::node_id()
@@ -10054,6 +9977,7 @@ inline int AssnUpdateReq::next_user_plane_ip_rsrc_info()
 
 inline AssnUpdateReq &AssnUpdateReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = seqNbr();
    uint16_t len = encode_pfcp_assn_upd_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10084,18 +10008,6 @@ inline uint16_t AssnUpdateRsp::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t AssnUpdateRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline AssnUpdateRsp &AssnUpdateRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline NodeIdIE &AssnUpdateRsp::node_id()
 {
    return ni_;
@@ -10118,6 +10030,7 @@ inline CpFunctionFeaturesIE &AssnUpdateRsp::cp_func_feat()
 
 inline AssnUpdateRsp &AssnUpdateRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = req()->seqNbr();
    uint16_t len = encode_pfcp_assn_upd_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10132,7 +10045,7 @@ inline pfcp_assn_upd_rsp_t &AssnUpdateRsp::data()
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnReleaseReq::AssnReleaseReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+   : PFCP::AppMsgNodeReq(ln,rn),
       data_({}),
       ni_(data_.node_id, nullptr)
 {
@@ -10146,18 +10059,6 @@ inline uint16_t AssnReleaseReq::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t AssnReleaseReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline AssnReleaseReq &AssnReleaseReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline NodeIdIE &AssnReleaseReq::node_id()
 {
    return ni_;
@@ -10165,6 +10066,7 @@ inline NodeIdIE &AssnReleaseReq::node_id()
 
 inline AssnReleaseReq &AssnReleaseReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = seqNbr();
    uint16_t len = encode_pfcp_assn_rel_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10193,18 +10095,6 @@ inline uint16_t AssnReleaseRsp::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t AssnReleaseRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline AssnReleaseRsp &AssnReleaseRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline NodeIdIE &AssnReleaseRsp::node_id()
 {
    return ni_;
@@ -10217,6 +10107,7 @@ inline CauseIE &AssnReleaseRsp::cause()
 
 inline AssnReleaseRsp &AssnReleaseRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = req()->seqNbr();
    uint16_t len = encode_pfcp_assn_rel_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10243,20 +10134,9 @@ inline uint16_t VersionNotSupportedRsp::length() const
    return data_.message_len;
 }
 
-inline uint32_t VersionNotSupportedRsp::sequenceNumber() const
-{
-   return data_.seid_seqno.no_seid.seq_no;
-}
-
-inline VersionNotSupportedRsp &VersionNotSupportedRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline VersionNotSupportedRsp &VersionNotSupportedRsp::encode(uint8_t *dest)
 {
+   data_.seid_seqno.no_seid.seq_no = 0;
    uint16_t len = encode_pfcp_header_t(&data_, dest);
    data_.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.message_len - 4);
@@ -10271,7 +10151,7 @@ inline pfcp_header_t &VersionNotSupportedRsp::data()
 ////////////////////////////////////////////////////////////////////////////////
 
 inline NodeReportReq::NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+   : PFCP::AppMsgNodeReq(ln,rn),
      data_({}),
      ni_(data_.node_id, nullptr),
      nrt_(data_.node_rpt_type, nullptr),
@@ -10285,18 +10165,6 @@ inline NodeReportReq::NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPt
 inline uint16_t NodeReportReq::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t NodeReportReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline NodeReportReq &NodeReportReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
 }
 
 inline NodeIdIE &NodeReportReq::node_id()
@@ -10316,6 +10184,7 @@ inline UserPlanePathFailureReportIE &NodeReportReq::user_plane_path_fail_rpt()
 
 inline NodeReportReq &NodeReportReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = seqNbr();
    uint16_t len = encode_pfcp_node_rpt_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10345,18 +10214,6 @@ inline uint16_t NodeReportRsp::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t NodeReportRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.no_seid.seq_no;
-}
-
-inline NodeReportRsp &NodeReportRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
 inline NodeIdIE &NodeReportRsp::node_id()
 {
    return ni_;
@@ -10374,6 +10231,7 @@ inline OffendingIeIE &NodeReportRsp::offending_ie()
 
 inline NodeReportRsp &NodeReportRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = req()->seqNbr();
    uint16_t len = encode_pfcp_node_rpt_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10388,7 +10246,7 @@ inline pfcp_node_rpt_rsp_t &NodeReportRsp::data()
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionSetDeletionReq::SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+   : PFCP::AppMsgNodeReq(ln,rn),
      data_({}),
      ni_(data_.node_id, nullptr),
      sc_(data_.sgw_c_fqcsid, nullptr),
@@ -10406,30 +10264,6 @@ inline SessionSetDeletionReq::SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFC
 inline uint16_t SessionSetDeletionReq::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t SessionSetDeletionReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionSetDeletionReq &SessionSetDeletionReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionSetDeletionReq::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionSetDeletionReq &SessionSetDeletionReq::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
 }
 
 inline NodeIdIE &SessionSetDeletionReq::node_id()
@@ -10469,6 +10303,7 @@ inline FqCsidIE &SessionSetDeletionReq::mme_fqcsid()
 
 inline SessionSetDeletionReq &SessionSetDeletionReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = seqNbr();
    uint16_t len = encode_pfcp_sess_set_del_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10498,29 +10333,6 @@ inline uint16_t SessionSetDeletionRsp::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t SessionSetDeletionRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionSetDeletionRsp &SessionSetDeletionRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-inline uint64_t SessionSetDeletionRsp::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionSetDeletionRsp &SessionSetDeletionRsp::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
-}
-
 inline NodeIdIE &SessionSetDeletionRsp::node_id()
 {
    return ni_;
@@ -10538,6 +10350,7 @@ inline OffendingIeIE &SessionSetDeletionRsp::offending_ie()
 
 inline SessionSetDeletionRsp &SessionSetDeletionRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.no_seid.seq_no = req()->seqNbr();
    uint16_t len = encode_pfcp_sess_set_del_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10551,8 +10364,8 @@ inline pfcp_sess_set_del_rsp_t &SessionSetDeletionRsp::data()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionEstablishmentReq::SessionEstablishmentReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+inline SessionEstablishmentReq::SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses)
+   : PFCP::AppMsgSessionReq(ses),
      data_({}),
      ni_(data_.node_id, nullptr),
      cpf_(data_.cp_fseid, nullptr),
@@ -10571,6 +10384,7 @@ inline SessionEstablishmentReq::SessionEstablishmentReq(PFCP::LocalNodeSPtr &ln,
    setMsgType(PFCP_SESS_ESTAB_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
+   data_.header.s = 1;
 
    for (int i=0; i<MAX_LIST_SIZE; i++)
    {
@@ -10585,30 +10399,6 @@ inline SessionEstablishmentReq::SessionEstablishmentReq(PFCP::LocalNodeSPtr &ln,
 inline uint16_t SessionEstablishmentReq::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t SessionEstablishmentReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionEstablishmentReq &SessionEstablishmentReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.has_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionEstablishmentReq::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionEstablishmentReq &SessionEstablishmentReq::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
 }
 
 inline NodeIdIE &SessionEstablishmentReq::node_id()
@@ -10733,6 +10523,8 @@ inline int SessionEstablishmentReq::next_create_traffic_endpt()
 
 inline SessionEstablishmentReq &SessionEstablishmentReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.has_seid.seq_no = seqNbr();
+   data_.header.seid_seqno.has_seid.seid = session()->remoteSeid();
    UShort len = encode_pfcp_sess_estab_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10760,6 +10552,7 @@ inline SessionEstablishmentRsp::SessionEstablishmentRsp()
    setMsgType(PFCP_SESS_ESTAB_RSP);
    data_.header.message_type = msgType();
    data_.header.version = 1;
+   data_.header.s = 1;
 
    for (int i=0; i<MAX_LIST_SIZE; i++)
    {
@@ -10771,30 +10564,6 @@ inline SessionEstablishmentRsp::SessionEstablishmentRsp()
 inline uint16_t SessionEstablishmentRsp::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t SessionEstablishmentRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionEstablishmentRsp &SessionEstablishmentRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.has_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionEstablishmentRsp::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionEstablishmentRsp &SessionEstablishmentRsp::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
 }
 
 inline NodeIdIE &SessionEstablishmentRsp::node_id()
@@ -10861,6 +10630,8 @@ inline int SessionEstablishmentRsp::next_created_traffic_endpt()
 
 inline SessionEstablishmentRsp &SessionEstablishmentRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.has_seid.seq_no = req()->seqNbr();
+   data_.header.seid_seqno.has_seid.seid = req()->session()->remoteSeid();
    uint16_t len = encode_pfcp_sess_estab_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -10874,8 +10645,8 @@ inline pfcp_sess_estab_rsp_t &SessionEstablishmentRsp::data()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionModificationReq::SessionModificationReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+inline SessionModificationReq::SessionModificationReq(PFCP::SessionBaseSPtr &ses)
+   : PFCP::AppMsgSessionReq(ses),
      data_({}),
      cfs_(data_.cp_fseid, nullptr),
      rb_(data_.remove_bar, nullptr),
@@ -10897,6 +10668,7 @@ inline SessionModificationReq::SessionModificationReq(PFCP::LocalNodeSPtr &ln, P
    setMsgType(PFCP_SESS_MOD_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
+   data_.header.s = 1;
 
    for (int i=0; i<MAX_LIST_SIZE; i++)
    {
@@ -10919,30 +10691,6 @@ inline SessionModificationReq::SessionModificationReq(PFCP::LocalNodeSPtr &ln, P
 inline uint16_t SessionModificationReq::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t SessionModificationReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionModificationReq &SessionModificationReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionModificationReq::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionModificationReq &SessionModificationReq::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
 }
 
 inline FSeidIE &SessionModificationReq::cp_fseid()
@@ -11170,6 +10918,8 @@ inline int SessionModificationReq::next_query_urr()
 
 inline SessionModificationReq &SessionModificationReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.has_seid.seq_no = seqNbr();
+   data_.header.seid_seqno.has_seid.seid = session()->remoteSeid();
    uint16_t len = encode_pfcp_sess_mod_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -11197,6 +10947,7 @@ inline SessionModificationRsp::SessionModificationRsp()
    setMsgType(PFCP_SESS_MOD_RSP);
    data_.header.message_type = msgType();
    data_.header.version = 1;
+   data_.header.s = 1;
 
    for (int i=0; i<MAX_LIST_SIZE; i++)
       ur_.push_back(UsageReportSessionModificationRspIE(data_.usage_report[i], nullptr));
@@ -11205,30 +10956,6 @@ inline SessionModificationRsp::SessionModificationRsp()
 inline uint16_t SessionModificationRsp::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t SessionModificationRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionModificationRsp &SessionModificationRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionModificationRsp::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionModificationRsp &SessionModificationRsp::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
 }
 
 inline CauseIE &SessionModificationRsp::cause()
@@ -11284,6 +11011,8 @@ inline int SessionModificationRsp::next_usage_report()
 
 inline SessionModificationRsp &SessionModificationRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.has_seid.seq_no = req()->seqNbr();
+   data_.header.seid_seqno.has_seid.seid = req()->session()->remoteSeid();
    uint16_t len = encode_pfcp_sess_mod_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -11297,13 +11026,14 @@ inline pfcp_sess_mod_rsp_t &SessionModificationRsp::data()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionDeletionReq::SessionDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+inline SessionDeletionReq::SessionDeletionReq(PFCP::SessionBaseSPtr &ses)
+   : PFCP::AppMsgSessionReq(ses),
      data_({})
 {
    setMsgType(PFCP_SESS_DEL_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
+   data_.header.s = 1;
 }
 
 inline uint16_t SessionDeletionReq::length() const
@@ -11311,32 +11041,10 @@ inline uint16_t SessionDeletionReq::length() const
    return data_.header.message_len;
 }
 
-inline uint32_t SessionDeletionReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionDeletionReq &SessionDeletionReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionDeletionReq::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionDeletionReq &SessionDeletionReq::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
-}
-
 inline SessionDeletionReq &SessionDeletionReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.has_seid.seq_no = seqNbr();
+   data_.header.seid_seqno.has_seid.seid = session()->remoteSeid();
    uint16_t len = encode_pfcp_sess_del_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -11360,6 +11068,7 @@ inline SessionDeletionRsp::SessionDeletionRsp()
    setMsgType(PFCP_SESS_DEL_RSP);
    data_.header.message_type = msgType();
    data_.header.version = 1;
+   data_.header.s = 1;
 
    for (int i=0; i<MAX_LIST_SIZE; i++)
       ur_.push_back(UsageReportSessionDeletionRspIE(data_.usage_report[i], nullptr));
@@ -11368,30 +11077,6 @@ inline SessionDeletionRsp::SessionDeletionRsp()
 inline uint16_t SessionDeletionRsp::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t SessionDeletionRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionDeletionRsp &SessionDeletionRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionDeletionRsp::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionDeletionRsp &SessionDeletionRsp::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
 }
 
 inline CauseIE &SessionDeletionRsp::cause()
@@ -11427,6 +11112,8 @@ inline int SessionDeletionRsp::next_usage_report()
 
 inline SessionDeletionRsp &SessionDeletionRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.has_seid.seq_no = req()->seqNbr();
+   data_.header.seid_seqno.has_seid.seid = req()->session()->remoteSeid();
    uint16_t len = encode_pfcp_sess_del_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -11440,8 +11127,8 @@ inline pfcp_sess_del_rsp_t &SessionDeletionRsp::data()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionReportReq::SessionReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgReq(ln,rn),
+inline SessionReportReq::SessionReportReq(PFCP::SessionBaseSPtr &ses)
+   : PFCP::AppMsgSessionReq(ses),
      data_({}),
      rt_(data_.report_type, nullptr),
      ddr_(data_.dnlnk_data_rpt, nullptr),
@@ -11453,6 +11140,7 @@ inline SessionReportReq::SessionReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteN
    setMsgType(PFCP_SESS_RPT_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
+   data_.header.s = 1;
 
    for (int i=0; i<MAX_LIST_SIZE; i++)
       ur_.push_back(UsageReportSessionReportReqIE(data_.usage_report[i], nullptr));
@@ -11461,30 +11149,6 @@ inline SessionReportReq::SessionReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteN
 inline uint16_t SessionReportReq::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t SessionReportReq::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionReportReq &SessionReportReq::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionReportReq::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionReportReq &SessionReportReq::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
 }
 
 inline ReportTypeIE &SessionReportReq::report_type()
@@ -11524,6 +11188,8 @@ inline UsageReportSessionReportReqIE &SessionReportReq::usage_report(uint8_t idx
 
 inline SessionReportReq &SessionReportReq::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.has_seid.seq_no = seqNbr();
+   data_.header.seid_seqno.has_seid.seid = session()->remoteSeid();
    uint16_t len = encode_pfcp_sess_rpt_req_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);
@@ -11547,35 +11213,12 @@ inline SessionReportRsp::SessionReportRsp()
    setMsgType(PFCP_SESS_RPT_RSP);
    data_.header.message_type = msgType();
    data_.header.version = 1;
+   data_.header.s = 1;
 }
 
 inline uint16_t SessionReportRsp::length() const
 {
    return data_.header.message_len;
-}
-
-inline uint32_t SessionReportRsp::sequenceNumber() const
-{
-   return data_.header.seid_seqno.has_seid.seq_no;
-}
-
-inline SessionReportRsp &SessionReportRsp::sequenceNumber(uint32_t val)
-{
-   setSeqNbr(val);
-   data_.header.seid_seqno.no_seid.seq_no = val;
-   return *this;
-}
-
-inline uint64_t SessionReportRsp::seid() const
-{
-   return data_.header.seid_seqno.has_seid.seid;
-}
-
-inline SessionReportRsp &SessionReportRsp::seid(uint64_t val)
-{
-   setSeid(val);
-   data_.header.seid_seqno.has_seid.seid = val;
-   return *this;
 }
 
 inline CauseIE &SessionReportRsp::cause()
@@ -11600,6 +11243,8 @@ inline PfcpSrRspFlagsIE &SessionReportRsp::sxsrrsp_flags()
 
 inline SessionReportRsp &SessionReportRsp::encode(uint8_t *dest)
 {
+   data_.header.seid_seqno.has_seid.seq_no = req()->seqNbr();
+   data_.header.seid_seqno.has_seid.seid = req()->session()->remoteSeid();
    uint16_t len = encode_pfcp_sess_rpt_rsp_t(&data_, dest);
    data_.header.message_len = len;
    reinterpret_cast<pfcp_header_t*>(dest)->message_len = htons(data_.header.message_len - 4);

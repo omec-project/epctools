@@ -15,6 +15,7 @@
 */
 
 #include <arpa/inet.h>
+#include <endian.h>
 #include "pfcpr15.h"
 #include "pfcpr15inl.h"
 #include "pfcp_messages_encoder.h"
@@ -41,7 +42,6 @@ PFCP::ReqOutPtr Translator::encodeHeartbeatReq(PFCP::SndHeartbeatReqData &hb)
    ro->setSeqNbr(hb.localNode()->allocSeqNbr());
 
    HeartbeatReq *req = new HeartbeatReq(ro->localNode(), ro->remoteNode());
-   req->sequenceNumber(ro->seqNbr());
    req->recoveryTimeStamp().rcvry_time_stmp_val(ro->localNode()->startTime());
    req->encode(data());
 
@@ -59,7 +59,7 @@ PFCP::RspOutPtr Translator::encodeHeartbeatRsp(PFCP::SndHeartbeatRspData &hb)
    ro->setSeqNbr(hb.req().seqNbr());
 
    HeartbeatRsp *rsp = new HeartbeatRsp();
-   rsp->sequenceNumber(ro->seqNbr());
+   rsp->setReq(&hb.req());
    rsp->recoveryTimeStamp().rcvry_time_stmp_val(ro->localNode()->startTime());
    rsp->encode(data());
 
@@ -105,19 +105,23 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
    ro->setT1(PFCP::Configuration::t1());
    ro->setSeqNbr(req->seqNbr());
    ro->setMsgType(req->msgType());
+   ro->setMsgClass(req->msgClass());
    ro->setAppMsg(req);
 
    switch (req->msgType())
    {
+      case PFCP_HRTBEAT_REQ:
+      {
+         HeartbeatReq *am = static_cast<HeartbeatReq*>(req);
+         am->encode(data());         
+         ro->assign(data(), am->length());
+         break;
+      }
       case PFCP_PFD_MGMT_REQ:
       {
          PfdMgmtReq *am = static_cast<PfdMgmtReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_pfd_mgmt_req_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_SETUP_REQ:
@@ -125,20 +129,13 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
          AssnSetupReq *am = static_cast<AssnSetupReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_assn_setup_req_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_UPD_REQ:
       {
          AssnUpdateReq *am = static_cast<AssnUpdateReq*>(req);
          am->encode(data());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_assn_upd_req_t(&am->data(), data());
+         ro->assign(data(), am->length());
          break;
       }
       case PFCP_ASSN_REL_REQ:
@@ -146,10 +143,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
          AssnReleaseReq *am = static_cast<AssnReleaseReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_assn_rel_req_t(&am->data(), data());
          break;
       }
       case PFCP_NODE_RPT_REQ:
@@ -157,10 +150,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
          NodeReportReq *am = static_cast<NodeReportReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_node_rpt_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_SET_DEL_REQ:
@@ -168,10 +157,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
          SessionSetDeletionReq *am = static_cast<SessionSetDeletionReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_sess_set_del_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_ESTAB_REQ:
@@ -179,14 +164,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
          SessionEstablishmentReq *am = static_cast<SessionEstablishmentReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.s = 1;
-         // am->data().header.message_type = req->msgType();
-         // // force a '0' SEID for the remote SEID since the remote has not seen the session yet
-         // req->setSeid(0);
-         // am->data().header.seid_seqno.has_seid.seid = req->seid();
-         // am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_sess_estab_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_MOD_REQ:
@@ -194,12 +171,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
          SessionModificationReq *am = static_cast<SessionModificationReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.s = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.has_seid.seid = req->seid();
-         // am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_sess_mod_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_DEL_REQ:
@@ -207,12 +178,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
          SessionDeletionReq *am = static_cast<SessionDeletionReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.s = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.has_seid.seid = req->seid();
-         // am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_sess_del_req_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_RPT_REQ:
@@ -220,12 +185,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
          SessionReportReq *am = static_cast<SessionReportReq*>(req);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.s = 1;
-         // am->data().header.message_type = req->msgType();
-         // am->data().header.seid_seqno.has_seid.seid = req->seid();
-         // am->data().header.seid_seqno.has_seid.seq_no = req->seqNbr();
-         // len = encode_pfcp_sess_rpt_req_t(&am->data(), data());
          break;
       }
       default:
@@ -238,7 +197,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
 
    // update the header length
    reinterpret_cast<pfcp_header_t*>(data())->message_len = htons(len - 4);
-
 
    return ro;
 }
@@ -254,19 +212,23 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
    ro->setRemoteNode(rsp->remoteNode());
    ro->setSeqNbr(rsp->req()->seqNbr());
    ro->setMsgType(rsp->msgType());
+   ro->setMsgClass(rsp->msgClass());
    ro->setRsp(rsp);
 
    switch (rsp->msgType())
    {
+      case PFCP_HRTBEAT_RSP:
+      {
+         HeartbeatRsp *am = static_cast<HeartbeatRsp*>(rsp);
+         am->encode(data());
+         ro->assign(data(), am->length());
+         break;
+      }
       case PFCP_PFD_MGMT_RSP:
       {
          PfdMgmtRsp *am = static_cast<PfdMgmtRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_pfd_mgmt_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_SETUP_RSP:
@@ -274,10 +236,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          AssnSetupRsp *am = static_cast<AssnSetupRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_assn_setup_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_UPD_RSP:
@@ -285,10 +243,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          AssnUpdateRsp *am = static_cast<AssnUpdateRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_assn_upd_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_ASSN_REL_RSP:
@@ -296,10 +250,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          AssnUpdateRsp *am = static_cast<AssnUpdateRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_assn_upd_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_NODE_RPT_RSP:
@@ -307,10 +257,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          NodeReportRsp *am = static_cast<NodeReportRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_node_rpt_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_SET_DEL_RSP:
@@ -318,10 +264,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          SessionSetDeletionRsp *am = static_cast<SessionSetDeletionRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.no_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_sess_set_del_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_ESTAB_RSP:
@@ -329,12 +271,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          SessionEstablishmentRsp *am = static_cast<SessionEstablishmentRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.s = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.has_seid.seid = rsp->seid();
-         // am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_sess_estab_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_MOD_RSP:
@@ -342,12 +278,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          SessionModificationRsp *am = static_cast<SessionModificationRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.s = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.has_seid.seid = rsp->seid();
-         // am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_sess_mod_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_DEL_RSP:
@@ -355,12 +285,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          SessionDeletionRsp *am = static_cast<SessionDeletionRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.s = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.has_seid.seid = rsp->seid();
-         // am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_sess_del_rsp_t(&am->data(), data());
          break;
       }
       case PFCP_SESS_RPT_RSP:
@@ -368,12 +292,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          SessionReportRsp *am = static_cast<SessionReportRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
-         // am->data().header.version = 1;
-         // am->data().header.s = 1;
-         // am->data().header.message_type = rsp->msgType();
-         // am->data().header.seid_seqno.has_seid.seid = rsp->seid();
-         // am->data().header.seid_seqno.has_seid.seq_no = rsp->seqNbr();
-         // len = encode_pfcp_sess_rpt_rsp_t(&am->data(), data());
          break;
       }
       default:
@@ -383,12 +301,6 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          throw PFCP::EncodeRspException();
       }
    }
-
-   // // update the header length
-   // reinterpret_cast<pfcp_header_t*>(data())->message_len = htons(len - 4);
-
-   // // copy the data to the output request object
-   // ro->assign(data(), len);
 
    return ro;
 }
@@ -410,6 +322,8 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       {
          AssnSetupReq *tmp = new AssnSetupReq(req->localNode(), req->remoteNode());
          decode_pfcp_assn_setup_req_t((pUChar)req->data(), &tmp->data());
+         if (tmp->rcvry_time_stmp().present())
+            req->remoteStartTime(tmp->rcvry_time_stmp().rcvry_time_stmp_val());
          am = tmp;
          break;
       }
@@ -443,32 +357,30 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_SESS_ESTAB_REQ:
       {
-         SessionEstablishmentReq *tmp = new SessionEstablishmentReq(req->localNode(), req->remoteNode());
-         tmp->setSeid(req->seid());
+         SessionEstablishmentReq *tmp = new SessionEstablishmentReq(req->session());
          decode_pfcp_sess_estab_req_t((pUChar)req->data(), &tmp->data());
+         if (tmp->cp_fseid().present())
+            req->remoteSeid(tmp->cp_fseid().seid());
          am = tmp;
          break;
       }
       case PFCP_SESS_MOD_REQ:
       {
-         SessionModificationReq *tmp = new SessionModificationReq(req->localNode(), req->remoteNode());
-         tmp->setSeid(req->seid());
+         SessionModificationReq *tmp = new SessionModificationReq(req->session());
          decode_pfcp_sess_mod_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          break;
       }
       case PFCP_SESS_DEL_REQ:
       {
-         SessionDeletionReq *tmp = new SessionDeletionReq(req->localNode(), req->remoteNode());
-         tmp->setSeid(req->seid());
+         SessionDeletionReq *tmp = new SessionDeletionReq(req->session());
          decode_pfcp_sess_del_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          break;
       }
       case PFCP_SESS_RPT_REQ:
       {
-         SessionReportReq *tmp = new SessionReportReq(req->localNode(), req->remoteNode());
-         tmp->setSeid(req->seid());
+         SessionReportReq *tmp = new SessionReportReq(req->session());
          decode_pfcp_sess_rpt_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          break;
@@ -480,12 +392,9 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
    }
 
+   // assign the message type and sequence number
    if (am != nullptr)
-   {
-      // assign the message type and sequence number
-      am->setMsgType(req->msgType());
       am->setSeqNbr(req->seqNbr());
-   }
 
    return am;
 }
@@ -507,6 +416,8 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
       {
          AssnSetupRsp *tmp = new AssnSetupRsp();
          decode_pfcp_assn_setup_rsp_t((pUChar)rsp->data(), &tmp->data());
+         if (tmp->rcvry_time_stmp().present())
+            rsp->remoteStartTime(tmp->rcvry_time_stmp().rcvry_time_stmp_val());
          am = tmp;
          break;
       }
@@ -548,15 +459,15 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
       case PFCP_SESS_ESTAB_RSP:
       {
          SessionEstablishmentRsp *tmp = new SessionEstablishmentRsp();
-         tmp->setSeid(rsp->seid());
          decode_pfcp_sess_estab_rsp_t((pUChar)rsp->data(), &tmp->data());
+         if (tmp->up_fseid().present())
+            rsp->remoteSeid(tmp->up_fseid().seid());
          am = tmp;
          break;
       }
       case PFCP_SESS_MOD_RSP:
       {
          SessionModificationRsp *tmp = new SessionModificationRsp();
-         tmp->setSeid(rsp->seid());
          decode_pfcp_sess_mod_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
          break;
@@ -564,7 +475,6 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
       case PFCP_SESS_DEL_RSP:
       {
          SessionDeletionRsp *tmp = new SessionDeletionRsp();
-         tmp->setSeid(rsp->seid());
          decode_pfcp_sess_del_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
          break;
@@ -572,7 +482,6 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
       case PFCP_SESS_RPT_RSP:
       {
          SessionReportRsp *tmp = new SessionReportRsp();
-         tmp->setSeid(rsp->seid());
          decode_pfcp_sess_rpt_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
          break;
@@ -588,7 +497,6 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
    {
       // assign the request, message type and sequence number
       am->setReq(rsp->req());
-      am->setMsgType(rsp->msgType());
       am->setSeqNbr(rsp->seqNbr());
    }
 
@@ -600,9 +508,7 @@ PFCP::RcvdHeartbeatReqDataPtr Translator::decodeHeartbeatReq(PFCP::ReqInPtr msg)
    PFCP::RcvdHeartbeatReqDataPtr hb = new PFCP::RcvdHeartbeatReqData();
    PFCP_R15::HeartbeatReq *am = new PFCP_R15::HeartbeatReq(msg->localNode(), msg->remoteNode());
 
-   am->setMsgType(msg->msgType());
    am->setSeqNbr(msg->seqNbr());
-   am->setSeid(msg->seid());
 
    hb->setReq(am);
 
@@ -628,7 +534,7 @@ PFCP::RcvdHeartbeatRspDataPtr Translator::decodeHeartbeatRsp(PFCP::RspInPtr msg)
 {
    PFCP::RcvdHeartbeatRspDataPtr hb = new PFCP::RcvdHeartbeatRspData();
    PFCP_R15::HeartbeatRsp rsp;
-   hb->setReq(msg->req());
+   hb->setReq(static_cast<PFCP::AppMsgNodeReqPtr>(msg->req()));
 
    decode_pfcp_hrtbeat_rsp_t((pUChar)msg->data(), &rsp.data());
    if (rsp.data().rcvry_time_stmp.header.len)
@@ -653,13 +559,20 @@ Void Translator::getMsgInfo(PFCP::TranslatorMsgInfo &info, cpUChar msg, Int len)
    const pfcp_header_t *header = reinterpret_cast<const pfcp_header_t*>(msg);
    info.setVersion(header->version);
    info.setMsgType(header->message_type);
-   info.setSeid(header->s ? header->seid_seqno.has_seid.seid : 0);
+   info.setMsgClass(messageClass(header->message_type));
+   info.setSeid(header->s ? be64toh(header->seid_seqno.has_seid.seid) : 0);
 
-   ULong sn = ntohl(header->s ? header->seid_seqno.has_seid.seq_no : header->seid_seqno.no_seid.seq_no) >> 8;
+   ULong sn = be32toh(header->s ? header->seid_seqno.has_seid.seq_no : header->seid_seqno.no_seid.seq_no) >> 8;
    info.setSeqNbr(sn);
 
    switch (info.msgType())
    {
+      case PFCP_SESS_ESTAB_REQ:
+      {
+         info.setReq(True);
+         info.setCreateSession(True);
+         break;
+      }
       case PFCP_HRTBEAT_REQ:
       case PFCP_PFD_MGMT_REQ:
       case PFCP_ASSN_SETUP_REQ:
@@ -667,17 +580,18 @@ Void Translator::getMsgInfo(PFCP::TranslatorMsgInfo &info, cpUChar msg, Int len)
       case PFCP_ASSN_REL_REQ:
       case PFCP_NODE_RPT_REQ:
       case PFCP_SESS_SET_DEL_REQ:
-      case PFCP_SESS_ESTAB_REQ:
       case PFCP_SESS_MOD_REQ:
       case PFCP_SESS_DEL_REQ:
       case PFCP_SESS_RPT_REQ:
       {
          info.setReq(True);
+         info.setCreateSession(False);
          break;
       }
       default:
       {
          info.setReq(False);
+         info.setCreateSession(False);
          break;
       }
    }
@@ -687,5 +601,59 @@ Bool Translator::isVersionSupported(UChar ver)
 {
    return ver == 1;
 }
+
+PFCP::MsgClass Translator::messageClass(PFCP::MsgType mt)
+{
+   PFCP::MsgClass mc;
+
+   switch (mt)
+   {
+      case PFCP_HRTBEAT_REQ:
+      case PFCP_HRTBEAT_RSP:
+      case PFCP_PFD_MGMT_REQ:
+      case PFCP_PFD_MGMT_RSP:
+      case PFCP_ASSN_SETUP_REQ:
+      case PFCP_ASSN_SETUP_RSP:
+      case PFCP_ASSN_UPD_REQ:
+      case PFCP_ASSN_UPD_RSP:
+      case PFCP_ASSN_REL_REQ:
+      case PFCP_ASSN_REL_RSP:
+      case PFCP_VERSION_NOT_SUPPORTED:
+      case PFCP_NODE_RPT_REQ:
+      case PFCP_NODE_RPT_RSP:
+      case PFCP_SESS_SET_DEL_REQ:
+      case PFCP_SESS_SET_DEL_RSP:
+      {
+         mc = PFCP::MsgClass::Node;
+         break;
+      }
+      case PFCP_SESS_ESTAB_REQ:
+      case PFCP_SESS_ESTAB_RSP:
+      case PFCP_SESS_MOD_REQ:
+      case PFCP_SESS_MOD_RSP:
+      case PFCP_SESS_DEL_REQ:
+      case PFCP_SESS_DEL_RSP:
+      case PFCP_SESS_RPT_REQ:
+      case PFCP_SESS_RPT_RSP:
+      {
+         mc = PFCP::MsgClass::Session;
+         break;
+      }
+      default:
+      {
+         mc = PFCP::MsgClass::Unknown;
+         break;
+      }
+   }
+
+   return mc;
+}
+
+PFCP::MsgType Translator::pfcpHeartbeatReq() { return PFCP_HRTBEAT_REQ; }
+PFCP::MsgType Translator::pfcpHeartbeatRsp() { return PFCP_HRTBEAT_RSP; }
+PFCP::MsgType Translator::pfcpSessionEstablishmentReq() { return PFCP_SESS_ESTAB_REQ; }
+PFCP::MsgType Translator::pfcpSessionEstablishmentRsp() { return PFCP_SESS_ESTAB_RSP; }
+PFCP::MsgType Translator::pfcpAssociationSetupReq() { return PFCP_ASSN_SETUP_REQ; }
+PFCP::MsgType Translator::pfcpAssociationSetupRsp() { return PFCP_ASSN_SETUP_RSP; }
 
 } // namespace PFCP_R15

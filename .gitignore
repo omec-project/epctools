@@ -3,6 +3,7 @@ src/*.a
 src/.deps
 src/.dirstamp
 src/st*
+src/.dirstamp
 autom4te.cache
 *.swp
 src/*.swp

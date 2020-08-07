@@ -21,27 +21,45 @@ namespace PFCP
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-UShort Configuration::port_                     = 8805;
-Int Configuration::bufsize_                     = 2097152;
-LongLong Configuration::t1_                     = 3000;
-LongLong Configuration::hbt1_                   = 5000;
-Int Configuration::n1_                          = 2;
-Int Configuration::hbn1_                        = 3;
-ELogger *Configuration::logger_                 = nullptr;
-size_t Configuration::naw_                      = 10;
-Long Configuration::law_                        = 6000; // 6 seconds
-Int Configuration::trb_                         = 0;
-Bool Configuration::atr_                        = False;
-Translator *Configuration::xlator_              = nullptr;
+#ifdef PFCP_ANALYSIS
+Analysis *analysis = nullptr;
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+UShort Configuration::port_                        = 8805;
+Int Configuration::bufsize_                        = 2097152;
+LongLong Configuration::t1_                        = 3000;
+LongLong Configuration::hbt1_                      = 5000;
+Int Configuration::n1_                             = 2;
+Int Configuration::hbn1_                           = 3;
+ELogger *Configuration::logger_                    = nullptr;
+size_t Configuration::naw_                         = 10;
+Long Configuration::law_                           = 6000; // 6 seconds
+Int Configuration::trb_                            = 0;
+Bool Configuration::atr_                           = False;
+Translator *Configuration::xlator_                 = nullptr;
 // Int Configuration::aminw_                       = 1;
 // Int Configuration::amaxw_                       = 1;
-Int Configuration::tminw_                       = 1;
-Int Configuration::tmaxw_                       = 1;
-_EThreadEventNotification *Configuration::app_  = nullptr;
+Int Configuration::tminw_                          = 1;
+Int Configuration::tmaxw_                          = 1;
+_EThreadEventNotification *Configuration::app_     = nullptr;
+ApplicationWorkGroupBase *Configuration::baseapp_  = nullptr;
+MsgType Configuration::pfcpHeartbeatReq            = 1;
+MsgType Configuration::pfcpHeartbeatRsp            = 2;
+MsgType Configuration::pfcpSessionEstablishmentReq = 50;
+MsgType Configuration::pfcpSessionEstablishmentRsp = 51;
+MsgType Configuration::pfcpAssociationSetupReq     = 5;
+MsgType Configuration::pfcpAssociationSetupRsp     = 6;
 
 /// @cond DOXYGEN_EXCLUDE
 TranslationThread *TranslationThread::this_     = nullptr;
 CommunicationThread *CommunicationThread::this_ = nullptr;
+ULongLong SessionBase::created_                 = 0;
+ULongLong SessionBase::deleted_                 = 0;
+ULongLong Node::created_                        = 0;
+ULongLong Node::deleted_                        = 0;
 /// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,24 +75,36 @@ Void Initialize()
    CommunicationThread::Instance().init(1, 101, NULL, 100000);
    Configuration::logger().startup("{} - initializing the translation thread", __method__);
    TranslationThread::Instance().init(1, 102, NULL, 100000);
+
+   Configuration::pfcpHeartbeatReq = Configuration::translator().pfcpHeartbeatReq();
+   Configuration::pfcpHeartbeatRsp = Configuration::translator().pfcpHeartbeatRsp();
+   Configuration::pfcpSessionEstablishmentReq = Configuration::translator().pfcpSessionEstablishmentReq();
+   Configuration::pfcpSessionEstablishmentRsp = Configuration::translator().pfcpSessionEstablishmentRsp();
+   Configuration::pfcpAssociationSetupReq = Configuration::translator().pfcpAssociationSetupReq();
+   Configuration::pfcpAssociationSetupRsp = Configuration::translator().pfcpAssociationSetupRsp();
 }
 
 Void Uninitialize()
 {
    static EString __method__ = __METHOD_NAME__;
 
-   Configuration::logger().startup("{} - releasing local nodes");
+   Configuration::logger().startup("{} - releasing local nodes", __method__);
    CommunicationThread::Instance().releaseLocalNodes();
 
-   Configuration::logger().startup("{} - stopping the translation thread");
+   Configuration::logger().startup("{} - stopping the translation thread", __method__);
    TranslationThread::Instance().quit();
    TranslationThread::Instance().join();
    TranslationThread::cleanup();
 
-   Configuration::logger().startup("{} - stopping the communication thread");
+   Configuration::logger().startup("{} - stopping the communication thread", __method__);
    CommunicationThread::Instance().quit();
    CommunicationThread::Instance().join();
    CommunicationThread::cleanup();
+
+   Configuration::logger().startup("{} - Session counts created={} deleted={}",
+      __method__, SessionBase::sessionsCreated(), SessionBase::sessionsDeleted());
+   Configuration::logger().startup("{} - Node counts created={} deleted={}",
+      __method__, Node::nodesCreated(), Node::nodesDeleted());
 }
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,6 +121,10 @@ TeidRangeManager::TeidRangeManager(Int rangeBits)
    Int range = 1 << rangeBits;
    for (Int i=0; i<range; i++)
       free_.push_back(i);
+}
+
+TeidRangeManager::~TeidRangeManager()
+{
 }
 
 Bool TeidRangeManager::assign(RemoteNodeSPtr &n)
@@ -154,6 +188,7 @@ RemoteNode::RemoteNode()
      aw_(0)
 {
    static EString __method__ = __METHOD_NAME__;
+   setStartTime(ETime(0));
 }
 
 RemoteNode::~RemoteNode()
@@ -213,6 +248,13 @@ RemoteNode &RemoteNode::setNbrActivityWnds(size_t nbr)
    return *this;
 }
 
+RemoteNode &RemoteNode::deleteAllSesssions(RemoteNodeSPtr &rn)
+{
+   auto rn2 = new RemoteNodeSPtr(rn);
+   SEND_TO_COMMUNICATION(DelNxtRmtSession, rn2);
+   return *this;
+}
+
 Void RemoteNode::nextActivityWnd(Int wnd)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -225,9 +267,9 @@ Void RemoteNode::nextActivityWnd(Int wnd)
 
 Bool RemoteNode::checkActivity()
 {
-    static EString __method__ = __METHOD_NAME__;
+   static EString __method__ = __METHOD_NAME__;
 
-  if (awndcnt_ < awnds_.size())
+   if (awndcnt_ < awnds_.size())
    {
       // return True to indicate that there has been activity since
       // a full set of wnds has not been processed yet
@@ -239,7 +281,7 @@ Bool RemoteNode::checkActivity()
       if (val > 0)
          return True;
    }
-   
+
    return False;
 }
 
@@ -255,6 +297,22 @@ Void RemoteNode::removeOldReqs(Int rw)
       else
          entry++;
    }
+}
+
+RemoteNode &RemoteNode::addSession(SessionBaseSPtr &s)
+{
+   static EString __method__ = __METHOD_NAME__;
+   if (s && s->remoteSeid() != 0)
+      _addSession(s->remoteSeid(), s);
+   return *this;
+}
+
+RemoteNode &RemoteNode::delSession(SessionBaseSPtr &s)
+{
+   static EString __method__ = __METHOD_NAME__;
+   if (s && s->remoteSeid() != 0)
+      _delSession(s->remoteSeid());
+   return *this;
 }
 /// @endcond
 
@@ -281,28 +339,24 @@ LocalNode::~LocalNode()
 Seid LocalNode::allocSeid()
 {
    static EString __method__ = __METHOD_NAME__;
-
    return seidmgr_.alloc();
 }
 
 Void LocalNode::freeSeid(Seid seid)
 {
    static EString __method__ = __METHOD_NAME__;
-
    seidmgr_.free(seid);
 }
 
 ULong LocalNode::allocSeqNbr()
 {
    static EString __method__ = __METHOD_NAME__;
-
    return seqmgr_.alloc();
 }
 
 Void LocalNode::freeSeqNbr(ULong sn)
 {
    static EString __method__ = __METHOD_NAME__;
-
    seqmgr_.free(sn);
 }
 
@@ -357,6 +411,17 @@ Void LocalNode::removeRqstOutEntries(Int wnd)
       }
    }
 }
+
+Void LocalNode::clearRqstOutEntries()
+{
+   auto it = roumap_.begin();
+   while (it != roumap_.end())
+   {
+      ReqOutPtr ro = it->second;
+      it = roumap_.erase(it);
+      delete ro;
+   }
+}
 /// @endcond
 
 Void LocalNode::setNbrActivityWnds(size_t nbr)
@@ -385,7 +450,7 @@ Void LocalNode::checkActivity(LocalNodeSPtr &ln)
    {
       if (!kv.second->checkActivity())
       {
-         Configuration::logger().debug("{} - remote {} is inactive", __method__, kv.second->ipAddress().address());
+         // Configuration::logger().info("{} - remote {} is inactive", __method__, kv.second->ipAddress().address());
          SndHeartbeatReqDataPtr shb = new SndHeartbeatReqData(ln, kv.second);
          SEND_TO_TRANSLATION(SndHeartbeatReq, shb);
 
@@ -404,7 +469,7 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
    try
    {
       // create the RemoteNode shared pointer
-      RemoteNodeSPtr rn = std::make_shared<RemoteNode>();
+      RemoteNodeSPtr rn = Configuration::baseApplication()._createRemoteNode();
 
       // set the IP address for the RemoteNode
       ESocket::Address rnaddr;
@@ -430,8 +495,7 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
       if (!result.second)
          throw LocalNodeException_RemoteNodeUMapInsertFailed();
       
-      RemoteNodeSPtr *rnp = new RemoteNodeSPtr();
-      (*rnp) = rn;
+      RemoteNodeSPtr *rnp = new RemoteNodeSPtr(rn);
       SEND_TO_APPLICATION(RemoteNodeAdded, rnp);
 
       return result.first->second;
@@ -442,6 +506,20 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
          __method__, address.address(), e.what());
       throw LocalNodeException_UnableToCreateRemoteNode();
    }
+}
+
+SessionBaseSPtr LocalNode::createSession(LocalNodeSPtr &ln, RemoteNodeSPtr &rn)
+{
+   SessionBaseSPtr s = Configuration::baseApplication()._createSession(ln, rn);
+   s->setLocalSeid(s, allocSeid());
+   return s;
+}
+
+SessionBaseSPtr LocalNode::createSession(LocalNodeSPtr &ln, Seid rs, RemoteNodeSPtr &rn)
+{
+   SessionBaseSPtr s = Configuration::baseApplication()._createSession(ln, rn);
+   s->setSeid(s, allocSeid(), rs);
+   return s;
 }
 
 /// @cond DOXYGEN_EXCLUDE
@@ -459,11 +537,17 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
       // lookup the remote node and create it if it does not exist
       EIpAddress remoteIpAddress(src.getSockAddrStorage());
       RemoteNodeUMap::iterator rnit = rns_.find(remoteIpAddress);
-      Configuration::logger().debug("{} - looking up remoteNode {}",
-         __method__, remoteIpAddress.address());
-      rn = (rnit != rns_.end()) ?
-         rnit->second :
-         createRemoteNode(remoteIpAddress, Configuration::port());
+      // Configuration::logger().debug("{} - looking up remoteNode {}", __method__, remoteIpAddress.address());
+      if (rnit != rns_.end())
+      {
+         // Configuration::logger().debug("{} - remoteNode {} found", __method__, remoteIpAddress.address());
+         rn = rnit->second;
+      }
+      else
+      {
+         // Configuration::logger().debug("{} - remoteNode {} NOT found", __method__, remoteIpAddress.address());
+         rn = createRemoteNode(remoteIpAddress, Configuration::port());
+      }
 
       // increment the activity for the RemoteNode
       rn->incrementActivity();
@@ -477,12 +561,42 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
             ReqInPtr ri = new ReqIn();
             ri->setLocalNode(ln);
             ri->setRemoteNode(rn);
-            ri->setSeid(tmi.seid());
             ri->setSeqNbr(tmi.seqNbr());
             ri->setMsgType(tmi.msgType());
+            ri->setMsgClass(tmi.msgClass());
             ri->setIsReq(tmi.isReq());
             ri->setVersion(tmi.version());
             ri->assign(msg, len);
+
+            // lookup or create the session
+            if (tmi.createSession())
+            {
+               ri->setSession(ln->createSession(ln, rn));
+               if(!ri->session())
+               {
+                  // session not found but required
+                  Configuration::logger().debug(
+                     "{} - unable to create the session, discarding the message"
+                     " localNode={} remoteNode={} localSeid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+                     __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.seid(),
+                     tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+                  return;
+               }
+            }
+            else if (tmi.msgClass() == MsgClass::Session)
+            {
+               ri->setSession(ln->getSession(tmi.seid()));
+               if (!ri->session())
+               {
+                  // session not found but required
+                  Configuration::logger().debug(
+                     "{} - session not found, discarding the message"
+                     " localNode={} remoteNode={} localSeid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+                     __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.seid(),
+                     tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+                  return;
+               }
+            }
 
             // add RcvdReqeust
             if (rn->addRcvdReq(ri->seqNbr()))
@@ -492,21 +606,42 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
             }
             else
             {
-               Configuration::logger().debug(
-                  "{} - unable to insert RcvdReq in the RemoteNode,"
-                  " discarding req local={} remote={} seid={} msgType={} seqNbr={} version={} msgLen={}",
-                  __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.seid(),
-                  tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+               if (tmi.msgClass() == MsgClass::Session)
+               {
+                  Configuration::logger().debug(
+                     "{} - unable to insert RcvdReq in the RemoteNode,"
+                     " discarding req local={} remote={} seid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+                     __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.seid(),
+                     tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+               }
+               else
+               {
+                  Configuration::logger().debug(
+                     "{} - unable to insert RcvdReq in the RemoteNode,"
+                     " discarding req local={} remote={} msgType={} msgClass={} seqNbr={} version={} msgLen={}",
+                     __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.msgType(),
+                     tmi.msgClass()==MsgClass::Node?"NODE":"UNKNOWN", tmi.seqNbr(), tmi.version(), len);
+               }
                delete ri;
             }
          }
          else
          {
             // duplicate msg, so discard it
-            Configuration::logger().debug(
-               "{} - discarding duplicate req local={} remote={} seid={} msgType={} seqNbr={} version={} msgLen={}",
-               __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.seid(),
-               tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+            if (tmi.msgClass() == MsgClass::Session)
+            {
+               Configuration::logger().debug(
+                  "{} - discarding duplicate req local={} remote={} seid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+                  __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.seid(),
+                  tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+            }
+            else
+            {
+               Configuration::logger().debug(
+                  "{} - discarding duplicate req local={} remote={} msgType={} msgClass={} seqNbr={} version={} msgLen={}",
+                  __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.msgType(),
+                  tmi.msgClass()==MsgClass::Node?"NODE":"UNKNOWN", tmi.seqNbr(), tmi.version(), len);
+            }
          }
       }
       else
@@ -526,12 +661,13 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
             ri->setReq(roit->second->appMsg());
             ri->setLocalNode(ln);
             ri->setRemoteNode(rn);
-            ri->setSeid(tmi.seid());
             ri->setSeqNbr(tmi.seqNbr());
             ri->setMsgType(tmi.msgType());
             ri->setIsReq(tmi.isReq());
             ri->setVersion(tmi.version());
             ri->assign(msg, len);
+
+            roit->second->setAppMsg(nullptr);
 
             // snd RspIn to TranslationThread
             SEND_TO_TRANSLATION(RcvdRsp, ri);
@@ -539,20 +675,41 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
          else
          {
             // ReqOut entry NOT found, discard the rsp msg
-            Configuration::logger().debug(
-               "{} - corresponding ReqOut entry not found,"
-               " discarding rsp local={} remote={} seid={} msgType={} seqNbr={} version={} msgLen={}",
-               __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.seid(),
-               tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+            if (tmi.msgClass() == MsgClass::Session)
+            {
+               Configuration::logger().info(
+                  "{} - corresponding ReqOut entry not found, discarding rsp "
+                  "local={} remote={} seid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+                  __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.seid(),
+                  tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+            }
+            else
+            {
+               Configuration::logger().info(
+                  "{} - corresponding ReqOut entry not found, "
+                  "discarding rsp local={} remote={} msgType={} msgClass={} seqNbr={} version={} msgLen={}",
+                  __method__, ln->ipAddress().address(), rn->ipAddress().address(), tmi.msgType(),
+                  tmi.msgClass()==MsgClass::Node?"NODE":"UNKNOWN", tmi.seqNbr(), tmi.version(), len);
+            }
          }
       }
    }
    catch (const LocalNodeException_UnableToCreateRemoteNode &e)
    {
-      Configuration::logger().minor(
-         "{} - {} - discarding msg local={} remote={} seid={} msgType={} seqNbr={} version={} msgLen={}",
-         __method__, e.what(), dst.getAddress(), src.getAddress(), tmi.seid(),
-         tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+      if (tmi.msgClass() == MsgClass::Session)
+      {
+         Configuration::logger().minor(
+            "{} - {} - discarding msg local={} remote={} seid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+            __method__, e.what(), dst.getAddress(), src.getAddress(), tmi.seid(),
+            tmi.msgType(), tmi.seqNbr(), tmi.version(), len);
+      }
+      else
+      {
+         Configuration::logger().minor(
+            "{} - {} - discarding msg local={} remote={} msgType={} msgClass={} seqNbr={} version={} msgLen={}",
+            __method__, e.what(), dst.getAddress(), src.getAddress(), tmi.msgType(),
+            tmi.msgClass()==MsgClass::Node?"NODE":"UNKNOWN", tmi.seqNbr(), tmi.version(), len);
+      }
    }
 }
 
@@ -578,7 +735,7 @@ Bool LocalNode::onReqOutTimeout(ReqOutPtr ro)
       // ReqOut entry NOT found, do not surface the timeout error
       Configuration::logger().debug(
          "{} - corresponding ReqOut entry not found,"
-         " discarding tiemout local={} remote={}",
+         " discarding timeout local={} remote={}",
          __method__, ipAddress().address(), ro->remoteNode()->address().getAddress());
    }
 
@@ -625,11 +782,24 @@ Void LocalNode::sndInitialReq(ReqOutPtr ro)
    else
    {
       // log the error
-      Configuration::logger().major(
-         "{} - seqNbr {} already exists in retransmission collection "
-         "local={} remote={} seid={} msgType={} seqNbr={} version={} msgLen={}",
-         __method__, ipAddress().address(), ro->remoteNode()->ipAddress().address(),
-         ro->seid(), ro->msgType(), ro->seqNbr(), ro->version(), ro->len());
+      if (ro->msgClass() == MsgClass::Session)
+      {
+         Configuration::logger().major(
+            "{} - seqNbr {} already exists in retransmission collection "
+            "local={} remote={} localSeid={} remoteSeid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+            __method__, ipAddress().address(), ro->remoteNode()->ipAddress().address(),
+            static_cast<AppMsgSessionReqPtr>(ro->appMsg())->session()->localSeid(),
+            static_cast<AppMsgSessionReqPtr>(ro->appMsg())->session()->remoteSeid(),
+            ro->msgType(), ro->seqNbr(), ro->version(), ro->len());
+      }
+      else
+      {
+         Configuration::logger().major(
+            "{} - seqNbr {} already exists in retransmission collection "
+            "local={} remote={} msgType={} msgClass={} seqNbr={} version={} msgLen={}",
+            __method__, ipAddress().address(), ro->remoteNode()->ipAddress().address(), ro->msgType(),
+            ro->msgClass()==MsgClass::Node?"NODE":"UNKNOWN", ro->seqNbr(), ro->version(), ro->len());
+      }
       // snd the error to the application thread
       SndReqExceptionData *exdata = new SndReqExceptionData();
       exdata->req = ro->appMsg();
@@ -651,7 +821,7 @@ Bool LocalNode::sndReq(ReqOutPtr ro)
       return True;
    }
 
-   if (ro->msgType() == PfcpHeartbeatReq)
+   if (ro->msgType() == Configuration::pfcpHeartbeatReq)
    {
       // send remote node failure notice to the ApplicationThread
       RemoteNodeSPtr *rn = new RemoteNodeSPtr();
@@ -739,40 +909,73 @@ Void ApplicationWorker::onQuit()
 Void ApplicationWorker::onRcvdReq(AppMsgReqPtr req)
 {
    static EString __method__ = __METHOD_NAME__;
-   Configuration::logger().debug(
-      "ApplicationThread::onReqRcvd()"
-      " workerId={}"
-      " seid={}"
-      " seqNbr={}"
-      " msgType={}"
-      " isReq={}",
-      __method__, workerId(), req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"));
+   if (req->msgClass() == PFCP::MsgClass::Session)
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seid={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass=SESSION"
+         " isReq={}",
+         __method__, workerId(), static_cast<AppMsgSessionReqPtr>(req)->session()->localSeid(),
+         req->seqNbr(), req->msgType(), (req->isReq()?"True":"False"));
+   else
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass={}"
+         " isReq={}",
+         __method__, workerId(), req->seqNbr(), req->msgType(), req->msgClass()==MsgClass::Node?"NODE":"UNKNOWN",
+         (req->isReq()?"True":"False"));
 }
 
 Void ApplicationWorker::onRcvdRsp(AppMsgRspPtr rsp)
 {
    static EString __method__ = __METHOD_NAME__;
-   Configuration::logger().debug(
-      "{}"
-      " workerId={}"
-      " seid={}"
-      " seqNbr={}"
-      " msgType={}"
-      " isReq={}",
-      __method__, workerId(), rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"));
+   if (rsp->msgClass() == PFCP::MsgClass::Session)
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seid={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass=SESSION"
+         " isReq={}",
+         __method__, workerId(), static_cast<AppMsgSessionRspPtr>(rsp)->req()->session()->localSeid(),
+         rsp->seqNbr(), rsp->msgType(), (rsp->isReq()?"True":"False"));
+   else
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass={}"
+         " isReq={}",
+         __method__, workerId(), rsp->seqNbr(), rsp->msgType(), rsp->msgClass()==MsgClass::Node?"NODE":"UNKNOWN",
+         (rsp->isReq()?"True":"False"));
 }
 
 Void ApplicationWorker::onReqTimeout(AppMsgReqPtr req)
 {
    static EString __method__ = __METHOD_NAME__;
-   Configuration::logger().debug(
-      "{}"
-      " workerId={}"
-      " seid={}"
-      " seqNbr={}"
-      " msgType={}"
-      " isReq={}",
-      __method__, workerId(), req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"));
+   if (req->msgClass() == PFCP::MsgClass::Session)
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seid={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass=SESSION"
+         " isReq={}",
+         __method__, workerId(), static_cast<AppMsgSessionReqPtr>(req)->session()->localSeid(),
+         req->seqNbr(), req->msgType(), (req->isReq()?"True":"False"));
+   else
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass={}"
+         " isReq={}",
+         __method__, workerId(), req->seqNbr(), req->msgType(), req->msgClass()==MsgClass::Node?"NODE":"UNKNOWN",
+         (req->isReq()?"True":"False"));
 }
 
 Void ApplicationWorker::onRemoteNodeAdded(RemoteNodeSPtr &rmtNode)
@@ -818,57 +1021,105 @@ Void ApplicationWorker::onRemoteNodeRemoved(RemoteNodeSPtr &rmtNode)
 Void ApplicationWorker::onSndReqError(AppMsgReqPtr req, SndReqException &err)
 {
    static EString __method__ = __METHOD_NAME__;
-   Configuration::logger().debug(
-      "{}"
-      " workerId={}"
-      " seid={}"
-      " seqNbr={}"
-      " msgType={}"
-      " isReq={}"
-      " exception={}",
-      __method__, workerId(), req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"), err.what());
+   if (req->msgClass() == PFCP::MsgClass::Session)
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seid={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass=SESSION"
+         " isReq={}"
+         " exception={}",
+         __method__, workerId(), static_cast<AppMsgSessionReqPtr>(req)->session()->localSeid(),
+         req->seqNbr(), req->msgType(), (req->isReq()?"True":"False"), err.what());
+   else
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass={}"
+         " isReq={}"
+         " exception={}",
+         __method__, workerId(), req->seqNbr(), req->msgType(), req->msgClass()==MsgClass::Node?"NODE":"UNKNOWN",
+         (req->isReq()?"True":"False"), err.what());
 }
 
 Void ApplicationWorker::onSndRspError(AppMsgRspPtr rsp, SndRspException &err)
 {
    static EString __method__ = __METHOD_NAME__;
-   Configuration::logger().debug(
-      "{}"
-      " workerId={}"
-      " seid={}"
-      " seqNbr={}"
-      " msgType={}"
-      " isReq={}"
-      " exception={}",
-      __method__, workerId(), rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"), err.what());
+   if (rsp->msgClass() == PFCP::MsgClass::Session)
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seid={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass=SESSION"
+         " isReq={}"
+         " exception={}",
+         __method__, workerId(), static_cast<AppMsgSessionRspPtr>(rsp)->req()->session()->localSeid(),
+         rsp->seqNbr(), rsp->msgType(), (rsp->isReq()?"True":"False"), err.what());
+   else
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass={}"
+         " isReq={}"
+         " exception={}",
+         __method__, workerId(), rsp->seqNbr(), rsp->msgType(), rsp->msgClass()==MsgClass::Node?"NODE":"UNKNOWN",
+         (rsp->isReq()?"True":"False"), err.what());
 }
 
 Void ApplicationWorker::onEncodeReqError(PFCP::AppMsgReqPtr req, PFCP::EncodeReqException &err)
 {
    static EString __method__ = __METHOD_NAME__;
-   Configuration::logger().debug(
-      "{}"
-      " workerId={}"
-      " seid={}"
-      " seqNbr={}"
-      " msgType={}"
-      " isReq={}"
-      " exception={}",
-      __method__, workerId(), req->seid(), req->seqNbr(), req->msgType(),(req->isReq()?"True":"False"), err.what());
+   if (req->msgClass() == PFCP::MsgClass::Session)
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seid={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass=SESSION"
+         " isReq={}"
+         " exception={}",
+         __method__, workerId(), static_cast<AppMsgSessionReqPtr>(req)->session()->localSeid(),
+         req->seqNbr(), req->msgType(), (req->isReq()?"True":"False"), err.what());
+   else
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass={}"
+         " isReq={}"
+         " exception={}",
+         __method__, workerId(), req->seqNbr(), req->msgType(), req->msgClass()==MsgClass::Node?"NODE":"UNKNOWN",
+         (req->isReq()?"True":"False"), err.what());
 }
 
 Void ApplicationWorker::onEncodeRspError(PFCP::AppMsgRspPtr rsp, PFCP::EncodeRspException &err)
 {
    static EString __method__ = __METHOD_NAME__;
-   Configuration::logger().debug(
-      "{}"
-      " workerId={}"
-      " seid={}"
-      " seqNbr={}"
-      " msgType={}"
-      " isReq={}"
-      " exception={}",
-      __method__, workerId(), rsp->seid(), rsp->seqNbr(), rsp->msgType(),(rsp->isReq()?"True":"False"), err.what());
+   if (rsp->msgClass() == PFCP::MsgClass::Session)
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seid={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass=SESSION"
+         " isReq={}"
+         " exception={}",
+         __method__, workerId(), static_cast<AppMsgSessionRspPtr>(rsp)->req()->session()->localSeid(),
+         rsp->seqNbr(), rsp->msgType(), (rsp->isReq()?"True":"False"), err.what());
+   else
+      Configuration::logger().debug(
+         "{} - workerId={}"
+         " seqNbr={}"
+         " msgType={}"
+         " msgClass={}"
+         " isReq={}"
+         " exception={}",
+         __method__, workerId(), rsp->seqNbr(), rsp->msgType(), rsp->msgClass()==MsgClass::Node?"NODE":"UNKNOWN",
+         (rsp->isReq()?"True":"False"), err.what());
 }
 
 /// @cond DOXYGEN_EXCLUDE
@@ -913,7 +1164,7 @@ Void ApplicationWorker::_onRemoteNodeRestart(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
-   onRemoteNodeAdded(*rn);
+   onRemoteNodeRestart(*rn);
    delete rn;
 }
 
@@ -921,7 +1172,7 @@ Void ApplicationWorker::_onRemoteNodeRemoved(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
    RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
-   onRemoteNodeRestart(*rn);
+   onRemoteNodeRemoved(*rn);
    delete rn;
 }
 
@@ -1008,15 +1259,40 @@ Void TranslationThread::onSndPfcpMsg(EThreadMessage &msg)
 
    if (am->isReq())
    {
-      Configuration::logger().debug("{} - sending request msgType={} seid={} seqNbr={}",
-         __method__, am->msgType(), am->seid(), am->seqNbr());
-
       AppMsgReqPtr amrq = static_cast<AppMsgReqPtr>(am);
       ReqOutPtr reqout = nullptr;
+
+      if (amrq->msgClass() == PFCP::MsgClass::Node)
+      {
+         Configuration::logger().debug("{} - sending request msgType={} msgClass=NODE seqNbr={}",
+            __method__, amrq->msgType(), am->seqNbr());
+      }
+      else if (amrq->msgClass() == PFCP::MsgClass::Session)
+      {
+         Configuration::logger().debug("{} - sending request seid={} msgType={} msgClass=SESSION seqNbr={}",
+            __method__, static_cast<AppMsgSessionReqPtr>(amrq)->session()->localSeid(), amrq->msgType(), am->seqNbr());
+      }
+      else
+      {
+         Configuration::logger().debug("{} - sending request msgType={} msgClass=UNKNOWN seqNbr={}",
+            __method__, amrq->msgType(), am->seqNbr());
+      }
+
       try
       {
-         reqout = xlator_.encodeReq(amrq);
-         SEND_TO_COMMUNICATION(SndReq, reqout);
+         if (amrq->msgClass() == MsgClass::Node ||
+               amrq->msgType() == Configuration::pfcpSessionEstablishmentReq ||
+               static_cast<AppMsgSessionReqPtr>(amrq)->session()->remoteSeid() != 0)
+         {
+            reqout = xlator_.encodeReq(amrq);
+            SEND_TO_COMMUNICATION(SndReq, reqout);
+         }
+         else
+         {
+            EncodeReqException ex;
+            ex.appendText(" - invalid session remote SEID (0)");
+            throw ex;
+         }
       }
       catch(SndReqException &e)
       {
@@ -1039,11 +1315,19 @@ Void TranslationThread::onSndPfcpMsg(EThreadMessage &msg)
    }
    else
    {
-      Configuration::logger().debug("{} - sending response msgType={} seid={} seqNbr={}",
-         __method__, am->msgType(), am->seid(), am->seqNbr());
-
       AppMsgRspPtr amrs = static_cast<AppMsgRspPtr>(am);
       RspOutPtr rspout = nullptr;
+
+      if (am->msgClass() == PFCP::MsgClass::Node)
+         Configuration::logger().debug("{} - sending response msgType={} msgClass=NODE seqNbr={}",
+            __method__, amrs->msgType(), amrs->seqNbr());
+      else if (am->msgClass() == PFCP::MsgClass::Session)
+         Configuration::logger().debug("{} - sending response seid={} msgType={} msgClass=SESSION seqNbr={}",
+            __method__, static_cast<AppMsgSessionRspPtr>(amrs)->req()->session()->localSeid(), amrs->msgType(), amrs->seqNbr());
+      else
+         Configuration::logger().debug("{} - sending response msgType={} msgClass=UNKNOWN seqNbr={}",
+            __method__, amrs->msgType(), amrs->seqNbr());
+
       try
       {
          rspout = xlator_.encodeRsp(amrs);
@@ -1055,6 +1339,15 @@ Void TranslationThread::onSndPfcpMsg(EThreadMessage &msg)
          data->rsp = amrs;
          data->err = e;
          SEND_TO_APPLICATION(SndReqError, data);
+         if (rspout != nullptr)
+            delete rspout;
+      }
+      catch(EncodeRspException &e)
+      {
+         auto data = new EncodeRspExceptionData();
+         data->rsp = amrs;
+         data->err = e;
+         SEND_TO_APPLICATION(EncodeReqError, data);
          if (rspout != nullptr)
             delete rspout;
       }
@@ -1074,29 +1367,52 @@ Void TranslationThread::onRcvdReq(EThreadMessage &msg)
    {
       if (xlator_.isVersionSupported(ri->version()))
       {
-         switch (ri->msgType())
+         if (ri->msgType() == Configuration::pfcpHeartbeatReq)
          {
-            case PfcpHeartbeatReq:
+            hb = xlator_.decodeHeartbeatReq(ri);
+            // Configuration::logger().debug(
+            //    "{} - received heartbeat request local={} remote={} seqNbr={}",
+            //    __method__, ri->localNode()->address().getAddress(),
+            //    ri->remoteNode()->address().getAddress(), ri->seqNbr());
+            SEND_TO_COMMUNICATION(HeartbeatReq, hb);
+         }
+         else
+         {
+            if (ri->msgClass() == MsgClass::Session)
             {
-               hb = xlator_.decodeHeartbeatReq(ri);
-               Configuration::logger().debug(
-                  "{} - received heartbeat request local={} remote={} seqNbr={}",
-                  __method__, ri->localNode()->address().getAddress(),
-                  ri->remoteNode()->address().getAddress(), ri->seqNbr());
-               SEND_TO_COMMUNICATION(HeartbeatReq, hb);
-               break;
-            }
-            default:
-            {
-               Configuration::logger().debug("{} - received request local={} remote={} msgType={} seid={} seqNbr={}",
+               Configuration::logger().debug("{} - received request local={} remote={} msgType={} msgClass=SESSION seid={} seqNbr={}",
                   __method__, ri->localNode()->address().getAddress(), ri->remoteNode()->address().getAddress(),
-                  ri->msgType(), ri->seid(), ri->seqNbr());
-               req = xlator_.decodeReq(ri);
-               if (req == nullptr)
-                  throw RcvdReqException();
-               SEND_TO_APPLICATION(RcvdReq, req);
-               break;
+                  ri->msgType(), (ri)->session()->localSeid(), ri->seqNbr());
             }
+            else
+            {
+               Configuration::logger().debug("{} - received request local={} remote={} msgType={} msgClass={} seqNbr={}",
+                  __method__, ri->localNode()->address().getAddress(), ri->remoteNode()->address().getAddress(),
+                  ri->msgType(), ri->msgClass()==MsgClass::Node?"NODE":"UNKNOWN", ri->seqNbr());
+            }
+            req = xlator_.decodeReq(ri);
+            if (req == nullptr)
+               throw RcvdReqException();
+
+            if (req->msgType() == Configuration::pfcpSessionEstablishmentReq)
+            {
+               if (ri->remoteSeid() == 0)
+               {
+                  RcvdReqException ex;
+                  ex.appendText("control plane FSEID is missing");
+                  throw ex;
+               }
+
+               static_cast<AppMsgSessionReqPtr>(req)->session()->setRemoteSeid(
+                  static_cast<AppMsgSessionReqPtr>(req)->session(), ri->remoteSeid());
+            }
+            else if (req->msgType() == Configuration::pfcpAssociationSetupReq)
+            {
+               if (ri->remoteNode()->startTime() == ETime(0))
+                  ri->remoteNode()->setStartTime(ri->remoteStartTime());
+            }
+
+            SEND_TO_APPLICATION(RcvdReq, req);
          }
       }
       else
@@ -1130,30 +1446,54 @@ Void TranslationThread::onRcvdRsp(EThreadMessage &msg)
    // statistics will be handled by the TranslationThread
    try
    {
-      switch (ri->msgType())
+      if (ri->msgType() == Configuration::pfcpHeartbeatRsp)
       {
-         case PfcpHeartbeatRsp:
-         {
-            Configuration::logger().debug(
-               "{} - received heartbeat response local={} remote={} seqNbr={}",
-               __method__, ri->localNode()->address().getAddress(),
-               ri->remoteNode()->address().getAddress(), ri->seqNbr());
-            hb = xlator_.decodeHeartbeatRsp(ri);
-            SEND_TO_COMMUNICATION(HeartbeatRsp, hb);
-            break;
-         }
-         default:
-         {
-            Configuration::logger().debug("{} - received response local={} remote={} msgType={} seid={} seqNbr={}",
-               __method__, ri->localNode()->address().getAddress(), ri->remoteNode()->address().getAddress(),
-               ri->msgType(), ri->seid(), ri->seqNbr());
-            rsp = xlator_.decodeRsp(ri);
-            if (rsp == nullptr)
-               throw RcvdRspException();
-            SEND_TO_APPLICATION(RcvdRsp, rsp);
-            break;
-         }
+         // Configuration::logger().debug(
+         //    "{} - received heartbeat response local={} remote={} seqNbr={}",
+         //    __method__, ri->localNode()->address().getAddress(),
+         //    ri->remoteNode()->address().getAddress(), ri->seqNbr());
+         hb = xlator_.decodeHeartbeatRsp(ri);
+         SEND_TO_COMMUNICATION(HeartbeatRsp, hb);
       }
+      else
+      {
+         if (ri->msgClass() == MsgClass::Session)
+         {
+            Configuration::logger().debug("{} - received response local={} remote={} msgType={} msgClass=SESSION seid={} seqNbr={}",
+               __method__, ri->localNode()->address().getAddress(), ri->remoteNode()->address().getAddress(),
+               ri->msgType(), static_cast<AppMsgSessionReqPtr>(ri->req())->session()->localSeid(), ri->seqNbr());
+         }
+         else
+         {
+            Configuration::logger().debug("{} - received response local={} remote={} msgType={} msgClass={} seqNbr={}",
+               __method__, ri->localNode()->address().getAddress(), ri->remoteNode()->address().getAddress(),
+               ri->msgType(), ri->msgClass()==MsgClass::Node?"NODE":"SESSION", ri->seqNbr());
+         }
+         rsp = xlator_.decodeRsp(ri);
+         if (rsp == nullptr)
+            throw RcvdRspException();
+
+         if (rsp->msgType() == Configuration::pfcpSessionEstablishmentRsp)
+         {
+            if (ri->remoteSeid() == 0)
+            {
+               RcvdRspException ex;
+               ex.appendText("user plane FSEID is missing");
+               throw ex;
+            }
+
+            static_cast<AppMsgSessionReqPtr>(rsp->req())->session()->setRemoteSeid(
+               static_cast<AppMsgSessionReqPtr>(rsp->req())->session(), ri->remoteSeid());
+         }
+         else if (rsp->msgType() == Configuration::pfcpAssociationSetupRsp)
+         {
+            if (ri->remoteNode()->startTime() == ETime(0))
+               ri->remoteNode()->setStartTime(ri->remoteStartTime());
+         }
+
+         SEND_TO_APPLICATION(RcvdRsp, rsp);
+      }
+
       delete ri;
    }
    catch (RcvdRspException &e)
@@ -1176,8 +1516,8 @@ Void TranslationThread::onSndHeartbeatReq(EThreadMessage &msg)
    ReqOutPtr reqout = nullptr;
    try
    {
-      Configuration::logger().debug("{} - sending heartbeat request to {}",
-         __method__, req->remoteNode()->address().getAddress());
+      // Configuration::logger().debug("{} - sending heartbeat request to {}",
+      //    __method__, req->remoteNode()->address().getAddress());
       reqout = xlator_.encodeHeartbeatReq(*req);
       SEND_TO_COMMUNICATION(SndReq, reqout);
       delete req;
@@ -1200,8 +1540,8 @@ Void TranslationThread::onSndHeartbeatRsp(EThreadMessage &msg)
    RspOutPtr rspout = nullptr;
    try
    {
-      Configuration::logger().debug("{} - sending heartbeat response to {}",
-         __method__, rsp->req().remoteNode()->address().getAddress());
+      // Configuration::logger().debug("{} - sending heartbeat response to {}",
+      //    __method__, rsp->req().remoteNode()->address().getAddress());
       rspout = xlator_.encodeHeartbeatRsp(*rsp);
       SEND_TO_COMMUNICATION(SndRsp, rspout);
       delete rsp;
@@ -1231,6 +1571,9 @@ BEGIN_MESSAGE_MAP(CommunicationThread, ESocket::ThreadPrivate)
    ON_MESSAGE(static_cast<UInt>(CommunicationThread::Events::RcvdReqError), CommunicationThread::onRcvdReqError)
    ON_MESSAGE(static_cast<UInt>(CommunicationThread::Events::RcvdRspError), CommunicationThread::onRcvdRspError)
    ON_MESSAGE(static_cast<UInt>(CommunicationThread::Events::ReqTimeout), CommunicationThread::onReqTimeout)
+   ON_MESSAGE(static_cast<UInt>(CommunicationThread::Events::AddSession), CommunicationThread::onAddSession)
+   ON_MESSAGE(static_cast<UInt>(CommunicationThread::Events::DelSession), CommunicationThread::onDelSession)
+   ON_MESSAGE(static_cast<UInt>(CommunicationThread::Events::DelNxtRmtSession), CommunicationThread::onDelNxtRmtSession)
 END_MESSAGE_MAP()
 
 /// @cond DOXYGEN_EXCLUDE
@@ -1287,7 +1630,7 @@ Void CommunicationThread::onTimer(EThreadEventTimer *ptimer)
 
    if (ptimer->getId() == atmr_.getId())
    {
-      Configuration::logger().debug("{} - checking LocalNode activity", __method__);
+      // Configuration::logger().debug("{} - checking LocalNode activity", __method__);
       for (auto &kv : lns_)
          kv.second->checkActivity(kv.second);
       nextActivityWnd();
@@ -1325,7 +1668,7 @@ LocalNodeSPtr CommunicationThread::createLocalNode(ESocket::Address &addr)
 {
    static EString __method__ = __METHOD_NAME__;
 
-   LocalNodeSPtr ln = std::make_shared<LocalNode>();
+   LocalNodeSPtr ln = Configuration::baseApplication()._createLocalNode();
 
    ln->setAddress(addr);
    ln->setStartTime();
@@ -1340,10 +1683,15 @@ LocalNodeSPtr CommunicationThread::createLocalNode(ESocket::Address &addr)
 
 Void CommunicationThread::releaseLocalNodes()
 {
+   static EString __method__ = __METHOD_NAME__;
    auto entry = lns_.begin();
    while (entry != lns_.end())
    {
+      entry->second->clearRqstOutEntries();
       entry->second->socket().disconnect();
+      entry->second->socket().clearLocalNode();
+      Configuration::logger().info("{} - localNode={} use_count={}", __method__,
+         entry->second->address().getAddress(), entry->second.use_count());
       entry = lns_.erase(entry);
    }
 }
@@ -1392,14 +1740,15 @@ Void CommunicationThread::onHeartbeatReq(EThreadMessage &msg)
    static EString __method__ = __METHOD_NAME__;
    RcvdHeartbeatReqDataPtr hbrq = static_cast<RcvdHeartbeatReqDataPtr>(msg.getVoidPtr());
 
-   Configuration::logger().debug("{} - RcvdHeartbeatReqData msgType={} seqNbr={} seid={}",
-      __method__, hbrq->req()->msgType(), hbrq->req()->seqNbr(), hbrq->req()->seid());
+   // Configuration::logger().debug("{} - RcvdHeartbeatReqData seqNbr={} ",
+   //    __method__, hbrq->req()->seqNbr());
    
    // if remote has restarted, snd notification to application thread
    if (hbrq->req()->remoteNode()->startTime() != hbrq->startTime())
    {
       RemoteNodeSPtr *p = new RemoteNodeSPtr();
       (*p) = hbrq->req()->remoteNode();
+      hbrq->req()->remoteNode()->setStartTime(hbrq->startTime());
       SEND_TO_APPLICATION(RemoteNodeRestart, p);
    }
 
@@ -1416,11 +1765,15 @@ Void CommunicationThread::onHeartbeatRsp(EThreadMessage &msg)
    static EString __method__ = __METHOD_NAME__;
    RcvdHeartbeatRspDataPtr hbrs = static_cast<RcvdHeartbeatRspDataPtr>(msg.getVoidPtr());
 
+   // Configuration::logger().debug("{} - RcvdHeartbeatRspData seqNbr={} ",
+   //    __method__, hbrs->req().seqNbr());
+
    // if remote has restarted, snd notification to application thread
    if (hbrs->req().remoteNode()->startTime() != hbrs->startTime())
    {
       RemoteNodeSPtr *p = new RemoteNodeSPtr();
       (*p) = hbrs->req().remoteNode();
+      hbrs->req().remoteNode()->setStartTime(hbrs->startTime());
       SEND_TO_APPLICATION(RemoteNodeRestart, p);
    }
 
@@ -1486,12 +1839,25 @@ Void CommunicationThread::onRcvdReqError(EThreadMessage &msg)
          data->req->remoteNode()->delRcvdReq(data->req->seqNbr());
 
          // log the error
-         Configuration::logger().major(
-            "{} - unable to decode request message - {} - "
-            " discarding req local={} remote={} seid={} msgType={} seqNbr={} version={} msgLen={}",
-            __method__, data->err.what(), data->req->localNode()->ipAddress().address(),
-            data->req->remoteNode()->ipAddress().address(), data->req->seid(), data->req->msgType(),
-            data->req->seqNbr(), data->req->version(), data->req->len());
+         if (data->req->msgClass() == MsgClass::Session)
+         {
+            Configuration::logger().major(
+               "{} - unable to decode request message - {} - "
+               " discarding req local={} remote={} seid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+               __method__, data->err.what(), data->req->localNode()->ipAddress().address(),
+               data->req->remoteNode()->ipAddress().address(), data->req->session()->localSeid(),
+               data->req->msgType(), data->req->seqNbr(), data->req->version(), data->req->len());
+         }
+         else
+         {
+            Configuration::logger().major(
+               "{} - unable to decode request message - {} - "
+               " discarding req local={} remote={} msgType={} msgClass={} seqNbr={} version={} msgLen={}",
+               __method__, data->err.what(), data->req->localNode()->ipAddress().address(),
+               data->req->remoteNode()->ipAddress().address(), data->req->msgType(),
+               data->req->msgClass()==MsgClass::Node?"NODE":"UNKNOWN", data->req->seqNbr(),
+               data->req->version(), data->req->len());
+         }
 
          // delete ReqInPtr
          delete data->req;
@@ -1525,12 +1891,26 @@ Void CommunicationThread::onRcvdRspError(EThreadMessage &msg)
          data->rsp->localNode()->setRqstOutRespWnd(data->rsp->seqNbr(), 0);
 
          // log the error
-         Configuration::logger().major(
-            "{} - unable to decode response message - {} - "
-            " discarding rsp src={} dst={} seid={} msgType={} seqNbr={} version={} msgLen={}",
-            __method__, data->err.what(), data->rsp->localNode()->ipAddress().address(),
-            data->rsp->remoteNode()->ipAddress().address(), data->rsp->seid(), data->rsp->msgType(),
-            data->rsp->seqNbr(), data->rsp->version(), data->rsp->len());
+         if (data->rsp->msgClass() == MsgClass::Session)
+         {
+            Configuration::logger().major(
+               "{} - unable to decode response message - {} - "
+               " discarding rsp src={} dst={} seid={} msgType={} msgClass=SESSION seqNbr={} version={} msgLen={}",
+               __method__, data->err.what(),
+               data->rsp->localNode()->ipAddress().address(), data->rsp->remoteNode()->ipAddress().address(),
+               static_cast<AppMsgSessionReqPtr>(data->rsp->req())->session()->localSeid(), data->rsp->msgType(),
+               data->rsp->seqNbr(), data->rsp->version(), data->rsp->len());
+         }
+         else
+         {
+            Configuration::logger().major(
+               "{} - unable to decode response message - {} - "
+               " discarding rsp src={} dst={} msgType={} msgClass={} seqNbr={} version={} msgLen={}",
+               __method__, data->err.what(), data->rsp->localNode()->ipAddress().address(),
+               data->rsp->remoteNode()->ipAddress().address(), data->rsp->msgType(),
+               data->rsp->msgClass()==MsgClass::Node?"NODE":"UNKNOWN", data->rsp->seqNbr(),
+               data->rsp->version(), data->rsp->len());
+         }
 
          // delete RspInPtr
          delete data->rsp;
@@ -1558,6 +1938,81 @@ Void CommunicationThread::onReqTimeout(EThreadMessage &msg)
    if (ro && !ro->localNode()->onReqOutTimeout(ro))
       delete ro;
 }
+
+Void CommunicationThread::onAddSession(EThreadMessage &msg)
+{
+   static EString __method__ = __METHOD_NAME__;
+   SessionBaseSPtr *s = reinterpret_cast<SessionBaseSPtr*>(msg.getVoidPtr());
+
+   if (s == nullptr || !*s)
+      Configuration::logger().minor("{} - SessionBaseSPtr is not valid", __method__);
+   else
+      addSession(*s);
+
+   delete s;
+}
+
+Void CommunicationThread::onDelSession(EThreadMessage &msg)
+{
+   static EString __method__ = __METHOD_NAME__;
+   SessionBaseSPtr *s = reinterpret_cast<SessionBaseSPtr*>(msg.getVoidPtr());
+   if (s == nullptr || !*s)
+      Configuration::logger().minor("{} - SessionBaseSPtr is not valid", __method__);
+   else
+      delSession(*s);
+
+   delete s;
+}
+
+Void CommunicationThread::onDelNxtRmtSession(EThreadMessage &msg)
+{
+   static EString __method__ = __METHOD_NAME__;
+   RemoteNodeSPtr *rn = reinterpret_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
+   if (rn)
+   {
+      SessionBaseSPtr s = (*rn)->getFirstSession();
+      if (s)
+      {
+         delSession(s);
+         SEND_TO_COMMUNICATION(DelNxtRmtSession, rn);
+      }
+      else
+      {
+         delete rn;
+      }
+   }
+}
+
+Void CommunicationThread::addSession(SessionBaseSPtr &s)
+{
+   static EString __method__ = __METHOD_NAME__;
+
+   if (s->localSeid() != 0)
+   {
+      if (s->localNode())
+         s->localNode()->addSession(s);
+      else
+         Configuration::logger().minor("{} - the LocalNode associated with the session is invalid", __method__);
+   }
+
+   if (s->remoteSeid() != 0)
+   {
+      if (s->remoteNode())
+         s->remoteNode()->addSession(s);
+      else
+         Configuration::logger().minor("{} - the RemoteNode associated with the session is invalid", __method__);
+   }
+}
+
+Void CommunicationThread::delSession(SessionBaseSPtr &s)
+{
+   static EString __method__ = __METHOD_NAME__;
+   if (s->localNode())
+      s->localNode()->delSession(s);
+   if (s->remoteNode())
+      s->remoteNode()->delSession(s);
+}
+
 /// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
