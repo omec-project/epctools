@@ -113,7 +113,7 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
       case PFCP_HRTBEAT_REQ:
       {
          HeartbeatReq *am = static_cast<HeartbeatReq*>(req);
-         am->encode(data());         
+         am->encode(data());
          ro->assign(data(), am->length());
          break;
       }
@@ -311,6 +311,14 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
 
    switch (req->msgType())
    {
+      case PFCP_HRTBEAT_REQ:
+      {
+         HeartbeatReq *tmp = new HeartbeatReq(req->localNode(), req->remoteNode());
+         tmp->setSeid(req->seid());
+         decode_pfcp_hrtbeat_req_t((pUChar)req->data(), &tmp->data());
+         am = tmp;
+         break;
+      }
       case PFCP_PFD_MGMT_REQ:
       {
          PfdMgmtReq *tmp = new PfdMgmtReq(req->localNode(), req->remoteNode());
@@ -405,6 +413,14 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
 
    switch (rsp->msgType())
    {
+      case PFCP_HRTBEAT_RSP:
+      {
+         HeartbeatRsp *tmp = new HeartbeatRsp();
+         tmp->setSeid(rsp->seid());
+         decode_pfcp_hrtbeat_rsp_t((pUChar)rsp->data(), &tmp->data());
+         am = tmp;
+         break;
+      }
       case PFCP_PFD_MGMT_RSP:
       {
          PfdMgmtRsp *tmp = new PfdMgmtRsp();
@@ -506,13 +522,9 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
 PFCP::RcvdHeartbeatReqDataPtr Translator::decodeHeartbeatReq(PFCP::ReqInPtr msg)
 {
    PFCP::RcvdHeartbeatReqDataPtr hb = new PFCP::RcvdHeartbeatReqData();
-   PFCP_R15::HeartbeatReq *am = new PFCP_R15::HeartbeatReq(msg->localNode(), msg->remoteNode());
-
-   am->setSeqNbr(msg->seqNbr());
-
+   PFCP_R15::HeartbeatReq *am = static_cast<PFCP_R15::HeartbeatReq *>(decodeReq(msg));
    hb->setReq(am);
 
-   decode_pfcp_hrtbeat_req_t((pUChar)msg->data(), &am->data());
    if (am->data().rcvry_time_stmp.header.len)
    {
       ETime ntptm;
@@ -533,15 +545,14 @@ PFCP::RcvdHeartbeatReqDataPtr Translator::decodeHeartbeatReq(PFCP::ReqInPtr msg)
 PFCP::RcvdHeartbeatRspDataPtr Translator::decodeHeartbeatRsp(PFCP::RspInPtr msg)
 {
    PFCP::RcvdHeartbeatRspDataPtr hb = new PFCP::RcvdHeartbeatRspData();
-   PFCP_R15::HeartbeatRsp rsp;
+   PFCP_R15::HeartbeatRsp *rsp = static_cast<PFCP_R15::HeartbeatRsp *>(decodeRsp(msg));
    hb->setReq(static_cast<PFCP::AppMsgNodeReqPtr>(msg->req()));
 
-   decode_pfcp_hrtbeat_rsp_t((pUChar)msg->data(), &rsp.data());
-   if (rsp.data().rcvry_time_stmp.header.len)
+   if (rsp->data().rcvry_time_stmp.header.len)
    {
       ETime ntptm;
       ntp_time_t ntp;
-      ntp.second = rsp.data().rcvry_time_stmp.rcvry_time_stmp_val;
+      ntp.second = rsp->data().rcvry_time_stmp.rcvry_time_stmp_val;
       ntp.fraction = 0;
       ntptm.setNTPTime(ntp);
       hb->setStartTime(ntptm);
@@ -550,6 +561,8 @@ PFCP::RcvdHeartbeatRspDataPtr Translator::decodeHeartbeatRsp(PFCP::RspInPtr msg)
    {
       hb->setStartTime(msg->remoteNode()->startTime());
    }
+
+   delete rsp;
 
    return hb;
 }
