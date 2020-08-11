@@ -215,13 +215,18 @@ namespace PFCPTest::pcaps
          {
          case PFCP_PFD_MGMT_REQ:
          {
-            //PFCP_R15::PfdMgmtReq &pfdMgmtReq = *(static_cast<PFCP_R15::PfdMgmtReq *>(appMsg.get()));
+            // PFCP_R15::PfdMgmtReq &pfdMgmtReq = *(static_cast<PFCP_R15::PfdMgmtReq *>(appMsg.get()));
 
             // // TEMP fixup for Application ID spare byte
             // pfdMgmtReq.data().header.message_len += 1;
             // pfdMgmtReq.data().app_ids_pfds[0].header.len += 1;
             // pfdMgmtReq.data().app_ids_pfds[0].pfd_context[0].header.len += 1;
             // pfdMgmtReq.data().app_ids_pfds[0].pfd_context[0].pfd_contents[0].header.len += 1;
+            break;
+         }
+         case PFCP_SESS_ESTAB_REQ:
+         {
+            PFCP_R15::SessionEstablishmentReq &sessEstReq = *(static_cast<PFCP_R15::SessionEstablishmentReq *>(appMsg.get()));
             break;
          }
          case PFCP_SESS_ESTAB_RSP:
