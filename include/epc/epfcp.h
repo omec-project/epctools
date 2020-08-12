@@ -456,7 +456,7 @@ namespace PFCP
       /// @param ls the local SEID.
       /// @param rs the remote SEID.
       /// @return a reference to this object.
-      SessionBase &setSeid(SessionBaseSPtr &s, Seid ls, Seid rs);
+      SessionBase &setSeid(SessionBaseSPtr &s, Seid ls, Seid rs, Bool notify = True);
       /// @brief Sets the local SEID for this session.
       /// @param s a shared pointer associated with this session object.
       /// @param ls the local SEID.
@@ -2211,9 +2211,8 @@ Receiving a msg
       ++deleted_;
    }
 
-   inline SessionBase &SessionBase::setSeid(SessionBaseSPtr &s, Seid ls, Seid rs)
+   inline SessionBase &SessionBase::setSeid(SessionBaseSPtr &s, Seid ls, Seid rs, Bool notify)
    {
-      auto s2 = new SessionBaseSPtr(s);
       if (ls != 0)
       {
          if (ls_ != 0)
@@ -2226,7 +2225,11 @@ Receiving a msg
             throw SessionBase_RemoteSeidAlreadySet();
          rs_ = rs;
       }
-      SEND_TO_COMMUNICATION(AddSession, s2);
+      if (notify)
+      {
+         auto s2 = new SessionBaseSPtr(s);
+         SEND_TO_COMMUNICATION(AddSession, s2);
+      }
       return *this;
    }
    
@@ -2243,7 +2246,9 @@ Receiving a msg
         mt_(tmi.msgType()),
         mc_(tmi.msgClass()),
         rqst_(tmi.isReq()),
-        ver_(tmi.version())
+        ver_(tmi.version()),
+        data_(nullptr),
+        len_(0)
    {
       assign(data, len);
    }

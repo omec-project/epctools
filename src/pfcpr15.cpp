@@ -314,7 +314,6 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       case PFCP_HRTBEAT_REQ:
       {
          HeartbeatReq *tmp = new HeartbeatReq(req->localNode(), req->remoteNode());
-         tmp->setSeid(req->seid());
          decode_pfcp_hrtbeat_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          break;
@@ -416,7 +415,6 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
       case PFCP_HRTBEAT_RSP:
       {
          HeartbeatRsp *tmp = new HeartbeatRsp();
-         tmp->setSeid(rsp->seid());
          decode_pfcp_hrtbeat_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
          break;

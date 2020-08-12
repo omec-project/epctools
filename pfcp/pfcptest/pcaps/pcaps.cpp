@@ -135,22 +135,49 @@ namespace PFCPTest
          PFCP_R15::Translator trans;
 
          // Extract PFCP header data
-         PFCP::TranslatorMsgInfo info;
-         trans.getMsgInfo(info, payload.data(), payload.size());
+         PFCP::TranslatorMsgInfo tmi;
+         trans.getMsgInfo(tmi, payload.data(), payload.size());
 
+         ESocket::Address addr("0.0.0.0", 0);
          PFCP::LocalNodeSPtr ln = std::make_shared<PFCP::LocalNode>();
+         ln->setAddress(addr);
          PFCP::RemoteNodeSPtr rn = std::make_shared<PFCP::RemoteNode>();
+         rn->setAddress(addr);
 
-         if (info.isReq())
+         if (tmi.isReq())
          {
-            std::unique_ptr<PFCP::ReqIn> msgIn(new PFCP::ReqIn(ln, rn, info, payload.data(), payload.size()));
+            std::unique_ptr<PFCP::ReqIn> msgIn(new PFCP::ReqIn(ln, rn, tmi, payload.data(), payload.size()));
+            if (tmi.msgClass() == PFCP::MsgClass::Session)
+            {
+               PFCP::SessionBaseSPtr ses = std::make_shared<PFCP::SessionBase>(ln, rn);
+               ses->setSeid(ses, tmi.seid(), tmi.seid(), False);
+               msgIn->setSession(ses);
+            }
 
             // Decode the PFCP message
             return std::unique_ptr<PFCP::AppMsg>(trans.decodeReq(msgIn.get()));
          }
          else
          {
-            std::unique_ptr<PFCP::RspIn> msgIn(new PFCP::RspIn(ln, rn, info, payload.data(), payload.size(), new PFCP::AppMsgReq()));
+            PFCP::AppMsgReqPtr dummyReq;
+            if (tmi.msgClass() == PFCP::MsgClass::Session)
+            {
+               PFCP::SessionBaseSPtr ses = std::make_shared<PFCP::SessionBase>(ln, rn);
+               ses->setSeid(ses, tmi.seid(), tmi.seid(), False);
+               dummyReq = new PFCP::AppMsgSessionReq(ses);
+            }
+            else
+            {
+               dummyReq = new PFCP::AppMsgNodeReq();
+            }
+
+            dummyReq->setSeqNbr(tmi.seqNbr());
+
+            std::unique_ptr<PFCP::RspIn> msgIn(new PFCP::RspIn(ln, rn, tmi, payload.data(), payload.size(), dummyReq));
+            if (tmi.msgClass() == PFCP::MsgClass::Session)
+            {
+               msgIn->setSession(static_cast<PFCP::AppMsgSessionReqPtr>(dummyReq)->session());
+            }
 
             // Decode the PFCP message
             return std::unique_ptr<PFCP::AppMsg>(trans.decodeRsp(msgIn.get()));
@@ -163,12 +190,19 @@ namespace PFCPTest
          PFCP::InternalMsgPtr msg;
 
          if (appMsg->isReq())
-            msg = trans.encodeReq(dynamic_cast<PFCP::AppMsgReqPtr>(appMsg));
+            msg = trans.encodeReq(static_cast<PFCP::AppMsgReqPtr>(appMsg));
          else
-            msg = trans.encodeRsp(dynamic_cast<PFCP::AppMsgRspPtr>(appMsg));
+            msg = trans.encodeRsp(static_cast<PFCP::AppMsgRspPtr>(appMsg));
 
          std::vector<uint8_t> payload;
          payload.assign(msg->data(), msg->data() + msg->len());
+
+         if (appMsg->isReq())
+            static_cast<PFCP::ReqOutPtr>(msg)->setAppMsg(nullptr);
+         else
+            static_cast<PFCP::RspOutPtr>(msg)->setRsp(nullptr);
+         
+         delete msg;
 
          return payload;
       }
