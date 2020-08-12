@@ -141,30 +141,14 @@ namespace PFCPTest::pcaps
 
       if (info.isReq())
       {
-         std::unique_ptr<PFCP::ReqIn> msgIn(new PFCP::ReqIn());
-         msgIn->setLocalNode(ln);
-         msgIn->setRemoteNode(rn);
-         msgIn->setSeqNbr(info.seqNbr());
-         msgIn->setMsgType(info.msgType());
-         msgIn->setMsgClass(info.msgClass());
-         msgIn->setIsReq(info.isReq());
-         msgIn->setVersion(info.version());
-         msgIn->assign(payload.data(), payload.size());
+         std::unique_ptr<PFCP::ReqIn> msgIn(new PFCP::ReqIn(ln, rn, info, payload.data(), payload.size()));
 
          // Decode the PFCP message
          return std::unique_ptr<PFCP::AppMsg>(trans.decodeReq(msgIn.get()));
       }
       else
       {
-         std::unique_ptr<PFCP::RspIn> msgIn(new PFCP::RspIn());
-         msgIn->setLocalNode(ln);
-         msgIn->setRemoteNode(rn);
-         msgIn->setSeqNbr(info.seqNbr());
-         msgIn->setMsgType(info.msgType());
-         msgIn->setMsgClass(info.msgClass());
-         msgIn->setIsReq(info.isReq());
-         msgIn->setVersion(info.version());
-         msgIn->assign(payload.data(), payload.size());
+         std::unique_ptr<PFCP::RspIn> msgIn(new PFCP::RspIn(ln, rn, info, payload.data(), payload.size(), nullptr));
 
          // Decode the PFCP message
          return std::unique_ptr<PFCP::AppMsg>(trans.decodeRsp(msgIn.get()));

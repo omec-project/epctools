@@ -1178,6 +1178,8 @@ namespace PFCP
    /// @cond DOXYGEN_EXCLUDE
    DECLARE_ERROR(InternalMsg_OutOfMemory);
 
+   class TranslatorMsgInfo;
+
    class InternalMsg
    {
    public:
@@ -1203,6 +1205,7 @@ namespace PFCP
       {
          assign(im.data_, im.len_);
       }
+      InternalMsg(const LocalNodeSPtr &ln, const RemoteNodeSPtr &rn, const TranslatorMsgInfo &tmi, cpUChar data, UShort len);
       virtual ~InternalMsg()
       {
          if (data_ != nullptr)
@@ -1335,6 +1338,11 @@ namespace PFCP
            rs_(ri.rs_)
       {
       }
+      RspIn(const LocalNodeSPtr &ln, const RemoteNodeSPtr &rn, const TranslatorMsgInfo &tmi, cpUChar data, UShort len, AppMsgReqPtr am)
+         : InternalMsg(ln, rn, tmi, data, len),
+           am_(am)
+      {
+      }
       virtual ~RspIn()
       {
       }
@@ -1463,6 +1471,10 @@ namespace PFCP
       ReqIn(const ReqIn &ri)
          : InternalMsg(ri),
            rs_(ri.rs_)
+      {
+      }
+      ReqIn(const LocalNodeSPtr &ln, const RemoteNodeSPtr &rn, const TranslatorMsgInfo &tmi, cpUChar data, UShort len)
+         : InternalMsg(ln, rn, tmi, data, len)
       {
       }
       virtual ~ReqIn()
@@ -2222,6 +2234,18 @@ Receiving a msg
    {
       auto s2 = new SessionBaseSPtr(s);
       SEND_TO_COMMUNICATION(DelSession, s2);
+   }
+
+   inline InternalMsg::InternalMsg(const LocalNodeSPtr &ln, const RemoteNodeSPtr &rn, const TranslatorMsgInfo &tmi, cpUChar data, UShort len)
+      : ln_(ln),
+        rn_(rn),
+        seq_(tmi.seqNbr()),
+        mt_(tmi.msgType()),
+        mc_(tmi.msgClass()),
+        rqst_(tmi.isReq()),
+        ver_(tmi.version())
+   {
+      assign(data, len);
    }
 
    inline Void ReqOut::startT1()
