@@ -663,6 +663,7 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
             ri->setRemoteNode(rn);
             ri->setSeqNbr(tmi.seqNbr());
             ri->setMsgType(tmi.msgType());
+            ri->setMsgClass(tmi.msgClass());
             ri->setIsReq(tmi.isReq());
             ri->setVersion(tmi.version());
             ri->assign(msg, len);

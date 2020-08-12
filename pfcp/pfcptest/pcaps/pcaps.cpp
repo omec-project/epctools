@@ -136,12 +136,17 @@ namespace PFCPTest::pcaps
       PFCP::TranslatorMsgInfo info;
       trans.getMsgInfo(info, payload.data(), payload.size());
 
+      PFCP::LocalNodeSPtr ln = std::make_shared<PFCP::LocalNode>();
+      PFCP::RemoteNodeSPtr rn = std::make_shared<PFCP::RemoteNode>();
+
       if (info.isReq())
       {
          std::unique_ptr<PFCP::ReqIn> msgIn(new PFCP::ReqIn());
-         msgIn->setSeid(info.seid());
+         msgIn->setLocalNode(ln);
+         msgIn->setRemoteNode(rn);
          msgIn->setSeqNbr(info.seqNbr());
          msgIn->setMsgType(info.msgType());
+         msgIn->setMsgClass(info.msgClass());
          msgIn->setIsReq(info.isReq());
          msgIn->setVersion(info.version());
          msgIn->assign(payload.data(), payload.size());
@@ -152,9 +157,11 @@ namespace PFCPTest::pcaps
       else
       {
          std::unique_ptr<PFCP::RspIn> msgIn(new PFCP::RspIn());
-         msgIn->setSeid(info.seid());
+         msgIn->setLocalNode(ln);
+         msgIn->setRemoteNode(rn);
          msgIn->setSeqNbr(info.seqNbr());
          msgIn->setMsgType(info.msgType());
+         msgIn->setMsgClass(info.msgClass());
          msgIn->setIsReq(info.isReq());
          msgIn->setVersion(info.version());
          msgIn->assign(payload.data(), payload.size());
