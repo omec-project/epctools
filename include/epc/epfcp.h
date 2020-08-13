@@ -456,7 +456,7 @@ namespace PFCP
       /// @param ls the local SEID.
       /// @param rs the remote SEID.
       /// @return a reference to this object.
-      SessionBase &setSeid(SessionBaseSPtr &s, Seid ls, Seid rs);
+      SessionBase &setSeid(SessionBaseSPtr &s, Seid ls, Seid rs, Bool notify = True);
       /// @brief Sets the local SEID for this session.
       /// @param s a shared pointer associated with this session object.
       /// @param ls the local SEID.
@@ -1178,6 +1178,8 @@ namespace PFCP
    /// @cond DOXYGEN_EXCLUDE
    DECLARE_ERROR(InternalMsg_OutOfMemory);
 
+   class TranslatorMsgInfo;
+
    class InternalMsg
    {
    public:
@@ -1203,6 +1205,7 @@ namespace PFCP
       {
          assign(im.data_, im.len_);
       }
+      InternalMsg(const LocalNodeSPtr &ln, const RemoteNodeSPtr &rn, const TranslatorMsgInfo &tmi, cpUChar data, UShort len);
       virtual ~InternalMsg()
       {
          if (data_ != nullptr)
@@ -1335,6 +1338,11 @@ namespace PFCP
            rs_(ri.rs_)
       {
       }
+      RspIn(const LocalNodeSPtr &ln, const RemoteNodeSPtr &rn, const TranslatorMsgInfo &tmi, cpUChar data, UShort len, AppMsgReqPtr am)
+         : InternalMsg(ln, rn, tmi, data, len),
+           am_(am)
+      {
+      }
       virtual ~RspIn()
       {
       }
@@ -1463,6 +1471,10 @@ namespace PFCP
       ReqIn(const ReqIn &ri)
          : InternalMsg(ri),
            rs_(ri.rs_)
+      {
+      }
+      ReqIn(const LocalNodeSPtr &ln, const RemoteNodeSPtr &rn, const TranslatorMsgInfo &tmi, cpUChar data, UShort len)
+         : InternalMsg(ln, rn, tmi, data, len)
       {
       }
       virtual ~ReqIn()
@@ -2199,9 +2211,8 @@ Receiving a msg
       ++deleted_;
    }
 
-   inline SessionBase &SessionBase::setSeid(SessionBaseSPtr &s, Seid ls, Seid rs)
+   inline SessionBase &SessionBase::setSeid(SessionBaseSPtr &s, Seid ls, Seid rs, Bool notify)
    {
-      auto s2 = new SessionBaseSPtr(s);
       if (ls != 0)
       {
          if (ls_ != 0)
@@ -2214,7 +2225,11 @@ Receiving a msg
             throw SessionBase_RemoteSeidAlreadySet();
          rs_ = rs;
       }
-      SEND_TO_COMMUNICATION(AddSession, s2);
+      if (notify)
+      {
+         auto s2 = new SessionBaseSPtr(s);
+         SEND_TO_COMMUNICATION(AddSession, s2);
+      }
       return *this;
    }
    
@@ -2222,6 +2237,20 @@ Receiving a msg
    {
       auto s2 = new SessionBaseSPtr(s);
       SEND_TO_COMMUNICATION(DelSession, s2);
+   }
+
+   inline InternalMsg::InternalMsg(const LocalNodeSPtr &ln, const RemoteNodeSPtr &rn, const TranslatorMsgInfo &tmi, cpUChar data, UShort len)
+      : ln_(ln),
+        rn_(rn),
+        seq_(tmi.seqNbr()),
+        mt_(tmi.msgType()),
+        mc_(tmi.msgClass()),
+        rqst_(tmi.isReq()),
+        ver_(tmi.version()),
+        data_(nullptr),
+        len_(0)
+   {
+      assign(data, len);
    }
 
    inline Void ReqOut::startT1()

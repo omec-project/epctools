@@ -558,15 +558,7 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
          if (!rn->rcvdReqExists(tmi.seqNbr()))
          {
             // create and populate ReqIn
-            ReqInPtr ri = new ReqIn();
-            ri->setLocalNode(ln);
-            ri->setRemoteNode(rn);
-            ri->setSeqNbr(tmi.seqNbr());
-            ri->setMsgType(tmi.msgType());
-            ri->setMsgClass(tmi.msgClass());
-            ri->setIsReq(tmi.isReq());
-            ri->setVersion(tmi.version());
-            ri->assign(msg, len);
+            ReqInPtr ri = new ReqIn(ln, rn, tmi, msg, len);
 
             // lookup or create the session
             if (tmi.createSession())
@@ -657,15 +649,7 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
             roit->second->stopT1();
 
             // create and poulate RspIn
-            RspInPtr ri = new RspIn();
-            ri->setReq(roit->second->appMsg());
-            ri->setLocalNode(ln);
-            ri->setRemoteNode(rn);
-            ri->setSeqNbr(tmi.seqNbr());
-            ri->setMsgType(tmi.msgType());
-            ri->setIsReq(tmi.isReq());
-            ri->setVersion(tmi.version());
-            ri->assign(msg, len);
+            RspInPtr ri = new RspIn(ln, rn, tmi, msg, len, roit->second->appMsg());
 
             roit->second->setAppMsg(nullptr);
 

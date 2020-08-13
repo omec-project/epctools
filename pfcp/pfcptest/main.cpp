@@ -110,6 +110,10 @@ int main(int argc, char *argv[])
          ELogger::log(LOG_SYSTEM).major(e.what());
       }
 
+      ELogger::log(LOG_PFCP).startup("Session counts created={} deleted={}",
+         PFCP::SessionBase::sessionsCreated(), PFCP::SessionBase::sessionsDeleted());
+      ELogger::log(LOG_PFCP).startup("Node counts created={} deleted={}",
+         PFCP::Node::nodesCreated(), PFCP::Node::nodesDeleted());
       ELogger::log(LOG_SYSTEM).startup("Shutting down EpcTools");
       EpcTools::UnInitialize();
    }
