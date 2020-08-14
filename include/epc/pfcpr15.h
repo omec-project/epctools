@@ -19,10 +19,32 @@
 
 #include "epfcp.h"
 #include "eostring.h"
+#include "ememory.h"
 
 #include "pfcp_messages.h"
 #include "pfcp_messages_encoder.h"
 #include "pfcp_messages_decoder.h"
+
+DECLARE_ERROR(RequestedSizeTooLarge);
+
+#define OVERLOADED_NEW_DELETE                            \
+public:                                                  \
+   static void* operator new(size_t sz)                  \
+   {                                                     \
+      if (sz > pool_->allocSize())                       \
+         throw RequestedSizeTooLarge();                  \
+      return pool_->allocate();                          \
+   }                                                     \
+   static void operator delete(void* m)                  \
+   {                                                     \
+      pool_->deallocate(m);                              \
+   }                                                     \
+   static Void setMemoryPool(EMemory::Pool &pool)        \
+   {                                                     \
+      pool_ = &pool;                                     \
+   }                                                     \
+private:                                                 \
+   static EMemory::Pool *pool_;
 
 /// @brief Contains the class definitions for the PFCP release 15
 ///   messages and information elements.
@@ -104,6 +126,11 @@ enum class CauseEnum : uint8_t
    NoResourcesAvailable             = 75,
    ServiceNotSupported              = 76,
    SystemFailure                    = 77
+};
+
+struct _CauseIE
+{
+   pfcp_cause_ie_t &ie_;
 };
 
 class CauseIE : public IEHeader
@@ -4540,33 +4567,48 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct _HeartbeatReq
+{
+   RecoveryTimeStampIE rts_;
+};
+
 class HeartbeatReq : public PFCP::AppMsgNodeReq
 {
 public:
    HeartbeatReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   RecoveryTimeStampIE &recoveryTimeStamp();
+   RecoveryTimeStampIE &rcvry_time_stmp(Bool forceInit = False);
    HeartbeatReq &encode(uint8_t *dest);
    pfcp_hrtbeat_req_t &data();
-
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_hrtbeat_req_t data_;
-   RecoveryTimeStampIE rts_;
+   UChar iebuffer_[sizeof(_HeartbeatReq)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _HeartbeatRsp
+{
+   RecoveryTimeStampIE rts_;
+};
 
 class HeartbeatRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    HeartbeatRsp();
    uint16_t length() const;
-   RecoveryTimeStampIE &recoveryTimeStamp();
+   RecoveryTimeStampIE &rcvry_time_stmp(Bool forceInit = False);
    HeartbeatRsp &encode(uint8_t *dest);
    pfcp_hrtbeat_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_hrtbeat_rsp_t data_;
-   RecoveryTimeStampIE rts_;
+   UChar iebuffer_[sizeof(_HeartbeatRsp)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4577,8 +4619,12 @@ public:
    PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
    ApplicationIdsPfdsIE &app_ids_pfds(uint8_t idx);
+   int next_app_ids_pfds();
    PfdMgmtReq &encode(uint8_t *dest);
    pfcp_pfd_mgmt_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_pfd_mgmt_req_t data_;
    std::vector<ApplicationIdsPfdsIE> appids_;
@@ -4586,148 +4632,204 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct _PfdMgmtRsp
+{
+   CauseIE c_;
+   OffendingIeIE oi_;
+};
+
 class PfdMgmtRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    PfdMgmtRsp();
    uint16_t length() const;
-   CauseIE &cause();
-   OffendingIeIE &offending_ie();
+   CauseIE &cause(Bool forceInit = False);
+   OffendingIeIE &offending_ie(Bool forceInit = False);
    PfdMgmtRsp &encode(uint8_t *dest);
    pfcp_pfd_mgmt_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_pfd_mgmt_rsp_t data_;
-   CauseIE c_;
-   OffendingIeIE oi_;
+   UChar iebuffer_[sizeof(_PfdMgmtRsp)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _AssnSetupReq
+{
+   NodeIdIE ni_;
+   RecoveryTimeStampIE rts_;
+   UpFunctionFeaturesIE uff_;
+   CpFunctionFeaturesIE cff_;
+};
 
 class AssnSetupReq : public PFCP::AppMsgNodeReq
 {
 public:
    AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   NodeIdIE &node_id();
-   RecoveryTimeStampIE &rcvry_time_stmp();
-   UpFunctionFeaturesIE &up_func_feat();
-   CpFunctionFeaturesIE &cp_func_feat();
+   NodeIdIE &node_id(Bool forceInit = False);
+   RecoveryTimeStampIE &rcvry_time_stmp(Bool forceInit = False);
+   UpFunctionFeaturesIE &up_func_feat(Bool forceInit = False);
+   CpFunctionFeaturesIE &cp_func_feat(Bool forceInit = False);
    UserPlaneIpResourceInformationIE &user_plane_ip_rsrc_info(uint8_t idx);
    int next_user_plane_ip_rsrc_info();
    AssnSetupReq &encode(uint8_t *dest);
    pfcp_assn_setup_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_assn_setup_req_t data_;
-   NodeIdIE ni_;
-   RecoveryTimeStampIE rts_;
-   UpFunctionFeaturesIE uff_;
-   CpFunctionFeaturesIE cff_;
+   UChar iebuffer_[sizeof(_AssnSetupReq)];
    std::vector<UserPlaneIpResourceInformationIE> upiri_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _AssnSetupRsp
+{
+   NodeIdIE ni_;
+   CauseIE c_;
+   RecoveryTimeStampIE rts_;
+   UpFunctionFeaturesIE uff_;
+   CpFunctionFeaturesIE cff_;
+};
 
 class AssnSetupRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    AssnSetupRsp();
    uint16_t length() const;
-   NodeIdIE &node_id();
-   CauseIE &cause();
-   RecoveryTimeStampIE &rcvry_time_stmp();
-   UpFunctionFeaturesIE &up_func_feat();
-   CpFunctionFeaturesIE &cp_func_feat();
+   NodeIdIE &node_id(Bool forceInit = False);
+   CauseIE &cause(Bool forceInit = False);
+   RecoveryTimeStampIE &rcvry_time_stmp(Bool forceInit = False);
+   UpFunctionFeaturesIE &up_func_feat(Bool forceInit = False);
+   CpFunctionFeaturesIE &cp_func_feat(Bool forceInit = False);
    UserPlaneIpResourceInformationIE &user_plane_ip_rsrc_info(uint8_t idx);
    int next_user_plane_ip_rsrc_info();
    AssnSetupRsp &encode(uint8_t *dest);
    pfcp_assn_setup_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_assn_setup_rsp_t data_;
-   NodeIdIE ni_;
-   CauseIE c_;
-   RecoveryTimeStampIE rts_;
-   UpFunctionFeaturesIE uff_;
-   CpFunctionFeaturesIE cff_;
+   UChar iebuffer_[sizeof(_AssnSetupRsp)];
    std::vector<UserPlaneIpResourceInformationIE> upiri_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _AssnUpdateReq
+{
+   NodeIdIE ni_;
+   UpFunctionFeaturesIE uff_;
+   CpFunctionFeaturesIE cff_;
+   AssociationReleaseRequestIE arr_;
+   GracefulReleasePeriodIE grp_;
+};
 
 class AssnUpdateReq : public PFCP::AppMsgNodeReq
 {
 public:
    AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   NodeIdIE &node_id();
-   UpFunctionFeaturesIE &up_func_feat();
-   CpFunctionFeaturesIE &cp_func_feat();
-   AssociationReleaseRequestIE &up_assn_rel_req();
-   GracefulReleasePeriodIE &graceful_rel_period();
+   NodeIdIE &node_id(Bool forceInit = False);
+   UpFunctionFeaturesIE &up_func_feat(Bool forceInit = False);
+   CpFunctionFeaturesIE &cp_func_feat(Bool forceInit = False);
+   AssociationReleaseRequestIE &up_assn_rel_req(Bool forceInit = False);
+   GracefulReleasePeriodIE &graceful_rel_period(Bool forceInit = False);
    UserPlaneIpResourceInformationIE &user_plane_ip_rsrc_info(uint8_t idx);
    int next_user_plane_ip_rsrc_info();
    AssnUpdateReq &encode(uint8_t *dest);
    pfcp_assn_upd_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_assn_upd_req_t data_;
-   NodeIdIE ni_;
-   UpFunctionFeaturesIE uff_;
-   CpFunctionFeaturesIE cff_;
-   AssociationReleaseRequestIE arr_;
-   GracefulReleasePeriodIE grp_;
+   UChar iebuffer_[sizeof(_AssnUpdateReq)];
    std::vector<UserPlaneIpResourceInformationIE> upiri_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _AssnUpdateRsp
+{
+   NodeIdIE ni_;
+   CauseIE c_;
+   UpFunctionFeaturesIE uff_;
+   CpFunctionFeaturesIE cff_;
+};
 
 class AssnUpdateRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    AssnUpdateRsp();
    uint16_t length() const;
-   NodeIdIE &node_id();
-   CauseIE &cause();
-   UpFunctionFeaturesIE &up_func_feat();
-   CpFunctionFeaturesIE &cp_func_feat();
+   NodeIdIE &node_id(Bool forceInit = False);
+   CauseIE &cause(Bool forceInit = False);
+   UpFunctionFeaturesIE &up_func_feat(Bool forceInit = False);
+   CpFunctionFeaturesIE &cp_func_feat(Bool forceInit = False);
    AssnUpdateRsp &encode(uint8_t *dest);
    pfcp_assn_upd_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_assn_upd_rsp_t data_;
-   NodeIdIE ni_;
-   CauseIE c_;
-   UpFunctionFeaturesIE uff_;
-   CpFunctionFeaturesIE cff_;
+   UChar iebuffer_[sizeof(_AssnUpdateRsp)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _AssnReleaseReq
+{
+   NodeIdIE ni_;
+};
 
 class AssnReleaseReq : public PFCP::AppMsgNodeReq
 {
 public:
    AssnReleaseReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
    uint16_t length() const;
-   NodeIdIE &node_id();
+   NodeIdIE &node_id(Bool forceInit = False);
    AssnReleaseReq &encode(uint8_t *dest);
    pfcp_assn_rel_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_assn_rel_req_t data_;
-   NodeIdIE ni_;
+   UChar iebuffer_[sizeof(_AssnReleaseReq)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _AssnReleaseRsp
+{
+   NodeIdIE ni_;
+   CauseIE c_;
+};
 
 class AssnReleaseRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    AssnReleaseRsp();
    uint16_t length() const;
-   NodeIdIE &node_id();
-   CauseIE &cause();
+   NodeIdIE &node_id(Bool forceInit = False);
+   CauseIE &cause(Bool forceInit = False);
    AssnReleaseRsp &encode(uint8_t *dest);
    pfcp_assn_rel_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_assn_rel_rsp_t data_;
-   NodeIdIE ni_;
-   CauseIE c_;
+   UChar iebuffer_[sizeof(_AssnReleaseRsp)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4740,67 +4842,69 @@ public:
    uint16_t length() const;
    VersionNotSupportedRsp &encode(uint8_t *dest);
    pfcp_header_t &data();
+   OVERLOADED_NEW_DELETE
 private:
    pfcp_header_t data_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class NodeReportReq : public PFCP::AppMsgNodeReq
+struct _NodeReportReq
 {
-public:
-   NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
-   uint16_t length() const;
-   NodeIdIE &node_id();
-   NodeReportTypeIE &node_rpt_type();
-   UserPlanePathFailureReportIE &user_plane_path_fail_rpt();
-   NodeReportReq &encode(uint8_t *dest);
-   pfcp_node_rpt_req_t &data();
-private:
-   pfcp_node_rpt_req_t data_;
    NodeIdIE ni_;
    NodeReportTypeIE nrt_;
    UserPlanePathFailureReportIE uprfr_;
 };
 
+class NodeReportReq : public PFCP::AppMsgNodeReq
+{
+public:
+   NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   uint16_t length() const;
+   NodeIdIE &node_id(Bool forceInit = False);
+   NodeReportTypeIE &node_rpt_type(Bool forceInit = False);
+   UserPlanePathFailureReportIE &user_plane_path_fail_rpt(Bool forceInit = False);
+   NodeReportReq &encode(uint8_t *dest);
+   pfcp_node_rpt_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
+private:
+   pfcp_node_rpt_req_t data_;
+   UChar iebuffer_[sizeof(_NodeReportReq)];
+};
+
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _NodeReportRsp
+{
+   NodeIdIE ni_;
+   CauseIE c_;
+   OffendingIeIE oi_;
+};
 
 class NodeReportRsp : public PFCP::AppMsgNodeRsp
 {
 public:
    NodeReportRsp();
    uint16_t length() const;
-   NodeIdIE &node_id();
-   CauseIE &cause();
-   OffendingIeIE &offending_ie();
+   NodeIdIE &node_id(Bool forceInit = False);
+   CauseIE &cause(Bool forceInit = False);
+   OffendingIeIE &offending_ie(Bool forceInit = False);
    NodeReportRsp &encode(uint8_t *dest);
    pfcp_node_rpt_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_node_rpt_rsp_t data_;
-   NodeIdIE ni_;
-   CauseIE c_;
-   OffendingIeIE oi_;
+   UChar iebuffer_[sizeof(_NodeReportRsp)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionSetDeletionReq : public PFCP::AppMsgNodeReq
+struct _SessionSetDeletionReq
 {
-public:
-   SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
-   uint16_t length() const;
-   SessionSetDeletionReq &seid(uint64_t val);
-   NodeIdIE &node_id();
-   FqCsidIE &sgw_c_fqcsid();
-   FqCsidIE &pgw_c_fqcsid();
-   FqCsidIE &up_fqcsid();
-   FqCsidIE &twan_fqcsid();
-   FqCsidIE &epdg_fqcsid();
-   FqCsidIE &mme_fqcsid();
-   SessionSetDeletionReq &encode(uint8_t *dest);
-   pfcp_sess_set_del_req_t &data();
-private:
-   pfcp_sess_set_del_req_t data_;
    NodeIdIE ni_;
    FqCsidIE sc_;
    FqCsidIE pc_;
@@ -4810,7 +4914,37 @@ private:
    FqCsidIE m_;
 };
 
+class SessionSetDeletionReq : public PFCP::AppMsgNodeReq
+{
+public:
+   SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   uint16_t length() const;
+   SessionSetDeletionReq &seid(uint64_t val);
+   NodeIdIE &node_id(Bool forceInit = False);
+   FqCsidIE &sgw_c_fqcsid(Bool forceInit = False);
+   FqCsidIE &pgw_c_fqcsid(Bool forceInit = False);
+   FqCsidIE &up_fqcsid(Bool forceInit = False);
+   FqCsidIE &twan_fqcsid(Bool forceInit = False);
+   FqCsidIE &epdg_fqcsid(Bool forceInit = False);
+   FqCsidIE &mme_fqcsid(Bool forceInit = False);
+   SessionSetDeletionReq &encode(uint8_t *dest);
+   pfcp_sess_set_del_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
+private:
+   pfcp_sess_set_del_req_t data_;
+   UChar iebuffer_[sizeof(_SessionSetDeletionReq)];
+};
+
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _SessionSetDeletionRsp
+{
+   NodeIdIE ni_;
+   CauseIE c_;
+   OffendingIeIE oi_;
+};
 
 class SessionSetDeletionRsp : public PFCP::AppMsgNodeRsp
 {
@@ -4818,60 +4952,26 @@ public:
    SessionSetDeletionRsp();
    uint16_t length() const;
    SessionSetDeletionRsp &seid(uint64_t val);
-   NodeIdIE &node_id();
-   CauseIE &cause();
-   OffendingIeIE &offending_ie();
+   NodeIdIE &node_id(Bool forceInit = False);
+   CauseIE &cause(Bool forceInit = False);
+   OffendingIeIE &offending_ie(Bool forceInit = False);
    SessionSetDeletionRsp &encode(uint8_t *dest);
    pfcp_sess_set_del_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_sess_set_del_rsp_t data_;
-   NodeIdIE ni_;
-   CauseIE c_;
-   OffendingIeIE oi_;
+   UChar iebuffer_[sizeof(_SessionSetDeletionRsp)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionEstablishmentReq : public PFCP::AppMsgSessionReq
+struct _SessionEstablishmentReq
 {
-public:
-   SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses);
-   uint16_t length() const;
-   NodeIdIE &node_id();
-   FSeidIE &cp_fseid();
-   CreateBarIE &create_bar();
-   PdnTypeIE &pdn_type();
-   FqCsidIE &sgw_c_fqcsid();
-   FqCsidIE &mme_fqcsid();
-   FqCsidIE &pgw_c_fqcsid();
-   FqCsidIE &epdg_fqcsid();
-   FqCsidIE &twan_fqcsid();
-   UserPlaneInactivityTimerIE &user_plane_inact_timer();
-   UserIdIE &user_id();
-   TraceInformationIE &trc_info();
-   ApnDnnIE &apn_dnn();
-   CreatePdrIE &create_pdr(uint8_t idx);
-   CreateFarIE &create_far(uint8_t idx);
-   CreateUrrIE &create_urr(uint8_t idx);
-   CreateQerIE &create_qer(uint8_t idx);
-   CreateTrafficEndpointIE &create_traffic_endpt(uint8_t idx);
-   int next_create_pdr();
-   int next_create_far();
-   int next_create_urr();
-   int next_create_qer();
-   int next_create_traffic_endpt();
-   SessionEstablishmentReq &encode(uint8_t *dest);
-   pfcp_sess_estab_req_t &data();
-private:
-   pfcp_sess_estab_req_t data_;
    NodeIdIE ni_;
    FSeidIE cpf_;
-   std::vector<CreatePdrIE> cp_;
-   std::vector<CreateFarIE> cf_;
-   std::vector<CreateUrrIE> cu_;
-   std::vector<CreateQerIE> cq_;
    CreateBarIE cb_;
-   std::vector<CreateTrafficEndpointIE> cte_;
    PdnTypeIE pt_;
    FqCsidIE sfc_;
    FqCsidIE mfc_;
@@ -4884,65 +4984,135 @@ private:
    ApnDnnIE ad_;
 };
 
+class SessionEstablishmentReq : public PFCP::AppMsgSessionReq
+{
+public:
+   SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses);
+   uint16_t length() const;
+   NodeIdIE &node_id(Bool forceInit = False);
+   FSeidIE &cp_fseid(Bool forceInit = False);
+   CreateBarIE &create_bar(Bool forceInit = False);
+   PdnTypeIE &pdn_type(Bool forceInit = False);
+   FqCsidIE &sgw_c_fqcsid(Bool forceInit = False);
+   FqCsidIE &mme_fqcsid(Bool forceInit = False);
+   FqCsidIE &pgw_c_fqcsid(Bool forceInit = False);
+   FqCsidIE &epdg_fqcsid(Bool forceInit = False);
+   FqCsidIE &twan_fqcsid(Bool forceInit = False);
+   UserPlaneInactivityTimerIE &user_plane_inact_timer(Bool forceInit = False);
+   UserIdIE &user_id(Bool forceInit = False);
+   TraceInformationIE &trc_info(Bool forceInit = False);
+   ApnDnnIE &apn_dnn(Bool forceInit = False);
+   CreatePdrIE &create_pdr(uint8_t idx);
+   CreateFarIE &create_far(uint8_t idx);
+   CreateUrrIE &create_urr(uint8_t idx);
+   CreateQerIE &create_qer(uint8_t idx);
+   CreateTrafficEndpointIE &create_traffic_endpt(uint8_t idx);
+   int next_create_pdr();
+   int next_create_far();
+   int next_create_urr();
+   int next_create_qer();
+   int next_create_traffic_endpt();
+   SessionEstablishmentReq &encode(uint8_t *dest);
+   pfcp_sess_estab_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
+private:
+   pfcp_sess_estab_req_t data_;
+   UChar iebuffer_[sizeof(_SessionEstablishmentReq)];
+   std::vector<CreatePdrIE> cp_;
+   std::vector<CreateFarIE> cf_;
+   std::vector<CreateUrrIE> cu_;
+   std::vector<CreateQerIE> cq_;
+   std::vector<CreateTrafficEndpointIE> cte_;
+};
+
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _SessionEstablishmentRsp
+{
+   NodeIdIE ni_;
+   CauseIE c_;
+   OffendingIeIE oi_;
+   FSeidIE ufs_;
+   LoadControlInformationIE lci_;
+   OverloadControlInformationIE oci_;
+   FqCsidIE ufc_;
+   FailedRuleIdIE fri_;
+};
 
 class SessionEstablishmentRsp : public PFCP::AppMsgSessionRsp
 {
 public:
    SessionEstablishmentRsp();
    uint16_t length() const;
-   NodeIdIE &node_id();
-   CauseIE &cause();
-   OffendingIeIE &offending_ie();
-   FSeidIE &up_fseid();
-   LoadControlInformationIE &load_ctl_info();
-   OverloadControlInformationIE &ovrld_ctl_info();
-   FqCsidIE &up_fqcsid();
-   FailedRuleIdIE &failed_rule_id();
+   NodeIdIE &node_id(Bool forceInit = False);
+   CauseIE &cause(Bool forceInit = False);
+   OffendingIeIE &offending_ie(Bool forceInit = False);
+   FSeidIE &up_fseid(Bool forceInit = False);
+   LoadControlInformationIE &load_ctl_info(Bool forceInit = False);
+   OverloadControlInformationIE &ovrld_ctl_info(Bool forceInit = False);
+   FqCsidIE &up_fqcsid(Bool forceInit = False);
+   FailedRuleIdIE &failed_rule_id(Bool forceInit = False);
    CreatedPdrIE &created_pdr(uint8_t idx);
    CreatedTrafficEndpointIE &created_traffic_endpt(uint8_t idx);
    int next_created_pdr();
    int next_created_traffic_endpt();
    SessionEstablishmentRsp &encode(uint8_t *dest);
    pfcp_sess_estab_rsp_t &data();
-
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_sess_estab_rsp_t data_;
-   NodeIdIE ni_;
-   CauseIE c_;
-   OffendingIeIE oi_;
-   FSeidIE ufs_;
+   UChar iebuffer_[sizeof(_SessionEstablishmentRsp)];
    std::vector<CreatedPdrIE> cp_;
-   LoadControlInformationIE lci_;
-   OverloadControlInformationIE oci_;
-   FqCsidIE ufc_;
-   FailedRuleIdIE fri_;
    std::vector<CreatedTrafficEndpointIE> cte_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _SessionModificationReq
+{
+   FSeidIE cfs_;
+   RemoveBarIE rb_;
+   RemoveTrafficEndpointIE rte_;
+   CreateBarIE cb_;
+   CreateTrafficEndpointIE cte_;
+   UpdateBarSessionModificationReqIE ub_;
+   UpdateTrafficEndpointIE ute_;
+   PfcpSmReqFlagsIE f_;
+   FqCsidIE pcfc_;
+   FqCsidIE scfc_;
+   FqCsidIE mfc_;
+   FqCsidIE efc_;
+   FqCsidIE tfc_;
+   UserPlaneInactivityTimerIE upit_;
+   QueryUrrReferenceIE qur_;
+   TraceInformationIE ti_;
+};
 
 class SessionModificationReq : public PFCP::AppMsgSessionReq
 {
 public:
    SessionModificationReq(PFCP::SessionBaseSPtr &ses);
    uint16_t length() const;
-   FSeidIE &cp_fseid();
-   RemoveBarIE &remove_bar();
-   RemoveTrafficEndpointIE &rmv_traffic_endpt();
-   CreateBarIE &create_bar();
-   CreateTrafficEndpointIE &create_traffic_endpt();
-   UpdateBarSessionModificationReqIE &update_bar();
-   UpdateTrafficEndpointIE &upd_traffic_endpt();
-   PfcpSmReqFlagsIE &pfcpsmreq_flags();
-   FqCsidIE &pgw_c_fqcsid();
-   FqCsidIE &sgw_c_fqcsid();
-   FqCsidIE &mme_fqcsid();
-   FqCsidIE &epdg_fqcsid();
-   FqCsidIE &twan_fqcsid();
-   UserPlaneInactivityTimerIE &user_plane_inact_timer();
-   QueryUrrReferenceIE &query_urr_ref();
-   TraceInformationIE &trc_info();
+   FSeidIE &cp_fseid(Bool forceInit = False);
+   RemoveBarIE &remove_bar(Bool forceInit = False);
+   RemoveTrafficEndpointIE &rmv_traffic_endpt(Bool forceInit = False);
+   CreateBarIE &create_bar(Bool forceInit = False);
+   CreateTrafficEndpointIE &create_traffic_endpt(Bool forceInit = False);
+   UpdateBarSessionModificationReqIE &update_bar(Bool forceInit = False);
+   UpdateTrafficEndpointIE &upd_traffic_endpt(Bool forceInit = False);
+   PfcpSmReqFlagsIE &pfcpsmreq_flags(Bool forceInit = False);
+   FqCsidIE &pgw_c_fqcsid(Bool forceInit = False);
+   FqCsidIE &sgw_c_fqcsid(Bool forceInit = False);
+   FqCsidIE &mme_fqcsid(Bool forceInit = False);
+   FqCsidIE &epdg_fqcsid(Bool forceInit = False);
+   FqCsidIE &twan_fqcsid(Bool forceInit = False);
+   UserPlaneInactivityTimerIE &user_plane_inact_timer(Bool forceInit = False);
+   QueryUrrReferenceIE &query_urr_ref(Bool forceInit = False);
+   TraceInformationIE &trc_info(Bool forceInit = False);
    RemovePdrIE &remove_pdr(uint8_t idx);
    RemoveFarIE &remove_far(uint8_t idx);
    RemoveUrrIE &remove_urr(uint8_t idx);
@@ -4971,69 +5141,65 @@ public:
    int next_query_urr();
    SessionModificationReq &encode(uint8_t *dest);
    pfcp_sess_mod_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_sess_mod_req_t data_;
-   FSeidIE cfs_;
+   UChar iebuffer_[sizeof(_SessionModificationReq)];
    std::vector<RemovePdrIE> rp_;
    std::vector<RemoveFarIE> rf_;
    std::vector<RemoveUrrIE> ru_;
    std::vector<RemoveQerIE> rq_;
-   RemoveBarIE rb_;
-   RemoveTrafficEndpointIE rte_;
    std::vector<CreatePdrIE> cp_;
    std::vector<CreateFarIE> cf_;
    std::vector<CreateUrrIE> cu_;
    std::vector<CreateQerIE> cq_;
-   CreateBarIE cb_;
-   CreateTrafficEndpointIE cte_;
    std::vector<UpdatePdrIE> up_;
    std::vector<UpdateFarIE> uf_;
    std::vector<UpdateUrrIE> uu_;
    std::vector<UpdateQerIE> uq_;
-   UpdateBarSessionModificationReqIE ub_;
-   UpdateTrafficEndpointIE ute_;
-   PfcpSmReqFlagsIE f_;
    std::vector<QueryUrrIE> qu_;
-   FqCsidIE pcfc_;
-   FqCsidIE scfc_;
-   FqCsidIE mfc_;
-   FqCsidIE efc_;
-   FqCsidIE tfc_;
-   UserPlaneInactivityTimerIE upit_;
-   QueryUrrReferenceIE qur_;
-   TraceInformationIE ti_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _SessionModificationRsp
+{
+   CauseIE c_;
+   OffendingIeIE oi_;
+   CreatedPdrIE cp_;
+   LoadControlInformationIE lci_;
+   OverloadControlInformationIE oci_;
+   FailedRuleIdIE fri_;
+   AdditionalUsageReportsInformationIE auri_;
+   CreatedTrafficEndpointIE cute_;
+};
 
 class SessionModificationRsp : public PFCP::AppMsgSessionRsp
 {
 public:
    SessionModificationRsp();
    uint16_t length() const;
-   CauseIE &cause();
-   OffendingIeIE &offending_ie();
-   CreatedPdrIE &created_pdr();
-   LoadControlInformationIE &load_ctl_info();
-   OverloadControlInformationIE &ovrld_ctl_info();
-   FailedRuleIdIE &failed_rule_id();
-   AdditionalUsageReportsInformationIE &add_usage_rpts_info();
-   CreatedTrafficEndpointIE &createdupdated_traffic_endpt();
+   CauseIE &cause(Bool forceInit = False);
+   OffendingIeIE &offending_ie(Bool forceInit = False);
+   CreatedPdrIE &created_pdr(Bool forceInit = False);
+   LoadControlInformationIE &load_ctl_info(Bool forceInit = False);
+   OverloadControlInformationIE &ovrld_ctl_info(Bool forceInit = False);
+   FailedRuleIdIE &failed_rule_id(Bool forceInit = False);
+   AdditionalUsageReportsInformationIE &add_usage_rpts_info(Bool forceInit = False);
+   CreatedTrafficEndpointIE &createdupdated_traffic_endpt(Bool forceInit = False);
    UsageReportSessionModificationRspIE &usage_report(uint8_t idx);
    int next_usage_report();
    SessionModificationRsp &encode(uint8_t *dest);
    pfcp_sess_mod_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_sess_mod_rsp_t data_;
-   CauseIE c_;
-   OffendingIeIE oi_;
-   CreatedPdrIE cp_;
-   LoadControlInformationIE lci_;
-   OverloadControlInformationIE oci_;
+   UChar iebuffer_[sizeof(_SessionModificationRsp)];
    std::vector<UsageReportSessionModificationRspIE> ur_;
-   FailedRuleIdIE fri_;
-   AdditionalUsageReportsInformationIE auri_;
-   CreatedTrafficEndpointIE cute_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5045,80 +5211,106 @@ public:
    uint16_t length() const;
    SessionDeletionReq &encode(uint8_t *dest);
    pfcp_sess_del_req_t &data();
+   OVERLOADED_NEW_DELETE
 private:
    pfcp_sess_del_req_t data_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct _SessionDeletionRsp
+{
+   CauseIE c_;
+   OffendingIeIE oi_;
+   LoadControlInformationIE lci_;
+   OverloadControlInformationIE oci_;
+};
+
 class SessionDeletionRsp : public PFCP::AppMsgSessionRsp
 {
 public:
    SessionDeletionRsp();
    uint16_t length() const;
-   CauseIE &cause();
-   OffendingIeIE &offending_ie();
-   LoadControlInformationIE &load_ctl_info();
-   OverloadControlInformationIE &ovrld_ctl_info();
+   CauseIE &cause(Bool forceInit = False);
+   OffendingIeIE &offending_ie(Bool forceInit = False);
+   LoadControlInformationIE &load_ctl_info(Bool forceInit = False);
+   OverloadControlInformationIE &ovrld_ctl_info(Bool forceInit = False);
    UsageReportSessionDeletionRspIE &usage_report(uint8_t idx);
    int next_usage_report();
    SessionDeletionRsp &encode(uint8_t *dest);
    pfcp_sess_del_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_sess_del_rsp_t data_;
-   CauseIE c_;
-   OffendingIeIE oi_;
-   LoadControlInformationIE lci_;
-   OverloadControlInformationIE oci_;
+   UChar iebuffer_[sizeof(_SessionDeletionRsp)];
    std::vector<UsageReportSessionDeletionRspIE> ur_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SessionReportReq : public PFCP::AppMsgSessionReq
+struct _SessionReportReq
 {
-public:
-   SessionReportReq(PFCP::SessionBaseSPtr &ses);
-   uint16_t length() const;
-   ReportTypeIE &report_type();
-   DownlinkDataReportIE &dnlnk_data_rpt();
-   ErrorIndicationReportIE &err_indctn_rpt();
-   LoadControlInformationIE &load_ctl_info();
-   OverloadControlInformationIE &ovrld_ctl_info();
-   AdditionalUsageReportsInformationIE &add_usage_rpts_info();
-   UsageReportSessionReportReqIE &usage_report(uint8_t idx);
-   SessionReportReq &encode(uint8_t *dest);
-   pfcp_sess_rpt_req_t &data();
-private:
-   pfcp_sess_rpt_req_t data_;
    ReportTypeIE rt_;
    DownlinkDataReportIE ddr_;
-   std::vector<UsageReportSessionReportReqIE> ur_;
    ErrorIndicationReportIE eir_;
    LoadControlInformationIE lci_;
    OverloadControlInformationIE oci_;
    AdditionalUsageReportsInformationIE auri_;
 };
 
+class SessionReportReq : public PFCP::AppMsgSessionReq
+{
+public:
+   SessionReportReq(PFCP::SessionBaseSPtr &ses);
+   uint16_t length() const;
+   ReportTypeIE &report_type(Bool forceInit = False);
+   DownlinkDataReportIE &dnlnk_data_rpt(Bool forceInit = False);
+   ErrorIndicationReportIE &err_indctn_rpt(Bool forceInit = False);
+   LoadControlInformationIE &load_ctl_info(Bool forceInit = False);
+   OverloadControlInformationIE &ovrld_ctl_info(Bool forceInit = False);
+   AdditionalUsageReportsInformationIE &add_usage_rpts_info(Bool forceInit = False);
+   UsageReportSessionReportReqIE &usage_report(uint8_t idx);
+   int next_usage_report();
+   SessionReportReq &encode(uint8_t *dest);
+   pfcp_sess_rpt_req_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
+private:
+   pfcp_sess_rpt_req_t data_;
+   UChar iebuffer_[sizeof(_SessionReportReq)];
+   std::vector<UsageReportSessionReportReqIE> ur_;
+};
+
 ////////////////////////////////////////////////////////////////////////////////
+
+struct _SessionReportRsp
+{
+   CauseIE c_;
+   OffendingIeIE oi_;
+   UpdateBarSessionReportRspIE ub_;
+   PfcpSrRspFlagsIE flags_;
+};
 
 class SessionReportRsp : public PFCP::AppMsgSessionRsp
 {
 public:
    SessionReportRsp();
    uint16_t length() const;
-   CauseIE &cause();
-   OffendingIeIE &offending_ie();
-   UpdateBarSessionReportRspIE &update_bar();
-   PfcpSrRspFlagsIE &sxsrrsp_flags();
+   CauseIE &cause(Bool forceInit = False);
+   OffendingIeIE &offending_ie(Bool forceInit = False);
+   UpdateBarSessionReportRspIE &update_bar(Bool forceInit = False);
+   PfcpSrRspFlagsIE &sxsrrsp_flags(Bool forceInit = False);
    SessionReportRsp &encode(uint8_t *dest);
    pfcp_sess_rpt_rsp_t &data();
+   OVERLOADED_NEW_DELETE
+protected:
+   Void postDecode();
 private:
    pfcp_sess_rpt_rsp_t data_;
-   CauseIE c_;
-   OffendingIeIE oi_;
-   UpdateBarSessionReportRspIE ub_;
-   PfcpSrRspFlagsIE flags_;
+   UChar iebuffer_[sizeof(_SessionReportRsp)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5151,6 +5343,8 @@ public:
    PFCP::MsgType pfcpSessionEstablishmentRsp();
    PFCP::MsgType pfcpAssociationSetupReq();
    PFCP::MsgType pfcpAssociationSetupRsp();
+private:
+   EMemory::Pool *mp_[10];
 };
 
 }

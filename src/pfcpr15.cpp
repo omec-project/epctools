@@ -24,12 +24,117 @@
 namespace PFCP_R15
 {
 
+EMemory::Pool *HeartbeatReq::pool_ = nullptr;
+EMemory::Pool *HeartbeatRsp::pool_ = nullptr;
+EMemory::Pool *PfdMgmtReq::pool_ = nullptr;
+EMemory::Pool *PfdMgmtRsp::pool_ = nullptr;
+EMemory::Pool *AssnSetupReq::pool_ = nullptr;
+EMemory::Pool *AssnSetupRsp::pool_ = nullptr;
+EMemory::Pool *AssnUpdateReq::pool_ = nullptr;
+EMemory::Pool *AssnUpdateRsp::pool_ = nullptr;
+EMemory::Pool *AssnReleaseReq::pool_ = nullptr;
+EMemory::Pool *AssnReleaseRsp::pool_ = nullptr;
+EMemory::Pool *VersionNotSupportedRsp::pool_ = nullptr;
+EMemory::Pool *NodeReportReq::pool_ = nullptr;
+EMemory::Pool *NodeReportRsp::pool_ = nullptr;
+EMemory::Pool *SessionSetDeletionReq::pool_ = nullptr;
+EMemory::Pool *SessionSetDeletionRsp::pool_ = nullptr;
+EMemory::Pool *SessionEstablishmentReq::pool_ = nullptr;
+EMemory::Pool *SessionEstablishmentRsp::pool_ = nullptr;
+EMemory::Pool *SessionModificationReq::pool_ = nullptr;
+EMemory::Pool *SessionModificationRsp::pool_ = nullptr;
+EMemory::Pool *SessionDeletionReq::pool_ = nullptr;
+EMemory::Pool *SessionDeletionRsp::pool_ = nullptr;
+EMemory::Pool *SessionReportReq::pool_ = nullptr;
+EMemory::Pool *SessionReportRsp::pool_ = nullptr;
+
 Translator::Translator()
+   : mp_{}
 {
+   {
+      size_t as = 0;
+      as = std::max(as, sizeof(VersionNotSupportedRsp));
+      as = std::max(as, sizeof(HeartbeatRsp));
+      as = std::max(as, sizeof(SessionDeletionReq));
+      as = std::max(as, sizeof(HeartbeatReq));
+      as = std::max(as, sizeof(PfdMgmtRsp));
+      mp_[0] = new EMemory::Pool(as,0,10);
+      VersionNotSupportedRsp::setMemoryPool(*mp_[0]);
+      HeartbeatRsp::setMemoryPool(*mp_[0]);
+      SessionDeletionReq::setMemoryPool(*mp_[0]);
+      HeartbeatReq::setMemoryPool(*mp_[0]);
+      PfdMgmtRsp::setMemoryPool(*mp_[0]);
+   }
+   {
+      size_t as = 0;
+      as = std::max(as, sizeof(AssnReleaseReq));
+      as = std::max(as, sizeof(SessionReportRsp));
+      as = std::max(as, sizeof(AssnReleaseRsp));
+      as = std::max(as, sizeof(NodeReportRsp));
+      as = std::max(as, sizeof(SessionSetDeletionRsp));
+      as = std::max(as, sizeof(AssnUpdateRsp));
+      mp_[1] = new EMemory::Pool(as,0,5);
+      AssnReleaseReq::setMemoryPool(*mp_[1]);
+      SessionReportRsp::setMemoryPool(*mp_[1]);
+      AssnReleaseRsp::setMemoryPool(*mp_[1]);
+      NodeReportRsp::setMemoryPool(*mp_[1]);
+      SessionSetDeletionRsp::setMemoryPool(*mp_[1]);
+      AssnUpdateRsp::setMemoryPool(*mp_[1]);
+   }
+   {
+      size_t as = 0;
+      as = std::max(as, sizeof(SessionSetDeletionReq));
+      as = std::max(as, sizeof(SessionEstablishmentRsp));
+      mp_[2] = new EMemory::Pool(as,0,5);
+      SessionSetDeletionReq::setMemoryPool(*mp_[2]);
+      SessionEstablishmentRsp::setMemoryPool(*mp_[2]);
+   }
+   {
+      size_t as = 0;
+      as = std::max(as, sizeof(SessionDeletionRsp));
+      as = std::max(as, sizeof(SessionModificationRsp));
+      as = std::max(as, sizeof(NodeReportReq));
+      as = std::max(as, sizeof(AssnSetupReq));
+      as = std::max(as, sizeof(AssnSetupRsp));
+      as = std::max(as, sizeof(AssnUpdateReq));
+      mp_[3] = new EMemory::Pool(as,0,1);
+      SessionDeletionRsp::setMemoryPool(*mp_[3]);
+      SessionModificationRsp::setMemoryPool(*mp_[3]);
+      NodeReportReq::setMemoryPool(*mp_[3]);
+      AssnSetupReq::setMemoryPool(*mp_[3]);
+      AssnSetupRsp::setMemoryPool(*mp_[3]);
+      AssnUpdateReq::setMemoryPool(*mp_[3]);
+   }
+   {
+      size_t as = 0;
+      as = std::max(as, sizeof(SessionReportReq));
+      mp_[4] = new EMemory::Pool(as,0,1);
+      SessionReportReq::setMemoryPool(*mp_[4]);
+   }
+   {
+      size_t as = 0;
+      as = std::max(as, sizeof(SessionEstablishmentReq));
+      mp_[5] = new EMemory::Pool(as,0,1);
+      SessionEstablishmentReq::setMemoryPool(*mp_[5]);
+   }
+   {
+      size_t as = 0;
+      as = std::max(as, sizeof(SessionModificationReq));
+      mp_[6] = new EMemory::Pool(as,0,1);
+      SessionModificationReq::setMemoryPool(*mp_[6]);
+   }
+   {
+      size_t as = 0;
+      as = std::max(as, sizeof(PfdMgmtReq));
+      mp_[7] = new EMemory::Pool(as,0,1);
+      PfdMgmtReq::setMemoryPool(*mp_[7]);
+   }
 }
 
 Translator::~Translator()
 {
+   for (int i=0; i<10; i++)
+      if (mp_[i]) delete mp_[i];
 }
 
 PFCP::ReqOutPtr Translator::encodeHeartbeatReq(PFCP::SndHeartbeatReqData &hb)
@@ -42,7 +147,7 @@ PFCP::ReqOutPtr Translator::encodeHeartbeatReq(PFCP::SndHeartbeatReqData &hb)
    ro->setSeqNbr(hb.localNode()->allocSeqNbr());
 
    HeartbeatReq *req = new HeartbeatReq(ro->localNode(), ro->remoteNode());
-   req->recoveryTimeStamp().rcvry_time_stmp_val(ro->localNode()->startTime());
+   req->rcvry_time_stmp().rcvry_time_stmp_val(ro->localNode()->startTime());
    req->encode(data());
 
    ro->setAppMsg(req);
@@ -60,7 +165,7 @@ PFCP::RspOutPtr Translator::encodeHeartbeatRsp(PFCP::SndHeartbeatRspData &hb)
 
    HeartbeatRsp *rsp = new HeartbeatRsp();
    rsp->setReq(&hb.req());
-   rsp->recoveryTimeStamp().rcvry_time_stmp_val(ro->localNode()->startTime());
+   rsp->rcvry_time_stmp().rcvry_time_stmp_val(ro->localNode()->startTime());
    rsp->encode(data());
 
    ro->setRsp(rsp);
@@ -323,15 +428,17 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
          PfdMgmtReq *tmp = new PfdMgmtReq(req->localNode(), req->remoteNode());
          decode_pfcp_pfd_mgmt_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_ASSN_SETUP_REQ:
       {
          AssnSetupReq *tmp = new AssnSetupReq(req->localNode(), req->remoteNode());
          decode_pfcp_assn_setup_req_t((pUChar)req->data(), &tmp->data());
+         am = tmp;
+         am->postDecode();
          if (tmp->rcvry_time_stmp().present())
             req->remoteStartTime(tmp->rcvry_time_stmp().rcvry_time_stmp_val());
-         am = tmp;
          break;
       }
       case PFCP_ASSN_UPD_REQ:
@@ -339,6 +446,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
          AssnUpdateReq *tmp = new AssnUpdateReq(req->localNode(), req->remoteNode());
          decode_pfcp_assn_upd_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_ASSN_REL_REQ:
@@ -346,6 +454,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
          AssnReleaseReq *tmp = new AssnReleaseReq(req->localNode(), req->remoteNode());
          decode_pfcp_assn_rel_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_NODE_RPT_REQ:
@@ -353,6 +462,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
          NodeReportReq *tmp = new NodeReportReq(req->localNode(), req->remoteNode());
          decode_pfcp_node_rpt_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_SESS_SET_DEL_REQ:
@@ -360,15 +470,17 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
          SessionSetDeletionReq *tmp = new SessionSetDeletionReq(req->localNode(), req->remoteNode());
          decode_pfcp_sess_set_del_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_SESS_ESTAB_REQ:
       {
          SessionEstablishmentReq *tmp = new SessionEstablishmentReq(req->session());
          decode_pfcp_sess_estab_req_t((pUChar)req->data(), &tmp->data());
+         am = tmp;
+         am->postDecode();
          if (tmp->cp_fseid().present())
             req->remoteSeid(tmp->cp_fseid().seid());
-         am = tmp;
          break;
       }
       case PFCP_SESS_MOD_REQ:
@@ -376,6 +488,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
          SessionModificationReq *tmp = new SessionModificationReq(req->session());
          decode_pfcp_sess_mod_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_SESS_DEL_REQ:
@@ -383,6 +496,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
          SessionDeletionReq *tmp = new SessionDeletionReq(req->session());
          decode_pfcp_sess_del_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_SESS_RPT_REQ:
@@ -390,6 +504,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
          SessionReportReq *tmp = new SessionReportReq(req->session());
          decode_pfcp_sess_rpt_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       default:
@@ -424,15 +539,17 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          PfdMgmtRsp *tmp = new PfdMgmtRsp();
          decode_pfcp_pfd_mgmt_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_ASSN_SETUP_RSP:
       {
          AssnSetupRsp *tmp = new AssnSetupRsp();
          decode_pfcp_assn_setup_rsp_t((pUChar)rsp->data(), &tmp->data());
+         am = tmp;
+         am->postDecode();
          if (tmp->rcvry_time_stmp().present())
             rsp->remoteStartTime(tmp->rcvry_time_stmp().rcvry_time_stmp_val());
-         am = tmp;
          break;
       }
       case PFCP_ASSN_UPD_RSP:
@@ -440,6 +557,7 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          AssnUpdateRsp *tmp = new AssnUpdateRsp();
          decode_pfcp_assn_upd_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_ASSN_REL_RSP:
@@ -447,6 +565,7 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          AssnReleaseRsp *tmp = new AssnReleaseRsp();
          decode_pfcp_assn_rel_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_VERSION_NOT_SUPPORTED:
@@ -454,6 +573,7 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          VersionNotSupportedRsp *tmp = new VersionNotSupportedRsp();
          decode_pfcp_header_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_NODE_RPT_RSP:
@@ -461,6 +581,7 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          NodeReportRsp *tmp = new NodeReportRsp();
          decode_pfcp_node_rpt_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_SESS_SET_DEL_RSP:
@@ -468,15 +589,17 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          SessionSetDeletionRsp *tmp = new SessionSetDeletionRsp();
          decode_pfcp_sess_set_del_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_SESS_ESTAB_RSP:
       {
          SessionEstablishmentRsp *tmp = new SessionEstablishmentRsp();
          decode_pfcp_sess_estab_rsp_t((pUChar)rsp->data(), &tmp->data());
+         am = tmp;
+         am->postDecode();
          if (tmp->up_fseid().present())
             rsp->remoteSeid(tmp->up_fseid().seid());
-         am = tmp;
          break;
       }
       case PFCP_SESS_MOD_RSP:
@@ -484,6 +607,7 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          SessionModificationRsp *tmp = new SessionModificationRsp();
          decode_pfcp_sess_mod_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_SESS_DEL_RSP:
@@ -491,6 +615,7 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          SessionDeletionRsp *tmp = new SessionDeletionRsp();
          decode_pfcp_sess_del_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       case PFCP_SESS_RPT_RSP:
@@ -498,6 +623,7 @@ PFCP::AppMsgRspPtr Translator::decodeRsp(PFCP::RspInPtr rsp)
          SessionReportRsp *tmp = new SessionReportRsp();
          decode_pfcp_sess_rpt_rsp_t((pUChar)rsp->data(), &tmp->data());
          am = tmp;
+         am->postDecode();
          break;
       }
       default:

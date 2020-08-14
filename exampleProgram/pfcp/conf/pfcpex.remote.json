@@ -1,7 +1,7 @@
 {
    "PfcpExample": {
-      "localIp": "192.168.3.247",
-      "remoteIp": "192.168.3.106",
+      "localIp": "192.168.3.155",
+      "remoteIp": "192.168.3.190",
       "sendAssnSetup": false,
       "sessionCreateCount": 5000,
       "minApplicationWorkers": 2,

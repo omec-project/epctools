@@ -36,6 +36,7 @@ nobase_include_HEADERS =   \
    epc/einternal.h         \
    epc/eip.h               \
    epc/elogger.h           \
+   epc/ememory.h           \
    epc/emsg.h              \
    epc/eostring.h          \
    epc/epath.h             \

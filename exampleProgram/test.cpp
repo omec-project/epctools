@@ -37,6 +37,8 @@
 #include "epc/eostring.h"
 #include "epc/eteid.h"
 
+#include "epc/ememory.h"
+
 std::locale defaultLocale;
 std::locale mylocale;
 
@@ -3663,6 +3665,139 @@ Void workGroup_test()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+class MPClass100
+{
+public:
+   MPClass100() {}
+   MPClass100(Bool flag ) : data_{} {}
+
+   static void* operator new(size_t sz)
+   {
+      if (pool_.allocSize() == 0)
+      {
+         pool_.setSize(sz,0,100);
+      }
+      if (sz > pool_.allocSize())
+      {
+         EError ex;
+         ex.setSevere();
+         ex.setText("session allocation size is larger than memory pool block size");
+         throw ex;
+      }
+      return pool_.allocate();
+   }
+   static void operator delete(void* m)
+   {
+      pool_.deallocate(m);
+   }
+private:
+   static EMemory::Pool pool_;
+   UChar data_[100];
+};
+EMemory::Pool MPClass100::pool_;
+
+class MPClass10K
+{
+public:
+   MPClass10K() {}
+   MPClass10K(Bool flag ) : data_{} {}
+
+   static void* operator new(size_t sz)
+   {
+      if (pool_.allocSize() == 0)
+      {
+         pool_.setSize(sz,0,3);
+      }
+      if (sz > pool_.allocSize())
+      {
+         EError ex;
+         ex.setSevere();
+         ex.setText("session allocation size is larger than memory pool block size");
+         throw ex;
+      }
+      return pool_.allocate();
+   }
+   static void operator delete(void* m)
+   {
+      pool_.deallocate(m);
+   }
+private:
+   static EMemory::Pool pool_;
+   UChar data_[10000];
+};
+EMemory::Pool MPClass10K::pool_;
+
+class MPClass2MB
+{
+public:
+   MPClass2MB() {}
+   MPClass2MB(Bool flag ) : data_{} {}
+
+   static void* operator new(size_t sz)
+   {
+      if (pool_.allocSize() == 0)
+      {
+         pool_.setSize(sz,0);
+      }
+      if (sz > pool_.allocSize())
+      {
+         EError ex;
+         ex.setSevere();
+         ex.setText("session allocation size is larger than memory pool block size");
+         throw ex;
+      }
+      return pool_.allocate();
+   }
+   static void operator delete(void* m)
+   {
+      pool_.deallocate(m);
+   }
+private:
+   static EMemory::Pool pool_;
+   UChar data_[2097152];
+};
+EMemory::Pool MPClass2MB::pool_;
+
+Void memoryPool_test()
+{
+   static Int iterations = 10000;
+   ETimer t1;
+
+   t1.Start();
+   for(int i=0; i<iterations; i++) { MPClass100 *p = new MPClass100(); delete p; }
+   t1.Stop();
+   std::cout << "100 byte Memory::Pool test without initialization, " << iterations << " iterations took " << t1.MicroSeconds() << "us" << std::endl;
+
+   t1.Start();
+   for(int i=0; i<iterations; i++) { MPClass10K *p = new MPClass10K(); delete p; }
+   t1.Stop();
+   std::cout << "10K byte Memory::Pool test without initialization, " << iterations << " iterations took " << t1.MicroSeconds() << "us" << std::endl;
+
+   t1.Start();
+   for(int i=0; i<iterations; i++) { MPClass2MB *p = new MPClass2MB(); delete p; }
+   t1.Stop();
+   std::cout << "2MB byte Memory::Pool test without initialization, " << iterations << " iterations took " << t1.MicroSeconds() << "us" << std::endl;
+
+   t1.Start();
+   for(int i=0; i<iterations; i++) { MPClass100 *p = new MPClass100(True); delete p; }
+   t1.Stop();
+   std::cout << "100 byte Memory::Pool test with initialization, " << iterations << " iterations took " << t1.MicroSeconds() << "us" << std::endl;
+
+   t1.Start();
+   for(int i=0; i<iterations; i++) { MPClass10K *p = new MPClass10K(True); delete p; }
+   t1.Stop();
+   std::cout << "10K byte Memory::Pool test with initialization, " << iterations << " iterations took " << t1.MicroSeconds() << "us" << std::endl;
+
+   t1.Start();
+   for(int i=0; i<iterations; i++) { MPClass2MB *p = new MPClass2MB(True); delete p; }
+   t1.Stop();
+   std::cout << "2MB byte Memory::Pool test with initialization, " << iterations << " iterations took " << t1.MicroSeconds() << "us" << std::endl;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 
 Void usage()
 {
@@ -3697,7 +3832,7 @@ Void printMenu()
        "17. Thread one shot timer test                 39. Octet string                 \n"
        "18. Circular buffer test                       40. Teid                         \n"
        "19. Directory test                             41. Work Group                   \n"
-       "20. Hash test                                  \n"
+       "20. Hash test                                  42. Memory Pool test             \n"
        "21. Thread test (1 reader/writer)              \n"
        "22. Deadlock                                   \n"
        "\n",
@@ -3770,6 +3905,7 @@ Void run(EGetOpt &options)
             case 39: octetStringTest();            break;
             case 40: teidTest();                   break;
             case 41: workGroup_test();             break;
+            case 42: memoryPool_test();            break;
             default: cout << "Invalid Selection" << endl << endl;    break;
          }
       }

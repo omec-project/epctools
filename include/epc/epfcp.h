@@ -29,6 +29,7 @@
 #include "esocket.h"
 #include "eteid.h"
 #include "etimerpool.h"
+#include "ememory.h"
 
 /// @brief PFCP stack namespace
 namespace PFCP
@@ -473,8 +474,35 @@ namespace PFCP
       static ULongLong sessionsCreated() { return created_; }
       static ULongLong sessionsDeleted() { return deleted_; }
 
+      static void* operator new(size_t sz)
+      {
+         if (pool_.allocSize() == 0)
+         {
+            size_t ns = 32768 - sizeof(EMemory::Node);
+            size_t bs = sz + sizeof(EMemory::Block);
+            bs += bs % sizeof(pVoid);
+            size_t bc = ns / bs;
+            ns = sizeof(EMemory::Node) + bc * bs;
+            pool_.setSize(sz, ns);
+         }
+         if (sz > pool_.allocSize())
+         {
+            EError ex;
+            ex.setSevere();
+            ex.setText("session allocation size is larger than memory pool block size");
+            throw ex;
+         }
+         return pool_.allocate();
+      }
+      static void operator delete(void* m)
+      {
+         pool_.deallocate(m);
+      }
+private:                                                 \
+
    private:
       SessionBase();
+      static EMemory::Pool pool_;
       static ULongLong created_;
       static ULongLong deleted_;
       LocalNodeSPtr ln_;
@@ -780,6 +808,10 @@ namespace PFCP
       /// @brief Assigns the sequence number for this message.
       /// @return a reference to this object.
       AppMsg &setSeqNbr(const ULong sn)      { seq_ = sn; return *this; }
+
+      /// @cond DOXYGEN_EXCLUDE
+      virtual Void postDecode() {}
+      /// @endcond
 
    protected:
       AppMsg()
@@ -1267,7 +1299,11 @@ namespace PFCP
          return *this;
       }
 
+      static void* operator new(size_t sz);
+      static void operator delete(void* m);
+
    private:
+      static EMemory::Pool pool_;
       LocalNodeSPtr ln_;
       RemoteNodeSPtr rn_;
       SessionBaseSPtr ses_;
@@ -2271,6 +2307,38 @@ Receiving a msg
    inline LocalNodeSPtr ApplicationWorkGroup<TWorker>::createLocalNode(ESocket::Address &addr)
    {
       return CommunicationThread::Instance().createLocalNode(addr);
+   }
+
+   inline void* InternalMsg::operator new(size_t sz)
+   {
+      if (pool_.allocSize() == 0)
+      {
+         size_t as = 0;
+         if (sizeof(RspOut) > as)   as = sizeof(RspOut);
+         if (sizeof(RspIn) > as)   as = sizeof(RspIn);
+         if (sizeof(ReqOut) > as)   as = sizeof(ReqOut);
+         if (sizeof(ReqIn) > as)   as = sizeof(ReqIn);
+
+         size_t ns = 32768 - sizeof(EMemory::Node);
+         size_t bs = as + sizeof(EMemory::Block);
+         bs += bs % sizeof(pVoid);
+         size_t bc = ns / bs;
+         ns = sizeof(EMemory::Node) + bc * bs;
+         pool_.setSize(as, ns);
+      }
+      if (sz > pool_.allocSize())
+      {
+         EError ex;
+         ex.setSevere();
+         ex.setText("internal message allocation size is larger than memory pool block size");
+         throw ex;
+      }
+      return pool_.allocate();
+   }
+
+   inline void InternalMsg::operator delete(void* m)
+   {
+      pool_.deallocate(m);
    }
    /// @endcond
 }

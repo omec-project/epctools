@@ -56,10 +56,12 @@ MsgType Configuration::pfcpAssociationSetupRsp     = 6;
 /// @cond DOXYGEN_EXCLUDE
 TranslationThread *TranslationThread::this_     = nullptr;
 CommunicationThread *CommunicationThread::this_ = nullptr;
+EMemory::Pool SessionBase::pool_;
 ULongLong SessionBase::created_                 = 0;
 ULongLong SessionBase::deleted_                 = 0;
 ULongLong Node::created_                        = 0;
 ULongLong Node::deleted_                        = 0;
+EMemory::Pool InternalMsg::pool_;
 /// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,6 +77,12 @@ Void Initialize()
    CommunicationThread::Instance().init(1, 101, NULL, 100000);
    Configuration::logger().startup("{} - initializing the translation thread", __method__);
    TranslationThread::Instance().init(1, 102, NULL, 100000);
+   #if 0
+   Configuration::logger().startup("{} - sizeof(RspOut)={}", __method__, sizeof(RspOut));
+   Configuration::logger().startup("{} - sizeof(RspIn)={}", __method__, sizeof(RspIn));
+   Configuration::logger().startup("{} - sizeof(ReqOut)={}", __method__, sizeof(ReqOut));
+   Configuration::logger().startup("{} - sizeof(ReqIn)={}", __method__, sizeof(ReqIn));
+   #endif
 
    Configuration::pfcpHeartbeatReq = Configuration::translator().pfcpHeartbeatReq();
    Configuration::pfcpHeartbeatRsp = Configuration::translator().pfcpHeartbeatRsp();
@@ -1377,6 +1385,8 @@ Void TranslationThread::onRcvdReq(EThreadMessage &msg)
             req = xlator_.decodeReq(ri);
             if (req == nullptr)
                throw RcvdReqException();
+            
+            req->postDecode();
 
             if (req->msgType() == Configuration::pfcpSessionEstablishmentReq)
             {
@@ -1453,9 +1463,13 @@ Void TranslationThread::onRcvdRsp(EThreadMessage &msg)
                __method__, ri->localNode()->address().getAddress(), ri->remoteNode()->address().getAddress(),
                ri->msgType(), ri->msgClass()==MsgClass::Node?"NODE":"SESSION", ri->seqNbr());
          }
+         
          rsp = xlator_.decodeRsp(ri);
          if (rsp == nullptr)
             throw RcvdRspException();
+
+         rsp->postDecode();
+
 
          if (rsp->msgType() == Configuration::pfcpSessionEstablishmentRsp)
          {

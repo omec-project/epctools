@@ -9626,10 +9626,8 @@ inline uint16_t UpdateBarSessionReportRspIE::calculateLength()
 
 inline HeartbeatReq::HeartbeatReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
    : PFCP::AppMsgNodeReq(ln,rn),
-     data_({}),
-     rts_(data_.rcvry_time_stmp, nullptr)
+     data_({})
 {
-   // data_ = {};
    setMsgType(PFCP_HRTBEAT_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
@@ -9640,9 +9638,11 @@ inline uint16_t HeartbeatReq::length() const
    return data_.header.message_len;
 }
 
-inline RecoveryTimeStampIE &HeartbeatReq::recoveryTimeStamp()
+inline RecoveryTimeStampIE &HeartbeatReq::rcvry_time_stmp(Bool forceInit)
 {
-   return rts_;
+   if (forceInit || data_.rcvry_time_stmp.header.type == 0)
+      new (&((_HeartbeatReq*)iebuffer_)->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
+   return ((_HeartbeatReq*)iebuffer_)->rts_;
 }
 
 inline HeartbeatReq &HeartbeatReq::encode(uint8_t *dest)
@@ -9660,11 +9660,15 @@ inline pfcp_hrtbeat_req_t &HeartbeatReq::data()
    return data_;
 }
 
+inline Void HeartbeatReq::postDecode()
+{
+   if (data_.rcvry_time_stmp.header.len > 0)                  rcvry_time_stmp(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline HeartbeatRsp::HeartbeatRsp()
-   : data_({}),
-     rts_(data_.rcvry_time_stmp, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_HRTBEAT_RSP);
    data_.header.message_type = msgType();
@@ -9676,9 +9680,11 @@ inline uint16_t HeartbeatRsp::length() const
    return data_.header.message_len;
 }
 
-inline RecoveryTimeStampIE &HeartbeatRsp::recoveryTimeStamp()
+inline RecoveryTimeStampIE &HeartbeatRsp::rcvry_time_stmp(Bool forceInit)
 {
-   return rts_;
+   if (forceInit || data_.rcvry_time_stmp.header.type == 0)
+      new (&((_HeartbeatRsp*)iebuffer_)->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
+   return ((_HeartbeatRsp*)iebuffer_)->rts_;
 }
 
 inline HeartbeatRsp &HeartbeatRsp::encode(uint8_t *dest)
@@ -9695,6 +9701,11 @@ inline pfcp_hrtbeat_rsp_t &HeartbeatRsp::data()
    return data_;
 }
 
+inline Void HeartbeatRsp::postDecode()
+{
+   if (data_.rcvry_time_stmp.header.len > 0)                  rcvry_time_stmp(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline PfdMgmtReq::PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
@@ -9704,7 +9715,6 @@ inline PfdMgmtReq::PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
    setMsgType(PFCP_PFD_MGMT_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
-
    for (int i=0; i<MAX_LIST_SIZE; i++)
       appids_.push_back(ApplicationIdsPfdsIE(data_.app_ids_pfds[i],NULL));
 }
@@ -9716,7 +9726,18 @@ inline uint16_t PfdMgmtReq::length() const
 
 inline ApplicationIdsPfdsIE &PfdMgmtReq::app_ids_pfds(uint8_t idx)
 {
+   if (idx >= appids_.size())
+   {
+      for (auto i = appids_.size(); i < static_cast<size_t>(idx)+1; i++)
+         appids_.push_back(ApplicationIdsPfdsIE(data_.app_ids_pfds[i], nullptr));
+   }
    return appids_[idx];
+}
+
+inline int PfdMgmtReq::next_app_ids_pfds()
+{
+   return (data_.app_ids_pfds_count < MAX_LIST_SIZE) ?
+      data_.app_ids_pfds_count++ : -1;
 }
 
 inline PfdMgmtReq &PfdMgmtReq::encode(uint8_t *dest)
@@ -9733,12 +9754,22 @@ inline pfcp_pfd_mgmt_req_t &PfdMgmtReq::data()
    return data_;
 }
 
+inline Void PfdMgmtReq::postDecode()
+{
+   for (int i=0; i<MAX_LIST_SIZE; i++)
+   {
+      if (data_.app_ids_pfds[i].header.len > 0)
+      {
+         next_app_ids_pfds();
+         app_ids_pfds(i);
+      }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline PfdMgmtRsp::PfdMgmtRsp()
-   : data_({}),
-     c_(data_.cause, nullptr),
-     oi_(data_.offending_ie, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_PFD_MGMT_RSP);
    data_.header.message_type = msgType();
@@ -9750,14 +9781,18 @@ inline uint16_t PfdMgmtRsp::length() const
    return data_.header.message_len;
 }
 
-inline CauseIE &PfdMgmtRsp::cause()
+inline CauseIE &PfdMgmtRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_PfdMgmtRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_PfdMgmtRsp*)iebuffer_)->c_;
 }
 
-inline OffendingIeIE &PfdMgmtRsp::offending_ie()
+inline OffendingIeIE &PfdMgmtRsp::offending_ie(Bool forceInit)
 {
-   return oi_;
+   if (forceInit || data_.offending_ie.header.type == 0)
+      new (&((_PfdMgmtRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return ((_PfdMgmtRsp*)iebuffer_)->oi_;
 }
 
 inline PfdMgmtRsp &PfdMgmtRsp::encode(uint8_t *dest)
@@ -9774,22 +9809,21 @@ inline pfcp_pfd_mgmt_rsp_t &PfdMgmtRsp::data()
    return data_;
 }
 
+inline Void PfdMgmtRsp::postDecode()
+{
+   if (data_.cause.header.len > 0)                    cause(True);
+   if (data_.offending_ie.header.len > 0)             offending_ie(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnSetupReq::AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
    : PFCP::AppMsgNodeReq(ln,rn),
-     data_({}),
-     ni_(data_.node_id, nullptr),
-     rts_(data_.rcvry_time_stmp, nullptr),
-     uff_(data_.up_func_feat, nullptr),
-     cff_(data_.cp_func_feat, nullptr)
+     data_({})
 {
    setMsgType(PFCP_ASSN_SETUP_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-      upiri_.push_back(UserPlaneIpResourceInformationIE(data_.user_plane_ip_rsrc_info[i], nullptr));
 }
 
 inline uint16_t AssnSetupReq::length() const
@@ -9797,28 +9831,41 @@ inline uint16_t AssnSetupReq::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &AssnSetupReq::node_id()
+inline NodeIdIE &AssnSetupReq::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_AssnSetupReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_AssnSetupReq*)iebuffer_)->ni_;
 }
 
-inline RecoveryTimeStampIE &AssnSetupReq::rcvry_time_stmp()
+inline RecoveryTimeStampIE &AssnSetupReq::rcvry_time_stmp(Bool forceInit)
 {
-   return rts_;
+   if (forceInit || data_.rcvry_time_stmp.header.type == 0)
+      new (&((_AssnSetupReq*)iebuffer_)->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
+   return ((_AssnSetupReq*)iebuffer_)->rts_;
 }
 
-inline UpFunctionFeaturesIE &AssnSetupReq::up_func_feat()
+inline UpFunctionFeaturesIE &AssnSetupReq::up_func_feat(Bool forceInit)
 {
-   return uff_;
+   if (forceInit || data_.up_func_feat.header.type == 0)
+      new (&((_AssnSetupReq*)iebuffer_)->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
+   return ((_AssnSetupReq*)iebuffer_)->uff_;
 }
 
-inline CpFunctionFeaturesIE &AssnSetupReq::cp_func_feat()
+inline CpFunctionFeaturesIE &AssnSetupReq::cp_func_feat(Bool forceInit)
 {
-   return cff_;
+   if (forceInit || data_.cp_func_feat.header.type == 0)
+      new (&((_AssnSetupReq*)iebuffer_)->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
+   return ((_AssnSetupReq*)iebuffer_)->cff_;
 }
 
 inline UserPlaneIpResourceInformationIE &AssnSetupReq::user_plane_ip_rsrc_info(uint8_t idx)
 {
+   if (idx >= upiri_.size())
+   {
+      for (auto i = upiri_.size(); i < static_cast<size_t>(idx)+1; i++)
+         upiri_.push_back(UserPlaneIpResourceInformationIE(data_.user_plane_ip_rsrc_info[i], nullptr));
+   }
    return upiri_[idx];
 }
 
@@ -9842,22 +9889,27 @@ inline pfcp_assn_setup_req_t &AssnSetupReq::data()
    return data_;
 }
 
+inline Void AssnSetupReq::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.rcvry_time_stmp.header.len > 0)          rcvry_time_stmp(True);
+   if (data_.up_func_feat.header.len > 0)             up_func_feat(True);
+   if (data_.cp_func_feat.header.len > 0)             cp_func_feat(True);
+
+   for (int i=0; i<MAX_LIST_SIZE; i++)
+   {
+      if (data_.user_plane_ip_rsrc_info[i].header.len > 0) { next_user_plane_ip_rsrc_info(); user_plane_ip_rsrc_info(i); }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnSetupRsp::AssnSetupRsp()
-   : data_({}),
-     ni_(data_.node_id, nullptr),
-     c_(data_.cause, nullptr),
-     rts_(data_.rcvry_time_stmp, nullptr),
-     uff_(data_.up_func_feat, nullptr),
-     cff_(data_.cp_func_feat, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_ASSN_SETUP_RSP);
    data_.header.message_type = msgType();
    data_.header.version = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-      upiri_.push_back(UserPlaneIpResourceInformationIE(data_.user_plane_ip_rsrc_info[i], nullptr));
 }
 
 inline uint16_t AssnSetupRsp::length() const
@@ -9865,33 +9917,48 @@ inline uint16_t AssnSetupRsp::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &AssnSetupRsp::node_id()
+inline NodeIdIE &AssnSetupRsp::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_AssnSetupRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_AssnSetupRsp*)iebuffer_)->ni_;
 }
 
-inline CauseIE &AssnSetupRsp::cause()
+inline CauseIE &AssnSetupRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_AssnSetupRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_AssnSetupRsp*)iebuffer_)->c_;
 }
 
-inline RecoveryTimeStampIE &AssnSetupRsp::rcvry_time_stmp()
+inline RecoveryTimeStampIE &AssnSetupRsp::rcvry_time_stmp(Bool forceInit)
 {
-   return rts_;
+   if (forceInit || data_.rcvry_time_stmp.header.type == 0)
+      new (&((_AssnSetupRsp*)iebuffer_)->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
+   return ((_AssnSetupRsp*)iebuffer_)->rts_;
 }
 
-inline UpFunctionFeaturesIE &AssnSetupRsp::up_func_feat()
+inline UpFunctionFeaturesIE &AssnSetupRsp::up_func_feat(Bool forceInit)
 {
-   return uff_;
+   if (forceInit || data_.up_func_feat.header.type == 0)
+      new (&((_AssnSetupRsp*)iebuffer_)->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
+   return ((_AssnSetupRsp*)iebuffer_)->uff_;
 }
 
-inline CpFunctionFeaturesIE &AssnSetupRsp::cp_func_feat()
+inline CpFunctionFeaturesIE &AssnSetupRsp::cp_func_feat(Bool forceInit)
 {
-   return cff_;
+   if (forceInit || data_.cp_func_feat.header.type == 0)
+      new (&((_AssnSetupRsp*)iebuffer_)->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
+   return ((_AssnSetupRsp*)iebuffer_)->cff_;
 }
 
 inline UserPlaneIpResourceInformationIE &AssnSetupRsp::user_plane_ip_rsrc_info(uint8_t idx)
 {
+   if (idx >= upiri_.size())
+   {
+      for (auto i = upiri_.size(); i < static_cast<size_t>(idx)+1; i++)
+         upiri_.push_back(UserPlaneIpResourceInformationIE(data_.user_plane_ip_rsrc_info[i], nullptr));
+   }
    return upiri_[idx];
 }
 
@@ -9915,23 +9982,29 @@ inline pfcp_assn_setup_rsp_t &AssnSetupRsp::data()
    return data_;
 }
 
+inline Void AssnSetupRsp::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.cause.header.len > 0)                    cause(True);
+   if (data_.rcvry_time_stmp.header.len > 0)          rcvry_time_stmp(True);
+   if (data_.up_func_feat.header.len > 0)             up_func_feat(True);
+   if (data_.cp_func_feat.header.len > 0)             cp_func_feat(True);
+
+   for (int i=0; i<MAX_LIST_SIZE; i++)
+   {
+      if (data_.user_plane_ip_rsrc_info[i].header.len > 0) { next_user_plane_ip_rsrc_info(); user_plane_ip_rsrc_info(i); }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnUpdateReq::AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
    : PFCP::AppMsgNodeReq(ln,rn),
-     data_({}),
-     ni_(data_.node_id, nullptr),
-     uff_(data_.up_func_feat, nullptr),
-     cff_(data_.cp_func_feat, nullptr),
-     arr_(data_.up_assn_rel_req, nullptr),
-     grp_(data_.graceful_rel_period, nullptr)
+     data_({})
 {
    setMsgType(PFCP_ASSN_UPD_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-      upiri_.push_back(UserPlaneIpResourceInformationIE(data_.user_plane_ip_rsrc_info[i], nullptr));
 }
 
 inline uint16_t AssnUpdateReq::length() const
@@ -9939,33 +10012,48 @@ inline uint16_t AssnUpdateReq::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &AssnUpdateReq::node_id()
+inline NodeIdIE &AssnUpdateReq::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_AssnUpdateReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_AssnUpdateReq*)iebuffer_)->ni_;
 }
 
-inline UpFunctionFeaturesIE &AssnUpdateReq::up_func_feat()
+inline UpFunctionFeaturesIE &AssnUpdateReq::up_func_feat(Bool forceInit)
 {
-   return uff_;
+   if (forceInit || data_.up_func_feat.header.type == 0)
+      new (&((_AssnUpdateReq*)iebuffer_)->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
+   return ((_AssnUpdateReq*)iebuffer_)->uff_;
 }
 
-inline CpFunctionFeaturesIE &AssnUpdateReq::cp_func_feat()
+inline CpFunctionFeaturesIE &AssnUpdateReq::cp_func_feat(Bool forceInit)
 {
-   return cff_;
+   if (forceInit || data_.cp_func_feat.header.type == 0)
+      new (&((_AssnUpdateReq*)iebuffer_)->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
+   return ((_AssnUpdateReq*)iebuffer_)->cff_;
 }
 
-inline AssociationReleaseRequestIE &AssnUpdateReq::up_assn_rel_req()
+inline AssociationReleaseRequestIE &AssnUpdateReq::up_assn_rel_req(Bool forceInit)
 {
-   return arr_;
+   if (forceInit || data_.up_assn_rel_req.header.type == 0)
+      new (&((_AssnUpdateReq*)iebuffer_)->arr_) AssociationReleaseRequestIE(data_.up_assn_rel_req, nullptr);
+   return ((_AssnUpdateReq*)iebuffer_)->arr_;
 }
 
-inline GracefulReleasePeriodIE &AssnUpdateReq::graceful_rel_period()
+inline GracefulReleasePeriodIE &AssnUpdateReq::graceful_rel_period(Bool forceInit)
 {
-   return grp_;
+   if (forceInit || data_.graceful_rel_period.header.type == 0)
+      new (&((_AssnUpdateReq*)iebuffer_)->grp_) GracefulReleasePeriodIE(data_.graceful_rel_period, nullptr);
+   return ((_AssnUpdateReq*)iebuffer_)->grp_;
 }
 
 inline UserPlaneIpResourceInformationIE &AssnUpdateReq::user_plane_ip_rsrc_info(uint8_t idx)
 {
+   if (idx >= upiri_.size())
+   {
+      for (auto i = upiri_.size(); i < static_cast<size_t>(idx)+1; i++)
+         upiri_.push_back(UserPlaneIpResourceInformationIE(data_.user_plane_ip_rsrc_info[i], nullptr));
+   }
    return  upiri_[idx];
 }
 
@@ -9989,14 +10077,24 @@ inline pfcp_assn_upd_req_t &AssnUpdateReq::data()
    return data_;
 }
 
+inline Void AssnUpdateReq::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.up_func_feat.header.len > 0)             up_func_feat(True);
+   if (data_.cp_func_feat.header.len > 0)             cp_func_feat(True);
+   if (data_.up_assn_rel_req.header.len > 0)          up_assn_rel_req(True);
+   if (data_.graceful_rel_period.header.len > 0)      graceful_rel_period(True);
+
+   for (int i=0; i<MAX_LIST_SIZE; i++)
+   {
+      if (data_.user_plane_ip_rsrc_info[i].header.len > 0) { next_user_plane_ip_rsrc_info(); user_plane_ip_rsrc_info(i); }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnUpdateRsp::AssnUpdateRsp()
-   : data_({}),
-     ni_(data_.node_id, nullptr),
-     c_(data_.cause, nullptr),
-     uff_(data_.up_func_feat, nullptr),
-     cff_(data_.cp_func_feat, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_ASSN_UPD_RSP);
    data_.header.message_type = msgType();
@@ -10008,24 +10106,32 @@ inline uint16_t AssnUpdateRsp::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &AssnUpdateRsp::node_id()
+inline NodeIdIE &AssnUpdateRsp::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_AssnUpdateRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_AssnUpdateRsp*)iebuffer_)->ni_;
 }
 
-inline CauseIE &AssnUpdateRsp::cause()
+inline CauseIE &AssnUpdateRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_AssnUpdateRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_AssnUpdateRsp*)iebuffer_)->c_;
 }
 
-inline UpFunctionFeaturesIE &AssnUpdateRsp::up_func_feat()
+inline UpFunctionFeaturesIE &AssnUpdateRsp::up_func_feat(Bool forceInit)
 {
-   return uff_;
+   if (forceInit || data_.up_func_feat.header.type == 0)
+      new (&((_AssnUpdateRsp*)iebuffer_)->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
+   return ((_AssnUpdateRsp*)iebuffer_)->uff_;
 }
 
-inline CpFunctionFeaturesIE &AssnUpdateRsp::cp_func_feat()
+inline CpFunctionFeaturesIE &AssnUpdateRsp::cp_func_feat(Bool forceInit)
 {
-   return cff_;
+   if (forceInit || data_.cp_func_feat.header.type == 0)
+      new (&((_AssnUpdateRsp*)iebuffer_)->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
+   return ((_AssnUpdateRsp*)iebuffer_)->cff_;
 }
 
 inline AssnUpdateRsp &AssnUpdateRsp::encode(uint8_t *dest)
@@ -10042,12 +10148,19 @@ inline pfcp_assn_upd_rsp_t &AssnUpdateRsp::data()
    return data_;
 }
 
+inline Void AssnUpdateRsp::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.cause.header.len > 0)                    cause(True);
+   if (data_.up_func_feat.header.len > 0)             up_func_feat(True);
+   if (data_.cp_func_feat.header.len > 0)             cp_func_feat(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnReleaseReq::AssnReleaseReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
    : PFCP::AppMsgNodeReq(ln,rn),
-      data_({}),
-      ni_(data_.node_id, nullptr)
+     data_({})
 {
    setMsgType(PFCP_ASSN_REL_REQ);
    data_.header.message_type = msgType();
@@ -10059,9 +10172,11 @@ inline uint16_t AssnReleaseReq::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &AssnReleaseReq::node_id()
+inline NodeIdIE &AssnReleaseReq::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_AssnReleaseReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_AssnReleaseReq*)iebuffer_)->ni_;
 }
 
 inline AssnReleaseReq &AssnReleaseReq::encode(uint8_t *dest)
@@ -10078,12 +10193,15 @@ inline pfcp_assn_rel_req_t &AssnReleaseReq::data()
    return data_;
 }
 
+inline Void AssnReleaseReq::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline AssnReleaseRsp::AssnReleaseRsp()
-   : data_({}),
-     ni_(data_.node_id, nullptr),
-     c_(data_.cause, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_ASSN_REL_RSP);
    data_.header.message_type = msgType();
@@ -10095,14 +10213,18 @@ inline uint16_t AssnReleaseRsp::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &AssnReleaseRsp::node_id()
+inline NodeIdIE &AssnReleaseRsp::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_AssnReleaseRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_AssnReleaseRsp*)iebuffer_)->ni_;
 }
 
-inline CauseIE &AssnReleaseRsp::cause()
+inline CauseIE &AssnReleaseRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_AssnReleaseRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_AssnReleaseRsp*)iebuffer_)->c_;
 }
 
 inline AssnReleaseRsp &AssnReleaseRsp::encode(uint8_t *dest)
@@ -10117,6 +10239,12 @@ inline AssnReleaseRsp &AssnReleaseRsp::encode(uint8_t *dest)
 inline pfcp_assn_rel_rsp_t &AssnReleaseRsp::data()
 {
    return data_;
+}
+
+inline Void AssnReleaseRsp::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.cause.header.len > 0)                    cause(True);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10152,10 +10280,7 @@ inline pfcp_header_t &VersionNotSupportedRsp::data()
 
 inline NodeReportReq::NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
    : PFCP::AppMsgNodeReq(ln,rn),
-     data_({}),
-     ni_(data_.node_id, nullptr),
-     nrt_(data_.node_rpt_type, nullptr),
-     uprfr_(data_.user_plane_path_fail_rpt, nullptr)
+     data_({})
 {
    setMsgType(PFCP_NODE_RPT_REQ);
    data_.header.message_type = msgType();
@@ -10167,19 +10292,25 @@ inline uint16_t NodeReportReq::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &NodeReportReq::node_id()
+inline NodeIdIE &NodeReportReq::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_NodeReportReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_NodeReportReq*)iebuffer_)->ni_;
 }
 
-inline NodeReportTypeIE &NodeReportReq::node_rpt_type()
+inline NodeReportTypeIE &NodeReportReq::node_rpt_type(Bool forceInit)
 {
-   return nrt_;
+   if (forceInit || data_.node_rpt_type.header.type == 0)
+      new (&((_NodeReportReq*)iebuffer_)->nrt_) NodeReportTypeIE(data_.node_rpt_type, nullptr);
+   return ((_NodeReportReq*)iebuffer_)->nrt_;
 }
 
-inline UserPlanePathFailureReportIE &NodeReportReq::user_plane_path_fail_rpt()
+inline UserPlanePathFailureReportIE &NodeReportReq::user_plane_path_fail_rpt(Bool forceInit)
 {
-   return uprfr_;
+   if (forceInit || data_.user_plane_path_fail_rpt.header.type == 0)
+      new (&((_NodeReportReq*)iebuffer_)->uprfr_) UserPlanePathFailureReportIE(data_.user_plane_path_fail_rpt, nullptr);
+   return ((_NodeReportReq*)iebuffer_)->uprfr_;
 }
 
 inline NodeReportReq &NodeReportReq::encode(uint8_t *dest)
@@ -10196,13 +10327,17 @@ inline pfcp_node_rpt_req_t &NodeReportReq::data()
    return data_;
 }
 
+inline Void NodeReportReq::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.node_rpt_type.header.len > 0)            node_rpt_type(True);
+   if (data_.user_plane_path_fail_rpt.header.len > 0) user_plane_path_fail_rpt(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline NodeReportRsp::NodeReportRsp()
-   : data_({}),
-     ni_(data_.node_id, nullptr),
-     c_(data_.cause, nullptr),
-     oi_(data_.offending_ie, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_NODE_RPT_RSP);
    data_.header.message_type = msgType();
@@ -10214,19 +10349,25 @@ inline uint16_t NodeReportRsp::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &NodeReportRsp::node_id()
+inline NodeIdIE &NodeReportRsp::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_NodeReportRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_NodeReportRsp*)iebuffer_)->ni_;
 }
 
-inline CauseIE &NodeReportRsp::cause()
+inline CauseIE &NodeReportRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_NodeReportRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_NodeReportRsp*)iebuffer_)->c_;
 }
 
-inline OffendingIeIE &NodeReportRsp::offending_ie()
+inline OffendingIeIE &NodeReportRsp::offending_ie(Bool forceInit)
 {
-   return oi_;
+   if (forceInit || data_.offending_ie.header.type == 0)
+      new (&((_NodeReportRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return ((_NodeReportRsp*)iebuffer_)->oi_;
 }
 
 inline NodeReportRsp &NodeReportRsp::encode(uint8_t *dest)
@@ -10243,18 +10384,18 @@ inline pfcp_node_rpt_rsp_t &NodeReportRsp::data()
    return data_;
 }
 
+inline Void NodeReportRsp::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.cause.header.len > 0)                    cause(True);
+   if (data_.offending_ie.header.len > 0)             offending_ie(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionSetDeletionReq::SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
    : PFCP::AppMsgNodeReq(ln,rn),
-     data_({}),
-     ni_(data_.node_id, nullptr),
-     sc_(data_.sgw_c_fqcsid, nullptr),
-     pc_(data_.pgw_c_fqcsid, nullptr),
-     u_(data_.up_fqcsid, nullptr),
-     t_(data_.twan_fqcsid, nullptr),
-     e_(data_.epdg_fqcsid, nullptr),
-     m_(data_.mme_fqcsid, nullptr)
+     data_({})
 {
    setMsgType(PFCP_SESS_SET_DEL_REQ);
    data_.header.message_type = msgType();
@@ -10266,39 +10407,53 @@ inline uint16_t SessionSetDeletionReq::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &SessionSetDeletionReq::node_id()
+inline NodeIdIE &SessionSetDeletionReq::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_SessionSetDeletionReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_SessionSetDeletionReq*)iebuffer_)->ni_;
 }
 
-inline FqCsidIE &SessionSetDeletionReq::sgw_c_fqcsid()
+inline FqCsidIE &SessionSetDeletionReq::sgw_c_fqcsid(Bool forceInit)
 {
-   return sc_;
+   if (forceInit || data_.sgw_c_fqcsid.header.type == 0)
+      new (&((_SessionSetDeletionReq*)iebuffer_)->sc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
+   return ((_SessionSetDeletionReq*)iebuffer_)->sc_;
 }
 
-inline FqCsidIE &SessionSetDeletionReq::pgw_c_fqcsid()
+inline FqCsidIE &SessionSetDeletionReq::pgw_c_fqcsid(Bool forceInit)
 {
-   return pc_;
+   if (forceInit || data_.pgw_c_fqcsid.header.type == 0)
+      new (&((_SessionSetDeletionReq*)iebuffer_)->pc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
+   return ((_SessionSetDeletionReq*)iebuffer_)->pc_;
 }
 
-inline FqCsidIE &SessionSetDeletionReq::up_fqcsid()
+inline FqCsidIE &SessionSetDeletionReq::up_fqcsid(Bool forceInit)
 {
-   return u_;
+   if (forceInit || data_.up_fqcsid.header.type == 0)
+      new (&((_SessionSetDeletionReq*)iebuffer_)->u_) FqCsidIE(data_.up_fqcsid, nullptr);
+   return ((_SessionSetDeletionReq*)iebuffer_)->u_;
 }
 
-inline FqCsidIE &SessionSetDeletionReq::twan_fqcsid()
+inline FqCsidIE &SessionSetDeletionReq::twan_fqcsid(Bool forceInit)
 {
-   return t_;
+   if (forceInit || data_.twan_fqcsid.header.type == 0)
+      new (&((_SessionSetDeletionReq*)iebuffer_)->t_) FqCsidIE(data_.twan_fqcsid, nullptr);
+   return ((_SessionSetDeletionReq*)iebuffer_)->t_;
 }
 
-inline FqCsidIE &SessionSetDeletionReq::epdg_fqcsid()
+inline FqCsidIE &SessionSetDeletionReq::epdg_fqcsid(Bool forceInit)
 {
-   return e_;
+   if (forceInit || data_.epdg_fqcsid.header.type == 0)
+      new (&((_SessionSetDeletionReq*)iebuffer_)->e_) FqCsidIE(data_.epdg_fqcsid, nullptr);
+   return ((_SessionSetDeletionReq*)iebuffer_)->e_;
 }
 
-inline FqCsidIE &SessionSetDeletionReq::mme_fqcsid()
+inline FqCsidIE &SessionSetDeletionReq::mme_fqcsid(Bool forceInit)
 {
-   return m_;
+   if (forceInit || data_.mme_fqcsid.header.type == 0)
+      new (&((_SessionSetDeletionReq*)iebuffer_)->m_) FqCsidIE(data_.mme_fqcsid, nullptr);
+   return ((_SessionSetDeletionReq*)iebuffer_)->m_;
 }
 
 inline SessionSetDeletionReq &SessionSetDeletionReq::encode(uint8_t *dest)
@@ -10315,13 +10470,21 @@ inline pfcp_sess_set_del_req_t &SessionSetDeletionReq::data()
    return data_;
 }
 
+inline Void SessionSetDeletionReq::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.sgw_c_fqcsid.header.len > 0)             sgw_c_fqcsid(True);
+   if (data_.pgw_c_fqcsid.header.len > 0)             pgw_c_fqcsid(True);
+   if (data_.up_fqcsid.header.len > 0)                up_fqcsid(True);
+   if (data_.twan_fqcsid.header.len > 0)              twan_fqcsid(True);
+   if (data_.epdg_fqcsid.header.len > 0)              epdg_fqcsid(True);
+   if (data_.mme_fqcsid.header.len > 0)               mme_fqcsid(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionSetDeletionRsp::SessionSetDeletionRsp()
-   : data_({}),
-     ni_(data_.node_id, nullptr),
-     c_(data_.cause, nullptr),
-     oi_(data_.offending_ie, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_SESS_SET_DEL_RSP);
    data_.header.message_type = msgType();
@@ -10333,19 +10496,25 @@ inline uint16_t SessionSetDeletionRsp::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &SessionSetDeletionRsp::node_id()
+inline NodeIdIE &SessionSetDeletionRsp::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_SessionSetDeletionRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_SessionSetDeletionRsp*)iebuffer_)->ni_;
 }
 
-inline CauseIE &SessionSetDeletionRsp::cause()
+inline CauseIE &SessionSetDeletionRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_SessionSetDeletionRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_SessionSetDeletionRsp*)iebuffer_)->c_;
 }
 
-inline OffendingIeIE &SessionSetDeletionRsp::offending_ie()
+inline OffendingIeIE &SessionSetDeletionRsp::offending_ie(Bool forceInit)
 {
-   return oi_;
+   if (forceInit || data_.offending_ie.header.type == 0)
+      new (&((_SessionSetDeletionRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return ((_SessionSetDeletionRsp*)iebuffer_)->oi_;
 }
 
 inline SessionSetDeletionRsp &SessionSetDeletionRsp::encode(uint8_t *dest)
@@ -10362,38 +10531,23 @@ inline pfcp_sess_set_del_rsp_t &SessionSetDeletionRsp::data()
    return data_;
 }
 
+inline Void SessionSetDeletionRsp::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.cause.header.len > 0)                    cause(True);
+   if (data_.offending_ie.header.len > 0)             offending_ie(True);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionEstablishmentReq::SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses)
    : PFCP::AppMsgSessionReq(ses),
-     data_({}),
-     ni_(data_.node_id, nullptr),
-     cpf_(data_.cp_fseid, nullptr),
-     cb_(data_.create_bar, nullptr),
-     pt_(data_.pdn_type, nullptr),
-     sfc_(data_.sgw_c_fqcsid, nullptr),
-     mfc_(data_.mme_fqcsid, nullptr),
-     pfc_(data_.pgw_c_fqcsid, nullptr),
-     efc_(data_.epdg_fqcsid, nullptr),
-     tfc_(data_.twan_fqcsid, nullptr),
-     upit_(data_.user_plane_inact_timer, nullptr),
-     ui_(data_.user_id, nullptr),
-     ti_(data_.trc_info, nullptr),
-     ad_(data_.apn_dnn, nullptr)
+     data_({})
 {
    setMsgType(PFCP_SESS_ESTAB_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
    data_.header.s = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-   {
-      cp_.push_back(CreatePdrIE(data_.create_pdr[i], nullptr));
-      cf_.push_back(CreateFarIE(data_.create_far[i], nullptr));
-      cu_.push_back(CreateUrrIE(data_.create_urr[i], nullptr));
-      cq_.push_back(CreateQerIE(data_.create_qer[i], nullptr));
-      cte_.push_back(CreateTrafficEndpointIE(data_.create_traffic_endpt[i], nullptr));
-   }
 }
 
 inline uint16_t SessionEstablishmentReq::length() const
@@ -10401,93 +10555,144 @@ inline uint16_t SessionEstablishmentReq::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &SessionEstablishmentReq::node_id()
+inline NodeIdIE &SessionEstablishmentReq::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->ni_;
 }
 
-inline FSeidIE &SessionEstablishmentReq::cp_fseid()
+inline FSeidIE &SessionEstablishmentReq::cp_fseid(Bool forceInit)
 {
-   return cpf_;
+   if (forceInit || data_.cp_fseid.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->cpf_) FSeidIE(data_.cp_fseid, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->cpf_;
 }
 
-inline CreateBarIE &SessionEstablishmentReq::create_bar()
+inline CreateBarIE &SessionEstablishmentReq::create_bar(Bool forceInit)
 {
-   return cb_;
+   if (forceInit || data_.create_bar.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->cb_) CreateBarIE(data_.create_bar, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->cb_;
 }
 
-inline PdnTypeIE &SessionEstablishmentReq::pdn_type()
+inline PdnTypeIE &SessionEstablishmentReq::pdn_type(Bool forceInit)
 {
-   return pt_;
+   if (forceInit || data_.pdn_type.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->pt_) PdnTypeIE(data_.pdn_type, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->pt_;
 }
 
-inline FqCsidIE &SessionEstablishmentReq::sgw_c_fqcsid()
+inline FqCsidIE &SessionEstablishmentReq::sgw_c_fqcsid(Bool forceInit)
 {
-   return sfc_;
+   if (forceInit || data_.sgw_c_fqcsid.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->sfc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->sfc_;
 }
 
-inline FqCsidIE &SessionEstablishmentReq::mme_fqcsid()
+inline FqCsidIE &SessionEstablishmentReq::mme_fqcsid(Bool forceInit)
 {
-   return mfc_;
+   if (forceInit || data_.mme_fqcsid.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->mfc_) FqCsidIE(data_.mme_fqcsid, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->mfc_;
 }
 
-inline FqCsidIE &SessionEstablishmentReq::pgw_c_fqcsid()
+inline FqCsidIE &SessionEstablishmentReq::pgw_c_fqcsid(Bool forceInit)
 {
-   return pfc_;
+   if (forceInit || data_.pgw_c_fqcsid.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->pfc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->pfc_;
 }
 
-inline FqCsidIE &SessionEstablishmentReq::epdg_fqcsid()
+inline FqCsidIE &SessionEstablishmentReq::epdg_fqcsid(Bool forceInit)
 {
-   return efc_;
+   if (forceInit || data_.epdg_fqcsid.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->efc_) FqCsidIE(data_.epdg_fqcsid, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->efc_;
 }
 
-inline FqCsidIE &SessionEstablishmentReq::twan_fqcsid()
+inline FqCsidIE &SessionEstablishmentReq::twan_fqcsid(Bool forceInit)
 {
-   return tfc_;
+   if (forceInit || data_.twan_fqcsid.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->tfc_) FqCsidIE(data_.twan_fqcsid, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->tfc_;
 }
 
-inline UserPlaneInactivityTimerIE &SessionEstablishmentReq::user_plane_inact_timer()
+inline UserPlaneInactivityTimerIE &SessionEstablishmentReq::user_plane_inact_timer(Bool forceInit)
 {
-   return upit_;
+   if (forceInit || data_.user_plane_inact_timer.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->upit_) UserPlaneInactivityTimerIE(data_.user_plane_inact_timer, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->upit_;
 }
 
-inline UserIdIE &SessionEstablishmentReq::user_id()
+inline UserIdIE &SessionEstablishmentReq::user_id(Bool forceInit)
 {
-   return ui_;
+   if (forceInit || data_.user_id.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->ui_) UserIdIE(data_.user_id, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->ui_;
 }
 
-inline TraceInformationIE &SessionEstablishmentReq::trc_info()
+inline TraceInformationIE &SessionEstablishmentReq::trc_info(Bool forceInit)
 {
-   return ti_;
+   if (forceInit || data_.trc_info.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->ti_) TraceInformationIE(data_.trc_info, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->ti_;
 }
 
-inline ApnDnnIE &SessionEstablishmentReq::apn_dnn()
+inline ApnDnnIE &SessionEstablishmentReq::apn_dnn(Bool forceInit)
 {
-   return ad_;
+   if (forceInit || data_.apn_dnn.header.type == 0)
+      new (&((_SessionEstablishmentReq*)iebuffer_)->ad_) ApnDnnIE(data_.apn_dnn, nullptr);
+   return ((_SessionEstablishmentReq*)iebuffer_)->ad_;
 }
 
 inline CreatePdrIE &SessionEstablishmentReq::create_pdr(uint8_t idx)
 {
+   if (idx >= cp_.size())
+   {
+      for (auto i = cp_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cp_.push_back(CreatePdrIE(data_.create_pdr[i], nullptr));
+   }
    return cp_[idx];
 }
 
 inline CreateFarIE &SessionEstablishmentReq::create_far(uint8_t idx)
 {
+   if (idx >= cf_.size())
+   {
+      for (auto i = cf_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cf_.push_back(CreateFarIE(data_.create_far[i], nullptr));
+   }
    return cf_[idx];
 }
 
 inline CreateUrrIE &SessionEstablishmentReq::create_urr(uint8_t idx)
 {
+   if (idx >= cu_.size())
+   {
+      for (auto i = cu_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cu_.push_back(CreateUrrIE(data_.create_urr[i], nullptr));
+   }
    return cu_[idx];
 }
 
 inline CreateQerIE &SessionEstablishmentReq::create_qer(uint8_t idx)
 {
+   if (idx >= cq_.size())
+   {
+      for (auto i = cq_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cq_.push_back(CreateQerIE(data_.create_qer[i], nullptr));
+   }
    return cq_[idx];
 }
 
 inline CreateTrafficEndpointIE &SessionEstablishmentReq::create_traffic_endpt(uint8_t idx)
 {
+   if (idx >= cte_.size())
+   {
+      for (auto i = cte_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cte_.push_back(CreateTrafficEndpointIE(data_.create_traffic_endpt[i], nullptr));
+   }
    return cte_[idx];
 }
 
@@ -10536,29 +10741,41 @@ inline pfcp_sess_estab_req_t &SessionEstablishmentReq::data()
    return data_;
 }
 
+inline Void SessionEstablishmentReq::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.cp_fseid.header.len > 0)                 cp_fseid(True);
+   if (data_.create_bar.header.len > 0)               create_bar(True);
+   if (data_.pdn_type.header.len > 0)                 pdn_type(True);
+   if (data_.sgw_c_fqcsid.header.len > 0)             sgw_c_fqcsid(True);
+   if (data_.mme_fqcsid.header.len > 0)               mme_fqcsid(True);
+   if (data_.pgw_c_fqcsid.header.len > 0)             pgw_c_fqcsid(True);
+   if (data_.epdg_fqcsid.header.len > 0)              epdg_fqcsid(True);
+   if (data_.twan_fqcsid.header.len > 0)              twan_fqcsid(True);
+   if (data_.user_plane_inact_timer.header.len > 0)   user_plane_inact_timer(True);
+   if (data_.user_id.header.len > 0)                  user_id(True);
+   if (data_.trc_info.header.len > 0)                 trc_info(True);
+   if (data_.apn_dnn.header.len > 0)                  apn_dnn(True);
+
+   // for (int i=0; i<MAX_LIST_SIZE; i++)
+   // {
+   //    if (data_.create_pdr[i].header.len > 0)            { next_create_pdr(); create_pdr(i); }
+   //    if (data_.create_far[i].header.len > 0)            { next_create_far(); create_far(i); }
+   //    if (data_.create_urr[i].header.len > 0)            { next_create_urr(); create_urr(i); }
+   //    if (data_.create_qer[i].header.len > 0)            { next_create_qer(); create_qer(i); }
+   //    if (data_.create_traffic_endpt[i].header.len > 0)  { next_create_traffic_endpt(); create_traffic_endpt(i); }
+   // }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionEstablishmentRsp::SessionEstablishmentRsp()
-   : data_({}),
-     ni_(data_.node_id, nullptr),
-     c_(data_.cause, nullptr),
-     oi_(data_.offending_ie, nullptr),
-     ufs_(data_.up_fseid, nullptr),
-     lci_(data_.load_ctl_info, nullptr),
-     oci_(data_.ovrld_ctl_info, nullptr),
-     ufc_(data_.up_fqcsid, nullptr),
-     fri_(data_.failed_rule_id, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_SESS_ESTAB_RSP);
    data_.header.message_type = msgType();
    data_.header.version = 1;
    data_.header.s = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-   {
-      cp_.push_back(CreatedPdrIE(data_.created_pdr[i], nullptr));
-      cte_.push_back(CreatedTrafficEndpointIE(data_.created_traffic_endpt[i], nullptr));
-   }
 }
 
 inline uint16_t SessionEstablishmentRsp::length() const
@@ -10566,53 +10783,79 @@ inline uint16_t SessionEstablishmentRsp::length() const
    return data_.header.message_len;
 }
 
-inline NodeIdIE &SessionEstablishmentRsp::node_id()
+inline NodeIdIE &SessionEstablishmentRsp::node_id(Bool forceInit)
 {
-   return ni_;
+   if (forceInit || data_.node_id.header.type == 0)
+      new (&((_SessionEstablishmentRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
+   return ((_SessionEstablishmentRsp*)iebuffer_)->ni_;
 }
 
-inline CauseIE &SessionEstablishmentRsp::cause()
+inline CauseIE &SessionEstablishmentRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_SessionEstablishmentRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_SessionEstablishmentRsp*)iebuffer_)->c_;
 }
 
-inline OffendingIeIE &SessionEstablishmentRsp::offending_ie()
+inline OffendingIeIE &SessionEstablishmentRsp::offending_ie(Bool forceInit)
 {
-   return oi_;
+   if (forceInit || data_.offending_ie.header.type == 0)
+      new (&((_SessionEstablishmentRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return ((_SessionEstablishmentRsp*)iebuffer_)->oi_;
 }
 
-inline FSeidIE &SessionEstablishmentRsp::up_fseid()
+inline FSeidIE &SessionEstablishmentRsp::up_fseid(Bool forceInit)
 {
-   return ufs_;
+   if (forceInit || data_.up_fseid.header.type == 0)
+      new (&((_SessionEstablishmentRsp*)iebuffer_)->ufs_) FSeidIE(data_.up_fseid, nullptr);
+   return ((_SessionEstablishmentRsp*)iebuffer_)->ufs_;
 }
 
-inline LoadControlInformationIE &SessionEstablishmentRsp::load_ctl_info()
+inline LoadControlInformationIE &SessionEstablishmentRsp::load_ctl_info(Bool forceInit)
 {
-   return lci_;
+   if (forceInit || data_.load_ctl_info.header.type == 0)
+      new (&((_SessionEstablishmentRsp*)iebuffer_)->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
+   return ((_SessionEstablishmentRsp*)iebuffer_)->lci_;
 }
 
-inline OverloadControlInformationIE &SessionEstablishmentRsp::ovrld_ctl_info()
+inline OverloadControlInformationIE &SessionEstablishmentRsp::ovrld_ctl_info(Bool forceInit)
 {
-   return oci_;
+   if (forceInit || data_.ovrld_ctl_info.header.type == 0)
+      new (&((_SessionEstablishmentRsp*)iebuffer_)->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
+   return ((_SessionEstablishmentRsp*)iebuffer_)->oci_;
 }
 
-inline FqCsidIE &SessionEstablishmentRsp::up_fqcsid()
+inline FqCsidIE &SessionEstablishmentRsp::up_fqcsid(Bool forceInit)
 {
-   return ufc_;
+   if (forceInit || data_.up_fqcsid.header.type == 0)
+      new (&((_SessionEstablishmentRsp*)iebuffer_)->ufc_) FqCsidIE(data_.up_fqcsid, nullptr);
+   return ((_SessionEstablishmentRsp*)iebuffer_)->ufc_;
 }
 
-inline FailedRuleIdIE &SessionEstablishmentRsp::failed_rule_id()
+inline FailedRuleIdIE &SessionEstablishmentRsp::failed_rule_id(Bool forceInit)
 {
-   return fri_;
+   if (forceInit || data_.failed_rule_id.header.type == 0)
+      new (&((_SessionEstablishmentRsp*)iebuffer_)->fri_) FailedRuleIdIE(data_.failed_rule_id, nullptr);
+   return ((_SessionEstablishmentRsp*)iebuffer_)->fri_;
 }
 
 inline CreatedPdrIE &SessionEstablishmentRsp::created_pdr(uint8_t idx)
 {
+   if (idx >= cp_.size())
+   {
+      for (auto i = cp_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cp_.push_back(CreatedPdrIE(data_.created_pdr[i], nullptr));
+   }
    return cp_[idx];
 }
 
 inline CreatedTrafficEndpointIE &SessionEstablishmentRsp::created_traffic_endpt(uint8_t idx)
 {
+   if (idx >= cte_.size())
+   {
+      for (auto i = cte_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cte_.push_back(CreatedTrafficEndpointIE(data_.created_traffic_endpt[i], nullptr));
+   }
    return cte_[idx];
 }
 
@@ -10643,49 +10886,34 @@ inline pfcp_sess_estab_rsp_t &SessionEstablishmentRsp::data()
    return data_;
 }
 
+inline Void SessionEstablishmentRsp::postDecode()
+{
+   if (data_.node_id.header.len > 0)                  node_id(True);
+   if (data_.cause.header.len > 0)                    cause(True);
+   if (data_.offending_ie.header.len > 0)             offending_ie(True);
+   if (data_.up_fseid.header.len > 0)                 up_fseid(True);
+   if (data_.load_ctl_info.header.len > 0)            load_ctl_info(True);
+   if (data_.ovrld_ctl_info.header.len > 0)           ovrld_ctl_info(True);
+   if (data_.up_fqcsid.header.len > 0)                up_fqcsid(True);
+   if (data_.failed_rule_id.header.len > 0)           failed_rule_id(True);
+
+   for (int i=0; i<MAX_LIST_SIZE; i++)
+   {
+      if (data_.created_pdr[i].header.len > 0)           { next_created_pdr(); created_pdr(i); }
+      if (data_.created_traffic_endpt[i].header.len > 0) { next_created_traffic_endpt(); created_traffic_endpt(i); }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionModificationReq::SessionModificationReq(PFCP::SessionBaseSPtr &ses)
    : PFCP::AppMsgSessionReq(ses),
-     data_({}),
-     cfs_(data_.cp_fseid, nullptr),
-     rb_(data_.remove_bar, nullptr),
-     rte_(data_.rmv_traffic_endpt, nullptr),
-     cb_(data_.create_bar, nullptr),
-     cte_(data_.create_traffic_endpt, nullptr),
-     ub_(data_.update_bar, nullptr),
-     ute_(data_.upd_traffic_endpt, nullptr),
-     f_(data_.pfcpsmreq_flags, nullptr),
-     pcfc_(data_.pgw_c_fqcsid, nullptr),
-     scfc_(data_.sgw_c_fqcsid, nullptr),
-     mfc_(data_.mme_fqcsid, nullptr),
-     efc_(data_.epdg_fqcsid, nullptr),
-     tfc_(data_.twan_fqcsid, nullptr),
-     upit_(data_.user_plane_inact_timer, nullptr),
-     qur_(data_.query_urr_ref, nullptr),
-     ti_(data_.trc_info, nullptr)
+     data_({})
 {
    setMsgType(PFCP_SESS_MOD_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
    data_.header.s = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-   {
-      rp_.push_back(RemovePdrIE(data_.remove_pdr[i], nullptr));
-      rf_.push_back(RemoveFarIE(data_.remove_far[i], nullptr));
-      ru_.push_back(RemoveUrrIE(data_.remove_urr[i], nullptr));
-      rq_.push_back(RemoveQerIE(data_.remove_qer[i], nullptr));
-      cp_.push_back(CreatePdrIE(data_.create_pdr[i], nullptr));
-      cf_.push_back(CreateFarIE(data_.create_far[i], nullptr));
-      cu_.push_back(CreateUrrIE(data_.create_urr[i], nullptr));
-      cq_.push_back(CreateQerIE(data_.create_qer[i], nullptr));
-      up_.push_back(UpdatePdrIE(data_.update_pdr[i], nullptr));
-      uf_.push_back(UpdateFarIE(data_.update_far[i], nullptr));
-      uu_.push_back(UpdateUrrIE(data_.update_urr[i], nullptr));
-      uq_.push_back(UpdateQerIE(data_.update_qer[i], nullptr));
-      qu_.push_back(QueryUrrIE(data_.query_urr[i], nullptr));
-   }
 }
 
 inline uint16_t SessionModificationReq::length() const
@@ -10693,148 +10921,245 @@ inline uint16_t SessionModificationReq::length() const
    return data_.header.message_len;
 }
 
-inline FSeidIE &SessionModificationReq::cp_fseid()
+inline FSeidIE &SessionModificationReq::cp_fseid(Bool forceInit)
 {
-   return cfs_;
+   if (forceInit || data_.cp_fseid.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->cfs_) FSeidIE(data_.cp_fseid, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->cfs_;
 }
 
-inline RemoveBarIE &SessionModificationReq::remove_bar()
+inline RemoveBarIE &SessionModificationReq::remove_bar(Bool forceInit)
 {
-   return rb_;
+   if (forceInit || data_.remove_bar.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->rb_) RemoveBarIE(data_.remove_bar, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->rb_;
 }
 
-inline RemoveTrafficEndpointIE &SessionModificationReq::rmv_traffic_endpt()
+inline RemoveTrafficEndpointIE &SessionModificationReq::rmv_traffic_endpt(Bool forceInit)
 {
-   return rte_;
+   if (forceInit || data_.rmv_traffic_endpt.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->rte_) RemoveTrafficEndpointIE(data_.rmv_traffic_endpt, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->rte_;
 }
 
-inline CreateBarIE &SessionModificationReq::create_bar()
+inline CreateBarIE &SessionModificationReq::create_bar(Bool forceInit)
 {
-   return cb_;
+   if (forceInit || data_.create_bar.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->cb_) CreateBarIE(data_.create_bar, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->cb_;
 }
 
-inline CreateTrafficEndpointIE &SessionModificationReq::create_traffic_endpt()
+inline CreateTrafficEndpointIE &SessionModificationReq::create_traffic_endpt(Bool forceInit)
 {
-   return cte_;
+   if (forceInit || data_.create_traffic_endpt.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->cte_) CreateTrafficEndpointIE(data_.create_traffic_endpt, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->cte_;
 }
 
-inline UpdateBarSessionModificationReqIE &SessionModificationReq::update_bar()
+inline UpdateBarSessionModificationReqIE &SessionModificationReq::update_bar(Bool forceInit)
 {
-   return ub_;
+   if (forceInit || data_.update_bar.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->ub_) UpdateBarSessionModificationReqIE(data_.update_bar, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->ub_;
 }
 
-inline UpdateTrafficEndpointIE &SessionModificationReq::upd_traffic_endpt()
+inline UpdateTrafficEndpointIE &SessionModificationReq::upd_traffic_endpt(Bool forceInit)
 {
-   return ute_;
+   if (forceInit || data_.upd_traffic_endpt.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->ute_) UpdateTrafficEndpointIE(data_.upd_traffic_endpt, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->ute_;
 }
 
-inline PfcpSmReqFlagsIE &SessionModificationReq::pfcpsmreq_flags()
+inline PfcpSmReqFlagsIE &SessionModificationReq::pfcpsmreq_flags(Bool forceInit)
 {
-   return f_;
+   if (forceInit || data_.pfcpsmreq_flags.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->f_) PfcpSmReqFlagsIE(data_.pfcpsmreq_flags, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->f_;
 }
 
-inline FqCsidIE &SessionModificationReq::pgw_c_fqcsid()
+inline FqCsidIE &SessionModificationReq::pgw_c_fqcsid(Bool forceInit)
 {
-   return pcfc_;
+   if (forceInit || data_.pgw_c_fqcsid.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->pcfc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->pcfc_;
 }
 
-inline FqCsidIE &SessionModificationReq::sgw_c_fqcsid()
+inline FqCsidIE &SessionModificationReq::sgw_c_fqcsid(Bool forceInit)
 {
-   return scfc_;
+   if (forceInit || data_.sgw_c_fqcsid.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->scfc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->scfc_;
 }
 
-inline FqCsidIE &SessionModificationReq::mme_fqcsid()
+inline FqCsidIE &SessionModificationReq::mme_fqcsid(Bool forceInit)
 {
-   return mfc_;
+   if (forceInit || data_.mme_fqcsid.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->mfc_) FqCsidIE(data_.mme_fqcsid, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->mfc_;
 }
 
-inline FqCsidIE &SessionModificationReq::epdg_fqcsid()
+inline FqCsidIE &SessionModificationReq::epdg_fqcsid(Bool forceInit)
 {
-   return efc_;
+   if (forceInit || data_.epdg_fqcsid.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->efc_) FqCsidIE(data_.epdg_fqcsid, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->efc_;
 }
 
-inline FqCsidIE &SessionModificationReq::twan_fqcsid()
+inline FqCsidIE &SessionModificationReq::twan_fqcsid(Bool forceInit)
 {
-   return tfc_;
+   if (forceInit || data_.twan_fqcsid.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->tfc_) FqCsidIE(data_.twan_fqcsid, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->tfc_;
 }
 
-inline UserPlaneInactivityTimerIE &SessionModificationReq::user_plane_inact_timer()
+inline UserPlaneInactivityTimerIE &SessionModificationReq::user_plane_inact_timer(Bool forceInit)
 {
-   return upit_;
+   if (forceInit || data_.user_plane_inact_timer.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->upit_) UserPlaneInactivityTimerIE(data_.user_plane_inact_timer, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->upit_;
 }
 
-inline QueryUrrReferenceIE &SessionModificationReq::query_urr_ref()
+inline QueryUrrReferenceIE &SessionModificationReq::query_urr_ref(Bool forceInit)
 {
-   return qur_;
+   if (forceInit || data_.query_urr_ref.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->qur_) QueryUrrReferenceIE(data_.query_urr_ref, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->qur_;
 }
 
-inline TraceInformationIE &SessionModificationReq::trc_info()
+inline TraceInformationIE &SessionModificationReq::trc_info(Bool forceInit)
 {
-   return ti_;
+   if (forceInit || data_.trc_info.header.type == 0)
+      new (&((_SessionModificationReq*)iebuffer_)->ti_) TraceInformationIE(data_.trc_info, nullptr);
+   return ((_SessionModificationReq*)iebuffer_)->ti_;
 }
 
 inline RemovePdrIE &SessionModificationReq::remove_pdr(uint8_t idx)
 {
+   if (idx >= rp_.size())
+   {
+      for (auto i = rp_.size(); i < static_cast<size_t>(idx)+1; i++)
+         rp_.push_back(RemovePdrIE(data_.remove_pdr[i], nullptr));
+   }
    return rp_[idx];
 }
 
 inline RemoveFarIE &SessionModificationReq::remove_far(uint8_t idx)
 {
+   if (idx >= rf_.size())
+   {
+      for (auto i = rf_.size(); i < static_cast<size_t>(idx)+1; i++)
+         rf_.push_back(RemoveFarIE(data_.remove_far[i], nullptr));
+   }
    return rf_[idx];
 }
 
 inline RemoveUrrIE &SessionModificationReq::remove_urr(uint8_t idx)
 {
+   if (idx >= ru_.size())
+   {
+      for (auto i = ru_.size(); i < static_cast<size_t>(idx)+1; i++)
+         ru_.push_back(RemoveUrrIE(data_.remove_urr[i], nullptr));
+   }
    return ru_[idx];
 }
 
 inline RemoveQerIE &SessionModificationReq::remove_qer(uint8_t idx)
 {
+   if (idx >= rq_.size())
+   {
+      for (auto i = rq_.size(); i < static_cast<size_t>(idx)+1; i++)
+         rq_.push_back(RemoveQerIE(data_.remove_qer[i], nullptr));
+   }
    return rq_[idx];
 }
 
 inline CreatePdrIE &SessionModificationReq::create_pdr(uint8_t idx)
 {
+   if (idx >= cp_.size())
+   {
+      for (auto i = cp_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cp_.push_back(CreatePdrIE(data_.create_pdr[i], nullptr));
+   }
    return cp_[idx];
 }
 
 inline CreateFarIE &SessionModificationReq::create_far(uint8_t idx)
 {
+   if (idx >= cf_.size())
+   {
+      for (auto i = cf_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cf_.push_back(CreateFarIE(data_.create_far[i], nullptr));
+   }
    return cf_[idx];
 }
 
 inline CreateUrrIE &SessionModificationReq::create_urr(uint8_t idx)
 {
+   if (idx >= cu_.size())
+   {
+      for (auto i = cu_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cu_.push_back(CreateUrrIE(data_.create_urr[i], nullptr));
+   }
    return cu_[idx];
 }
 
 inline CreateQerIE &SessionModificationReq::create_qer(uint8_t idx)
 {
+   if (idx >= cq_.size())
+   {
+      for (auto i = cq_.size(); i < static_cast<size_t>(idx)+1; i++)
+         cq_.push_back(CreateQerIE(data_.create_qer[i], nullptr));
+   }
    return cq_[idx];
 }
 
 inline UpdatePdrIE &SessionModificationReq::update_pdr(uint8_t idx)
 {
+   if (idx >= up_.size())
+   {
+      for (auto i = up_.size(); i < static_cast<size_t>(idx)+1; i++)
+         up_.push_back(UpdatePdrIE(data_.update_pdr[i], nullptr));
+   }
    return up_[idx];
 }
 
 inline UpdateFarIE &SessionModificationReq::update_far(uint8_t idx)
 {
+   if (idx >= uf_.size())
+   {
+      for (auto i = uf_.size(); i < static_cast<size_t>(idx)+1; i++)
+         uf_.push_back(UpdateFarIE(data_.update_far[i], nullptr));
+   }
    return uf_[idx];
 }
 
 inline UpdateUrrIE &SessionModificationReq::update_urr(uint8_t idx)
 {
+   if (idx >= uu_.size())
+   {
+      for (auto i = uu_.size(); i < static_cast<size_t>(idx)+1; i++)
+         uu_.push_back(UpdateUrrIE(data_.update_urr[i], nullptr));
+   }
    return uu_[idx];
 }
 
 inline UpdateQerIE &SessionModificationReq::update_qer(uint8_t idx)
 {
+   if (idx >= uq_.size())
+   {
+      for (auto i = uq_.size(); i < static_cast<size_t>(idx)+1; i++)
+         uq_.push_back(UpdateQerIE(data_.update_qer[i], nullptr));
+   }
    return uq_[idx];
 }
 
 inline QueryUrrIE &SessionModificationReq::query_urr(uint8_t idx)
 {
+   if (idx >= qu_.size())
+   {
+      for (auto i = qu_.size(); i < static_cast<size_t>(idx)+1; i++)
+         qu_.push_back(QueryUrrIE(data_.query_urr[i], nullptr));
+   }
    return qu_[idx];
 }
 
@@ -10931,26 +11256,52 @@ inline pfcp_sess_mod_req_t &SessionModificationReq::data()
    return data_;
 }
 
+inline Void SessionModificationReq::postDecode()
+{
+   if (data_.cp_fseid.header.len > 0)                 cp_fseid(True);
+   if (data_.remove_bar.header.len > 0)               remove_bar(True);
+   if (data_.rmv_traffic_endpt.header.len > 0)        rmv_traffic_endpt(True);
+   if (data_.create_bar.header.len > 0)               create_bar(True);
+   if (data_.create_traffic_endpt.header.len > 0)     create_traffic_endpt(True);
+   if (data_.update_bar.header.len > 0)               update_bar(True);
+   if (data_.upd_traffic_endpt.header.len > 0)        upd_traffic_endpt(True);
+   if (data_.pfcpsmreq_flags.header.len > 0)          pfcpsmreq_flags(True);
+   if (data_.pgw_c_fqcsid.header.len > 0)             pgw_c_fqcsid(True);
+   if (data_.sgw_c_fqcsid.header.len > 0)             sgw_c_fqcsid(True);
+   if (data_.mme_fqcsid.header.len > 0)               mme_fqcsid(True);
+   if (data_.epdg_fqcsid.header.len > 0)              epdg_fqcsid(True);
+   if (data_.twan_fqcsid.header.len > 0)              twan_fqcsid(True);
+   if (data_.user_plane_inact_timer.header.len > 0)   user_plane_inact_timer(True);
+   if (data_.query_urr_ref.header.len > 0)            query_urr_ref(True);
+   if (data_.trc_info.header.len > 0)                 trc_info(True);
+
+   for (int i=0; i<MAX_LIST_SIZE; i++)
+   {
+      if (data_.remove_pdr[i].header.len > 0)   { next_remove_pdr(); remove_pdr(i); }
+      if (data_.remove_far[i].header.len > 0)   { next_remove_far(); remove_far(i); }
+      if (data_.remove_urr[i].header.len > 0)   { next_remove_urr(); remove_urr(i); }
+      if (data_.remove_qer[i].header.len > 0)   { next_remove_qer(); remove_qer(i); }
+      if (data_.create_pdr[i].header.len > 0)   { next_create_pdr(); create_pdr(i); }
+      if (data_.create_far[i].header.len > 0)   { next_create_far(); create_far(i); }
+      if (data_.create_urr[i].header.len > 0)   { next_create_urr(); create_urr(i); }
+      if (data_.create_qer[i].header.len > 0)   { next_create_qer(); create_qer(i); }
+      if (data_.update_pdr[i].header.len > 0)   { next_update_pdr(); update_pdr(i); }
+      if (data_.update_far[i].header.len > 0)   { next_update_far(); update_far(i); }
+      if (data_.update_urr[i].header.len > 0)   { next_update_urr(); update_urr(i); }
+      if (data_.update_qer[i].header.len > 0)   { next_update_qer(); update_qer(i); }
+      if (data_.query_urr[i].header.len > 0)    { next_query_urr(); query_urr(i); }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionModificationRsp::SessionModificationRsp()
-   : data_({}),
-     c_(data_.cause, nullptr),
-     oi_(data_.offending_ie, nullptr),
-     cp_(data_.created_pdr, nullptr),
-     lci_(data_.load_ctl_info, nullptr),
-     oci_(data_.ovrld_ctl_info, nullptr),
-     fri_(data_.failed_rule_id, nullptr),
-     auri_(data_.add_usage_rpts_info, nullptr),
-     cute_(data_.createdupdated_traffic_endpt, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_SESS_MOD_RSP);
    data_.header.message_type = msgType();
    data_.header.version = 1;
    data_.header.s = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-      ur_.push_back(UsageReportSessionModificationRspIE(data_.usage_report[i], nullptr));
 }
 
 inline uint16_t SessionModificationRsp::length() const
@@ -10958,48 +11309,69 @@ inline uint16_t SessionModificationRsp::length() const
    return data_.header.message_len;
 }
 
-inline CauseIE &SessionModificationRsp::cause()
+inline CauseIE &SessionModificationRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_SessionModificationRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_SessionModificationRsp*)iebuffer_)->c_;
 }
 
-inline OffendingIeIE &SessionModificationRsp::offending_ie()
+inline OffendingIeIE &SessionModificationRsp::offending_ie(Bool forceInit)
 {
-   return oi_;
+   if (forceInit || data_.offending_ie.header.type == 0)
+      new (&((_SessionModificationRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return ((_SessionModificationRsp*)iebuffer_)->oi_;
 }
 
-inline CreatedPdrIE &SessionModificationRsp::created_pdr()
+inline CreatedPdrIE &SessionModificationRsp::created_pdr(Bool forceInit)
 {
-   return cp_;
+   if (forceInit || data_.created_pdr.header.type == 0)
+      new (&((_SessionModificationRsp*)iebuffer_)->cp_) CreatedPdrIE(data_.created_pdr, nullptr);
+   return ((_SessionModificationRsp*)iebuffer_)->cp_;
 }
 
-inline LoadControlInformationIE &SessionModificationRsp::load_ctl_info()
+inline LoadControlInformationIE &SessionModificationRsp::load_ctl_info(Bool forceInit)
 {
-   return lci_;
+   if (forceInit || data_.load_ctl_info.header.type == 0)
+      new (&((_SessionModificationRsp*)iebuffer_)->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
+   return ((_SessionModificationRsp*)iebuffer_)->lci_;
 }
 
-inline OverloadControlInformationIE &SessionModificationRsp::ovrld_ctl_info()
+inline OverloadControlInformationIE &SessionModificationRsp::ovrld_ctl_info(Bool forceInit)
 {
-   return oci_;
+   if (forceInit || data_.ovrld_ctl_info.header.type == 0)
+      new (&((_SessionModificationRsp*)iebuffer_)->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
+   return ((_SessionModificationRsp*)iebuffer_)->oci_;
 }
 
-inline FailedRuleIdIE &SessionModificationRsp::failed_rule_id()
+inline FailedRuleIdIE &SessionModificationRsp::failed_rule_id(Bool forceInit)
 {
-   return fri_;
+   if (forceInit || data_.failed_rule_id.header.type == 0)
+      new (&((_SessionModificationRsp*)iebuffer_)->fri_) FailedRuleIdIE(data_.failed_rule_id, nullptr);
+   return ((_SessionModificationRsp*)iebuffer_)->fri_;
 }
 
-inline AdditionalUsageReportsInformationIE &SessionModificationRsp::add_usage_rpts_info()
+inline AdditionalUsageReportsInformationIE &SessionModificationRsp::add_usage_rpts_info(Bool forceInit)
 {
-   return auri_;
+   if (forceInit || data_.add_usage_rpts_info.header.type == 0)
+      new (&((_SessionModificationRsp*)iebuffer_)->auri_) AdditionalUsageReportsInformationIE(data_.add_usage_rpts_info, nullptr);
+   return ((_SessionModificationRsp*)iebuffer_)->auri_;
 }
 
-inline CreatedTrafficEndpointIE &SessionModificationRsp::createdupdated_traffic_endpt()
+inline CreatedTrafficEndpointIE &SessionModificationRsp::createdupdated_traffic_endpt(Bool forceInit)
 {
-   return cute_;
+   if (forceInit || data_.createdupdated_traffic_endpt.header.type == 0)
+      new (&((_SessionModificationRsp*)iebuffer_)->cute_) CreatedTrafficEndpointIE(data_.createdupdated_traffic_endpt, nullptr);
+   return ((_SessionModificationRsp*)iebuffer_)->cute_;
 }
 
 inline UsageReportSessionModificationRspIE &SessionModificationRsp::usage_report(uint8_t idx)
 {
+   if (idx >= ur_.size())
+   {
+      for (auto i = ur_.size(); i < static_cast<size_t>(idx)+1; i++)
+         ur_.push_back(UsageReportSessionModificationRspIE(data_.usage_report[i], nullptr));
+   }
    return ur_[idx];
 }
 
@@ -11022,6 +11394,18 @@ inline SessionModificationRsp &SessionModificationRsp::encode(uint8_t *dest)
 inline pfcp_sess_mod_rsp_t &SessionModificationRsp::data()
 {
    return data_;
+}
+
+inline Void SessionModificationRsp::postDecode()
+{
+   if (data_.cause.header.len > 0)                          cause(True);
+   if (data_.offending_ie.header.len > 0)                   offending_ie(True);
+   if (data_.created_pdr.header.len > 0)                    created_pdr(True);
+   if (data_.load_ctl_info.header.len > 0)                  load_ctl_info(True);
+   if (data_.ovrld_ctl_info.header.len > 0)                 ovrld_ctl_info(True);
+   if (data_.failed_rule_id.header.len > 0)                 failed_rule_id(True);
+   if (data_.add_usage_rpts_info.header.len > 0)            add_usage_rpts_info(True);
+   if (data_.createdupdated_traffic_endpt.header.len > 0)   createdupdated_traffic_endpt(True);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11059,19 +11443,12 @@ inline pfcp_sess_del_req_t &SessionDeletionReq::data()
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionDeletionRsp::SessionDeletionRsp()
-   : data_({}),
-     c_(data_.cause, nullptr),
-     oi_(data_.offending_ie, nullptr),
-     lci_(data_.load_ctl_info, nullptr),
-     oci_(data_.ovrld_ctl_info, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_SESS_DEL_RSP);
    data_.header.message_type = msgType();
    data_.header.version = 1;
    data_.header.s = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-      ur_.push_back(UsageReportSessionDeletionRspIE(data_.usage_report[i], nullptr));
 }
 
 inline uint16_t SessionDeletionRsp::length() const
@@ -11079,28 +11456,41 @@ inline uint16_t SessionDeletionRsp::length() const
    return data_.header.message_len;
 }
 
-inline CauseIE &SessionDeletionRsp::cause()
+inline CauseIE &SessionDeletionRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_SessionDeletionRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_SessionDeletionRsp*)iebuffer_)->c_;
 }
 
-inline OffendingIeIE &SessionDeletionRsp::offending_ie()
+inline OffendingIeIE &SessionDeletionRsp::offending_ie(Bool forceInit)
 {
-   return oi_;
+   if (forceInit || data_.offending_ie.header.type == 0)
+      new (&((_SessionDeletionRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return ((_SessionDeletionRsp*)iebuffer_)->oi_;
 }
 
-inline LoadControlInformationIE &SessionDeletionRsp::load_ctl_info()
+inline LoadControlInformationIE &SessionDeletionRsp::load_ctl_info(Bool forceInit)
 {
-   return lci_;
+   if (forceInit || data_.load_ctl_info.header.type == 0)
+      new (&((_SessionDeletionRsp*)iebuffer_)->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
+   return ((_SessionDeletionRsp*)iebuffer_)->lci_;
 }
 
-inline OverloadControlInformationIE &SessionDeletionRsp::ovrld_ctl_info()
+inline OverloadControlInformationIE &SessionDeletionRsp::ovrld_ctl_info(Bool forceInit)
 {
-   return oci_;
+   if (forceInit || data_.ovrld_ctl_info.header.type == 0)
+      new (&((_SessionDeletionRsp*)iebuffer_)->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
+   return ((_SessionDeletionRsp*)iebuffer_)->oci_;
 }
 
 inline UsageReportSessionDeletionRspIE &SessionDeletionRsp::usage_report(uint8_t idx)
 {
+   if (idx >= ur_.size())
+   {
+      for (auto i = ur_.size(); i < static_cast<size_t>(idx)+1; i++)
+         ur_.push_back(UsageReportSessionDeletionRspIE(data_.usage_report[i], nullptr));
+   }
    return ur_[idx];
 }
 
@@ -11125,25 +11515,29 @@ inline pfcp_sess_del_rsp_t &SessionDeletionRsp::data()
    return data_;
 }
 
+inline Void SessionDeletionRsp::postDecode()
+{
+   if (data_.cause.header.len > 0)                    cause(True);
+   if (data_.offending_ie.header.len > 0)             offending_ie(True);
+   if (data_.load_ctl_info.header.len > 0)            load_ctl_info(True);
+   if (data_.ovrld_ctl_info.header.len > 0)           ovrld_ctl_info(True);
+
+   for (int i=0; i<MAX_LIST_SIZE; i++)
+   {
+      if (data_.usage_report[i].header.len > 0) { next_usage_report(); usage_report(i); }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionReportReq::SessionReportReq(PFCP::SessionBaseSPtr &ses)
    : PFCP::AppMsgSessionReq(ses),
-     data_({}),
-     rt_(data_.report_type, nullptr),
-     ddr_(data_.dnlnk_data_rpt, nullptr),
-     eir_(data_.err_indctn_rpt, nullptr),
-     lci_(data_.load_ctl_info, nullptr),
-     oci_(data_.ovrld_ctl_info, nullptr),
-     auri_(data_.add_usage_rpts_info, nullptr)
+     data_({})
 {
    setMsgType(PFCP_SESS_RPT_REQ);
    data_.header.message_type = msgType();
    data_.header.version = 1;
    data_.header.s = 1;
-
-   for (int i=0; i<MAX_LIST_SIZE; i++)
-      ur_.push_back(UsageReportSessionReportReqIE(data_.usage_report[i], nullptr));
 }
 
 inline uint16_t SessionReportReq::length() const
@@ -11151,39 +11545,62 @@ inline uint16_t SessionReportReq::length() const
    return data_.header.message_len;
 }
 
-inline ReportTypeIE &SessionReportReq::report_type()
+inline ReportTypeIE &SessionReportReq::report_type(Bool forceInit)
 {
-   return rt_;
+   if (forceInit || data_.report_type.header.type == 0)
+      new (&((_SessionReportReq*)iebuffer_)->rt_) ReportTypeIE(data_.report_type, nullptr);
+   return ((_SessionReportReq*)iebuffer_)->rt_;
 }
 
-inline DownlinkDataReportIE &SessionReportReq::dnlnk_data_rpt()
+inline DownlinkDataReportIE &SessionReportReq::dnlnk_data_rpt(Bool forceInit)
 {
-   return ddr_;
+   if (forceInit || data_.dnlnk_data_rpt.header.type == 0)
+      new (&((_SessionReportReq*)iebuffer_)->ddr_) DownlinkDataReportIE(data_.dnlnk_data_rpt, nullptr);
+   return ((_SessionReportReq*)iebuffer_)->ddr_;
 }
 
-inline ErrorIndicationReportIE &SessionReportReq::err_indctn_rpt()
+inline ErrorIndicationReportIE &SessionReportReq::err_indctn_rpt(Bool forceInit)
 {
-   return eir_;
+   if (forceInit || data_.err_indctn_rpt.header.type == 0)
+      new (&((_SessionReportReq*)iebuffer_)->eir_) ErrorIndicationReportIE(data_.err_indctn_rpt, nullptr);
+   return ((_SessionReportReq*)iebuffer_)->eir_;
 }
 
-inline LoadControlInformationIE &SessionReportReq::load_ctl_info()
+inline LoadControlInformationIE &SessionReportReq::load_ctl_info(Bool forceInit)
 {
-   return lci_;
+   if (forceInit || data_.load_ctl_info.header.type == 0)
+      new (&((_SessionReportReq*)iebuffer_)->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
+   return ((_SessionReportReq*)iebuffer_)->lci_;
 }
 
-inline OverloadControlInformationIE &SessionReportReq::ovrld_ctl_info()
+inline OverloadControlInformationIE &SessionReportReq::ovrld_ctl_info(Bool forceInit)
 {
-   return oci_;
+   if (forceInit || data_.ovrld_ctl_info.header.type == 0)
+      new (&((_SessionReportReq*)iebuffer_)->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
+   return ((_SessionReportReq*)iebuffer_)->oci_;
 }
 
-inline AdditionalUsageReportsInformationIE &SessionReportReq::add_usage_rpts_info()
+inline AdditionalUsageReportsInformationIE &SessionReportReq::add_usage_rpts_info(Bool forceInit)
 {
-   return auri_;
+   if (forceInit || data_.add_usage_rpts_info.header.type == 0)
+      new (&((_SessionReportReq*)iebuffer_)->auri_) AdditionalUsageReportsInformationIE(data_.add_usage_rpts_info, nullptr);
+   return ((_SessionReportReq*)iebuffer_)->auri_;
 }
 
 inline UsageReportSessionReportReqIE &SessionReportReq::usage_report(uint8_t idx)
 {
+   if (idx >= ur_.size())
+   {
+      for (auto i = ur_.size(); i < static_cast<size_t>(idx)+1; i++)
+         ur_.push_back(UsageReportSessionReportReqIE(data_.usage_report[i], nullptr));
+   }
    return ur_[idx];
+}
+
+inline int SessionReportReq::next_usage_report()
+{
+   return (data_.usage_report_count < MAX_LIST_SIZE) ?
+      data_.usage_report_count++ : -1;
 }
 
 inline SessionReportReq &SessionReportReq::encode(uint8_t *dest)
@@ -11201,14 +11618,25 @@ inline pfcp_sess_rpt_req_t &SessionReportReq::data()
    return data_;
 }
 
+inline Void SessionReportReq::postDecode()
+{
+   if (data_.report_type.header.len > 0)              report_type(True);
+   if (data_.dnlnk_data_rpt.header.len > 0)           dnlnk_data_rpt(True);
+   if (data_.err_indctn_rpt.header.len > 0)           err_indctn_rpt(True);
+   if (data_.load_ctl_info.header.len > 0)            load_ctl_info(True);
+   if (data_.ovrld_ctl_info.header.len > 0)           ovrld_ctl_info(True);
+   if (data_.add_usage_rpts_info.header.len > 0)      add_usage_rpts_info(True);
+
+   for (int i=0; i<MAX_LIST_SIZE; i++)
+   {
+      if (data_.usage_report[i].header.len > 0)   { next_usage_report(); usage_report(i); }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 inline SessionReportRsp::SessionReportRsp()
-   : data_({}),
-     c_(data_.cause, nullptr),
-     oi_(data_.offending_ie, nullptr),
-     ub_(data_.update_bar, nullptr),
-     flags_(data_.sxsrrsp_flags, nullptr)
+   : data_({})
 {
    setMsgType(PFCP_SESS_RPT_RSP);
    data_.header.message_type = msgType();
@@ -11221,24 +11649,32 @@ inline uint16_t SessionReportRsp::length() const
    return data_.header.message_len;
 }
 
-inline CauseIE &SessionReportRsp::cause()
+inline CauseIE &SessionReportRsp::cause(Bool forceInit)
 {
-   return c_;
+   if (forceInit || data_.cause.header.type == 0)
+      new (&((_SessionReportRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
+   return ((_SessionReportRsp*)iebuffer_)->c_;
 }
 
-inline OffendingIeIE &SessionReportRsp::offending_ie()
+inline OffendingIeIE &SessionReportRsp::offending_ie(Bool forceInit)
 {
-   return oi_;
+   if (forceInit || data_.offending_ie.header.type == 0)
+      new (&((_SessionReportRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return ((_SessionReportRsp*)iebuffer_)->oi_;
 }
 
-inline UpdateBarSessionReportRspIE &SessionReportRsp::update_bar()
+inline UpdateBarSessionReportRspIE &SessionReportRsp::update_bar(Bool forceInit)
 {
-   return ub_;
+   if (forceInit || data_.update_bar.header.type == 0)
+      new (&((_SessionReportRsp*)iebuffer_)->ub_) UpdateBarSessionReportRspIE(data_.update_bar, nullptr);
+   return ((_SessionReportRsp*)iebuffer_)->ub_;
 }
 
-inline PfcpSrRspFlagsIE &SessionReportRsp::sxsrrsp_flags()
+inline PfcpSrRspFlagsIE &SessionReportRsp::sxsrrsp_flags(Bool forceInit)
 {
-   return flags_;
+   if (forceInit || data_.sxsrrsp_flags.header.type == 0)
+      new (&((_SessionReportRsp*)iebuffer_)->flags_) PfcpSrRspFlagsIE(data_.sxsrrsp_flags, nullptr);
+   return ((_SessionReportRsp*)iebuffer_)->flags_;
 }
 
 inline SessionReportRsp &SessionReportRsp::encode(uint8_t *dest)
@@ -11254,6 +11690,14 @@ inline SessionReportRsp &SessionReportRsp::encode(uint8_t *dest)
 inline pfcp_sess_rpt_rsp_t &SessionReportRsp::data()
 {
    return data_;
+}
+
+inline Void SessionReportRsp::postDecode()
+{
+   if (data_.cause.header.len > 0)                    cause(True);
+   if (data_.offending_ie.header.len > 0)             offending_ie(True);
+   if (data_.update_bar.header.len > 0)               update_bar(True);
+   if (data_.sxsrrsp_flags.header.len > 0)            sxsrrsp_flags(True);
 }
 
 } // namespace PFCP_R15
