@@ -4567,7 +4567,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _HeartbeatReq
+struct __attribute((__may_alias__)) _HeartbeatReq
 {
    RecoveryTimeStampIE rts_;
 };
@@ -4585,12 +4585,12 @@ protected:
    Void postDecode();
 private:
    pfcp_hrtbeat_req_t data_;
-   UChar iebuffer_[sizeof(_HeartbeatReq)];
+   Char iebuffer_[sizeof(_HeartbeatReq)];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _HeartbeatRsp
+struct __attribute((__may_alias__)) _HeartbeatRsp
 {
    RecoveryTimeStampIE rts_;
 };
@@ -4632,7 +4632,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _PfdMgmtRsp
+struct __attribute((__may_alias__)) _PfdMgmtRsp
 {
    CauseIE c_;
    OffendingIeIE oi_;
@@ -4657,7 +4657,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _AssnSetupReq
+struct __attribute((__may_alias__)) _AssnSetupReq
 {
    NodeIdIE ni_;
    RecoveryTimeStampIE rts_;
@@ -4689,7 +4689,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _AssnSetupRsp
+struct __attribute((__may_alias__)) _AssnSetupRsp
 {
    NodeIdIE ni_;
    CauseIE c_;
@@ -4723,7 +4723,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _AssnUpdateReq
+struct __attribute((__may_alias__)) _AssnUpdateReq
 {
    NodeIdIE ni_;
    UpFunctionFeaturesIE uff_;
@@ -4757,7 +4757,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _AssnUpdateRsp
+struct __attribute((__may_alias__)) _AssnUpdateRsp
 {
    NodeIdIE ni_;
    CauseIE c_;
@@ -4786,7 +4786,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _AssnReleaseReq
+struct __attribute((__may_alias__)) _AssnReleaseReq
 {
    NodeIdIE ni_;
 };
@@ -4809,7 +4809,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _AssnReleaseRsp
+struct __attribute((__may_alias__)) _AssnReleaseRsp
 {
    NodeIdIE ni_;
    CauseIE c_;
@@ -4849,7 +4849,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _NodeReportReq
+struct __attribute((__may_alias__)) _NodeReportReq
 {
    NodeIdIE ni_;
    NodeReportTypeIE nrt_;
@@ -4876,7 +4876,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _NodeReportRsp
+struct __attribute((__may_alias__)) _NodeReportRsp
 {
    NodeIdIE ni_;
    CauseIE c_;
@@ -4903,7 +4903,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionSetDeletionReq
+struct __attribute((__may_alias__)) _SessionSetDeletionReq
 {
    NodeIdIE ni_;
    FqCsidIE sc_;
@@ -4939,7 +4939,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionSetDeletionRsp
+struct __attribute((__may_alias__)) _SessionSetDeletionRsp
 {
    NodeIdIE ni_;
    CauseIE c_;
@@ -4967,7 +4967,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionEstablishmentReq
+struct __attribute((__may_alias__)) _SessionEstablishmentReq
 {
    NodeIdIE ni_;
    FSeidIE cpf_;
@@ -5029,7 +5029,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionEstablishmentRsp
+struct __attribute((__may_alias__)) _SessionEstablishmentRsp
 {
    NodeIdIE ni_;
    CauseIE c_;
@@ -5072,7 +5072,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionModificationReq
+struct __attribute((__may_alias__)) _SessionModificationReq
 {
    FSeidIE cfs_;
    RemoveBarIE rb_;
@@ -5164,7 +5164,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionModificationRsp
+struct __attribute((__may_alias__)) _SessionModificationRsp
 {
    CauseIE c_;
    OffendingIeIE oi_;
@@ -5218,7 +5218,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionDeletionRsp
+struct __attribute((__may_alias__)) _SessionDeletionRsp
 {
    CauseIE c_;
    OffendingIeIE oi_;
@@ -5250,7 +5250,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionReportReq
+struct __attribute((__may_alias__)) _SessionReportReq
 {
    ReportTypeIE rt_;
    DownlinkDataReportIE ddr_;
@@ -5286,7 +5286,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _SessionReportRsp
+struct __attribute((__may_alias__)) _SessionReportRsp
 {
    CauseIE c_;
    OffendingIeIE oi_;

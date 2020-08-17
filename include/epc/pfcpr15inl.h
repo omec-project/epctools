@@ -9641,8 +9641,8 @@ inline uint16_t HeartbeatReq::length() const
 inline RecoveryTimeStampIE &HeartbeatReq::rcvry_time_stmp(Bool forceInit)
 {
    if (forceInit || data_.rcvry_time_stmp.header.type == 0)
-      new (&((_HeartbeatReq*)iebuffer_)->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
-   return ((_HeartbeatReq*)iebuffer_)->rts_;
+      new (&(reinterpret_cast<_HeartbeatReq*>(iebuffer_))->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
+   return (reinterpret_cast<_HeartbeatReq*>(iebuffer_))->rts_;
 }
 
 inline HeartbeatReq &HeartbeatReq::encode(uint8_t *dest)
@@ -9683,8 +9683,8 @@ inline uint16_t HeartbeatRsp::length() const
 inline RecoveryTimeStampIE &HeartbeatRsp::rcvry_time_stmp(Bool forceInit)
 {
    if (forceInit || data_.rcvry_time_stmp.header.type == 0)
-      new (&((_HeartbeatRsp*)iebuffer_)->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
-   return ((_HeartbeatRsp*)iebuffer_)->rts_;
+      new (&(reinterpret_cast<_HeartbeatRsp*>(iebuffer_))->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
+   return (reinterpret_cast<_HeartbeatRsp*>(iebuffer_))->rts_;
 }
 
 inline HeartbeatRsp &HeartbeatRsp::encode(uint8_t *dest)
@@ -9784,15 +9784,15 @@ inline uint16_t PfdMgmtRsp::length() const
 inline CauseIE &PfdMgmtRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_PfdMgmtRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_PfdMgmtRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_PfdMgmtRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_PfdMgmtRsp*>(iebuffer_))->c_;
 }
 
 inline OffendingIeIE &PfdMgmtRsp::offending_ie(Bool forceInit)
 {
    if (forceInit || data_.offending_ie.header.type == 0)
-      new (&((_PfdMgmtRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
-   return ((_PfdMgmtRsp*)iebuffer_)->oi_;
+      new (&(reinterpret_cast<_PfdMgmtRsp*>(iebuffer_))->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return (reinterpret_cast<_PfdMgmtRsp*>(iebuffer_))->oi_;
 }
 
 inline PfdMgmtRsp &PfdMgmtRsp::encode(uint8_t *dest)
@@ -9834,29 +9834,29 @@ inline uint16_t AssnSetupReq::length() const
 inline NodeIdIE &AssnSetupReq::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_AssnSetupReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_AssnSetupReq*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_AssnSetupReq*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_AssnSetupReq*>(iebuffer_))->ni_;
 }
 
 inline RecoveryTimeStampIE &AssnSetupReq::rcvry_time_stmp(Bool forceInit)
 {
    if (forceInit || data_.rcvry_time_stmp.header.type == 0)
-      new (&((_AssnSetupReq*)iebuffer_)->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
-   return ((_AssnSetupReq*)iebuffer_)->rts_;
+      new (&(reinterpret_cast<_AssnSetupReq*>(iebuffer_))->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
+   return (reinterpret_cast<_AssnSetupReq*>(iebuffer_))->rts_;
 }
 
 inline UpFunctionFeaturesIE &AssnSetupReq::up_func_feat(Bool forceInit)
 {
    if (forceInit || data_.up_func_feat.header.type == 0)
-      new (&((_AssnSetupReq*)iebuffer_)->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
-   return ((_AssnSetupReq*)iebuffer_)->uff_;
+      new (&(reinterpret_cast<_AssnSetupReq*>(iebuffer_))->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
+   return (reinterpret_cast<_AssnSetupReq*>(iebuffer_))->uff_;
 }
 
 inline CpFunctionFeaturesIE &AssnSetupReq::cp_func_feat(Bool forceInit)
 {
    if (forceInit || data_.cp_func_feat.header.type == 0)
-      new (&((_AssnSetupReq*)iebuffer_)->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
-   return ((_AssnSetupReq*)iebuffer_)->cff_;
+      new (&(reinterpret_cast<_AssnSetupReq*>(iebuffer_))->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
+   return (reinterpret_cast<_AssnSetupReq*>(iebuffer_))->cff_;
 }
 
 inline UserPlaneIpResourceInformationIE &AssnSetupReq::user_plane_ip_rsrc_info(uint8_t idx)
@@ -9920,36 +9920,36 @@ inline uint16_t AssnSetupRsp::length() const
 inline NodeIdIE &AssnSetupRsp::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_AssnSetupRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_AssnSetupRsp*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->ni_;
 }
 
 inline CauseIE &AssnSetupRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_AssnSetupRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_AssnSetupRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->c_;
 }
 
 inline RecoveryTimeStampIE &AssnSetupRsp::rcvry_time_stmp(Bool forceInit)
 {
    if (forceInit || data_.rcvry_time_stmp.header.type == 0)
-      new (&((_AssnSetupRsp*)iebuffer_)->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
-   return ((_AssnSetupRsp*)iebuffer_)->rts_;
+      new (&(reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->rts_) RecoveryTimeStampIE(data_.rcvry_time_stmp, nullptr);
+   return (reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->rts_;
 }
 
 inline UpFunctionFeaturesIE &AssnSetupRsp::up_func_feat(Bool forceInit)
 {
    if (forceInit || data_.up_func_feat.header.type == 0)
-      new (&((_AssnSetupRsp*)iebuffer_)->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
-   return ((_AssnSetupRsp*)iebuffer_)->uff_;
+      new (&(reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
+   return (reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->uff_;
 }
 
 inline CpFunctionFeaturesIE &AssnSetupRsp::cp_func_feat(Bool forceInit)
 {
    if (forceInit || data_.cp_func_feat.header.type == 0)
-      new (&((_AssnSetupRsp*)iebuffer_)->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
-   return ((_AssnSetupRsp*)iebuffer_)->cff_;
+      new (&(reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
+   return (reinterpret_cast<_AssnSetupRsp*>(iebuffer_))->cff_;
 }
 
 inline UserPlaneIpResourceInformationIE &AssnSetupRsp::user_plane_ip_rsrc_info(uint8_t idx)
@@ -10015,36 +10015,36 @@ inline uint16_t AssnUpdateReq::length() const
 inline NodeIdIE &AssnUpdateReq::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_AssnUpdateReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_AssnUpdateReq*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->ni_;
 }
 
 inline UpFunctionFeaturesIE &AssnUpdateReq::up_func_feat(Bool forceInit)
 {
    if (forceInit || data_.up_func_feat.header.type == 0)
-      new (&((_AssnUpdateReq*)iebuffer_)->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
-   return ((_AssnUpdateReq*)iebuffer_)->uff_;
+      new (&(reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
+   return (reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->uff_;
 }
 
 inline CpFunctionFeaturesIE &AssnUpdateReq::cp_func_feat(Bool forceInit)
 {
    if (forceInit || data_.cp_func_feat.header.type == 0)
-      new (&((_AssnUpdateReq*)iebuffer_)->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
-   return ((_AssnUpdateReq*)iebuffer_)->cff_;
+      new (&(reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
+   return (reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->cff_;
 }
 
 inline AssociationReleaseRequestIE &AssnUpdateReq::up_assn_rel_req(Bool forceInit)
 {
    if (forceInit || data_.up_assn_rel_req.header.type == 0)
-      new (&((_AssnUpdateReq*)iebuffer_)->arr_) AssociationReleaseRequestIE(data_.up_assn_rel_req, nullptr);
-   return ((_AssnUpdateReq*)iebuffer_)->arr_;
+      new (&(reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->arr_) AssociationReleaseRequestIE(data_.up_assn_rel_req, nullptr);
+   return (reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->arr_;
 }
 
 inline GracefulReleasePeriodIE &AssnUpdateReq::graceful_rel_period(Bool forceInit)
 {
    if (forceInit || data_.graceful_rel_period.header.type == 0)
-      new (&((_AssnUpdateReq*)iebuffer_)->grp_) GracefulReleasePeriodIE(data_.graceful_rel_period, nullptr);
-   return ((_AssnUpdateReq*)iebuffer_)->grp_;
+      new (&(reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->grp_) GracefulReleasePeriodIE(data_.graceful_rel_period, nullptr);
+   return (reinterpret_cast<_AssnUpdateReq*>(iebuffer_))->grp_;
 }
 
 inline UserPlaneIpResourceInformationIE &AssnUpdateReq::user_plane_ip_rsrc_info(uint8_t idx)
@@ -10109,29 +10109,29 @@ inline uint16_t AssnUpdateRsp::length() const
 inline NodeIdIE &AssnUpdateRsp::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_AssnUpdateRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_AssnUpdateRsp*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_AssnUpdateRsp*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_AssnUpdateRsp*>(iebuffer_))->ni_;
 }
 
 inline CauseIE &AssnUpdateRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_AssnUpdateRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_AssnUpdateRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_AssnUpdateRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_AssnUpdateRsp*>(iebuffer_))->c_;
 }
 
 inline UpFunctionFeaturesIE &AssnUpdateRsp::up_func_feat(Bool forceInit)
 {
    if (forceInit || data_.up_func_feat.header.type == 0)
-      new (&((_AssnUpdateRsp*)iebuffer_)->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
-   return ((_AssnUpdateRsp*)iebuffer_)->uff_;
+      new (&(reinterpret_cast<_AssnUpdateRsp*>(iebuffer_))->uff_) UpFunctionFeaturesIE(data_.up_func_feat, nullptr);
+   return (reinterpret_cast<_AssnUpdateRsp*>(iebuffer_))->uff_;
 }
 
 inline CpFunctionFeaturesIE &AssnUpdateRsp::cp_func_feat(Bool forceInit)
 {
    if (forceInit || data_.cp_func_feat.header.type == 0)
-      new (&((_AssnUpdateRsp*)iebuffer_)->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
-   return ((_AssnUpdateRsp*)iebuffer_)->cff_;
+      new (&(reinterpret_cast<_AssnUpdateRsp*>(iebuffer_))->cff_) CpFunctionFeaturesIE(data_.cp_func_feat, nullptr);
+   return (reinterpret_cast<_AssnUpdateRsp*>(iebuffer_))->cff_;
 }
 
 inline AssnUpdateRsp &AssnUpdateRsp::encode(uint8_t *dest)
@@ -10175,8 +10175,8 @@ inline uint16_t AssnReleaseReq::length() const
 inline NodeIdIE &AssnReleaseReq::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_AssnReleaseReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_AssnReleaseReq*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_AssnReleaseReq*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_AssnReleaseReq*>(iebuffer_))->ni_;
 }
 
 inline AssnReleaseReq &AssnReleaseReq::encode(uint8_t *dest)
@@ -10216,15 +10216,15 @@ inline uint16_t AssnReleaseRsp::length() const
 inline NodeIdIE &AssnReleaseRsp::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_AssnReleaseRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_AssnReleaseRsp*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_AssnReleaseRsp*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_AssnReleaseRsp*>(iebuffer_))->ni_;
 }
 
 inline CauseIE &AssnReleaseRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_AssnReleaseRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_AssnReleaseRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_AssnReleaseRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_AssnReleaseRsp*>(iebuffer_))->c_;
 }
 
 inline AssnReleaseRsp &AssnReleaseRsp::encode(uint8_t *dest)
@@ -10295,22 +10295,22 @@ inline uint16_t NodeReportReq::length() const
 inline NodeIdIE &NodeReportReq::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_NodeReportReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_NodeReportReq*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_NodeReportReq*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_NodeReportReq*>(iebuffer_))->ni_;
 }
 
 inline NodeReportTypeIE &NodeReportReq::node_rpt_type(Bool forceInit)
 {
    if (forceInit || data_.node_rpt_type.header.type == 0)
-      new (&((_NodeReportReq*)iebuffer_)->nrt_) NodeReportTypeIE(data_.node_rpt_type, nullptr);
-   return ((_NodeReportReq*)iebuffer_)->nrt_;
+      new (&(reinterpret_cast<_NodeReportReq*>(iebuffer_))->nrt_) NodeReportTypeIE(data_.node_rpt_type, nullptr);
+   return (reinterpret_cast<_NodeReportReq*>(iebuffer_))->nrt_;
 }
 
 inline UserPlanePathFailureReportIE &NodeReportReq::user_plane_path_fail_rpt(Bool forceInit)
 {
    if (forceInit || data_.user_plane_path_fail_rpt.header.type == 0)
-      new (&((_NodeReportReq*)iebuffer_)->uprfr_) UserPlanePathFailureReportIE(data_.user_plane_path_fail_rpt, nullptr);
-   return ((_NodeReportReq*)iebuffer_)->uprfr_;
+      new (&(reinterpret_cast<_NodeReportReq*>(iebuffer_))->uprfr_) UserPlanePathFailureReportIE(data_.user_plane_path_fail_rpt, nullptr);
+   return (reinterpret_cast<_NodeReportReq*>(iebuffer_))->uprfr_;
 }
 
 inline NodeReportReq &NodeReportReq::encode(uint8_t *dest)
@@ -10352,22 +10352,22 @@ inline uint16_t NodeReportRsp::length() const
 inline NodeIdIE &NodeReportRsp::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_NodeReportRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_NodeReportRsp*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_NodeReportRsp*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_NodeReportRsp*>(iebuffer_))->ni_;
 }
 
 inline CauseIE &NodeReportRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_NodeReportRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_NodeReportRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_NodeReportRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_NodeReportRsp*>(iebuffer_))->c_;
 }
 
 inline OffendingIeIE &NodeReportRsp::offending_ie(Bool forceInit)
 {
    if (forceInit || data_.offending_ie.header.type == 0)
-      new (&((_NodeReportRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
-   return ((_NodeReportRsp*)iebuffer_)->oi_;
+      new (&(reinterpret_cast<_NodeReportRsp*>(iebuffer_))->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return (reinterpret_cast<_NodeReportRsp*>(iebuffer_))->oi_;
 }
 
 inline NodeReportRsp &NodeReportRsp::encode(uint8_t *dest)
@@ -10410,50 +10410,50 @@ inline uint16_t SessionSetDeletionReq::length() const
 inline NodeIdIE &SessionSetDeletionReq::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_SessionSetDeletionReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_SessionSetDeletionReq*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->ni_;
 }
 
 inline FqCsidIE &SessionSetDeletionReq::sgw_c_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.sgw_c_fqcsid.header.type == 0)
-      new (&((_SessionSetDeletionReq*)iebuffer_)->sc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
-   return ((_SessionSetDeletionReq*)iebuffer_)->sc_;
+      new (&(reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->sc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->sc_;
 }
 
 inline FqCsidIE &SessionSetDeletionReq::pgw_c_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.pgw_c_fqcsid.header.type == 0)
-      new (&((_SessionSetDeletionReq*)iebuffer_)->pc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
-   return ((_SessionSetDeletionReq*)iebuffer_)->pc_;
+      new (&(reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->pc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->pc_;
 }
 
 inline FqCsidIE &SessionSetDeletionReq::up_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.up_fqcsid.header.type == 0)
-      new (&((_SessionSetDeletionReq*)iebuffer_)->u_) FqCsidIE(data_.up_fqcsid, nullptr);
-   return ((_SessionSetDeletionReq*)iebuffer_)->u_;
+      new (&(reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->u_) FqCsidIE(data_.up_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->u_;
 }
 
 inline FqCsidIE &SessionSetDeletionReq::twan_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.twan_fqcsid.header.type == 0)
-      new (&((_SessionSetDeletionReq*)iebuffer_)->t_) FqCsidIE(data_.twan_fqcsid, nullptr);
-   return ((_SessionSetDeletionReq*)iebuffer_)->t_;
+      new (&(reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->t_) FqCsidIE(data_.twan_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->t_;
 }
 
 inline FqCsidIE &SessionSetDeletionReq::epdg_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.epdg_fqcsid.header.type == 0)
-      new (&((_SessionSetDeletionReq*)iebuffer_)->e_) FqCsidIE(data_.epdg_fqcsid, nullptr);
-   return ((_SessionSetDeletionReq*)iebuffer_)->e_;
+      new (&(reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->e_) FqCsidIE(data_.epdg_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->e_;
 }
 
 inline FqCsidIE &SessionSetDeletionReq::mme_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.mme_fqcsid.header.type == 0)
-      new (&((_SessionSetDeletionReq*)iebuffer_)->m_) FqCsidIE(data_.mme_fqcsid, nullptr);
-   return ((_SessionSetDeletionReq*)iebuffer_)->m_;
+      new (&(reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->m_) FqCsidIE(data_.mme_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionReq*>(iebuffer_))->m_;
 }
 
 inline SessionSetDeletionReq &SessionSetDeletionReq::encode(uint8_t *dest)
@@ -10499,22 +10499,22 @@ inline uint16_t SessionSetDeletionRsp::length() const
 inline NodeIdIE &SessionSetDeletionRsp::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_SessionSetDeletionRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_SessionSetDeletionRsp*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_SessionSetDeletionRsp*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionRsp*>(iebuffer_))->ni_;
 }
 
 inline CauseIE &SessionSetDeletionRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_SessionSetDeletionRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_SessionSetDeletionRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_SessionSetDeletionRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionRsp*>(iebuffer_))->c_;
 }
 
 inline OffendingIeIE &SessionSetDeletionRsp::offending_ie(Bool forceInit)
 {
    if (forceInit || data_.offending_ie.header.type == 0)
-      new (&((_SessionSetDeletionRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
-   return ((_SessionSetDeletionRsp*)iebuffer_)->oi_;
+      new (&(reinterpret_cast<_SessionSetDeletionRsp*>(iebuffer_))->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return (reinterpret_cast<_SessionSetDeletionRsp*>(iebuffer_))->oi_;
 }
 
 inline SessionSetDeletionRsp &SessionSetDeletionRsp::encode(uint8_t *dest)
@@ -10558,92 +10558,92 @@ inline uint16_t SessionEstablishmentReq::length() const
 inline NodeIdIE &SessionEstablishmentReq::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->ni_;
 }
 
 inline FSeidIE &SessionEstablishmentReq::cp_fseid(Bool forceInit)
 {
    if (forceInit || data_.cp_fseid.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->cpf_) FSeidIE(data_.cp_fseid, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->cpf_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->cpf_) FSeidIE(data_.cp_fseid, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->cpf_;
 }
 
 inline CreateBarIE &SessionEstablishmentReq::create_bar(Bool forceInit)
 {
    if (forceInit || data_.create_bar.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->cb_) CreateBarIE(data_.create_bar, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->cb_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->cb_) CreateBarIE(data_.create_bar, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->cb_;
 }
 
 inline PdnTypeIE &SessionEstablishmentReq::pdn_type(Bool forceInit)
 {
    if (forceInit || data_.pdn_type.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->pt_) PdnTypeIE(data_.pdn_type, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->pt_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->pt_) PdnTypeIE(data_.pdn_type, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->pt_;
 }
 
 inline FqCsidIE &SessionEstablishmentReq::sgw_c_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.sgw_c_fqcsid.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->sfc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->sfc_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->sfc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->sfc_;
 }
 
 inline FqCsidIE &SessionEstablishmentReq::mme_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.mme_fqcsid.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->mfc_) FqCsidIE(data_.mme_fqcsid, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->mfc_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->mfc_) FqCsidIE(data_.mme_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->mfc_;
 }
 
 inline FqCsidIE &SessionEstablishmentReq::pgw_c_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.pgw_c_fqcsid.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->pfc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->pfc_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->pfc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->pfc_;
 }
 
 inline FqCsidIE &SessionEstablishmentReq::epdg_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.epdg_fqcsid.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->efc_) FqCsidIE(data_.epdg_fqcsid, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->efc_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->efc_) FqCsidIE(data_.epdg_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->efc_;
 }
 
 inline FqCsidIE &SessionEstablishmentReq::twan_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.twan_fqcsid.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->tfc_) FqCsidIE(data_.twan_fqcsid, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->tfc_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->tfc_) FqCsidIE(data_.twan_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->tfc_;
 }
 
 inline UserPlaneInactivityTimerIE &SessionEstablishmentReq::user_plane_inact_timer(Bool forceInit)
 {
    if (forceInit || data_.user_plane_inact_timer.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->upit_) UserPlaneInactivityTimerIE(data_.user_plane_inact_timer, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->upit_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->upit_) UserPlaneInactivityTimerIE(data_.user_plane_inact_timer, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->upit_;
 }
 
 inline UserIdIE &SessionEstablishmentReq::user_id(Bool forceInit)
 {
    if (forceInit || data_.user_id.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->ui_) UserIdIE(data_.user_id, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->ui_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->ui_) UserIdIE(data_.user_id, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->ui_;
 }
 
 inline TraceInformationIE &SessionEstablishmentReq::trc_info(Bool forceInit)
 {
    if (forceInit || data_.trc_info.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->ti_) TraceInformationIE(data_.trc_info, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->ti_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->ti_) TraceInformationIE(data_.trc_info, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->ti_;
 }
 
 inline ApnDnnIE &SessionEstablishmentReq::apn_dnn(Bool forceInit)
 {
    if (forceInit || data_.apn_dnn.header.type == 0)
-      new (&((_SessionEstablishmentReq*)iebuffer_)->ad_) ApnDnnIE(data_.apn_dnn, nullptr);
-   return ((_SessionEstablishmentReq*)iebuffer_)->ad_;
+      new (&(reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->ad_) ApnDnnIE(data_.apn_dnn, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentReq*>(iebuffer_))->ad_;
 }
 
 inline CreatePdrIE &SessionEstablishmentReq::create_pdr(uint8_t idx)
@@ -10786,57 +10786,57 @@ inline uint16_t SessionEstablishmentRsp::length() const
 inline NodeIdIE &SessionEstablishmentRsp::node_id(Bool forceInit)
 {
    if (forceInit || data_.node_id.header.type == 0)
-      new (&((_SessionEstablishmentRsp*)iebuffer_)->ni_) NodeIdIE(data_.node_id, nullptr);
-   return ((_SessionEstablishmentRsp*)iebuffer_)->ni_;
+      new (&(reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->ni_) NodeIdIE(data_.node_id, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->ni_;
 }
 
 inline CauseIE &SessionEstablishmentRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_SessionEstablishmentRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_SessionEstablishmentRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->c_;
 }
 
 inline OffendingIeIE &SessionEstablishmentRsp::offending_ie(Bool forceInit)
 {
    if (forceInit || data_.offending_ie.header.type == 0)
-      new (&((_SessionEstablishmentRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
-   return ((_SessionEstablishmentRsp*)iebuffer_)->oi_;
+      new (&(reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->oi_;
 }
 
 inline FSeidIE &SessionEstablishmentRsp::up_fseid(Bool forceInit)
 {
    if (forceInit || data_.up_fseid.header.type == 0)
-      new (&((_SessionEstablishmentRsp*)iebuffer_)->ufs_) FSeidIE(data_.up_fseid, nullptr);
-   return ((_SessionEstablishmentRsp*)iebuffer_)->ufs_;
+      new (&(reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->ufs_) FSeidIE(data_.up_fseid, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->ufs_;
 }
 
 inline LoadControlInformationIE &SessionEstablishmentRsp::load_ctl_info(Bool forceInit)
 {
    if (forceInit || data_.load_ctl_info.header.type == 0)
-      new (&((_SessionEstablishmentRsp*)iebuffer_)->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
-   return ((_SessionEstablishmentRsp*)iebuffer_)->lci_;
+      new (&(reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->lci_;
 }
 
 inline OverloadControlInformationIE &SessionEstablishmentRsp::ovrld_ctl_info(Bool forceInit)
 {
    if (forceInit || data_.ovrld_ctl_info.header.type == 0)
-      new (&((_SessionEstablishmentRsp*)iebuffer_)->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
-   return ((_SessionEstablishmentRsp*)iebuffer_)->oci_;
+      new (&(reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->oci_;
 }
 
 inline FqCsidIE &SessionEstablishmentRsp::up_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.up_fqcsid.header.type == 0)
-      new (&((_SessionEstablishmentRsp*)iebuffer_)->ufc_) FqCsidIE(data_.up_fqcsid, nullptr);
-   return ((_SessionEstablishmentRsp*)iebuffer_)->ufc_;
+      new (&(reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->ufc_) FqCsidIE(data_.up_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->ufc_;
 }
 
 inline FailedRuleIdIE &SessionEstablishmentRsp::failed_rule_id(Bool forceInit)
 {
    if (forceInit || data_.failed_rule_id.header.type == 0)
-      new (&((_SessionEstablishmentRsp*)iebuffer_)->fri_) FailedRuleIdIE(data_.failed_rule_id, nullptr);
-   return ((_SessionEstablishmentRsp*)iebuffer_)->fri_;
+      new (&(reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->fri_) FailedRuleIdIE(data_.failed_rule_id, nullptr);
+   return (reinterpret_cast<_SessionEstablishmentRsp*>(iebuffer_))->fri_;
 }
 
 inline CreatedPdrIE &SessionEstablishmentRsp::created_pdr(uint8_t idx)
@@ -10924,113 +10924,113 @@ inline uint16_t SessionModificationReq::length() const
 inline FSeidIE &SessionModificationReq::cp_fseid(Bool forceInit)
 {
    if (forceInit || data_.cp_fseid.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->cfs_) FSeidIE(data_.cp_fseid, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->cfs_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->cfs_) FSeidIE(data_.cp_fseid, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->cfs_;
 }
 
 inline RemoveBarIE &SessionModificationReq::remove_bar(Bool forceInit)
 {
    if (forceInit || data_.remove_bar.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->rb_) RemoveBarIE(data_.remove_bar, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->rb_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->rb_) RemoveBarIE(data_.remove_bar, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->rb_;
 }
 
 inline RemoveTrafficEndpointIE &SessionModificationReq::rmv_traffic_endpt(Bool forceInit)
 {
    if (forceInit || data_.rmv_traffic_endpt.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->rte_) RemoveTrafficEndpointIE(data_.rmv_traffic_endpt, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->rte_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->rte_) RemoveTrafficEndpointIE(data_.rmv_traffic_endpt, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->rte_;
 }
 
 inline CreateBarIE &SessionModificationReq::create_bar(Bool forceInit)
 {
    if (forceInit || data_.create_bar.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->cb_) CreateBarIE(data_.create_bar, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->cb_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->cb_) CreateBarIE(data_.create_bar, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->cb_;
 }
 
 inline CreateTrafficEndpointIE &SessionModificationReq::create_traffic_endpt(Bool forceInit)
 {
    if (forceInit || data_.create_traffic_endpt.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->cte_) CreateTrafficEndpointIE(data_.create_traffic_endpt, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->cte_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->cte_) CreateTrafficEndpointIE(data_.create_traffic_endpt, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->cte_;
 }
 
 inline UpdateBarSessionModificationReqIE &SessionModificationReq::update_bar(Bool forceInit)
 {
    if (forceInit || data_.update_bar.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->ub_) UpdateBarSessionModificationReqIE(data_.update_bar, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->ub_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->ub_) UpdateBarSessionModificationReqIE(data_.update_bar, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->ub_;
 }
 
 inline UpdateTrafficEndpointIE &SessionModificationReq::upd_traffic_endpt(Bool forceInit)
 {
    if (forceInit || data_.upd_traffic_endpt.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->ute_) UpdateTrafficEndpointIE(data_.upd_traffic_endpt, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->ute_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->ute_) UpdateTrafficEndpointIE(data_.upd_traffic_endpt, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->ute_;
 }
 
 inline PfcpSmReqFlagsIE &SessionModificationReq::pfcpsmreq_flags(Bool forceInit)
 {
    if (forceInit || data_.pfcpsmreq_flags.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->f_) PfcpSmReqFlagsIE(data_.pfcpsmreq_flags, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->f_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->f_) PfcpSmReqFlagsIE(data_.pfcpsmreq_flags, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->f_;
 }
 
 inline FqCsidIE &SessionModificationReq::pgw_c_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.pgw_c_fqcsid.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->pcfc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->pcfc_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->pcfc_) FqCsidIE(data_.pgw_c_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->pcfc_;
 }
 
 inline FqCsidIE &SessionModificationReq::sgw_c_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.sgw_c_fqcsid.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->scfc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->scfc_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->scfc_) FqCsidIE(data_.sgw_c_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->scfc_;
 }
 
 inline FqCsidIE &SessionModificationReq::mme_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.mme_fqcsid.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->mfc_) FqCsidIE(data_.mme_fqcsid, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->mfc_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->mfc_) FqCsidIE(data_.mme_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->mfc_;
 }
 
 inline FqCsidIE &SessionModificationReq::epdg_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.epdg_fqcsid.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->efc_) FqCsidIE(data_.epdg_fqcsid, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->efc_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->efc_) FqCsidIE(data_.epdg_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->efc_;
 }
 
 inline FqCsidIE &SessionModificationReq::twan_fqcsid(Bool forceInit)
 {
    if (forceInit || data_.twan_fqcsid.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->tfc_) FqCsidIE(data_.twan_fqcsid, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->tfc_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->tfc_) FqCsidIE(data_.twan_fqcsid, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->tfc_;
 }
 
 inline UserPlaneInactivityTimerIE &SessionModificationReq::user_plane_inact_timer(Bool forceInit)
 {
    if (forceInit || data_.user_plane_inact_timer.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->upit_) UserPlaneInactivityTimerIE(data_.user_plane_inact_timer, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->upit_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->upit_) UserPlaneInactivityTimerIE(data_.user_plane_inact_timer, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->upit_;
 }
 
 inline QueryUrrReferenceIE &SessionModificationReq::query_urr_ref(Bool forceInit)
 {
    if (forceInit || data_.query_urr_ref.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->qur_) QueryUrrReferenceIE(data_.query_urr_ref, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->qur_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->qur_) QueryUrrReferenceIE(data_.query_urr_ref, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->qur_;
 }
 
 inline TraceInformationIE &SessionModificationReq::trc_info(Bool forceInit)
 {
    if (forceInit || data_.trc_info.header.type == 0)
-      new (&((_SessionModificationReq*)iebuffer_)->ti_) TraceInformationIE(data_.trc_info, nullptr);
-   return ((_SessionModificationReq*)iebuffer_)->ti_;
+      new (&(reinterpret_cast<_SessionModificationReq*>(iebuffer_))->ti_) TraceInformationIE(data_.trc_info, nullptr);
+   return (reinterpret_cast<_SessionModificationReq*>(iebuffer_))->ti_;
 }
 
 inline RemovePdrIE &SessionModificationReq::remove_pdr(uint8_t idx)
@@ -11312,57 +11312,57 @@ inline uint16_t SessionModificationRsp::length() const
 inline CauseIE &SessionModificationRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_SessionModificationRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_SessionModificationRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->c_;
 }
 
 inline OffendingIeIE &SessionModificationRsp::offending_ie(Bool forceInit)
 {
    if (forceInit || data_.offending_ie.header.type == 0)
-      new (&((_SessionModificationRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
-   return ((_SessionModificationRsp*)iebuffer_)->oi_;
+      new (&(reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return (reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->oi_;
 }
 
 inline CreatedPdrIE &SessionModificationRsp::created_pdr(Bool forceInit)
 {
    if (forceInit || data_.created_pdr.header.type == 0)
-      new (&((_SessionModificationRsp*)iebuffer_)->cp_) CreatedPdrIE(data_.created_pdr, nullptr);
-   return ((_SessionModificationRsp*)iebuffer_)->cp_;
+      new (&(reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->cp_) CreatedPdrIE(data_.created_pdr, nullptr);
+   return (reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->cp_;
 }
 
 inline LoadControlInformationIE &SessionModificationRsp::load_ctl_info(Bool forceInit)
 {
    if (forceInit || data_.load_ctl_info.header.type == 0)
-      new (&((_SessionModificationRsp*)iebuffer_)->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
-   return ((_SessionModificationRsp*)iebuffer_)->lci_;
+      new (&(reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
+   return (reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->lci_;
 }
 
 inline OverloadControlInformationIE &SessionModificationRsp::ovrld_ctl_info(Bool forceInit)
 {
    if (forceInit || data_.ovrld_ctl_info.header.type == 0)
-      new (&((_SessionModificationRsp*)iebuffer_)->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
-   return ((_SessionModificationRsp*)iebuffer_)->oci_;
+      new (&(reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
+   return (reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->oci_;
 }
 
 inline FailedRuleIdIE &SessionModificationRsp::failed_rule_id(Bool forceInit)
 {
    if (forceInit || data_.failed_rule_id.header.type == 0)
-      new (&((_SessionModificationRsp*)iebuffer_)->fri_) FailedRuleIdIE(data_.failed_rule_id, nullptr);
-   return ((_SessionModificationRsp*)iebuffer_)->fri_;
+      new (&(reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->fri_) FailedRuleIdIE(data_.failed_rule_id, nullptr);
+   return (reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->fri_;
 }
 
 inline AdditionalUsageReportsInformationIE &SessionModificationRsp::add_usage_rpts_info(Bool forceInit)
 {
    if (forceInit || data_.add_usage_rpts_info.header.type == 0)
-      new (&((_SessionModificationRsp*)iebuffer_)->auri_) AdditionalUsageReportsInformationIE(data_.add_usage_rpts_info, nullptr);
-   return ((_SessionModificationRsp*)iebuffer_)->auri_;
+      new (&(reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->auri_) AdditionalUsageReportsInformationIE(data_.add_usage_rpts_info, nullptr);
+   return (reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->auri_;
 }
 
 inline CreatedTrafficEndpointIE &SessionModificationRsp::createdupdated_traffic_endpt(Bool forceInit)
 {
    if (forceInit || data_.createdupdated_traffic_endpt.header.type == 0)
-      new (&((_SessionModificationRsp*)iebuffer_)->cute_) CreatedTrafficEndpointIE(data_.createdupdated_traffic_endpt, nullptr);
-   return ((_SessionModificationRsp*)iebuffer_)->cute_;
+      new (&(reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->cute_) CreatedTrafficEndpointIE(data_.createdupdated_traffic_endpt, nullptr);
+   return (reinterpret_cast<_SessionModificationRsp*>(iebuffer_))->cute_;
 }
 
 inline UsageReportSessionModificationRspIE &SessionModificationRsp::usage_report(uint8_t idx)
@@ -11459,29 +11459,29 @@ inline uint16_t SessionDeletionRsp::length() const
 inline CauseIE &SessionDeletionRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_SessionDeletionRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_SessionDeletionRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_SessionDeletionRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_SessionDeletionRsp*>(iebuffer_))->c_;
 }
 
 inline OffendingIeIE &SessionDeletionRsp::offending_ie(Bool forceInit)
 {
    if (forceInit || data_.offending_ie.header.type == 0)
-      new (&((_SessionDeletionRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
-   return ((_SessionDeletionRsp*)iebuffer_)->oi_;
+      new (&(reinterpret_cast<_SessionDeletionRsp*>(iebuffer_))->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return (reinterpret_cast<_SessionDeletionRsp*>(iebuffer_))->oi_;
 }
 
 inline LoadControlInformationIE &SessionDeletionRsp::load_ctl_info(Bool forceInit)
 {
    if (forceInit || data_.load_ctl_info.header.type == 0)
-      new (&((_SessionDeletionRsp*)iebuffer_)->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
-   return ((_SessionDeletionRsp*)iebuffer_)->lci_;
+      new (&(reinterpret_cast<_SessionDeletionRsp*>(iebuffer_))->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
+   return (reinterpret_cast<_SessionDeletionRsp*>(iebuffer_))->lci_;
 }
 
 inline OverloadControlInformationIE &SessionDeletionRsp::ovrld_ctl_info(Bool forceInit)
 {
    if (forceInit || data_.ovrld_ctl_info.header.type == 0)
-      new (&((_SessionDeletionRsp*)iebuffer_)->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
-   return ((_SessionDeletionRsp*)iebuffer_)->oci_;
+      new (&(reinterpret_cast<_SessionDeletionRsp*>(iebuffer_))->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
+   return (reinterpret_cast<_SessionDeletionRsp*>(iebuffer_))->oci_;
 }
 
 inline UsageReportSessionDeletionRspIE &SessionDeletionRsp::usage_report(uint8_t idx)
@@ -11548,43 +11548,43 @@ inline uint16_t SessionReportReq::length() const
 inline ReportTypeIE &SessionReportReq::report_type(Bool forceInit)
 {
    if (forceInit || data_.report_type.header.type == 0)
-      new (&((_SessionReportReq*)iebuffer_)->rt_) ReportTypeIE(data_.report_type, nullptr);
-   return ((_SessionReportReq*)iebuffer_)->rt_;
+      new (&(reinterpret_cast<_SessionReportReq*>(iebuffer_))->rt_) ReportTypeIE(data_.report_type, nullptr);
+   return (reinterpret_cast<_SessionReportReq*>(iebuffer_))->rt_;
 }
 
 inline DownlinkDataReportIE &SessionReportReq::dnlnk_data_rpt(Bool forceInit)
 {
    if (forceInit || data_.dnlnk_data_rpt.header.type == 0)
-      new (&((_SessionReportReq*)iebuffer_)->ddr_) DownlinkDataReportIE(data_.dnlnk_data_rpt, nullptr);
-   return ((_SessionReportReq*)iebuffer_)->ddr_;
+      new (&(reinterpret_cast<_SessionReportReq*>(iebuffer_))->ddr_) DownlinkDataReportIE(data_.dnlnk_data_rpt, nullptr);
+   return (reinterpret_cast<_SessionReportReq*>(iebuffer_))->ddr_;
 }
 
 inline ErrorIndicationReportIE &SessionReportReq::err_indctn_rpt(Bool forceInit)
 {
    if (forceInit || data_.err_indctn_rpt.header.type == 0)
-      new (&((_SessionReportReq*)iebuffer_)->eir_) ErrorIndicationReportIE(data_.err_indctn_rpt, nullptr);
-   return ((_SessionReportReq*)iebuffer_)->eir_;
+      new (&(reinterpret_cast<_SessionReportReq*>(iebuffer_))->eir_) ErrorIndicationReportIE(data_.err_indctn_rpt, nullptr);
+   return (reinterpret_cast<_SessionReportReq*>(iebuffer_))->eir_;
 }
 
 inline LoadControlInformationIE &SessionReportReq::load_ctl_info(Bool forceInit)
 {
    if (forceInit || data_.load_ctl_info.header.type == 0)
-      new (&((_SessionReportReq*)iebuffer_)->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
-   return ((_SessionReportReq*)iebuffer_)->lci_;
+      new (&(reinterpret_cast<_SessionReportReq*>(iebuffer_))->lci_) LoadControlInformationIE(data_.load_ctl_info, nullptr);
+   return (reinterpret_cast<_SessionReportReq*>(iebuffer_))->lci_;
 }
 
 inline OverloadControlInformationIE &SessionReportReq::ovrld_ctl_info(Bool forceInit)
 {
    if (forceInit || data_.ovrld_ctl_info.header.type == 0)
-      new (&((_SessionReportReq*)iebuffer_)->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
-   return ((_SessionReportReq*)iebuffer_)->oci_;
+      new (&(reinterpret_cast<_SessionReportReq*>(iebuffer_))->oci_) OverloadControlInformationIE(data_.ovrld_ctl_info, nullptr);
+   return (reinterpret_cast<_SessionReportReq*>(iebuffer_))->oci_;
 }
 
 inline AdditionalUsageReportsInformationIE &SessionReportReq::add_usage_rpts_info(Bool forceInit)
 {
    if (forceInit || data_.add_usage_rpts_info.header.type == 0)
-      new (&((_SessionReportReq*)iebuffer_)->auri_) AdditionalUsageReportsInformationIE(data_.add_usage_rpts_info, nullptr);
-   return ((_SessionReportReq*)iebuffer_)->auri_;
+      new (&(reinterpret_cast<_SessionReportReq*>(iebuffer_))->auri_) AdditionalUsageReportsInformationIE(data_.add_usage_rpts_info, nullptr);
+   return (reinterpret_cast<_SessionReportReq*>(iebuffer_))->auri_;
 }
 
 inline UsageReportSessionReportReqIE &SessionReportReq::usage_report(uint8_t idx)
@@ -11652,29 +11652,29 @@ inline uint16_t SessionReportRsp::length() const
 inline CauseIE &SessionReportRsp::cause(Bool forceInit)
 {
    if (forceInit || data_.cause.header.type == 0)
-      new (&((_SessionReportRsp*)iebuffer_)->c_) CauseIE(data_.cause, nullptr);
-   return ((_SessionReportRsp*)iebuffer_)->c_;
+      new (&(reinterpret_cast<_SessionReportRsp*>(iebuffer_))->c_) CauseIE(data_.cause, nullptr);
+   return (reinterpret_cast<_SessionReportRsp*>(iebuffer_))->c_;
 }
 
 inline OffendingIeIE &SessionReportRsp::offending_ie(Bool forceInit)
 {
    if (forceInit || data_.offending_ie.header.type == 0)
-      new (&((_SessionReportRsp*)iebuffer_)->oi_) OffendingIeIE(data_.offending_ie, nullptr);
-   return ((_SessionReportRsp*)iebuffer_)->oi_;
+      new (&(reinterpret_cast<_SessionReportRsp*>(iebuffer_))->oi_) OffendingIeIE(data_.offending_ie, nullptr);
+   return (reinterpret_cast<_SessionReportRsp*>(iebuffer_))->oi_;
 }
 
 inline UpdateBarSessionReportRspIE &SessionReportRsp::update_bar(Bool forceInit)
 {
    if (forceInit || data_.update_bar.header.type == 0)
-      new (&((_SessionReportRsp*)iebuffer_)->ub_) UpdateBarSessionReportRspIE(data_.update_bar, nullptr);
-   return ((_SessionReportRsp*)iebuffer_)->ub_;
+      new (&(reinterpret_cast<_SessionReportRsp*>(iebuffer_))->ub_) UpdateBarSessionReportRspIE(data_.update_bar, nullptr);
+   return (reinterpret_cast<_SessionReportRsp*>(iebuffer_))->ub_;
 }
 
 inline PfcpSrRspFlagsIE &SessionReportRsp::sxsrrsp_flags(Bool forceInit)
 {
    if (forceInit || data_.sxsrrsp_flags.header.type == 0)
-      new (&((_SessionReportRsp*)iebuffer_)->flags_) PfcpSrRspFlagsIE(data_.sxsrrsp_flags, nullptr);
-   return ((_SessionReportRsp*)iebuffer_)->flags_;
+      new (&(reinterpret_cast<_SessionReportRsp*>(iebuffer_))->flags_) PfcpSrRspFlagsIE(data_.sxsrrsp_flags, nullptr);
+   return (reinterpret_cast<_SessionReportRsp*>(iebuffer_))->flags_;
 }
 
 inline SessionReportRsp &SessionReportRsp::encode(uint8_t *dest)

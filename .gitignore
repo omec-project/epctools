@@ -31,6 +31,7 @@ exampleProgram/pfcp/src/.dirstamp
 exampleProgram/pfcp/src/*.o
 exampleProgram/libpfcp
 pfcp/pfcpr15/*.a
+pfcp/pfcpr15/st*
 pfcp/src/.deps
 pfcp/pfcptest/.deps
 pfcp/pfcptest/pcaps/.deps
