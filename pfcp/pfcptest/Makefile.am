@@ -31,13 +31,15 @@ pfcptest_DEPENDENCIES = \
    $(top_builddir)/src/libpfcpr15.a
 
 # Sources for pfcptest
-pfcptest_SOURCES =   \
-   main.cpp          \
-   test.cpp          \
-   pcaps/pcaps.cpp
+pfcptest_SOURCES =     \
+   main.cpp            \
+   pcpp.cpp            \
+   test.cpp            \
+   pcaps/pcaps.cpp     \
+   wrapper/wrapper.cpp
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
 pfcptest_CPPFLAGS = -Wall -std=c++11 $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -I$(top_builddir)/exampleProgram/pfcp/include -I$(top_builddir)/include/epc -I$(top_builddir)/exampleProgram/libpfcp/include
 pfcptest_LDFLAGS = -Wl,-rpath='$(top_builddir)/exampleProgram/libpfcp/lib' -static-libstdc++ 
-pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L$(top_builddir)/src -L$(top_builddir)/exampleProgram/libpfcp/lib $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt
+pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L$(top_builddir)/src -L$(top_builddir)/exampleProgram/libpfcp/lib -L$(top_builddir)/pfcp/pfcpr15 $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt -lpthread

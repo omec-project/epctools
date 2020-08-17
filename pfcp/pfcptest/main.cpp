@@ -26,10 +26,6 @@
 #include "test.h"
 #include "pcaps/pcaps.h"
 
-#define LOG_SYSTEM 1
-#define LOG_PFCP 2
-#define LOG_TEST 3
-
 using namespace PFCPTest;
 
 Void usage()
@@ -57,11 +53,10 @@ int main(int argc, char *argv[])
          return 0;
       }
 
-      optfile.format("%s.json", argv[0]);
-      if (EUtility::file_exists(optfile))
-         opt.loadFile(optfile);
-
       optfile = opt.getCmdLine("-f,--file", "__unknown__");
+      if (optfile.compare("__unknown__") == 0)
+         optfile.format("%s.json", argv[0]);
+
       if (EUtility::file_exists(optfile))
          opt.loadFile(optfile);
    }
@@ -84,24 +79,44 @@ int main(int argc, char *argv[])
 
          pcaps::InitTests();
 
-         for (const auto &itest : TestSuite::tests())
+         // Fill out the tests to run. If any tests are specified on the command line, use
+         // them, otherwise, add all the tests from the test suite.
+         std::vector<EString> tests;
+         if (!opt.getCmdLineArgs().empty())
          {
-            ELogger::log(LOG_TEST).info("Running test: {}", itest.first);
-            bool result = TestSuite::run(itest.first);
+            for (const auto &test : opt.getCmdLineArgs())
+            {
+               if (!TestSuite::contains(test))
+                  ELogger::log(LOG_TEST).major("Unable to find test: {}", test);
+               else
+                  tests.push_back(test);
+            }
+         }
+         else
+         {
+            for (const auto &test : TestSuite::tests())
+               tests.push_back(test.first);
+         }
+
+         for (const auto &test : tests)
+         {
+            ELogger::log(LOG_TEST).info("Running test: {}", test);
+            bool result = TestSuite::run(test);
             if (result)
             {
-               ELogger::log(LOG_TEST).info("Test: {}....{}", itest.first, "PASSED");
+               ELogger::log(LOG_TEST).info("Test: {}....{}", test, "PASSED");
             }
             else
             {
-               ELogger::log(LOG_TEST).major("Test: {}....{}", itest.first, "FAILED");
+               ELogger::log(LOG_TEST).major("Test: {}....{}", test, "FAILED");
                ++failureCount;
             }
          }
 
+         ELogger::log(LOG_TEST).info("Ran {} tests", tests.size());
          if (failureCount > 0)
          {
-            ELogger::log(LOG_TEST).major("{} tests failed.", failureCount);
+            ELogger::log(LOG_TEST).major("{} tests failed", failureCount);
             return 1;
          }
       }
