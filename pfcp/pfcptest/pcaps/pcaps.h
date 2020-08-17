@@ -29,12 +29,7 @@ namespace PFCPTest
       class PcapTest : public Test
       {
       public:
-         PcapTest(const EString &name) : Test(RunPcapTest), m_name(name) {}
-
-         const EString &name() { return m_name; }
-
-      private:
-         EString m_name;
+         PcapTest(const EString &name) : Test(RunPcapTest, name) {}
       };
    } // namespace pcaps
 } // namespace PFCPTest

@@ -23,21 +23,23 @@
 #include "estring.h"
 #include "eerror.h"
 
-#define TEST(name)                                   \
-   bool name(Test &);                                \
-   class name##_TEST                                 \
-   {                                                 \
-   public:                                           \
-      name##_TEST()                                  \
-      {                                              \
-         std::unique_ptr<Test> test(new Test(name)); \
-         TestSuite::add(#name, std::move(test));     \
-      }                                              \
-   };                                                \
-   static name##_TEST name##_TEST_STATIC;            \
-   bool name(Test &test)
+#define LOG_SYSTEM 1
+#define LOG_PFCP 2
+#define LOG_TEST 3
 
-#define CAST_TEST(name) *dynamic_cast<name *>(&test);
+#define TEST(name)                                          \
+   bool name(Test &);                                       \
+   class name##_TEST                                        \
+   {                                                        \
+   public:                                                  \
+      name##_TEST()                                         \
+      {                                                     \
+         std::unique_ptr<Test> test(new Test(name, #name)); \
+         TestSuite::add(#name, std::move(test));            \
+      }                                                     \
+   };                                                       \
+   static name##_TEST name##_TEST_STATIC;                   \
+   bool name(Test &test)
 
 namespace PFCPTest
 {
@@ -50,7 +52,10 @@ namespace PFCPTest
       using Func = std::function<bool(Test &)>;
 
       Test() = default;
-      Test(Func func) : m_func(func) {}
+      Test(Func func, const char *name) : m_func(func), m_name(name) {}
+
+      Func func() { return m_func; }
+      const EString &name() { return m_name; }
 
       virtual ~Test() {}
 
@@ -58,6 +63,7 @@ namespace PFCPTest
       friend class TestSuite;
 
       Func m_func = nullptr;
+      EString m_name;
    };
 
    class TestSuite
@@ -68,6 +74,7 @@ namespace PFCPTest
       static inline TestLookup &tests() { return s_tests; };
       static bool run(const EString &name);
       static void add(const EString &name, std::unique_ptr<Test> test);
+      static bool contains(const EString &name) { return s_tests.count(name) > 0; }
 
    private:
       static TestLookup s_tests;

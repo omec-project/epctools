@@ -37,5 +37,7 @@ pfcp/pfcptest/.deps
 pfcp/pfcptest/pcaps/.deps
 pfcp/pfcptest/pcaps/.dirstamp
 pfcp/pfcptest/pfcptest
+pfcp/pfcptest/wrapper/.deps
+pfcp/pfcptest/wrapper/.dirstamp
 docDoxyfile.bak
 epctools.code-workspace
