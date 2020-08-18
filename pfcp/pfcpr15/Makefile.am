@@ -35,4 +35,4 @@ include_HEADERS =          \
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/exampleProgram/libpfcp/include
+libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/libpfcp/include
