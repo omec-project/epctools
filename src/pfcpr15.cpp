@@ -352,7 +352,7 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
       }
       case PFCP_ASSN_REL_RSP:
       {
-         AssnUpdateRsp *am = static_cast<AssnUpdateRsp*>(rsp);
+         AssnReleaseRsp *am = static_cast<AssnReleaseRsp*>(rsp);
          am->encode(data());
          ro->assign(data(), am->length());
          break;
