@@ -38,5 +38,5 @@ __top_builddir__exampleProgram_pfcp_bin_pfcpex_SOURCE = main.cpp pfcpex.cpp pfcp
  #-I../modules/spdlog/include
 #pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc
 #pfcpex_LDADD = -L../../../src -lepc -lpthread -lrt
-__top_builddir__exampleProgram_pfcp_bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc -I../../libpfcp/include -I../../../modules/spdlog/include
-__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDADD = -Wl,../../libpfcp/lib/libpfcp.so -L../../../src -lepc -lpthread -lrt
+__top_builddir__exampleProgram_pfcp_bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I../include -I../../../include/epc -I../../../modules/libpfcp/include -I../../../modules/spdlog/include
+__top_builddir__exampleProgram_pfcp_bin_pfcpex_LDADD = -Wl,../../../modules/libpfcp/lib/libpfcp.so -L../../../src -lepc -lpthread -lrt

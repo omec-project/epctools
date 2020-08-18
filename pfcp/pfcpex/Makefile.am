@@ -27,7 +27,7 @@ noinst_PROGRAMS = bin/pfcpex
 
 # Sources for epc
 bin_pfcpex_DEPENDENCIES = \
-   $(top_builddir)/exampleProgram/libpfcp/lib/libpfcp.so \
+   $(top_builddir)/modules/libpfcp/lib/libpfcp.so \
    $(top_builddir)/src/libepc.a \
    $(top_builddir)/src/libpfcpr15.a
 
@@ -36,9 +36,9 @@ bin_pfcpex_SOURCES = \
    src/pfcpex.cpp
 
 # Linker options libTestProgram
-bin_pfcpex_LDFLAGS = -Wl,-rpath,../libpfcp/lib
+bin_pfcpex_LDFLAGS = -Wl,-rpath,../../modules/libpfcp/lib
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I./include -I../../include/epc -I../../modules/spdlog/include -I../libpfcp/include
-bin_pfcpex_LDADD = -L../libpfcp/lib -L../../src -lpfcpr15 -lpfcp -lepc -lpthread -lrt
+bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I./include -I../../include/epc -I../../modules/spdlog/include -I../../modules/libpfcp/include
+bin_pfcpex_LDADD = -L../../modules/libpfcp/lib -L../../src -lpfcpr15 -lpfcp -lepc -lpthread -lrt

@@ -3974,7 +3974,7 @@ else
 fi
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile include/Makefile pfcp/pfcpr15/Makefile exampleProgram/Makefile exampleProgram/pfcp/Makefile pfcp/pfcptest/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile include/Makefile exampleProgram/Makefile exampleProgram/pfcp/Makefile pfcp/pfcpr15/Makefile pfcp/pfcpex/Makefile pfcp/pfcptest/Makefile"
 
 
 #AC_CONFIG_COMMANDS([submodules],[git submodule update --init --recursive])
@@ -4746,9 +4746,10 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
-    "pfcp/pfcpr15/Makefile") CONFIG_FILES="$CONFIG_FILES pfcp/pfcpr15/Makefile" ;;
     "exampleProgram/Makefile") CONFIG_FILES="$CONFIG_FILES exampleProgram/Makefile" ;;
     "exampleProgram/pfcp/Makefile") CONFIG_FILES="$CONFIG_FILES exampleProgram/pfcp/Makefile" ;;
+    "pfcp/pfcpr15/Makefile") CONFIG_FILES="$CONFIG_FILES pfcp/pfcpr15/Makefile" ;;
+    "pfcp/pfcpex/Makefile") CONFIG_FILES="$CONFIG_FILES pfcp/pfcpex/Makefile" ;;
     "pfcp/pfcptest/Makefile") CONFIG_FILES="$CONFIG_FILES pfcp/pfcptest/Makefile" ;;
     "submodules") CONFIG_COMMANDS="$CONFIG_COMMANDS submodules" ;;
     "rapidjson") CONFIG_COMMANDS="$CONFIG_COMMANDS rapidjson" ;;
