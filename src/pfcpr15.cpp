@@ -329,6 +329,13 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
          ro->assign(data(), am->length());
          break;
       }
+      case PFCP_VERSION_NOT_SUPPORTED:
+      {
+         VersionNotSupportedRsp *am = static_cast<VersionNotSupportedRsp*>(rsp);
+         am->encode(data());
+         ro->assign(data(), am->length());
+         break;
+      }
       case PFCP_PFD_MGMT_RSP:
       {
          PfdMgmtRsp *am = static_cast<PfdMgmtRsp*>(rsp);

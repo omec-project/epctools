@@ -243,5 +243,19 @@ namespace PFCPTest
 
          return WrapperTest(test, buildAppMsg);
       }
+
+      TEST(wrapper_pfcp_version_not_supported_rsp)
+      {
+         auto buildAppMsg = [](PFCP::LocalNodeSPtr ln, PFCP::RemoteNodeSPtr rn) {
+            PFCP_R15::VersionNotSupportedRsp *msg = new PFCP_R15::VersionNotSupportedRsp();
+
+            PFCP::AppMsgNodeReqPtr dummyReq = new PFCP::AppMsgNodeReq();
+            msg->setReq(dummyReq);
+
+            return std::unique_ptr<PFCP::AppMsg>(msg);
+         };
+
+         return WrapperTest(test, buildAppMsg);
+      }
    } // namespace wrapper
 } // namespace PFCPTest
