@@ -87,18 +87,18 @@ namespace PFCPTest
             msg->up_func_feat().bucp(True);
             msg->up_func_feat().dlbd(True);
             msg->up_func_feat().frrt(True);
-            
+
             msg->cp_func_feat().ovrl(True);
 
-            for(int iupip = 0; iupip < 4; ++iupip)
+            for (int iupip = 0; iupip < 4; ++iupip)
             {
                int idx = msg->next_user_plane_ip_rsrc_info();
                msg->user_plane_ip_rsrc_info(idx).teid_range(4, 15);
                msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv4);
                msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv6);
-               UChar apn[] = { 4, 'a', 'p', 'n', '1' };
+               UChar apn[] = {4, 'a', 'p', 'n', '1'};
                apn[4] += iupip;
-               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar) apn, (UShort) strlen((cpStr) apn));
+               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)strlen((cpStr)apn));
                msg->user_plane_ip_rsrc_info(idx).src_intfc(PFCP_R15::SourceInterfaceEnum::CPFunction);
             }
 
@@ -125,23 +125,60 @@ namespace PFCPTest
             msg->up_func_feat().bucp(True);
             msg->up_func_feat().dlbd(True);
             msg->up_func_feat().frrt(True);
-            
+
             msg->cp_func_feat().ovrl(True);
 
-            for(int iupip = 0; iupip < 4; ++iupip)
+            for (int iupip = 0; iupip < 4; ++iupip)
             {
                int idx = msg->next_user_plane_ip_rsrc_info();
                msg->user_plane_ip_rsrc_info(idx).teid_range(4, 15);
                msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv4);
                msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv6);
-               UChar apn[] = { 4, 'a', 'p', 'n', '1' };
+               UChar apn[] = {4, 'a', 'p', 'n', '1'};
                apn[4] += iupip;
-               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar) apn, (UShort) strlen((cpStr) apn));
+               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)strlen((cpStr)apn));
                msg->user_plane_ip_rsrc_info(idx).src_intfc(PFCP_R15::SourceInterfaceEnum::CPFunction);
             }
 
             PFCP::AppMsgNodeReqPtr dummyReq = new PFCP::AppMsgNodeReq();
             msg->setReq(dummyReq);
+
+            return std::unique_ptr<PFCP::AppMsg>(msg);
+         };
+
+         return WrapperTest(test, buildAppMsg);
+      }
+
+      TEST(wrapper_pfcp_assn_update_req)
+      {
+         auto buildAppMsg = [](PFCP::LocalNodeSPtr ln, PFCP::RemoteNodeSPtr rn) {
+            PFCP_R15::AssnUpdateReq *msg = new PFCP_R15::AssnUpdateReq(ln, rn);
+
+            ESocket::Address addr_ipv4("1.2.3.4", 5);
+            ESocket::Address addr_ipv6("1111:2222:3333:4444:5555:6666:7777:8888", 9999);
+            msg->node_id().node_id_value(addr_ipv4);
+
+            msg->up_func_feat().bucp(True);
+            msg->up_func_feat().dlbd(True);
+            msg->up_func_feat().frrt(True);
+
+            msg->cp_func_feat().ovrl(True);
+
+            msg->up_assn_rel_req().sarr(True);
+
+            msg->graceful_rel_period().timer_value(4, PFCP_R15::GracefulReleasePeriodTimerUnitEnum::infinite);
+
+            for (int iupip = 0; iupip < 4; ++iupip)
+            {
+               int idx = msg->next_user_plane_ip_rsrc_info();
+               msg->user_plane_ip_rsrc_info(idx).teid_range(4, 15);
+               msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv4);
+               msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv6);
+               UChar apn[] = {4, 'a', 'p', 'n', '1'};
+               apn[4] += iupip;
+               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)strlen((cpStr)apn));
+               msg->user_plane_ip_rsrc_info(idx).src_intfc(PFCP_R15::SourceInterfaceEnum::CPFunction);
+            }
 
             return std::unique_ptr<PFCP::AppMsg>(msg);
          };
