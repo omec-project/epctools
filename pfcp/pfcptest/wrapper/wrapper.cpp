@@ -107,5 +107,46 @@ namespace PFCPTest
 
          return WrapperTest(test, buildAppMsg);
       }
+
+      TEST(wrapper_pfcp_assn_setup_rsp)
+      {
+         auto buildAppMsg = [](PFCP::LocalNodeSPtr ln, PFCP::RemoteNodeSPtr rn) {
+            PFCP_R15::AssnSetupRsp *msg = new PFCP_R15::AssnSetupRsp();
+
+            ESocket::Address addr_ipv4("1.2.3.4", 5);
+            ESocket::Address addr_ipv6("1111:2222:3333:4444:5555:6666:7777:8888", 9999);
+            msg->node_id().node_id_value(addr_ipv4);
+
+            msg->cause().cause(PFCP_R15::CauseEnum::RequestAccepted);
+
+            ETime recvyTimeStmp(2020, 8, 13, 5, 4, 31, False);
+            msg->rcvry_time_stmp().rcvry_time_stmp_val(recvyTimeStmp);
+
+            msg->up_func_feat().bucp(True);
+            msg->up_func_feat().dlbd(True);
+            msg->up_func_feat().frrt(True);
+            
+            msg->cp_func_feat().ovrl(True);
+
+            for(int iupip = 0; iupip < 4; ++iupip)
+            {
+               int idx = msg->next_user_plane_ip_rsrc_info();
+               msg->user_plane_ip_rsrc_info(idx).teid_range(4, 15);
+               msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv4);
+               msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv6);
+               UChar apn[] = { 4, 'a', 'p', 'n', '1' };
+               apn[4] += iupip;
+               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar) apn, (UShort) strlen((cpStr) apn));
+               msg->user_plane_ip_rsrc_info(idx).src_intfc(PFCP_R15::SourceInterfaceEnum::CPFunction);
+            }
+
+            PFCP::AppMsgNodeReqPtr dummyReq = new PFCP::AppMsgNodeReq();
+            msg->setReq(dummyReq);
+
+            return std::unique_ptr<PFCP::AppMsg>(msg);
+         };
+
+         return WrapperTest(test, buildAppMsg);
+      }
    } // namespace wrapper
 } // namespace PFCPTest
