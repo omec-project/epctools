@@ -43,7 +43,6 @@ AC_CONFIG_FILES(Makefile
                 src/Makefile
                 include/Makefile
                 exampleProgram/Makefile
-                exampleProgram/pfcp/Makefile
                 pfcp/pfcpr15/Makefile
                 pfcp/pfcpex/Makefile
                 pfcp/pfcptest/Makefile)
