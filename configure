@@ -3994,6 +3994,8 @@ ac_config_commands="$ac_config_commands bzip2"
 
 ac_config_commands="$ac_config_commands PcapPlusPlus"
 
+ac_config_commands="$ac_config_commands libpfcp"
+
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4756,6 +4758,7 @@ do
     "freeDiameter") CONFIG_COMMANDS="$CONFIG_COMMANDS freeDiameter" ;;
     "bzip2") CONFIG_COMMANDS="$CONFIG_COMMANDS bzip2" ;;
     "PcapPlusPlus") CONFIG_COMMANDS="$CONFIG_COMMANDS PcapPlusPlus" ;;
+    "libpfcp") CONFIG_COMMANDS="$CONFIG_COMMANDS libpfcp" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -5343,6 +5346,14 @@ $as_echo X"$file" |
     if [ ! -d modules/PcapPlusPlus/Dist ]; then
         pushd modules/PcapPlusPlus
         ./configure-linux.sh --default
+        make
+        sudo make install
+        popd
+    fi
+ ;;
+    "libpfcp":C)
+    if [ ! -d modules/libpfcp/lib ]; then
+        pushd modules/libpfcp
         make
         sudo make install
         popd

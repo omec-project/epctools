@@ -118,5 +118,13 @@ AC_CONFIG_COMMANDS([PcapPlusPlus],[
         popd
     fi
 ])
+AC_CONFIG_COMMANDS([libpfcp],[
+    if [[ ! -d modules/libpfcp/lib ]]; then
+        pushd modules/libpfcp
+        make
+        sudo make install
+        popd
+    fi
+])
 
 AC_OUTPUT
