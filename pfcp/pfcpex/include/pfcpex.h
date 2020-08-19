@@ -22,6 +22,31 @@
 
 #include "pfcpr15.h"
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+#ifdef PFCP_ANALYSIS
+#define PFCP_ANALYSIS_TP_DIM  20
+struct Analysis
+{
+   ETimer timer;
+   epctime_t tp[PFCP_ANALYSIS_TP_DIM];
+};
+extern Analysis *analysis;
+#define PFCP_ANALYSIS_ALLOC(__cnt__)                     { PFCP::analysis = new PFCP::Analysis[__cnt__](); }
+#define PFCP_ANALYSIS_START(__seid__)                    { PFCP::analysis[__seid__-1].timer.Start(); }
+#define PFCP_ANALYSIS_SET_TP(__seid__,__tp__)            { PFCP::analysis[__seid__-1].tp[__tp__] = PFCP::analysis[__seid__-1].timer.MicroSeconds(True); }
+#define PFCP_ANALYSIS_SET_TP2(__seid__,__tp__,__dur__)   { PFCP::analysis[__seid__-1].tp[__tp__] = __dur__; }
+#else
+#define PFCP_ANALYSIS_ALLOC(__cnt__)
+#define PFCP_ANALYSIS_START(__seid__)
+#define PFCP_ANALYSIS_SET_TP(__seid__,__tp__)
+#define PFCP_ANALYSIS_SET_TP2(__seid__,__tp__,__dur__)
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 #define LOG_SYSTEM   1
 #define LOG_PFCP     2
 

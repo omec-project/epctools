@@ -37,28 +37,6 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
-   #ifdef PFCP_ANALYSIS
-   #define PFCP_ANALYSIS_TP_DIM  20
-   struct Analysis
-   {
-      ETimer timer;
-      epctime_t tp[PFCP_ANALYSIS_TP_DIM];
-   };
-   extern Analysis *analysis;
-   #define PFCP_ANALYSIS_ALLOC(__cnt__)                     { PFCP::analysis = new PFCP::Analysis[__cnt__](); }
-   #define PFCP_ANALYSIS_START(__seid__)                    { PFCP::analysis[__seid__-1].timer.Start(); }
-   #define PFCP_ANALYSIS_SET_TP(__seid__,__tp__)            { PFCP::analysis[__seid__-1].tp[__tp__] = PFCP::analysis[__seid__-1].timer.MicroSeconds(True); }
-   #define PFCP_ANALYSIS_SET_TP2(__seid__,__tp__,__dur__)   { PFCP::analysis[__seid__-1].tp[__tp__] = __dur__; }
-   #else
-   #define PFCP_ANALYSIS_ALLOC(__cnt__)
-   #define PFCP_ANALYSIS_START(__seid__)
-   #define PFCP_ANALYSIS_SET_TP(__seid__,__tp__)
-   #define PFCP_ANALYSIS_SET_TP2(__seid__,__tp__,__dur__)
-   #endif
-
-   /////////////////////////////////////////////////////////////////////////////
-   /////////////////////////////////////////////////////////////////////////////
-
    /// @brief Initializes/starts the PFCP stack.  This should be called after setting
    ///   the initial configuration values.
    Void Initialize();
@@ -478,12 +456,26 @@ namespace PFCP
       {
          if (pool_.allocSize() == 0)
          {
-            size_t ns = 32768 - sizeof(EMemory::Node);
-            size_t bs = sz + sizeof(EMemory::Block);
-            bs += bs % sizeof(pVoid);
-            size_t bc = ns / bs;
-            ns = sizeof(EMemory::Node) + bc * bs;
-            pool_.setSize(sz, ns);
+            if (sz >= (32768 - sizeof(EMemory::Node)))
+            {
+               pool_.setSize(sz, 0, 5);
+            }
+            else
+            {
+               size_t ns = 32768 - sizeof(EMemory::Node);
+               size_t bs = sz + sizeof(EMemory::Block);
+               bs += bs % sizeof(pVoid);
+               size_t bc = ns / bs;
+               if (bc < 5)
+               {
+                  pool_.setSize(sz, 0, 5);
+               }
+               else
+               {
+                  ns = sizeof(EMemory::Node) + bc * bs;
+                  pool_.setSize(sz, ns);
+               }
+            }
          }
          if (sz > pool_.allocSize())
          {

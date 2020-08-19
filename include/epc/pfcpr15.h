@@ -65,7 +65,7 @@ public:
    virtual Void setLength()
    {
       if (parent_)
-         parent_->calculateLength();
+         parent_->setLength();
    }
 
    virtual uint16_t length() const = 0;
