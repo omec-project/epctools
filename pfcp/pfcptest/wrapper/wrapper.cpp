@@ -58,10 +58,10 @@ namespace PFCPTest
 
          std::vector<uint8_t> payloadOut = EncodeAppMsg(appMsg.get());
 
-         pcpp::RawPacketVector tempalatePackets = GetPackets(templatePcap);
+         pcpp::RawPacketVector templatePackets = GetPackets(templatePcap);
          pcpp::RawPacketVector resultPackets;
          // Add to result packets (the packet vector owns the packet pointer)
-         pcpp::RawPacket *resultPacket = new pcpp::RawPacket(*tempalatePackets.front());
+         pcpp::RawPacket *resultPacket = new pcpp::RawPacket(*templatePackets.front());
          resultPackets.pushBack(resultPacket);
          pcpp::Packet packet(resultPacket);
          ReplacePFCPPayload(packet, payloadOut);
@@ -251,6 +251,36 @@ namespace PFCPTest
 
             PFCP::AppMsgNodeReqPtr dummyReq = new PFCP::AppMsgNodeReq();
             msg->setReq(dummyReq);
+
+            return std::unique_ptr<PFCP::AppMsg>(msg);
+         };
+
+         return WrapperTest(test, buildAppMsg);
+      }
+
+      TEST(wrapper_pfcp_node_report_req)
+      {
+         auto buildAppMsg = [](PFCP::LocalNodeSPtr ln, PFCP::RemoteNodeSPtr rn) {
+            PFCP_R15::NodeReportReq *msg = new PFCP_R15::NodeReportReq(ln, rn);
+
+            ESocket::Address addr_ipv4("1.2.3.4", 5);
+            ESocket::Address addr_ipv6("1111:2222:3333:4444:5555:6666:7777:8888", 9999);
+            msg->node_id().node_id_value(addr_ipv4);
+
+            msg->node_rpt_type().upfr(True);
+            
+            for (int ipeer = 0; ipeer < 4; ++ipeer)
+            {
+               int idx = msg->user_plane_path_fail_rpt().next_rmt_gtpu_peer();
+               msg->user_plane_path_fail_rpt().rmt_gtpu_peer(idx).ip_address(addr_ipv4);
+               msg->user_plane_path_fail_rpt().rmt_gtpu_peer(idx).ip_address(addr_ipv6);
+
+               UChar apn[] = {4, 'a', 'p', 'n', '1'};
+               apn[4] += ipeer;
+               msg->user_plane_path_fail_rpt().rmt_gtpu_peer(idx).ntwk_instc((pUChar)apn, (UShort)strlen((cpStr)apn));
+               
+               msg->user_plane_path_fail_rpt().rmt_gtpu_peer(idx).dst_intfc_fld((PFCP_R15::DestinationInterfaceEnum)(ipeer + 1));
+            }
 
             return std::unique_ptr<PFCP::AppMsg>(msg);
          };
