@@ -287,5 +287,26 @@ namespace PFCPTest
 
          return WrapperTest(test, buildAppMsg);
       }
+
+      TEST(wrapper_pfcp_node_report_rsp)
+      {
+         auto buildAppMsg = [](PFCP::LocalNodeSPtr ln, PFCP::RemoteNodeSPtr rn) {
+            PFCP_R15::NodeReportRsp *msg = new PFCP_R15::NodeReportRsp();
+
+            ESocket::Address addr_ipv4("1.2.3.4", 5);
+            msg->node_id().node_id_value(addr_ipv4);
+
+            msg->cause().cause(PFCP_R15::CauseEnum::MandatoryIeMissing);
+
+            msg->offending_ie().type_of_the_offending_ie(PFCP_IE_NODE_RPT_TYPE);
+
+            PFCP::AppMsgNodeReqPtr dummyReq = new PFCP::AppMsgNodeReq();
+            msg->setReq(dummyReq);
+
+            return std::unique_ptr<PFCP::AppMsg>(msg);
+         };
+
+         return WrapperTest(test, buildAppMsg);
+      }
    } // namespace wrapper
 } // namespace PFCPTest
