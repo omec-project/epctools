@@ -308,5 +308,67 @@ namespace PFCPTest
 
          return WrapperTest(test, buildAppMsg);
       }
+
+      TEST(wrapper_pfcp_session_set_deletion_req)
+      {
+         auto buildAppMsg = [](PFCP::LocalNodeSPtr ln, PFCP::RemoteNodeSPtr rn) {
+            PFCP_R15::SessionSetDeletionReq *msg = new PFCP_R15::SessionSetDeletionReq(ln, rn);
+
+            ESocket::Address addr_ipv4("1.2.3.4", 5);
+            ESocket::Address addr_ipv6("1111:2222:3333:4444:5555:6666:7777:8888", 9999);
+            msg->node_id().node_id_value(addr_ipv4);
+
+            uint8_t csidCount = 3;
+
+            msg->sgw_c_fqcsid().node_address(addr_ipv6);
+            msg->pgw_c_fqcsid().node_address(addr_ipv6);
+            msg->up_fqcsid().node_address(addr_ipv6);
+            msg->twan_fqcsid().node_address(addr_ipv6);
+            msg->epdg_fqcsid().node_address(addr_ipv6);
+            msg->mme_fqcsid().node_address(addr_ipv6);
+            
+            for (uint8_t idx = 0u; idx < csidCount; ++idx)
+            {
+               msg->sgw_c_fqcsid().next_pdn_conn_set_ident();
+               msg->pgw_c_fqcsid().next_pdn_conn_set_ident();
+               msg->up_fqcsid().next_pdn_conn_set_ident();
+               msg->twan_fqcsid().next_pdn_conn_set_ident();
+               msg->epdg_fqcsid().next_pdn_conn_set_ident();
+               msg->mme_fqcsid().next_pdn_conn_set_ident();
+               
+               msg->sgw_c_fqcsid().pdn_conn_set_ident(idx) = idx + 1;
+               msg->pgw_c_fqcsid().pdn_conn_set_ident(idx) = idx + 1;
+               msg->up_fqcsid().pdn_conn_set_ident(idx) = idx + 1;
+               msg->twan_fqcsid().pdn_conn_set_ident(idx) = idx + 1;
+               msg->epdg_fqcsid().pdn_conn_set_ident(idx) = idx + 1;
+               msg->mme_fqcsid().pdn_conn_set_ident(idx) = idx + 1;
+            }
+
+            return std::unique_ptr<PFCP::AppMsg>(msg);
+         };
+
+         return WrapperTest(test, buildAppMsg);
+      }
+
+      TEST(wrapper_pfcp_session_set_deletion_rsp)
+      {
+         auto buildAppMsg = [](PFCP::LocalNodeSPtr ln, PFCP::RemoteNodeSPtr rn) {
+            PFCP_R15::SessionSetDeletionRsp *msg = new PFCP_R15::SessionSetDeletionRsp();
+
+            ESocket::Address addr_ipv4("1.2.3.4", 5);
+            msg->node_id().node_id_value(addr_ipv4);
+
+            msg->cause().cause(PFCP_R15::CauseEnum::MandatoryIeMissing);
+
+            msg->offending_ie().type_of_the_offending_ie(PFCP_IE_NODE_ID);
+
+            PFCP::AppMsgNodeReqPtr dummyReq = new PFCP::AppMsgNodeReq();
+            msg->setReq(dummyReq);
+
+            return std::unique_ptr<PFCP::AppMsg>(msg);
+         };
+
+         return WrapperTest(test, buildAppMsg);
+      }
    } // namespace wrapper
 } // namespace PFCPTest
