@@ -93,6 +93,7 @@
 					        <li>[Application Layer](#feature-overview-communication-stacks-pfcp-application-layer)</li>
 					        <li>[Translation Layer](#feature-overview-communication-stacks-pfcp-translation-layer)</li>
 					        <li>[Communication Layer](#feature-overview-communication-stacks-pfcp-communication-layer)</li>
+					        <li>[PFCP Unit Tests](feature-overview-communication-stacks-pfcp-unit-tests)</li>
 					    </ol>
 					</li>
 			    </ol>
@@ -2167,6 +2168,44 @@ The translation layer is responsible for converting the application representati
 The communications layer handles the UDP communications with the PFCP peers.  This layer is responsible for the sending and receiving of messages, path mangement, duplicate checking and filtering for received request messages and request message retransmission.
 
 A socket object is associated with a local node.  It is possible to have multiple local node objects process messages on different local interfaces/IP addresses.
+
+<a  name="feature-overview-communication-stacks-pfcp-unit-tests"></a>
+#### PFCP Unit Tests
+A test application named pfcptest contains code to test the encoding and decoding of PFCP messages and informational elements. There are currently two categories of tests: pcap and wrapper tests.
+
+##### Test System Overview
+The test system is a simple application that contains test code organized in functions in various files. It associates a test function with its name as a string in a collection (map) as part of the test suite. Calling pfcptest without any arguments will run all the tests in the test suite. 
+```sh
+$ ./pfcptest
+```
+
+You can optionally provide a list of test names as arguments and it will run only those tests. 
+```sh
+$ ./pfcptest pfcp_assn_setup_req pfcp_assn_setup_rsp ...
+```
+
+Tests are added by using the `TEST()` macro which accepts a single parameter which is the name of the test and is followed by the body of the test function which returns a boolean value indicating whether the test passed or failed. The test names must be unique across all the files in the test suite as they are currently stored in the same collection. The `TEST()` macro defines a function which passes in a `Test` object as a parameter named `test` which contains a function `name()` which can be used to get the name of the test.
+
+**Example test**
+```cpp
+TEST(pfcp_assn_setup_req)
+{
+    EString originalPcap = "./pcaps/originals/" + test.name() + ".pcap";
+    EString baselinePcap = "./pcaps/baselines/" + test.name() + ".pcap";
+    EString resultPcap = "./pcaps/results/" + test.name() + ".pcap";
+    
+    // Decode and re-encode the PFCP messages in each packet
+    ...
+    
+    return ComparePackets(baselinePcap, resultPcap);
+}
+```
+
+##### Pcap Tests
+The pcap tests take an input pcap which contains one or more packets with PFCP messages. Using the *PcapPlusPlus* library, the PFCP messages are extracted from each packet, decoded by the library, and then re-encoded from the class object model and replaced back into the packet. The pcap tests are found under the pfcp/pfcptest/pcaps folder. To add a new test, simply copy a pcap containing PFCP packets into the pfcp/pfcptest/pcaps/originals and pfcp/pfcptest/pcaps/baselines folders. The test system automatically searches for pcap files in these directories and adds them to the test suite. The original and baseline files are not modified and the results are placed in the results folder for easy side-by-side comparison in Wireshark. Currently, the basic pcap test doesn't do any extra processing to the packets besides simple decoding and encoding, but the system is flexible enough to allow the original file and baseline to differ with some intermediate processing done in code. To do this, a new test function would need to be added to the pcaps.cpp file. To rebaseline an existing test, simply copy the pcap from the results folder to the baseline folder.
+
+##### Wrapper Tests
+The wrapper tests create the PFCP messages directly in code without a source packet using the library provided wrapper interfaces for PFCP objects. The results are then placed in a pcap by replacing the PFCP message in a template.pcap and placed into the results folder. Like the pcap tests, the results are compared to the pcaps in the baseline folder.
 
 <a  name="feature-overview-miscellaneous-classes"></a>
 ## Miscellaneous Classes
