@@ -98,7 +98,7 @@ namespace PFCPTest
                msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv6);
                UChar apn[] = {4, 'a', 'p', 'n', '1'};
                apn[4] += iupip;
-               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)strlen((cpStr)apn));
+               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)sizeof(apn));
                msg->user_plane_ip_rsrc_info(idx).src_intfc(PFCP_R15::SourceInterfaceEnum::CPFunction);
             }
 
@@ -136,7 +136,7 @@ namespace PFCPTest
                msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv6);
                UChar apn[] = {4, 'a', 'p', 'n', '1'};
                apn[4] += iupip;
-               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)strlen((cpStr)apn));
+               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)sizeof(apn));
                msg->user_plane_ip_rsrc_info(idx).src_intfc(PFCP_R15::SourceInterfaceEnum::CPFunction);
             }
 
@@ -176,7 +176,7 @@ namespace PFCPTest
                msg->user_plane_ip_rsrc_info(idx).ip_address(addr_ipv6);
                UChar apn[] = {4, 'a', 'p', 'n', '1'};
                apn[4] += iupip;
-               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)strlen((cpStr)apn));
+               msg->user_plane_ip_rsrc_info(idx).ntwk_inst((pUChar)apn, (UShort)sizeof(apn));
                msg->user_plane_ip_rsrc_info(idx).src_intfc(PFCP_R15::SourceInterfaceEnum::CPFunction);
             }
 
@@ -277,7 +277,7 @@ namespace PFCPTest
 
                UChar apn[] = {4, 'a', 'p', 'n', '1'};
                apn[4] += ipeer;
-               msg->user_plane_path_fail_rpt().rmt_gtpu_peer(idx).ntwk_instc((pUChar)apn, (UShort)strlen((cpStr)apn));
+               msg->user_plane_path_fail_rpt().rmt_gtpu_peer(idx).ntwk_instc((pUChar)apn, (UShort)sizeof(apn));
                
                msg->user_plane_path_fail_rpt().rmt_gtpu_peer(idx).dst_intfc_fld((PFCP_R15::DestinationInterfaceEnum)(ipeer + 1));
             }
