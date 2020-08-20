@@ -18,7 +18,10 @@
       {
          "label": "build epctest",
          "type": "shell",
-         "command": "cd exampleProgram; make",
+         "command": "make",
+         "options": {
+            "cwd": "${workspaceFolder}/exampleProgram"
+         },
          "group": {
             "kind": "build",
             "isDefault": true
@@ -30,7 +33,10 @@
       {
          "label": "build pfcpex",
          "type": "shell",
-         "command": "cd exampleProgram/pfcp; make",
+         "command": "make",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcp/pfcpex"
+         },
          "group": {
             "kind": "build",
             "isDefault": true
@@ -66,7 +72,10 @@
       {
          "label": "clean epctest",
          "type": "shell",
-         "command": "cd exampleProgram; make clean",
+         "command": "make clean",
+         "options": {
+            "cwd": "${workspaceFolder}/exampleProgram"
+         },
          "group": {
             "kind": "build",
             "isDefault": true
@@ -75,11 +84,15 @@
       {
          "label": "clean pfcpex",
          "type": "shell",
-         "command": "cd exampleProgram/pfcp; make clean",
+         "command": "make clean",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcp/pfcpex"
+         },
          "group": {
             "kind": "build",
             "isDefault": true
-         }
+         },
+         "problemMatcher": []
       },
       {
          "label": "rebuild epctools",
@@ -96,7 +109,10 @@
       {
          "label": "rebuild epctest",
          "type": "shell",
-         "command": "cd exampleProgram; make clean; make",
+         "command": "make clean; make",
+         "options": {
+            "cwd": "${workspaceFolder}/exampleProgram"
+         },
          "group": {
             "kind": "build",
             "isDefault": true
@@ -108,10 +124,25 @@
       {
          "label": "rebuild pfcpex",
          "type": "shell",
-         "command": "cd exampleProgram/pfcp; make clean; make",
+         "command": "make clean; make",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcp/pfcpex"
+         },
          "group": {
             "kind": "build",
             "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "install epctools",
+         "type": "shell",
+         "command": "sudo make install",
+         "group": {
+            "kind": "build",
+            "isDefault": false
          },
          "problemMatcher": [
             "$gcc"

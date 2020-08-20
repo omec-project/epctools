@@ -46,6 +46,14 @@ public:                                                  \
 private:                                                 \
    static EMemory::Pool *pool_;
 
+#define CLASS_NAME                                       \
+public:                                                  \
+   EString &className() override                         \
+   {                                                     \
+      static EString cn_ = ::__CLASS_NAME__;             \
+      return cn_;                                        \
+   }
+
 /// @brief Contains the class definitions for the PFCP release 15
 ///   messages and information elements.
 namespace PFCP_R15
@@ -4581,6 +4589,7 @@ public:
    RecoveryTimeStampIE &rcvry_time_stmp(Bool forceInit = False);
    HeartbeatReq &encode(uint8_t *dest);
    pfcp_hrtbeat_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4604,6 +4613,7 @@ public:
    RecoveryTimeStampIE &rcvry_time_stmp(Bool forceInit = False);
    HeartbeatRsp &encode(uint8_t *dest);
    pfcp_hrtbeat_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4623,6 +4633,7 @@ public:
    int next_app_ids_pfds();
    PfdMgmtReq &encode(uint8_t *dest);
    pfcp_pfd_mgmt_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4648,6 +4659,7 @@ public:
    OffendingIeIE &offending_ie(Bool forceInit = False);
    PfdMgmtRsp &encode(uint8_t *dest);
    pfcp_pfd_mgmt_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4679,6 +4691,7 @@ public:
    int next_user_plane_ip_rsrc_info();
    AssnSetupReq &encode(uint8_t *dest);
    pfcp_assn_setup_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4713,6 +4726,7 @@ public:
    int next_user_plane_ip_rsrc_info();
    AssnSetupRsp &encode(uint8_t *dest);
    pfcp_assn_setup_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4747,6 +4761,7 @@ public:
    int next_user_plane_ip_rsrc_info();
    AssnUpdateReq &encode(uint8_t *dest);
    pfcp_assn_upd_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4777,6 +4792,7 @@ public:
    CpFunctionFeaturesIE &cp_func_feat(Bool forceInit = False);
    AssnUpdateRsp &encode(uint8_t *dest);
    pfcp_assn_upd_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4800,6 +4816,7 @@ public:
    NodeIdIE &node_id(Bool forceInit = False);
    AssnReleaseReq &encode(uint8_t *dest);
    pfcp_assn_rel_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4825,6 +4842,7 @@ public:
    CauseIE &cause(Bool forceInit = False);
    AssnReleaseRsp &encode(uint8_t *dest);
    pfcp_assn_rel_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4843,6 +4861,7 @@ public:
    uint16_t length() const;
    VersionNotSupportedRsp &encode(uint8_t *dest);
    pfcp_header_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 private:
    pfcp_header_t data_;
@@ -4867,6 +4886,7 @@ public:
    UserPlanePathFailureReportIE &user_plane_path_fail_rpt(Bool forceInit = False);
    NodeReportReq &encode(uint8_t *dest);
    pfcp_node_rpt_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4894,6 +4914,7 @@ public:
    OffendingIeIE &offending_ie(Bool forceInit = False);
    NodeReportRsp &encode(uint8_t *dest);
    pfcp_node_rpt_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4930,6 +4951,7 @@ public:
    FqCsidIE &mme_fqcsid(Bool forceInit = False);
    SessionSetDeletionReq &encode(uint8_t *dest);
    pfcp_sess_set_del_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -4958,6 +4980,7 @@ public:
    OffendingIeIE &offending_ie(Bool forceInit = False);
    SessionSetDeletionRsp &encode(uint8_t *dest);
    pfcp_sess_set_del_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -5015,6 +5038,7 @@ public:
    int next_create_traffic_endpt();
    SessionEstablishmentReq &encode(uint8_t *dest);
    pfcp_sess_estab_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -5061,6 +5085,7 @@ public:
    int next_created_traffic_endpt();
    SessionEstablishmentRsp &encode(uint8_t *dest);
    pfcp_sess_estab_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -5142,6 +5167,7 @@ public:
    int next_query_urr();
    SessionModificationReq &encode(uint8_t *dest);
    pfcp_sess_mod_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -5194,6 +5220,7 @@ public:
    int next_usage_report();
    SessionModificationRsp &encode(uint8_t *dest);
    pfcp_sess_mod_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -5212,6 +5239,7 @@ public:
    uint16_t length() const;
    SessionDeletionReq &encode(uint8_t *dest);
    pfcp_sess_del_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 private:
    pfcp_sess_del_req_t data_;
@@ -5240,6 +5268,7 @@ public:
    int next_usage_report();
    SessionDeletionRsp &encode(uint8_t *dest);
    pfcp_sess_del_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -5276,6 +5305,7 @@ public:
    int next_usage_report();
    SessionReportReq &encode(uint8_t *dest);
    pfcp_sess_rpt_req_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();
@@ -5306,6 +5336,7 @@ public:
    PfcpSrRspFlagsIE &sxsrrsp_flags(Bool forceInit = False);
    SessionReportRsp &encode(uint8_t *dest);
    pfcp_sess_rpt_rsp_t &data();
+   CLASS_NAME
    OVERLOADED_NEW_DELETE
 protected:
    Void postDecode();

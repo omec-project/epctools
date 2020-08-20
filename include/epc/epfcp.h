@@ -801,6 +801,14 @@ private:                                                 \
       /// @return a reference to this object.
       AppMsg &setSeqNbr(const ULong sn)      { seq_ = sn; return *this; }
 
+      /// @brief Returns the class name for this object.
+      /// @return the class name for this object.
+      virtual const EString &className()
+      {
+         static EString cn_ = ::__CLASS_NAME__;
+         return cn_;
+      }
+
       /// @cond DOXYGEN_EXCLUDE
       virtual Void postDecode() {}
       /// @endcond
@@ -2232,10 +2240,10 @@ Receiving a msg
    inline SessionBase::~SessionBase()
    {
       static EString __method__ = __METHOD_NAME__;
-      Configuration::logger().debug(
-         "{} - destroying session localNode={} remoteNode={} localSeid={} remoteSeid={}",
-         __method__, localNode()->address().getAddress(),
-         remoteNode()->address().getAddress(), localSeid(), remoteSeid());
+      // Configuration::logger().debug(
+      //    "{} - destroying session localNode={} remoteNode={} localSeid={} remoteSeid={}",
+      //    __method__, localNode()->address().getAddress(),
+      //    remoteNode()->address().getAddress(), localSeid(), remoteSeid());
       ++deleted_;
    }
 
