@@ -22,6 +22,7 @@ var searchData=
   ['emanagementendpoint',['EManagementEndpoint',['../classEManagementEndpoint.html',1,'']]],
   ['emanagementhandler',['EManagementHandler',['../classEManagementHandler.html',1,'']]],
   ['emanagementusernameheader',['EManagementUserNameHeader',['../classEManagementUserNameHeader.html',1,'']]],
+  ['ememory',['EMemory',['../classEMemory.html',1,'']]],
   ['emessage',['EMessage',['../classEMessage.html',1,'']]],
   ['emessagevector',['EMessageVector',['../classEMessageVector.html',1,'']]],
   ['emurmurhash64',['EMurmurHash64',['../classEMurmurHash64.html',1,'']]],

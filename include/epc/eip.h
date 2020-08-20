@@ -49,24 +49,28 @@ public:
    /// @brief Class constructor.
    /// @param addr a NULL terminated string representing the IP address.
    EIpAddress(cpStr addr)
+       : family_(AF_UNSPEC)
    {
       *this = addr;
    }
    /// @brief Class constructor.
    /// @param addr a string object representing the IP address.
    EIpAddress(const std::string &addr)
+       : family_(AF_UNSPEC)
    {
       *this = addr.c_str();
    }
    /// @brief Copy constructor.
    /// @param ipaddr the EIpAddress object to copy.
    EIpAddress(const EIpAddress &ipaddr)
+       : family_(AF_UNSPEC)
    {
       *this = ipaddr;
    }
    /// @brief Class constructor.
    /// @param saddr a reference to a sockaddr_storage used to initialize the object.
    EIpAddress(const struct sockaddr_storage &saddr)
+       : family_(AF_UNSPEC)
    {
       *this = saddr;
    }

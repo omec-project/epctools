@@ -2,6 +2,7 @@ var searchData=
 [
   ['networkcapabilitylist',['NetworkCapabilityList',['../classEPCDNS_1_1NetworkCapabilityList.html',1,'EPCDNS']]],
   ['networkinstanceie',['NetworkInstanceIE',['../classPFCP__R15_1_1NetworkInstanceIE.html',1,'PFCP_R15']]],
+  ['node',['Node',['../classEMemory_1_1Node.html',1,'EMemory']]],
   ['node',['Node',['../classPFCP_1_1Node.html',1,'PFCP']]],
   ['nodeidie',['NodeIdIE',['../classPFCP__R15_1_1NodeIdIE.html',1,'PFCP_R15']]],
   ['nodereportreq',['NodeReportReq',['../classPFCP__R15_1_1NodeReportReq.html',1,'PFCP_R15']]],

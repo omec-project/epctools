@@ -24,6 +24,7 @@ var searchData=
   ['eip_2eh',['eip.h',['../eip_8h.html',1,'']]],
   ['elogger_2ecpp',['elogger.cpp',['../elogger_8cpp.html',1,'']]],
   ['elogger_2eh',['elogger.h',['../elogger_8h.html',1,'']]],
+  ['ememory_2eh',['ememory.h',['../ememory_8h.html',1,'']]],
   ['emgmt_2ecpp',['emgmt.cpp',['../emgmt_8cpp.html',1,'']]],
   ['emgmt_2eh',['emgmt.h',['../emgmt_8h.html',1,'']]],
   ['emsg_2ecpp',['emsg.cpp',['../emsg_8cpp.html',1,'']]],

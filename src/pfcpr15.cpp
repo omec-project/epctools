@@ -24,6 +24,7 @@
 namespace PFCP_R15
 {
 
+/// @cond DOXYGEN_EXCLUDE
 EMemory::Pool *HeartbeatReq::pool_ = nullptr;
 EMemory::Pool *HeartbeatRsp::pool_ = nullptr;
 EMemory::Pool *PfdMgmtReq::pool_ = nullptr;
@@ -47,6 +48,7 @@ EMemory::Pool *SessionDeletionReq::pool_ = nullptr;
 EMemory::Pool *SessionDeletionRsp::pool_ = nullptr;
 EMemory::Pool *SessionReportReq::pool_ = nullptr;
 EMemory::Pool *SessionReportRsp::pool_ = nullptr;
+/// @endcond
 
 Translator::Translator()
    : mp_{}
