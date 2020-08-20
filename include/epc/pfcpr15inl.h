@@ -3014,13 +3014,6 @@ inline uint16_t FqCsidIE::pdn_conn_set_ident(uint8_t idx) const
    return ie_.pdn_conn_set_ident[idx];
 }
 
-inline FqCsidIE &FqCsidIE::number_of_csids(uint8_t val)
-{
-   ie_.number_of_csids = val;
-   setLength();
-   return *this;
-}
-
 inline FqCsidIE &FqCsidIE::node_address(const ESocket::Address &val)
 {
    if (val.getFamily() == ESocket::Family::INET)
@@ -3066,7 +3059,19 @@ inline FqCsidIE &FqCsidIE::node_address(uint32_t val)
    setLength();
    return *this;
 }
-   
+
+inline uint16_t &FqCsidIE::pdn_conn_set_ident(uint8_t idx)
+{
+   setLength();
+   return ie_.pdn_conn_set_ident[idx];
+}
+
+inline int FqCsidIE::next_pdn_conn_set_ident()
+{
+   return (ie_.number_of_csids < PDN_CONN_SET_IDENT_LEN) ?
+      ie_.number_of_csids++ : -1;
+}
+
 inline pfcp_fqcsid_ie_t &FqCsidIE::data()
 {
    return ie_;
@@ -3083,7 +3088,7 @@ inline uint16_t FqCsidIE::calculateLength()
    return
       1 + /* octet 5 */
       (ie_.fqcsid_node_id_type == 1 ? IPV6_ADDRESS_LEN : sizeof(uint32_t)) +
-      (ie_.number_of_csids * sizeof(uint32_t))
+      (ie_.number_of_csids * sizeof(uint16_t))
       ;
 }
 

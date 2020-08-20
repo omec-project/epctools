@@ -25,6 +25,7 @@
 
 #include "test.h"
 #include "pcaps/pcaps.h"
+#include "pcpp.h"
 
 using namespace PFCPTest;
 
@@ -77,6 +78,9 @@ int main(int argc, char *argv[])
 
          unsigned int failureCount = 0;
 
+         // Initialize the translator
+         PFCPTest::GetTranslator();
+         
          pcaps::InitTests();
 
          // Fill out the tests to run. If any tests are specified on the command line, use

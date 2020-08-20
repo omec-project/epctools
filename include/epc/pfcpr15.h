@@ -1354,12 +1354,13 @@ public:
    uint32_t mcc_mnc_id_node_address() const;
    uint16_t pdn_conn_set_ident(uint8_t idx) const;
 
-   FqCsidIE &number_of_csids(uint8_t val);
    FqCsidIE &node_address(const ESocket::Address &val);
    FqCsidIE &node_address(const EIpAddress &val);
    FqCsidIE &node_address(const in_addr &val);
    FqCsidIE &node_address(const in6_addr &val);
    FqCsidIE &node_address(uint32_t val);
+   uint16_t &pdn_conn_set_ident(uint8_t idx);
+   int next_pdn_conn_set_ident();
    pfcp_fqcsid_ie_t &data();
 
 protected:
