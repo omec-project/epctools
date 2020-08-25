@@ -22,4 +22,4 @@
 	url = https://github.com/seladb/PcapPlusPlus.git
 [submodule "modules/libpfcp"]
 	path = modules/libpfcp
-	url = http://10.155.205.206/tiaspecialprojects/libpfcp.git
+	url = https://github.com/omec-project/libpfcp.git
