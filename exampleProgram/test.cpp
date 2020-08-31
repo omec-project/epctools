@@ -3798,6 +3798,85 @@ Void memoryPool_test()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+Void loadSaveDnsQueries()
+{
+   static EString namedServerIp = "127.0.0.1";
+   static UInt refreshConcurrent = 2;
+   static Int refershPercent = 80;
+   static long refreshInterval = 15;
+   static EString loadFileName = "load_queries.json";
+   static EString saveFileName = "save_quereies.json";
+   static long saveSeconds = 10;
+   static Int exitSeconds = 60;
+   char buffer[512];
+
+   cout << "Enter the IP address for the DNS server [" << namedServerIp << "]: ";
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      namedServerIp = buffer;
+   cout << "Enter the number of concurrent DNS queries when refreshing the DNS cache [" << refreshConcurrent << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      refreshConcurrent = std::stol(buffer);
+   cout << "Enter the percentage of the TTL that has expired that indicates when to start refreshing the DNS cache [" << refershPercent << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      refershPercent = std::stol(buffer);
+   cout << "Enter the number of seconds to wait between checking for any DNS cache entries that need to be refreshed [" << refreshInterval << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      refreshInterval = std::stol(buffer);
+   cout << "Enter the file name that contains the queries to load [" << loadFileName << "]: ";
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      loadFileName = buffer;
+   cout << "Enter the file name to save the DNS queries to [" << saveFileName << "]: ";
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      saveFileName = buffer;   
+   cout << "Enter the number of seconds to check for and save new DNS queries [" << saveSeconds << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      saveSeconds = std::stol(buffer);
+   cout << "Enter the number of seconds to wait before exiting the test [" << exitSeconds << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      exitSeconds = std::stol(buffer);
+
+   DNS::Cache::setRefreshConcurrent(refreshConcurrent);
+   DNS::Cache::setRefreshPercent(refershPercent);
+   DNS::Cache::setRefreshInterval(refreshInterval * 1000);
+
+   DNS::Cache::getInstance().addNamedServer(namedServerIp);
+   DNS::Cache::getInstance().applyNamedServers();
+
+   DNS::Cache::getInstance().initSaveQueries(saveFileName, saveSeconds * 1000);
+
+   if (!loadFileName.empty())
+   {
+      try
+      {
+         DNS::Cache::getInstance().loadQueries(loadFileName);
+      }
+      catch(const EError& e)
+      {
+         std::cerr << e.what() << '\n';
+      }
+   }
+
+   cout << "Waiting for " << exitSeconds << " seconds to exit this test" << endl;
+   ETimer t;
+   EThreadBasic::sleep(exitSeconds * 1000);
+   cout << "Exiting load/save DNS queries test (" << t.MilliSeconds() << ")" << endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 Void usage()
 {
@@ -3833,7 +3912,7 @@ Void printMenu()
        "18. Circular buffer test                       40. Teid                         \n"
        "19. Directory test                             41. Work Group                   \n"
        "20. Hash test                                  42. Memory Pool test             \n"
-       "21. Thread test (1 reader/writer)              \n"
+       "21. Thread test (1 reader/writer)              43. Load/Save DNS Queries        \n"
        "22. Deadlock                                   \n"
        "\n",
        EpcTools::isPublicEnabled() ? "" : "NOT ");
@@ -3906,6 +3985,7 @@ Void run(EGetOpt &options)
             case 40: teidTest();                   break;
             case 41: workGroup_test();             break;
             case 42: memoryPool_test();            break;
+            case 43: loadSaveDnsQueries();         break;
             default: cout << "Invalid Selection" << endl << endl;    break;
          }
       }
