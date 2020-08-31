@@ -616,11 +616,11 @@ namespace DNS
       m_timer.stop();
    }
 
-   Void CacheRefresher::onTimer( EThreadEventTimer &timer)
+   Void CacheRefresher::onTimer( EThreadEventTimer *timer)
    {
-      if (timer.getId() == m_timer.getId())
+      if (timer->getId() == m_timer.getId())
          _refreshQueries();
-      else if (timer.getId() == m_qst.getId())
+      else if (timer->getId() == m_qst.getId())
          _saveQueries();
    }
 

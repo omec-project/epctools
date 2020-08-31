@@ -139,9 +139,9 @@ namespace DNS
    protected:
       CacheRefresher(Cache &cache, unsigned int maxconcur, int percent, long interval);
 
-      virtual Void onInit();
-      virtual Void onQuit();
-      virtual Void onTimer( EThreadEventTimer &timer );
+      virtual Void onInit() override;
+      virtual Void onQuit() override;
+      virtual Void onTimer( EThreadEventTimer *timer ) override;
       Void saveQueries( EThreadMessage &msg ) { _saveQueries(); }
       Void forceRefresh( EThreadMessage &msg ) { _forceRefresh(); }
 
