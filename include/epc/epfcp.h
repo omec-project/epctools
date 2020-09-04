@@ -97,6 +97,47 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   using MessageId = UInt;
+
+   #define MAX_ATTEMPS 8
+
+   class MessageStats
+   {
+   public:
+      using SentArray = std::array<UInt, MAX_ATTEMPS + 1>;
+
+      MessageStats(MessageId id, cpStr name);
+      MessageStats(MessageId id, const EString &name);
+      MessageStats(const MessageStats &m);
+
+      Void reset();
+
+      MessageId getId() const { return id_; }
+      const EString &getName() const { return name_; }
+
+      UInt getReceived() const { return received_; }
+      const SentArray &getSent() const { return sent_; }
+      UInt getTimeout() const { return timeout_; }
+
+      UInt incReceived() { return ++received_; }
+      UInt incSent(UInt attempt = 0);
+      UInt incTimeout() { return ++timeout_; }
+
+   private:
+      MessageStats();
+
+      MessageId id_;
+      EString name_;
+      std::atomic<UInt> received_;
+      SentArray sent_;
+      std::atomic<UInt> timeout_;
+   };
+
+   using MessageStatsMap = std::unordered_map<MessageId, MessageStats>;
+
+   /////////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
+
    class EventBase
    {
    public:
@@ -176,6 +217,8 @@ namespace PFCP
       template<class TWorker>
       static Void setApplication(ApplicationWorkGroup<TWorker> &app) { app_ = &app; baseapp_ = &app; }
 
+      static MessageStatsMap &messageStatsTemplate()                 { return msgstats_template_; }
+
       static MsgType pfcpHeartbeatReq;
       static MsgType pfcpHeartbeatRsp;
       static MsgType pfcpSessionEstablishmentReq;
@@ -206,6 +249,7 @@ namespace PFCP
       static Int tmaxw_;
       static _EThreadEventNotification *app_;
       static ApplicationWorkGroupBase *baseapp_;
+      static MessageStatsMap msgstats_template_;
    };
 
    /////////////////////////////////////////////////////////////////////////////
@@ -626,8 +670,10 @@ private:                                                 \
    public:
       enum class State { Initialized, Started, Stopping, Stopped, Failed, Restarted };
 
-      /// @brief Defalut constructor.
+      /// @brief Default constructor.
       RemoteNode();
+      /// @brief Disabled copy constructor
+      RemoteNode(const RemoteNode &) = delete;
       /// @brief Class destructor.
       virtual ~RemoteNode();
 
@@ -649,6 +695,34 @@ private:                                                 \
       /// @param rn a reference to the RemoteNode shared pointer to this object.
       /// @return a reference to this object.
       RemoteNode &deleteAllSesssions(RemoteNodeSPtr &rn);
+
+      class Stats
+      {
+      public:
+         ERWLock &getLock() { return lock_; }
+         MessageStatsMap &messageStats() { return msgstats_; }
+
+         /// @brief Retrieves the time stamp of the last activity.
+         /// @return the time stamp of the last activity.
+         ETime getLastActivity();
+
+         /// @brief Assigns the time stamp of the last activity.
+         Void setLastActivity();
+
+         /// @brief Sets all message statistics counters to zero.
+         Void reset();
+
+         UInt incReceived(MessageId msgid);
+         UInt incSent(MessageId msgid, UInt attempt = 0);
+         UInt incTimeout(MessageId msgid);
+
+      private:
+         ERWLock lock_;
+         MessageStatsMap msgstats_;
+         ETime lastactivity_;
+      };
+
+      Stats &stats() { return stats_; }
 
       /// @brief Disconnects the remote peer and deletes all associated sessions.
       /// @param rn a reference to the RemoteNode shared pointer to this object.
@@ -688,6 +762,7 @@ private:                                                 \
       std::vector<ULong> awnds_;
       size_t awndcnt_;
       size_t aw_;
+      Stats stats_;
    };
    typedef std::unordered_map<EIpAddress,RemoteNodeSPtr> RemoteNodeUMap;
    typedef std::pair<EIpAddress,RemoteNodeSPtr> RemoteNodeUMapPair;
@@ -794,6 +869,10 @@ private:                                                 \
       /// @return a reference to this object.
       RemoteNodeSPtr createRemoteNode(EIpAddress &address, UShort port);
 
+      RemoteNodeUMap &remoteNodes() { return rns_; }
+
+      ERWLock &remoteNodesLock() { return rnslck_; }
+
       /// @brief Creates a new Session object and registers it with the local
       ///   and remote nodes.
       /// @param ln the local node shared pointer.
@@ -852,6 +931,7 @@ private:                                                 \
       NodeSocket socket_;
       ReqOutUMap roumap_;
       RemoteNodeUMap rns_;
+      ERWLock rnslck_;
    };
 
    typedef std::unordered_map<EIpAddress,LocalNodeSPtr> LocalNodeUMap;
@@ -2293,6 +2373,7 @@ Receiving a msg
       LocalNodeSPtr registerLocalNode(ESocket::Address &addr);
 
       LocalNodeUMap &localNodes()                                       { return lns_; }
+      ERWLock &localNodesLock()                                         { return lnslck_; }
 
       Void setNbrActivityWnds(size_t nbr);
       Void nextActivityWnd();

@@ -28,6 +28,49 @@ Analysis *analysis = nullptr;
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+MessageStats::MessageStats(MessageId id, cpStr name)
+   : id_( id ),
+     name_( name )
+{
+   reset();
+}
+
+MessageStats::MessageStats(MessageId id, const EString &name)
+   : id_( id ),
+     name_( name )
+{
+   reset();
+}
+
+MessageStats::MessageStats(const MessageStats &m)
+   : id_( m.id_ ),
+     name_( m.name_ ),
+     received_( m.received_.load() ),
+     timeout_( m.timeout_.load() )
+{
+   sent_ = m.sent_;
+}
+
+Void MessageStats::reset()
+{
+   for (auto &sent : sent_)
+      sent = 0;
+
+   received_ = 0;
+   timeout_ = 0;
+}
+
+UInt MessageStats::incSent(UInt attempt)
+{
+   if (attempt > MAX_ATTEMPS)
+      attempt = MAX_ATTEMPS;
+
+   return ++sent_[attempt];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 UShort Configuration::port_                        = 8805;
 Int Configuration::bufsize_                        = 2097152;
 LongLong Configuration::t1_                        = 3000;
@@ -46,6 +89,7 @@ Int Configuration::tminw_                          = 1;
 Int Configuration::tmaxw_                          = 1;
 _EThreadEventNotification *Configuration::app_     = nullptr;
 ApplicationWorkGroupBase *Configuration::baseapp_  = nullptr;
+MessageStatsMap Configuration::msgstats_template_;
 MsgType Configuration::pfcpHeartbeatReq            = 1;
 MsgType Configuration::pfcpHeartbeatRsp            = 2;
 MsgType Configuration::pfcpSessionEstablishmentReq = 50;
@@ -248,6 +292,8 @@ RemoteNode::RemoteNode()
 {
    static EString __method__ = __METHOD_NAME__;
    setStartTime(ETime(0));
+   stats_.messageStats() = Configuration::messageStatsTemplate();
+   stats_.reset();
 }
 
 RemoteNode::~RemoteNode()
@@ -338,6 +384,48 @@ RemoteNode &RemoteNode::deleteAllSesssions(RemoteNodeSPtr &rn)
    SEND_TO_COMMUNICATION(DelNxtRmtSession, rn2);
    return *this;
 }
+
+ETime RemoteNode::Stats::getLastActivity()
+{
+   ERDLock l(lock_);
+   return lastactivity_;
+}
+
+Void RemoteNode::Stats::setLastActivity()
+{
+   EWRLock l(lock_);
+   lastactivity_ = ETime::Now();
+}
+
+Void RemoteNode::Stats::reset()
+{
+   EWRLock l(lock_);
+   for (auto &msgstats : msgstats_)
+      msgstats.second.reset();
+}
+
+/// @cond DOXYGEN_EXCLUDE
+#define INCREMENT_MESSAGE_STAT(__id,__func,...) \
+{                                               \
+   MessageStats *msgstats = nullptr;            \
+   {                                            \
+      ERDLock l(lock_);                         \
+      auto found = msgstats_.find(__id);        \
+      if (found != msgstats_.end())             \
+         msgstats = &found->second;             \
+   }                                            \
+   if (msgstats == nullptr)                     \
+      return 0;                                 \
+   setLastActivity();                           \
+   return msgstats->__func(__VA_ARGS__);        \
+}
+/// @endcond
+
+UInt RemoteNode::Stats::incReceived(MessageId msgid)            { INCREMENT_MESSAGE_STAT(msgid, incReceived) }
+UInt RemoteNode::Stats::incSent(MessageId msgid, UInt attempt)  { INCREMENT_MESSAGE_STAT(msgid, incSent, attempt) }
+UInt RemoteNode::Stats::incTimeout(MessageId msgid)             { INCREMENT_MESSAGE_STAT(msgid, incTimeout)}
+
+#undef INCREMENT_MESSAGE_STAT
 
 Void RemoteNode::nextActivityWnd(Int wnd)
 {
@@ -521,6 +609,7 @@ Void LocalNode::setNbrActivityWnds(size_t nbr)
 {
    static EString __method__ = __METHOD_NAME__;
 
+   ERDLock lck(rnslck_);
    for (auto &kv : rns_)
       kv.second->setNbrActivityWnds(nbr);
 }
@@ -530,6 +619,7 @@ Void LocalNode::nextActivityWnd(Int wnd)
 {
    static EString __method__ = __METHOD_NAME__;
 
+   ERDLock lck(rnslck_);
    for (auto &kv : rns_)
       kv.second->nextActivityWnd(wnd);
 }
@@ -539,6 +629,7 @@ Void LocalNode::checkActivity(LocalNodeSPtr &ln)
    static EString __method__ = __METHOD_NAME__;
 
    // check for activity from all of the RemoteNode's
+   ERDLock lck(rnslck_);
    for (auto &kv : rns_)
    {
       if (kv.second->state() == RemoteNode::State::Started && !kv.second->checkActivity())
@@ -561,6 +652,8 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
 
    try
    {
+      EWRLock lck(rnslck_);
+      
       // if the remote node exists and is in a non-started state, start it
       RemoteNodeUMap::iterator rnit = rns_.find(address);
       if (rnit != rns_.end())
@@ -601,7 +694,7 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
       
       rn->changeState(rn, RemoteNode::State::Started);
 
-      return result.first->second;
+      return rn;
    }
    catch (const std::exception &e)
    {
@@ -626,6 +719,21 @@ SessionBaseSPtr LocalNode::createSession(LocalNodeSPtr &ln, Seid rs, RemoteNodeS
 }
 
 /// @cond DOXYGEN_EXCLUDE
+#define INCREMENT_MESSAGE_STAT(__rn,__id,__func,...)           \
+{                                                              \
+   MessageStats *msgstats = nullptr;                           \
+   {                                                           \
+      ERDLock l(__rn->stats().getLock());                      \
+      auto found = __rn->stats().messageStats().find(__id);    \
+      if (found != __rn->stats().messageStats().end())         \
+         msgstats = &found->second;                            \
+   }                                                           \
+   if (msgstats != nullptr)                                    \
+      msgstats->__func(__VA_ARGS__);                           \
+}
+/// @endcond
+
+/// @cond DOXYGEN_EXCLUDE
 Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const ESocket::Address &dst, cpUChar msg, Int len)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -638,24 +746,34 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
       Configuration::translator().getMsgInfo(tmi, msg, len);
 
       // lookup the remote node and create it if it does not exist
-      EIpAddress remoteIpAddress(src.getSockAddrStorage());
-      RemoteNodeUMap::iterator rnit = rns_.find(remoteIpAddress);
-      // Configuration::logger().debug("{} - looking up remoteNode {}", __method__, remoteIpAddress.address());
-      if (rnit != rns_.end())
       {
-         // Configuration::logger().debug("{} - remoteNode {} found", __method__, remoteIpAddress.address());
-         rn = rnit->second;
-         if (rn->state() != RemoteNode::State::Started)
-            rn->changeState(rn, RemoteNode::State::Started);
-      }
-      else
-      {
-         // Configuration::logger().debug("{} - remoteNode {} NOT found", __method__, remoteIpAddress.address());
-         rn = createRemoteNode(remoteIpAddress, Configuration::port());
+         EIpAddress remoteIpAddress(src.getSockAddrStorage());
+         Bool exists = False;
+         {
+            ERDLock lck(rnslck_);
+            RemoteNodeUMap::iterator rnit = rns_.find(remoteIpAddress);
+            // Configuration::logger().debug("{} - looking up remoteNode {}", __method__, remoteIpAddress.address());
+            if (rnit != rns_.end())
+            {
+               // Configuration::logger().debug("{} - remoteNode {} found", __method__, remoteIpAddress.address());
+               rn = rnit->second;
+               if (rn->state() != RemoteNode::State::Started)
+                  rn->changeState(rn, RemoteNode::State::Started);
+               exists = True;
+            }
+         }
+         
+         if (!exists)
+         {
+            // Configuration::logger().debug("{} - remoteNode {} NOT found", __method__, remoteIpAddress.address());
+            rn = createRemoteNode(remoteIpAddress, Configuration::port());
+         }
       }
 
       // increment the activity for the RemoteNode
       rn->incrementActivity();
+
+      INCREMENT_MESSAGE_STAT(rn, tmi.msgType(), incReceived)
 
       if (tmi.isReq())
       {
@@ -828,6 +946,8 @@ Bool LocalNode::onReqOutTimeout(ReqOutPtr ro)
          __method__, ipAddress().address(), ro->remoteNode()->address().getAddress());
    }
 
+   INCREMENT_MESSAGE_STAT(ro->remoteNode(), ro->msgType(), incTimeout)
+
    return False;
 }
 
@@ -852,6 +972,7 @@ Void LocalNode::removeOldReqs(Int rw)
    }
 
    // remove the old RcvdReq entries
+   ERDLock lck(rnslck_);
    for (auto &kv : rns_)
       kv.second->removeOldReqs(rw);
 }
@@ -907,6 +1028,10 @@ Bool LocalNode::sndReq(ReqOutPtr ro)
       // snd the data
       socket_.write(ro->remoteNode()->address(), ro->data(), ro->len());
       ro->startT1();
+
+      UInt attempt = Configuration::n1() - (ro->n1() + 1);
+      INCREMENT_MESSAGE_STAT(ro->remoteNode(), ro->msgType(), incSent, attempt)
+
       return True;
    }
 
@@ -941,6 +1066,8 @@ Void LocalNode::sndRsp(RspOutPtr ro)
    {
       // snd the data
       socket_.write(ro->remoteNode()->address(), ro->data(), ro->len());
+
+      INCREMENT_MESSAGE_STAT(ro->remoteNode(), ro->msgType(), incSent, 0)
    }
    else
    {
@@ -951,6 +1078,8 @@ Void LocalNode::sndRsp(RspOutPtr ro)
    // delete the RspOut object
    delete ro;
 }
+
+#undef INCREMENT_MESSAGE_STAT
 /// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1706,6 +1835,7 @@ Void CommunicationThread::onTimer(EThreadEventTimer *ptimer)
    if (ptimer->getId() == atmr_.getId())
    {
       // Configuration::logger().debug("{} - checking LocalNode activity", __method__);
+      ERDLock lck(lnslck_);
       for (auto &kv : lns_)
          kv.second->checkActivity(kv.second);
       nextActivityWnd();
@@ -1713,6 +1843,7 @@ Void CommunicationThread::onTimer(EThreadEventTimer *ptimer)
    else if (ptimer->getId() == rsptmr_.getId())
    {
       crw_ ^= rwToggle_;
+      ERDLock lck(lnslck_);
       for (auto &kv : lns_)
          kv.second->removeOldReqs(crw_);
    }
@@ -1759,6 +1890,7 @@ LocalNodeSPtr CommunicationThread::createLocalNode(ESocket::Address &addr, Bool 
 
 Void CommunicationThread::startLocalNode(LocalNodeSPtr &ln)
 {
+   EWRLock lck(lnslck_);
    auto it = lns_.find(ln->ipAddress());
    if (it == lns_.end())
       lns_.insert(std::make_pair(ln->ipAddress(),ln));
@@ -1773,6 +1905,7 @@ Void CommunicationThread::stopLocalNode(LocalNodeSPtr &ln)
 Void CommunicationThread::releaseLocalNodes()
 {
    static EString __method__ = __METHOD_NAME__;
+   EWRLock lck(lnslck_);
    auto entry = lns_.begin();
    while (entry != lns_.end())
    {
@@ -1792,6 +1925,7 @@ Void CommunicationThread::setNbrActivityWnds(size_t nbr)
 
    caw_ = 0;
 
+   ERDLock lck(lnslck_);
    for (auto &kv : lns_)
       kv.second->setNbrActivityWnds(nbr);
 }
