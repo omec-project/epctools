@@ -29,6 +29,7 @@
 #include "eatomic.h"
 #include "esynch.h"
 #include "etevent.h"
+#include "eip.h"
 
 namespace DNS
 {
@@ -100,6 +101,9 @@ namespace DNS
 
       QueryProcessorThread *getQueryProcessorThread() { return &m_qpt; }
 
+      Void setLocalIpAddress(const char *address) { m_localip = address; }
+      const EIpAddress &getLocalIp() { return m_localip; }
+
       Void addNamedServer(const char *address, int udp_port, int tcp_port);
       Void removeNamedServer(const char *address);
       Void applyNamedServers();
@@ -119,6 +123,7 @@ namespace DNS
       Cache &m_cache;
       QueryProcessorThread m_qpt;
       ares_channel m_channel;
+      EIpAddress m_localip;
       std::map<const char *,NamedServer> m_servers;
       EMutexPrivate m_mutex;
    };
@@ -253,6 +258,9 @@ namespace DNS
       Void removeNamedServer(const char *address);
       /// @brief Updates the named servers as a set in the underlying c-ares library.
       Void applyNamedServers();
+      /// @brief Sets the local IP address to use for DNS queries.
+      /// @param address a string representing the IPv4 or IPv6 address;
+      Void setLocalIpAddress(const char *address);
 
       /// @brief Performs a DNS query synchronously.
       /// @param rtype the named server type of the query.

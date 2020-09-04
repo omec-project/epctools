@@ -328,6 +328,12 @@ namespace DNS
          msg.format( "QueryProcessor::updateNamedServers() - ares_set_servers_ports() failed status = %d", status );
          throw EError( EError::Warning, msg );
       }
+
+      // apply the local ip address
+      if (getLocalIp().family() == AF_INET)
+         ares_set_local_ip4( m_channel, getLocalIp().ipv4Address().s_addr );
+      else if (getLocalIp().family() == AF_INET6)
+         ares_set_local_ip6( m_channel, getLocalIp().ipv6Address().__in6_u.__u6_addr8 );
    }
 
    Void QueryProcessor::beginQuery( QueryPtr &q )
@@ -464,6 +470,11 @@ namespace DNS
    Void Cache::applyNamedServers()
    {
       m_qp.applyNamedServers();
+   }
+
+   Void Cache::setLocalIpAddress(const char *address)
+   {
+      m_qp.setLocalIpAddress(address);
    }
 
    QueryPtr Cache::query( ns_type rtype, const std::string & domain, Bool &cacheHit, Bool ignorecache )
