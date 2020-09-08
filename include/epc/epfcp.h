@@ -97,6 +97,18 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
+   class EventBase
+   {
+   public:
+      static void* operator new(size_t sz);
+      static void operator delete(void* m);
+   private:
+      static EMemory::Pool pool_;
+   };
+
+   /////////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
+
    DECLARE_ERROR(Configuration_LoggerNotDefined);
    DECLARE_ERROR(Configuration_TranslatorNotDefined);
    DECLARE_ERROR(Configuration_ApplicationNotDefined);
@@ -107,6 +119,7 @@ namespace PFCP
    class Configuration
    {
       friend LocalNode;
+      friend RemoteNode;
       friend TranslationThread;
       friend CommunicationThread;
    public:
@@ -609,8 +622,10 @@ private:                                                 \
    class RemoteNode : public Node
    {
       friend LocalNode;
-      friend class CommunicationThread;
+      friend CommunicationThread;
    public:
+      enum class State { Initialized, Started, Stopping, Stopped, Failed, Restarted };
+
       /// @brief Defalut constructor.
       RemoteNode();
       /// @brief Class destructor.
@@ -635,8 +650,19 @@ private:                                                 \
       /// @return a reference to this object.
       RemoteNode &deleteAllSesssions(RemoteNodeSPtr &rn);
 
+      /// @brief Disconnects the remote peer and deletes all associated sessions.
+      /// @param rn a reference to the RemoteNode shared pointer to this object.
+      /// @return a reference to this object.
+      RemoteNode &disconnect(RemoteNodeSPtr &rn);
+
+      /// @brief Returns the current state of the local node.
+      /// @return the current state of the local node.
+      State state() const { return state_; }
+
    protected:
       /// @cond DOXYGEN_EXCLUDE
+      RemoteNode &changeState(RemoteNodeSPtr &rn, State state);
+      RemoteNode &restarted(RemoteNodeSPtr &rn, const ETime &restartTime);
       Bool addRcvdReq(ULong sn);
       Bool delRcvdReq(ULong sn)                             { return rrumap_.erase(sn) == 1; }
       Bool setRcvdReqRspWnd(ULong sn, Int wnd);
@@ -655,6 +681,7 @@ private:                                                 \
       /// @endcond
 
    private:
+      State state_;
       ESocket::Address addr_;
       Int trv_;
       RcvdReqUMap rrumap_;
@@ -664,6 +691,52 @@ private:                                                 \
    };
    typedef std::unordered_map<EIpAddress,RemoteNodeSPtr> RemoteNodeUMap;
    typedef std::pair<EIpAddress,RemoteNodeSPtr> RemoteNodeUMapPair;
+
+   class RemoteNodeStateChangeEvent : public EventBase
+   {
+   public:
+      RemoteNodeStateChangeEvent(RemoteNodeSPtr &rn, RemoteNode::State oldst, RemoteNode::State newst)
+         : rn_(rn),
+           os_(oldst),
+           ns_(newst)
+      {
+      }
+
+      RemoteNodeSPtr &remoteNode() { return rn_; }
+      RemoteNode::State oldState() const { return os_; }
+      RemoteNode::State newState() const { return ns_; }
+
+   private:
+      RemoteNodeStateChangeEvent();
+      RemoteNodeSPtr rn_;
+      RemoteNode::State os_;
+      RemoteNode::State ns_;
+   };
+
+   class RemoteNodeRestartEvent : public EventBase
+   {
+   public:
+      RemoteNodeRestartEvent(RemoteNodeSPtr &rn, RemoteNode::State oldst,
+         RemoteNode::State newst, const ETime &restartTime)
+         : rn_(rn),
+           os_(oldst),
+           ns_(newst),
+           rt_(restartTime)
+      {
+      }
+
+      RemoteNodeSPtr &remoteNode() { return rn_; }
+      RemoteNode::State oldState() const { return os_; }
+      RemoteNode::State newState() const { return ns_; }
+      const ETime &restartTime() const { return rt_; }
+
+   private:
+      RemoteNodeRestartEvent();
+      RemoteNodeSPtr rn_;
+      RemoteNode::State os_;
+      RemoteNode::State ns_;
+      ETime rt_;
+   };
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
@@ -679,10 +752,16 @@ private:                                                 \
       friend NodeSocket;
       friend CommunicationThread;
    public:
+      enum class State { Initialized, Started, Stopping, Stopped };
+
       /// @brief Default constructor.
       LocalNode();
       /// @brief Class destructor.
       virtual ~LocalNode();
+
+      /// @brief Gets the state of the local node.
+      /// @return the state of the local node.
+      State state() { return state_; }
 
       /// @brief Creates a new SEID.
       /// @return the newly created SEID.
@@ -726,9 +805,14 @@ private:                                                 \
       /// @return a reference to the underlying socket object.
       NodeSocket &socket() { return socket_; }
 
+      /// @brief Returns the current state of the local node.
+      /// @return the current state of the local node.
+      State state() const { return state_; }
+
    protected:
 
       /// @cond DOXYGEN_EXCLUDE
+      LocalNode &changeState(LocalNodeSPtr &ln, State state);
       Bool rqstOutExists(ULong seqnbr) const;
       Bool addRqstOut(ReqOut *ro);
       Bool setRqstOutRespWnd(ULong seqnbr, Int wnd);
@@ -762,6 +846,7 @@ private:                                                 \
       /// @endcond
 
    private:
+      State state_;
       SeidManager seidmgr_;
       SequenceManager seqmgr_;
       NodeSocket socket_;
@@ -773,6 +858,26 @@ private:                                                 \
    typedef std::pair<EIpAddress,LocalNodeSPtr> LocalNodeUMapEIpAddressPair;
    typedef std::pair<ULong,LocalNodeSPtr> LocalNodeUMapULongPair;
 
+   class LocalNodeStateChangeEvent : public EventBase
+   {
+   public:
+      LocalNodeStateChangeEvent(LocalNodeSPtr &ln, LocalNode::State oldst, LocalNode::State newst)
+         : ln_(ln),
+           os_(oldst),
+           ns_(newst)
+      {
+      }
+
+      LocalNodeSPtr &localNode() { return ln_; }
+      LocalNode::State oldState() const { return os_; }
+      LocalNode::State newState() const { return ns_; }
+
+   private:
+      LocalNodeStateChangeEvent();
+      LocalNodeSPtr ln_;
+      LocalNode::State os_;
+      LocalNode::State ns_;
+   };
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
 
@@ -870,12 +975,13 @@ private:                                                 \
       /// @brief Class constructor.
       /// @param ln the local node this message is associated with.
       /// @param rn the remote node this message is associated with.
-      AppMsgReq(LocalNodeSPtr &ln, RemoteNodeSPtr &rn)
+      AppMsgReq(LocalNodeSPtr &ln, RemoteNodeSPtr &rn, Bool allocSeqNbr)
          : ln_(ln),
            rn_(rn)
       {
          setIsReq(True);
-         setSeqNbr(ln->allocSeqNbr());
+         if (allocSeqNbr)
+            setSeqNbr(ln->allocSeqNbr());
       }
 
    private:
@@ -900,8 +1006,8 @@ private:                                                 \
       /// @brief Class constructor.
       /// @param ln the local node this message is associated with.
       /// @param rn the remote node this message is associated with.
-      AppMsgNodeReq(LocalNodeSPtr &ln, RemoteNodeSPtr &rn)
-         : AppMsgReq(ln, rn)
+      AppMsgNodeReq(LocalNodeSPtr &ln, RemoteNodeSPtr &rn, Bool allocSeqNbr)
+         : AppMsgReq(ln, rn, allocSeqNbr)
       {
          setMsgClass(PFCP::MsgClass::Node);
       }
@@ -928,8 +1034,8 @@ private:                                                 \
       /// @brief Class constructor.
       /// @param ln the local node this message is associated with.
       /// @param rn the remote node this message is associated with.
-      AppMsgSessionReq(SessionBaseSPtr &ses)
-         : AppMsgReq(ses->localNode(), ses->remoteNode()),
+      AppMsgSessionReq(SessionBaseSPtr &ses, Bool allocSeqNbr)
+         : AppMsgReq(ses->localNode(), ses->remoteNode(), allocSeqNbr),
            ses_(ses)
       {
          setMsgClass(PFCP::MsgClass::Session);
@@ -992,7 +1098,8 @@ private:                                                 \
       AppMsgRsp &setReq(AppMsgReq *req)
       {
          amrq_ = req;
-         setSeqNbr(amrq_->seqNbr());
+         if (amrq_)
+            setSeqNbr(amrq_->seqNbr());
          return *this;
       }
 
@@ -1860,31 +1967,29 @@ Receiving a msg
    enum class ApplicationEvents : UInt
    {
       /// RcvdReq - TranslationThread --> ApplicationWorkGroup - AppMsgReqPtr
-      RcvdReq              = (APPLICATION_BASE_EVENT + 1),
+      RcvdReq                 = (APPLICATION_BASE_EVENT + 1),
       /// RcvdRsp - TranslationThread --> ApplicationWorkGroup - AppMsgRspPtr
-      RcvdRsp              = (APPLICATION_BASE_EVENT + 2),
+      RcvdRsp                 = (APPLICATION_BASE_EVENT + 2),
       /// ReqTimeout - CommunicationThread --> ApplicationWorkGroup - AppMsgReqPtr
-      ReqTimeout           = (APPLICATION_BASE_EVENT + 3),
-      /// RemoteNodeAdded - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
-      RemoteNodeAdded      = (APPLICATION_BASE_EVENT + 4),
-      /// RemoteNodeFailure - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
-      RemoteNodeFailure    = (APPLICATION_BASE_EVENT + 5),
-      /// RemoteNodeRestart - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
-      RemoteNodeRestart    = (APPLICATION_BASE_EVENT + 6),
-      /// RemoteNodeRemoved - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeSPtr
-      RemoteNodeRemoved    = (APPLICATION_BASE_EVENT + 7),
+      ReqTimeout              = (APPLICATION_BASE_EVENT + 3),
+      /// LocalNodeStateChange - CommunicationThread --> ApplicationWorkGroup - *LocalNodeStateChangeEvent
+      LocalNodeStateChange    = (APPLICATION_BASE_EVENT + 4),
+      /// RemoteNodeStateChange - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeStateChangeEvent
+      RemoteNodeStateChange   = (APPLICATION_BASE_EVENT + 5),
+      /// RemoteNodeRestart - CommunicationThread --> ApplicationWorkGroup - *RemoteNodeRestartEvent
+      RemoteNodeRestart       = (APPLICATION_BASE_EVENT + 6),
       /// SndReqError - CommunicationThread --> ApplicationWorkGroup - SndReqExceptionDataPtr
-      SndReqError          = (APPLICATION_BASE_EVENT + 8),
+      SndReqError             = (APPLICATION_BASE_EVENT + 9),
       /// SndRspError - CommunicationThread --> ApplicationWorkGroup - SndRspExceptionDataPtr
-      SndRspError          = (APPLICATION_BASE_EVENT + 9),
+      SndRspError             = (APPLICATION_BASE_EVENT + 8),
       /// EncodeReqError - TranslationThread --> ApplicationWorkGroup - EncodeReqExceptionDataPtr
-      EncodeReqError       = (APPLICATION_BASE_EVENT + 10),
+      EncodeReqError          = (APPLICATION_BASE_EVENT + 9),
       /// EncodeRspError - TranslationThread --> ApplicationWorkGroup - EncodeRspExceptionDataPtr
-      EncodeRspError       = (APPLICATION_BASE_EVENT + 11),
+      EncodeRspError          = (APPLICATION_BASE_EVENT + 10),
       /// DecodeReqError - TranslationThread --> ApplicationWorkGroup - DecodeReqExceptionDataPtr
-      DecodeReqError       = (APPLICATION_BASE_EVENT + 12),
+      DecodeReqError          = (APPLICATION_BASE_EVENT + 11),
       /// DecodeRspError - TranslationThread --> ApplicationWorkGroup - EncodeRspExceptionDataPtr
-      DecodeRspError       = (APPLICATION_BASE_EVENT + 13),
+      DecodeRspError          = (APPLICATION_BASE_EVENT + 12)
    };
 
    /////////////////////////////////////////////////////////////////////////////
@@ -1924,12 +2029,12 @@ Receiving a msg
       /// @param port the port of the local node.
       /// @return a shared pointer to the local node.
       /// @{
-      LocalNodeSPtr createLocalNode(cpStr ipaddr, UShort port = PFCP::Configuration::port())
+      LocalNodeSPtr createLocalNode(cpStr ipaddr, UShort port = PFCP::Configuration::port(), Bool start = True)
       {
          ESocket::Address addr(ipaddr, port);
-         return createLocalNode(addr);
+         return createLocalNode(addr, start);
       }
-      LocalNodeSPtr createLocalNode(const EIpAddress &ipaddr, UShort port = PFCP::Configuration::port())
+      LocalNodeSPtr createLocalNode(const EIpAddress &ipaddr, UShort port = PFCP::Configuration::port(), Bool start = True)
       {
          ESocket::Address addr;
          switch (ipaddr.family())
@@ -1941,14 +2046,21 @@ Receiving a msg
                throw ApplicationWorkGroup_UnrecognizedAddressFamily();
             }
          }
-         return createLocalNode(addr);
+         return createLocalNode(addr, start);
       }
       /// @}
 
       /// @brief Creates a local node.
       /// @param addr the IP address/port of the local node.
       /// @return a shared pointer to hte local node.
-      LocalNodeSPtr createLocalNode(ESocket::Address &addr);
+      LocalNodeSPtr createLocalNode(ESocket::Address &addr, Bool start = True);
+
+      /// @brief Startes an externally constructed local node.
+      /// @param ln a shared pointer to the LocalNode.
+      Void startLocalNode(LocalNodeSPtr &ln);
+      /// @brief Stops the local node.
+      /// @param ln a shared pointer to the LocalNode.
+      Void stopLocalNode(LocalNodeSPtr &ln);
    };
 
    /////////////////////////////////////////////////////////////////////////////
@@ -1981,22 +2093,22 @@ Receiving a msg
       /// @param req a pointer to the request message that did not receive
       ///   a response.
       virtual Void onReqTimeout(AppMsgReqPtr req);
+      /// @brief Called when the local node state changes.
+      /// @param ln a shared pointer to the local node object.
+      /// @param oldState the previous state of the local node.
+      /// @param newState the new state of the local node.
+      virtual Void onLocalNodeStateChange(LocalNodeSPtr &ln, LocalNode::State oldState, LocalNode::State newState);
+      /// @brief Called when a new remote node/peer has been added.
+      /// @param rn a shared pointer to the remote node object.
+      /// @param oldState the previous state of the remote node.
+      /// @param newState the new state of the remote node.
+      virtual Void onRemoteNodeStateChange(RemoteNodeSPtr &rn, RemoteNode::State oldState, RemoteNode::State newState);
       /// @brief Called when a new remote node/peer has been added.
       /// @param rmtNode a shared pointer to the remote node object.
-      virtual Void onRemoteNodeAdded(RemoteNodeSPtr &rmtNode);
-      /// @brief Called when a remote node/peer has failed to respond.
-      /// @param rmtNode a shared pointer to the remote node object.
-      virtual Void onRemoteNodeFailure(RemoteNodeSPtr &rmtNode);
-      /// @brief Called when a remote node/peer restart has been detected.
-      /// @param rmtNode a shared pointer to the remote node object.
-      virtual Void onRemoteNodeRestart(RemoteNodeSPtr &rmtNode);
+      virtual Void onRemoteNodeRestart(RemoteNodeSPtr &rn, const ETime &restartTime);
       /// @brief Called when a remote node/peer object is removed.
-      /// @param rmtNode a shared pointer to the remote node object.
-      virtual Void onRemoteNodeRemoved(RemoteNodeSPtr &rmtNode);
-      /// @brief Called when an error is encountered while sending a request
-      ///   message.
-      /// @param req the appication request message that failed.
-      /// @param err a reference to the associated exception.
+      /// @param rn a shared pointer to the remote node object.
+      /// @param restartTime the time the remote node restarted.
       virtual Void onSndReqError(AppMsgReqPtr req, SndReqException &err);
       /// @brief Called when an error is encountered while sending a response
       ///   message.
@@ -2022,10 +2134,9 @@ Receiving a msg
       Void _onRcvdReq(EThreadMessage &msg);
       Void _onRcvdRsp(EThreadMessage &msg);
       Void _onReqTimeout(EThreadMessage &msg);
-      Void _onRemoteNodeAdded(EThreadMessage &msg);
-      Void _onRemoteNodeFailure(EThreadMessage &msg);
+      Void _onLocalNodeStateChange(EThreadMessage &msg);
+      Void _onRemoteNodeStateChange(EThreadMessage &msg);
       Void _onRemoteNodeRestart(EThreadMessage &msg);
-      Void _onRemoteNodeRemoved(EThreadMessage &msg);
       Void _onSndReqError(EThreadMessage &msg);
       Void _onSndRspError(EThreadMessage &msg);
       Void _onEncodeReqError(EThreadMessage &msg);
@@ -2035,12 +2146,13 @@ Receiving a msg
          ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RcvdReq), ApplicationWorker::_onRcvdReq)
          ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RcvdRsp), ApplicationWorker::_onRcvdRsp)
          ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::ReqTimeout), ApplicationWorker::_onReqTimeout)
-         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeAdded), ApplicationWorker::_onRemoteNodeAdded)
-         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeFailure), ApplicationWorker::_onRemoteNodeFailure)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::LocalNodeStateChange), ApplicationWorker::_onLocalNodeStateChange)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeStateChange), ApplicationWorker::_onRemoteNodeStateChange)
          ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeRestart), ApplicationWorker::_onRemoteNodeRestart)
-         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::RemoteNodeRemoved), ApplicationWorker::_onRemoteNodeRemoved)
          ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::SndReqError), ApplicationWorker::_onSndReqError)
          ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::SndRspError), ApplicationWorker::_onSndRspError)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::EncodeReqError), ApplicationWorker::_onEncodeReqError)
+         ON_MESSAGE2(static_cast<UInt>(ApplicationEvents::EncodeRspError), ApplicationWorker::_onEncodeRspError)
       END_MESSAGE_MAP2()
       /// @endcond
    private:
@@ -2175,7 +2287,9 @@ Receiving a msg
          trm_.release(rn);
       }
 
-      LocalNodeSPtr createLocalNode(ESocket::Address &addr);
+      Void startLocalNode(LocalNodeSPtr &ln);
+      Void stopLocalNode(LocalNodeSPtr &ln);
+      LocalNodeSPtr createLocalNode(ESocket::Address &addr, Bool start = True);
       LocalNodeSPtr registerLocalNode(ESocket::Address &addr);
 
       LocalNodeUMap &localNodes()                                       { return lns_; }
@@ -2304,9 +2418,21 @@ Receiving a msg
    }
 
    template<class TWorker>
-   inline LocalNodeSPtr ApplicationWorkGroup<TWorker>::createLocalNode(ESocket::Address &addr)
+   inline LocalNodeSPtr ApplicationWorkGroup<TWorker>::createLocalNode(ESocket::Address &addr, Bool start)
    {
-      return CommunicationThread::Instance().createLocalNode(addr);
+      return CommunicationThread::Instance().createLocalNode(addr, start);
+   }
+
+   template<class TWorker>
+   inline Void ApplicationWorkGroup<TWorker>::startLocalNode(LocalNodeSPtr &ln)
+   {
+      CommunicationThread::Instance().startLocalNode(ln);
+   }
+
+   template<class TWorker>
+   inline Void ApplicationWorkGroup<TWorker>::stopLocalNode(LocalNodeSPtr &ln)
+   {
+      CommunicationThread::Instance().stopLocalNode(ln);
    }
 
    inline void* InternalMsg::operator new(size_t sz)

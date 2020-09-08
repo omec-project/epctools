@@ -139,7 +139,7 @@
       {
          "label": "install epctools",
          "type": "shell",
-         "command": "sudo make install",
+         "command": "make && sudo make install",
          "group": {
             "kind": "build",
             "isDefault": false

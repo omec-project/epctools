@@ -62,7 +62,57 @@ ULongLong SessionBase::deleted_                 = 0;
 ULongLong Node::created_                        = 0;
 ULongLong Node::deleted_                        = 0;
 EMemory::Pool InternalMsg::pool_;
+EMemory::Pool EventBase::pool_;
 /// @endcond
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+void* EventBase::operator new(size_t sz)
+{
+   if (pool_.allocSize() == 0)
+   {
+      size_t rawns = 4096;
+      size_t as=sizeof(EThreadMessage), ns, bs, bc;
+
+      as = std::max(as, sizeof(LocalNodeStateChangeEvent));
+      as = std::max(as, sizeof(RemoteNodeStateChangeEvent));
+      as = std::max(as, sizeof(RemoteNodeRestartEvent));
+
+      while (rawns <= 32768)
+      {
+         // subtract the size of the node header (EMemory::Node)
+         ns = rawns - sizeof(EMemory::Node);
+         // set the block size equal to the allocation size + the block header
+         bs = as + sizeof(EMemory::Block);
+         // round the block size up to the CPU word size
+         bs += bs % sizeof(pVoid);
+         // calculate the number of blocks that can fit in a node
+         bc = ns / bs;
+         if (bc >= 10)
+            break;
+         rawns += 4096;
+      }
+
+      if (sz >= ns)
+         pool_.setSize(sz, 0, 5);
+      else
+         pool_.setSize(as, rawns, bc);
+   }
+   if (sz > pool_.allocSize())
+   {
+      EError ex;
+      ex.setSevere();
+      ex.setTextf("EventBase allocation size (%u) is larger than memory pool block size", sz);
+      throw ex;
+   }
+   return pool_.allocate();
+}
+
+void EventBase::operator delete(void* m)
+{
+   pool_.deallocate(m);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +241,8 @@ Void NodeSocket::onError()
 ////////////////////////////////////////////////////////////////////////////////
 
 RemoteNode::RemoteNode()
-   : trv_(-1),
+   : state_(RemoteNode::State::Initialized),
+     trv_(-1),
      awndcnt_(0),
      aw_(0)
 {
@@ -205,6 +256,24 @@ RemoteNode::~RemoteNode()
 }
 
 /// @cond DOXYGEN_EXCLUDE
+RemoteNode &RemoteNode::changeState(RemoteNodeSPtr &rn, State state)
+{
+   RemoteNodeStateChangeEvent *evnt = new RemoteNodeStateChangeEvent(
+      rn, state_, state);
+   state_ = state;
+   SEND_TO_APPLICATION(RemoteNodeStateChange, evnt);
+   return *this;
+}
+
+RemoteNode &RemoteNode::restarted(RemoteNodeSPtr &rn, const ETime &restartTime)
+{
+   RemoteNodeRestartEvent *evnt = new RemoteNodeRestartEvent(
+      rn, state_, RemoteNode::State::Restarted, restartTime);
+   state_ = RemoteNode::State::Restarted;
+   SEND_TO_APPLICATION(RemoteNodeRestart, evnt);
+   return *this;
+}
+
 Bool RemoteNode::addRcvdReq(ULong sn)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -253,6 +322,13 @@ RemoteNode &RemoteNode::setNbrActivityWnds(size_t nbr)
       awnds_.push_back(0);
    awnds_.shrink_to_fit();
    awndcnt_ = 0;
+   return *this;
+}
+
+RemoteNode &RemoteNode::disconnect(RemoteNodeSPtr &rn)
+{
+   changeState(rn, RemoteNode::State::Stopping);
+   deleteAllSesssions(rn);
    return *this;
 }
 
@@ -328,6 +404,7 @@ RemoteNode &RemoteNode::delSession(SessionBaseSPtr &s)
 ////////////////////////////////////////////////////////////////////////////////
 
 LocalNode::LocalNode()
+   : state_(LocalNode::State::Initialized)
 {
    static EString __method__ = __METHOD_NAME__;
 }
@@ -369,6 +446,14 @@ Void LocalNode::freeSeqNbr(ULong sn)
 }
 
 /// @cond DOXYGEN_EXCLUDE
+LocalNode &LocalNode::changeState(LocalNodeSPtr &ln, LocalNode::State state)
+{
+   LocalNodeStateChangeEvent *evnt = new LocalNodeStateChangeEvent(ln, state_, state);
+   state_ = state;
+   SEND_TO_APPLICATION(LocalNodeStateChange, evnt);
+   return *this;
+}
+
 Bool LocalNode::rqstOutExists(ULong seqnbr) const
 {
    static EString __method__ = __METHOD_NAME__;
@@ -456,7 +541,7 @@ Void LocalNode::checkActivity(LocalNodeSPtr &ln)
    // check for activity from all of the RemoteNode's
    for (auto &kv : rns_)
    {
-      if (!kv.second->checkActivity())
+      if (kv.second->state() == RemoteNode::State::Started && !kv.second->checkActivity())
       {
          // Configuration::logger().info("{} - remote {} is inactive", __method__, kv.second->ipAddress().address());
          SndHeartbeatReqDataPtr shb = new SndHeartbeatReqData(ln, kv.second);
@@ -476,11 +561,22 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
 
    try
    {
+      // if the remote node exists and is in a non-started state, start it
+      RemoteNodeUMap::iterator rnit = rns_.find(address);
+      if (rnit != rns_.end())
+      {
+         if (rnit->second->state() == RemoteNode::State::Started)
+            throw EError(EError::Severity::Warning, "Unable to start remote node, already started");
+         Configuration::logger().debug("{} - restarting remote node address={}",
+            __method__, address.address());
+         rnit->second->changeState(rnit->second, RemoteNode::State::Started);
+         return rnit->second;
+      }
+
       // create the RemoteNode shared pointer
       RemoteNodeSPtr rn = Configuration::baseApplication()._createRemoteNode();
 
       // set the IP address for the RemoteNode
-      ESocket::Address rnaddr;
       if (address.family() == AF_INET)
          rn->setAddress(ESocket::Address(address.ipv4Address(), port));
       else
@@ -503,8 +599,7 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
       if (!result.second)
          throw LocalNodeException_RemoteNodeUMapInsertFailed();
       
-      RemoteNodeSPtr *rnp = new RemoteNodeSPtr(rn);
-      SEND_TO_APPLICATION(RemoteNodeAdded, rnp);
+      rn->changeState(rn, RemoteNode::State::Started);
 
       return result.first->second;
    }
@@ -550,6 +645,8 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
       {
          // Configuration::logger().debug("{} - remoteNode {} found", __method__, remoteIpAddress.address());
          rn = rnit->second;
+         if (rn->state() != RemoteNode::State::Started)
+            rn->changeState(rn, RemoteNode::State::Started);
       }
       else
       {
@@ -816,9 +913,7 @@ Bool LocalNode::sndReq(ReqOutPtr ro)
    if (ro->msgType() == Configuration::pfcpHeartbeatReq)
    {
       // send remote node failure notice to the ApplicationThread
-      RemoteNodeSPtr *rn = new RemoteNodeSPtr();
-      (*rn) = ro->remoteNode();
-      SEND_TO_APPLICATION(RemoteNodeFailure, rn);
+      ro->remoteNode()->changeState(ro->remoteNode(), RemoteNode::State::Failed);
 
       Configuration::logger().major(
          "{} - remote node is non-responsive local={} remote={}",
@@ -970,44 +1065,34 @@ Void ApplicationWorker::onReqTimeout(AppMsgReqPtr req)
          (req->isReq()?"True":"False"));
 }
 
-Void ApplicationWorker::onRemoteNodeAdded(RemoteNodeSPtr &rmtNode)
+Void ApplicationWorker::onLocalNodeStateChange(LocalNodeSPtr &ln, LocalNode::State oldState, LocalNode::State newState)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
       " workerId={}"
-      " address={} startTime={}",
-      __method__, workerId(), rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
+      " address={} oldState={} newState={}",
+      __method__, workerId(), ln->ipAddress().address(), oldState, newState);
 }
 
-Void ApplicationWorker::onRemoteNodeFailure(RemoteNodeSPtr &rmtNode)
+Void ApplicationWorker::onRemoteNodeStateChange(RemoteNodeSPtr &rn, RemoteNode::State oldState, RemoteNode::State newState)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
       " workerId={}"
-      " address={} startTime={}",
-      __method__, workerId(), rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
+      " address={} oldState={} newState={}",
+      __method__, workerId(), rn->ipAddress().address(), oldState, newState);
 }
 
-Void ApplicationWorker::onRemoteNodeRestart(RemoteNodeSPtr &rmtNode)
+Void ApplicationWorker::onRemoteNodeRestart(RemoteNodeSPtr &rn, const ETime &restartTime)
 {
    static EString __method__ = __METHOD_NAME__;
    Configuration::logger().debug(
       "{}"
       " workerId={}"
-      " address={} startTime={}",
-      __method__, workerId(), rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
-}
-
-Void ApplicationWorker::onRemoteNodeRemoved(RemoteNodeSPtr &rmtNode)
-{
-   static EString __method__ = __METHOD_NAME__;
-   Configuration::logger().debug(
-      "{}"
-      " workerId={}"
-      " address={} startTime={}",
-      __method__, workerId(), rmtNode->ipAddress().address(), rmtNode->startTime().Format("%FT%T", False));
+      " address={} restartTime={}",
+      __method__, workerId(), rn->ipAddress().address(), restartTime.Format("%i",False));
 }
 
 Void ApplicationWorker::onSndReqError(AppMsgReqPtr req, SndReqException &err)
@@ -1136,36 +1221,28 @@ Void ApplicationWorker::_onReqTimeout(EThreadMessage &msg)
    onReqTimeout(req);
 }
 
-Void ApplicationWorker::_onRemoteNodeAdded(EThreadMessage &msg)
+Void ApplicationWorker::_onLocalNodeStateChange(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
-   RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
-   onRemoteNodeAdded(*rn);
-   delete rn;
+   LocalNodeStateChangeEvent *evnt = static_cast<LocalNodeStateChangeEvent*>(msg.getVoidPtr());
+   onLocalNodeStateChange(evnt->localNode(), evnt->oldState(), evnt->newState());
+   delete evnt;
 }
 
-Void ApplicationWorker::_onRemoteNodeFailure(EThreadMessage &msg)
+Void ApplicationWorker::_onRemoteNodeStateChange(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
-   RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
-   onRemoteNodeFailure(*rn);
-   delete rn;
+   RemoteNodeStateChangeEvent *evnt = static_cast<RemoteNodeStateChangeEvent*>(msg.getVoidPtr());
+   onRemoteNodeStateChange(evnt->remoteNode(), evnt->oldState(), evnt->newState());
+   delete evnt;
 }
 
 Void ApplicationWorker::_onRemoteNodeRestart(EThreadMessage &msg)
 {
    static EString __method__ = __METHOD_NAME__;
-   RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
-   onRemoteNodeRestart(*rn);
-   delete rn;
-}
-
-Void ApplicationWorker::_onRemoteNodeRemoved(EThreadMessage &msg)
-{
-   static EString __method__ = __METHOD_NAME__;
-   RemoteNodeSPtr *rn = static_cast<RemoteNodeSPtr*>(msg.getVoidPtr());
-   onRemoteNodeRemoved(*rn);
-   delete rn;
+   RemoteNodeRestartEvent *evnt = static_cast<RemoteNodeRestartEvent*>(msg.getVoidPtr());
+   onRemoteNodeRestart(evnt->remoteNode(), evnt->restartTime());
+   delete evnt;
 }
 
 Void ApplicationWorker::_onSndReqError(EThreadMessage &msg)
@@ -1442,10 +1519,10 @@ Void TranslationThread::onRcvdRsp(EThreadMessage &msg)
    {
       if (ri->msgType() == Configuration::pfcpHeartbeatRsp)
       {
-         // Configuration::logger().debug(
-         //    "{} - received heartbeat response local={} remote={} seqNbr={}",
-         //    __method__, ri->localNode()->address().getAddress(),
-         //    ri->remoteNode()->address().getAddress(), ri->seqNbr());
+         Configuration::logger().debug(
+            "{} - received heartbeat response local={} remote={} seqNbr={}",
+            __method__, ri->localNode()->address().getAddress(),
+            ri->remoteNode()->address().getAddress(), ri->seqNbr());
          hb = xlator_.decodeHeartbeatRsp(ri);
          SEND_TO_COMMUNICATION(HeartbeatRsp, hb);
       }
@@ -1514,8 +1591,8 @@ Void TranslationThread::onSndHeartbeatReq(EThreadMessage &msg)
    ReqOutPtr reqout = nullptr;
    try
    {
-      // Configuration::logger().debug("{} - sending heartbeat request to {}",
-      //    __method__, req->remoteNode()->address().getAddress());
+      Configuration::logger().debug("{} - sending heartbeat request to {}",
+         __method__, req->remoteNode()->address().getAddress());
       reqout = xlator_.encodeHeartbeatReq(*req);
       SEND_TO_COMMUNICATION(SndReq, reqout);
       delete req;
@@ -1538,8 +1615,8 @@ Void TranslationThread::onSndHeartbeatRsp(EThreadMessage &msg)
    RspOutPtr rspout = nullptr;
    try
    {
-      // Configuration::logger().debug("{} - sending heartbeat response to {}",
-      //    __method__, rsp->req().remoteNode()->address().getAddress());
+      Configuration::logger().debug("{} - sending heartbeat response to {}",
+         __method__, rsp->req().remoteNode()->address().getAddress());
       rspout = xlator_.encodeHeartbeatRsp(*rsp);
       SEND_TO_COMMUNICATION(SndRsp, rspout);
       delete rsp;
@@ -1662,7 +1739,7 @@ Void CommunicationThread::errorHandler(EError &err, ESocket::BasePrivate *psocke
    }
 }
 
-LocalNodeSPtr CommunicationThread::createLocalNode(ESocket::Address &addr)
+LocalNodeSPtr CommunicationThread::createLocalNode(ESocket::Address &addr, Bool start)
 {
    static EString __method__ = __METHOD_NAME__;
 
@@ -1674,9 +1751,23 @@ LocalNodeSPtr CommunicationThread::createLocalNode(ESocket::Address &addr)
    ln->socket().setLocalNode(ln);
    ln->socket().bind(addr);
 
-   lns_.insert(std::make_pair(ln->ipAddress(),ln));
+   if (start)
+      startLocalNode(ln);
 
    return ln;
+}
+
+Void CommunicationThread::startLocalNode(LocalNodeSPtr &ln)
+{
+   auto it = lns_.find(ln->ipAddress());
+   if (it == lns_.end())
+      lns_.insert(std::make_pair(ln->ipAddress(),ln));
+   ln->changeState(ln, LocalNode::State::Started);
+}
+
+Void CommunicationThread::stopLocalNode(LocalNodeSPtr &ln)
+{
+   ln->changeState(ln, LocalNode::State::Stopped);
 }
 
 Void CommunicationThread::releaseLocalNodes()
@@ -1685,6 +1776,7 @@ Void CommunicationThread::releaseLocalNodes()
    auto entry = lns_.begin();
    while (entry != lns_.end())
    {
+      stopLocalNode(entry->second);
       entry->second->clearRqstOutEntries();
       entry->second->socket().disconnect();
       entry->second->socket().clearLocalNode();
@@ -1738,17 +1830,12 @@ Void CommunicationThread::onHeartbeatReq(EThreadMessage &msg)
    static EString __method__ = __METHOD_NAME__;
    RcvdHeartbeatReqDataPtr hbrq = static_cast<RcvdHeartbeatReqDataPtr>(msg.getVoidPtr());
 
-   // Configuration::logger().debug("{} - RcvdHeartbeatReqData seqNbr={} ",
-   //    __method__, hbrq->req()->seqNbr());
+   Configuration::logger().debug("{} - RcvdHeartbeatReqData seqNbr={} ",
+      __method__, hbrq->req()->seqNbr());
    
    // if remote has restarted, snd notification to application thread
    if (hbrq->req()->remoteNode()->startTime() != hbrq->startTime())
-   {
-      RemoteNodeSPtr *p = new RemoteNodeSPtr();
-      (*p) = hbrq->req()->remoteNode();
-      hbrq->req()->remoteNode()->setStartTime(hbrq->startTime());
-      SEND_TO_APPLICATION(RemoteNodeRestart, p);
-   }
+      hbrq->req()->remoteNode()->restarted(hbrq->req()->remoteNode(), hbrq->startTime());
 
    // snd the rsp
    SndHeartbeatRspDataPtr hbrs = new SndHeartbeatRspData(hbrq->req());
@@ -1763,17 +1850,13 @@ Void CommunicationThread::onHeartbeatRsp(EThreadMessage &msg)
    static EString __method__ = __METHOD_NAME__;
    RcvdHeartbeatRspDataPtr hbrs = static_cast<RcvdHeartbeatRspDataPtr>(msg.getVoidPtr());
 
-   // Configuration::logger().debug("{} - RcvdHeartbeatRspData seqNbr={} ",
-   //    __method__, hbrs->req().seqNbr());
+   Configuration::logger().debug("{} - RcvdHeartbeatRspData seqNbr={} ",
+      __method__, hbrs->req().seqNbr());
 
    // if remote has restarted, snd notification to application thread
    if (hbrs->req().remoteNode()->startTime() != hbrs->startTime())
-   {
-      RemoteNodeSPtr *p = new RemoteNodeSPtr();
-      (*p) = hbrs->req().remoteNode();
-      hbrs->req().remoteNode()->setStartTime(hbrs->startTime());
-      SEND_TO_APPLICATION(RemoteNodeRestart, p);
-   }
+      hbrs->req().remoteNode()->restarted(
+         hbrs->req().remoteNode(), hbrs->startTime());
 
    // delete the heartbeat rsp object
    delete hbrs;   
@@ -1976,6 +2059,9 @@ Void CommunicationThread::onDelNxtRmtSession(EThreadMessage &msg)
       }
       else
       {
+         if ((*rn)->state() == RemoteNode::State::Stopping)
+            (*rn)->changeState(*rn, RemoteNode::State::Stopped);
+         // the remote node should be deleted after the final statistics have been reported.
          delete rn;
       }
    }

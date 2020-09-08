@@ -769,36 +769,31 @@ Void ExamplePfcpApplicationWorker::onReqTimeout(PFCP::AppMsgReqPtr req)
    delete req;
 }
 
-Void ExamplePfcpApplicationWorker::onRemoteNodeAdded(PFCP::RemoteNodeSPtr &rmtNode)
+Void ExamplePfcpApplicationWorker::onLocalNodeStateChange(
+   PFCP::LocalNodeSPtr &ln, PFCP::LocalNode::State oldState, PFCP::LocalNode::State newState)
 {
    static EString __method__ = __METHOD_NAME__;
    ELogger::log(LOG_SYSTEM).debug(
-      "{} workerId={} - remote node added remote={}",
-      __method__, workerId(), rmtNode->address().getAddress());
+      "{} workerId={} - local={} oldState={} newState={}",
+      __method__, workerId(), ln->address().getAddress(), oldState, newState);
 }
 
-Void ExamplePfcpApplicationWorker::onRemoteNodeFailure(PFCP::RemoteNodeSPtr &rmtNode)
+Void ExamplePfcpApplicationWorker::onRemoteNodeStateChange(
+   PFCP::RemoteNodeSPtr &rn, PFCP::RemoteNode::State oldState, PFCP::RemoteNode::State newState)
 {
    static EString __method__ = __METHOD_NAME__;
    ELogger::log(LOG_SYSTEM).debug(
-      "{} workerId={} - remote node is unresponsive remote={}",
-      __method__, workerId(), rmtNode->address().getAddress());
+      "{} workerId={} - remote={} oldState={} newState={}",
+      __method__, workerId(), rn->address().getAddress(), oldState, newState);
 }
 
-Void ExamplePfcpApplicationWorker::onRemoteNodeRestart(PFCP::RemoteNodeSPtr &rmtNode)
+Void ExamplePfcpApplicationWorker::onRemoteNodeRestart(
+   PFCP::RemoteNodeSPtr &rn, const ETime &restartTime)
 {
    static EString __method__ = __METHOD_NAME__;
    ELogger::log(LOG_SYSTEM).debug(
-      "{} workerId={} - remote node has restarted remote={}",
-      __method__, workerId(), rmtNode->address().getAddress());
-}
-
-Void ExamplePfcpApplicationWorker::onRemoteNodeRemoved(PFCP::RemoteNodeSPtr &rmtNode)
-{
-   static EString __method__ = __METHOD_NAME__;
-   ELogger::log(LOG_SYSTEM).debug(
-      "{} workerId={} - remote node has been removed remote={}",
-      __method__, workerId(), rmtNode->address().getAddress());
+      "{} workerId={} - remote={} restartTime={}",
+      __method__, workerId(), rn->address().getAddress(), restartTime.Format("%i", False));
 }
 
 Void ExamplePfcpApplicationWorker::onSndReqError(PFCP::AppMsgReqPtr req, PFCP::SndReqException &err)

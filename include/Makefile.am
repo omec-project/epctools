@@ -31,6 +31,7 @@ nobase_include_HEADERS =   \
    epc/eerror.h            \
    epc/efd.h               \
    epc/efdjson.h           \
+   epc/efqdn.h             \
    epc/egetopt.h           \
    epc/ehash.h             \
    epc/einternal.h         \

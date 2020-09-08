@@ -9629,8 +9629,8 @@ inline uint16_t UpdateBarSessionReportRspIE::calculateLength()
 //// Message Classes
 ////////////////////////////////////////////////////////////////////////////////
 
-inline HeartbeatReq::HeartbeatReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgNodeReq(ln,rn),
+inline HeartbeatReq::HeartbeatReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr)
+   : PFCP::AppMsgNodeReq(ln,rn,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_HRTBEAT_REQ);
@@ -9713,8 +9713,8 @@ inline Void HeartbeatRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline PfdMgmtReq::PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgNodeReq(ln,rn),
+inline PfdMgmtReq::PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr)
+   : PFCP::AppMsgNodeReq(ln,rn,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_PFD_MGMT_REQ);
@@ -9822,8 +9822,8 @@ inline Void PfdMgmtRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline AssnSetupReq::AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgNodeReq(ln,rn),
+inline AssnSetupReq::AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr)
+   : PFCP::AppMsgNodeReq(ln,rn,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_ASSN_SETUP_REQ);
@@ -10003,8 +10003,8 @@ inline Void AssnSetupRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline AssnUpdateReq::AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgNodeReq(ln,rn),
+inline AssnUpdateReq::AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr)
+   : PFCP::AppMsgNodeReq(ln,rn,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_ASSN_UPD_REQ);
@@ -10163,8 +10163,8 @@ inline Void AssnUpdateRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline AssnReleaseReq::AssnReleaseReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgNodeReq(ln,rn),
+inline AssnReleaseReq::AssnReleaseReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr)
+   : PFCP::AppMsgNodeReq(ln,rn,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_ASSN_REL_REQ);
@@ -10283,8 +10283,8 @@ inline pfcp_header_t &VersionNotSupportedRsp::data()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline NodeReportReq::NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgNodeReq(ln,rn),
+inline NodeReportReq::NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr)
+   : PFCP::AppMsgNodeReq(ln,rn,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_NODE_RPT_REQ);
@@ -10398,8 +10398,8 @@ inline Void NodeReportRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionSetDeletionReq::SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn)
-   : PFCP::AppMsgNodeReq(ln,rn),
+inline SessionSetDeletionReq::SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr)
+   : PFCP::AppMsgNodeReq(ln,rn,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_SESS_SET_DEL_REQ);
@@ -10545,8 +10545,8 @@ inline Void SessionSetDeletionRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionEstablishmentReq::SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses)
-   : PFCP::AppMsgSessionReq(ses),
+inline SessionEstablishmentReq::SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses, Bool allocSeqNbr)
+   : PFCP::AppMsgSessionReq(ses,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_SESS_ESTAB_REQ);
@@ -10911,8 +10911,8 @@ inline Void SessionEstablishmentRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionModificationReq::SessionModificationReq(PFCP::SessionBaseSPtr &ses)
-   : PFCP::AppMsgSessionReq(ses),
+inline SessionModificationReq::SessionModificationReq(PFCP::SessionBaseSPtr &ses, Bool allocSeqNbr)
+   : PFCP::AppMsgSessionReq(ses,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_SESS_MOD_REQ);
@@ -11415,8 +11415,8 @@ inline Void SessionModificationRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionDeletionReq::SessionDeletionReq(PFCP::SessionBaseSPtr &ses)
-   : PFCP::AppMsgSessionReq(ses),
+inline SessionDeletionReq::SessionDeletionReq(PFCP::SessionBaseSPtr &ses, Bool allocSeqNbr)
+   : PFCP::AppMsgSessionReq(ses,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_SESS_DEL_REQ);
@@ -11535,8 +11535,8 @@ inline Void SessionDeletionRsp::postDecode()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline SessionReportReq::SessionReportReq(PFCP::SessionBaseSPtr &ses)
-   : PFCP::AppMsgSessionReq(ses),
+inline SessionReportReq::SessionReportReq(PFCP::SessionBaseSPtr &ses, Bool allocSeqNbr)
+   : PFCP::AppMsgSessionReq(ses,allocSeqNbr),
      data_({})
 {
    setMsgType(PFCP_SESS_RPT_REQ);

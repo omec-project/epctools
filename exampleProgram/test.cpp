@@ -39,6 +39,8 @@
 
 #include "epc/ememory.h"
 
+#include "epc/efqdn.h"
+
 std::locale defaultLocale;
 std::locale mylocale;
 
@@ -3878,6 +3880,43 @@ Void loadSaveDnsQueries()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+Void fqdn_test()
+{
+   static EString dn1 = "www.t-mobile.com";
+   static EString dn2 = "myfqdn";
+   static EString dn3 = "apn1.apn.epc.mnc120.mcc310.3gppnetwork.org.";
+   Char buffer[255];
+
+   cout << "Enter the 1st domain name to evaluate [" << dn1 << "]: ";
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      dn1 = buffer;
+   cout << "Enter the 2nd domain name to evaluate [" << dn2 << "]: ";
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      dn2 = buffer;
+   cout << "Enter the 3rd domain name to evaluate [" << dn3 << "]: ";
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      dn3 = buffer;
+   
+   EFqdn fqdn1(dn1);
+   cout << "fqdn1 [" << fqdn1.toString() << "] [" << static_cast<const EOctetString&>(fqdn1) << "]" << endl;
+
+   EFqdn fqdn2;
+   fqdn2 = dn2;
+   cout << "fqdn2 [" << fqdn2.toString() << "] [" << static_cast<const EOctetString&>(fqdn2) << "]" << endl;
+
+   EFqdn fqdn3(dn3);
+   cout << "fqdn3 [" << fqdn3.toString() << "] [" << static_cast<const EOctetString&>(fqdn3) << "]" << endl;
+
+   fqdn2 = fqdn1;
+   cout << "assign fqdn1 to fqdn2 [" << fqdn2.toString() << "] [" << static_cast<const EOctetString&>(fqdn2) << "]" << endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 Void usage()
 {
    const char *msg =
@@ -3913,7 +3952,7 @@ Void printMenu()
        "19. Directory test                             41. Work Group                   \n"
        "20. Hash test                                  42. Memory Pool test             \n"
        "21. Thread test (1 reader/writer)              43. Load/Save DNS Queries        \n"
-       "22. Deadlock                                   \n"
+       "22. Deadlock                                   44. FQDN tests\n"
        "\n",
        EpcTools::isPublicEnabled() ? "" : "NOT ");
 }
@@ -3986,6 +4025,7 @@ Void run(EGetOpt &options)
             case 41: workGroup_test();             break;
             case 42: memoryPool_test();            break;
             case 43: loadSaveDnsQueries();         break;
+            case 44: fqdn_test();                  break;
             default: cout << "Invalid Selection" << endl << endl;    break;
          }
       }

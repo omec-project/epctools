@@ -115,7 +115,7 @@ namespace PFCPTest
          {
             PFCP::SessionBaseSPtr ses = std::make_shared<PFCP::SessionBase>(ln, rn);
             ses->setSeid(ses, tmi.seid(), tmi.seid(), False);
-            dummyReq = new PFCP::AppMsgSessionReq(ses);
+            dummyReq = new PFCP::AppMsgSessionReq(ses,False);
          }
          else
          {

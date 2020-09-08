@@ -140,6 +140,24 @@ EGetOptError_FileParsing::EGetOptError_FileParsing(cpStr val)
    setTextf("Unable to open [%s] for parsing.", val);
 }
 
+EGetOptError_UnsupportedArrayType::EGetOptError_UnsupportedArrayType(cpStr val)
+{
+   setSevere();
+   setTextf("Unsupported vector type [%s] for array.", val);
+}
+
+EGetOptError_UnexpectedArrayElementType::EGetOptError_UnexpectedArrayElementType(cpStr rcvd, cpStr expctd)
+{
+   setSevere();
+   setTextf("Unsupported array element type.  Received [%s] expected [%s].", rcvd, expctd);
+}
+
+EGetOptError_NotArray::EGetOptError_NotArray()
+{
+   setSevere();
+   setText("Element is not an array");
+}
+
 /// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -452,6 +470,47 @@ std::vector<EString> EGetOpt::getCmdLineRaw() const
    return v;
 }
 
+std::vector<EString> EGetOpt::getMembers(cpStr path) const
+{
+   EString pth = _combinePath(m_prefix.c_str(), path);
+   RAPIDJSON_NAMESPACE::Document &root = ((_EGetOpt *)m_json)->s_json;
+   RAPIDJSON_NAMESPACE::Pointer ptr(pth.c_str());
+   RAPIDJSON_NAMESPACE::Value *value = RAPIDJSON_NAMESPACE::GetValueByPointer(root, ptr);
+   std::vector<EString> v;
+   EString s;
+
+   for (RAPIDJSON_NAMESPACE::Value::ConstMemberIterator itr = value->MemberBegin();
+        itr != value->MemberEnd(); ++itr)
+   {
+      s = itr->name.GetString();
+      v.push_back(s);
+   }
+
+   return v;
+}
+
+std::vector<EString> EGetOpt::getMembers(UInt idx, cpStr path, cpStr member) const
+{
+   EString mbr;
+   mbr.format("%u/%s", idx, member);
+   EString pth = _combinePath(m_prefix.c_str(), path);
+   pth = _combinePath(pth, mbr.c_str());
+   RAPIDJSON_NAMESPACE::Document &root = ((_EGetOpt *)m_json)->s_json;
+   RAPIDJSON_NAMESPACE::Pointer ptr(pth.c_str());
+   RAPIDJSON_NAMESPACE::Value *value = RAPIDJSON_NAMESPACE::GetValueByPointer(root, ptr);
+   std::vector<EString> v;
+   EString s;
+
+   for (RAPIDJSON_NAMESPACE::Value::ConstMemberIterator itr = value->MemberBegin();
+        itr != value->MemberEnd(); ++itr)
+   {
+      s = itr->name.GetString();
+      v.push_back(s);
+   }
+
+   return v;
+}
+
 Long EGetOpt::get(cpStr path, Long def) const
 {
    EString pth = _combinePath(m_prefix.c_str(), path);
@@ -588,6 +647,241 @@ UInt EGetOpt::getCount(cpStr path) const
 
    return cnt;
 }
+
+static const char* kTypeNames[] = 
+   { "Null", "False", "True", "Object", "Array", "String", "Number" };
+
+template<typename T>
+std::vector<T> _getArrayBool(RAPIDJSON_NAMESPACE::Value *value)
+{
+   std::vector<T> vec;
+   for (auto &v : value->GetArray())
+   {
+      if (!v.IsBool())
+         throw EGetOptError_UnexpectedArrayElementType(typeid(T).name(), kTypeNames[v.GetType()]);
+      vec.push_back(v.GetBool());
+   }
+
+   return vec;
+}
+
+template<typename T>
+std::vector<T> _getArrayInt(RAPIDJSON_NAMESPACE::Value *value)
+{
+   std::vector<T> vec;
+   for (auto &v : value->GetArray())
+   {
+      if (!v.IsInt())
+         throw EGetOptError_UnexpectedArrayElementType(typeid(T).name(), kTypeNames[v.GetType()]);
+      vec.push_back(static_cast<T>(v.GetInt()));
+   }
+
+   return vec;
+}
+
+template<typename T>
+std::vector<T> _getArrayUInt(RAPIDJSON_NAMESPACE::Value *value)
+{
+   std::vector<T> vec;
+   for (auto &v : value->GetArray())
+   {
+      if (!v.IsUint())
+         throw EGetOptError_UnexpectedArrayElementType(typeid(T).name(), kTypeNames[v.GetType()]);
+      vec.push_back(static_cast<T>(v.GetUint()));
+   }
+
+   return vec;
+}
+
+template<typename T>
+std::vector<T> _getArrayInt64(RAPIDJSON_NAMESPACE::Value *value)
+{
+   std::vector<T> vec;
+   for (auto &v : value->GetArray())
+   {
+      if (!v.IsInt64())
+         throw EGetOptError_UnexpectedArrayElementType(typeid(T).name(), kTypeNames[v.GetType()]);
+      vec.push_back(static_cast<T>(v.GetInt64()));
+   }
+
+   return vec;
+}
+
+template<typename T>
+std::vector<T> _getArrayUInt64(RAPIDJSON_NAMESPACE::Value *value)
+{
+   std::vector<T> vec;
+   for (auto &v : value->GetArray())
+   {
+      if (!v.IsUint64())
+         throw EGetOptError_UnexpectedArrayElementType(typeid(T).name(), kTypeNames[v.GetType()]);
+      vec.push_back(static_cast<T>(v.GetUint64()));
+   }
+
+   return vec;
+}
+
+template<typename T>
+std::vector<T> _getArrayFloat(RAPIDJSON_NAMESPACE::Value *value)
+{
+   std::vector<T> vec;
+   for (auto &v : value->GetArray())
+   {
+      if (!v.IsFloat())
+         throw EGetOptError_UnexpectedArrayElementType(typeid(T).name(), kTypeNames[v.GetType()]);
+      vec.push_back(static_cast<T>(v.GetFloat()));
+   }
+
+   return vec;
+}
+
+template<typename T>
+std::vector<T> _getArrayDouble(RAPIDJSON_NAMESPACE::Value *value)
+{
+   std::vector<T> vec;
+   for (auto &v : value->GetArray())
+   {
+      if (!v.IsDouble())
+         throw EGetOptError_UnexpectedArrayElementType(typeid(T).name(), kTypeNames[v.GetType()]);
+      vec.push_back(static_cast<T>(v.GetDouble()));
+   }
+
+   return vec;
+}
+
+template<typename T>
+std::vector<T> _getArrayString(RAPIDJSON_NAMESPACE::Value *value)
+{
+   std::vector<T> vec;
+   T val;
+   for (auto &v : value->GetArray())
+   {
+      if (!v.IsString())
+         throw EGetOptError_UnexpectedArrayElementType(typeid(T).name(), kTypeNames[v.GetType()]);
+      val = v.GetString();
+      vec.push_back(val);
+   }
+
+   return vec;
+}
+
+static const auto &bool_ti = typeid(bool);
+static const auto &double_ti = typeid(double);
+static const auto &float_ti = typeid(float);
+static const auto &char_ti = typeid(char);
+static const auto &uchar_ti = typeid(unsigned char);
+static const auto &int_ti = typeid(int);
+static const auto &short_ti = typeid(short);
+static const auto &long_ti = typeid(long);
+static const auto &long_long_ti = typeid(long long);
+static const auto &uint_ti = typeid(unsigned int);
+static const auto &ushort_ti = typeid(unsigned short);
+static const auto &ulong_ti = typeid(unsigned long);
+static const auto &ulong_long_ti = typeid(unsigned long long);
+static const auto &int8_ti = typeid(int8_t);
+static const auto &int16_ti = typeid(int16_t);
+static const auto &int32_ti = typeid(int32_t);
+static const auto &int64_ti = typeid(int64_t);
+static const auto &uint8_ti = typeid(uint8_t);
+static const auto &uint16_ti = typeid(uint16_t);
+static const auto &uint32_ti = typeid(uint32_t);
+static const auto &uint64_ti = typeid(uint64_t);
+static const auto &string_ti = typeid(std::string);
+static const auto &estring_ti = typeid(EString);
+
+template<typename T>
+std::vector<T> EGetOpt::getArray(cpStr path) const
+{
+   EString pth = _combinePath(m_prefix.c_str(), path);
+   RAPIDJSON_NAMESPACE::Document &root = ((_EGetOpt *)m_json)->s_json;
+   RAPIDJSON_NAMESPACE::Pointer ptr(pth.c_str());
+   RAPIDJSON_NAMESPACE::Value *value = RAPIDJSON_NAMESPACE::GetValueByPointer(root, ptr);
+
+   if (value == nullptr || !value->IsArray())
+      throw EGetOptError_NotArray();
+
+   const auto t_hc = typeid(T).hash_code();
+   const auto t_name = typeid(T).name();
+
+   if (t_hc == bool_ti.hash_code())
+   {
+      return _getArrayBool<T>(value);
+   }
+   else if (t_hc == char_ti.hash_code() || t_hc == short_ti.hash_code() || t_hc == int_ti.hash_code() || 
+            t_hc == int8_ti.hash_code() || t_hc == int16_ti.hash_code() || t_hc == int32_ti.hash_code())
+   {
+      return _getArrayInt<T>(value);
+   }
+   else if (t_hc == uchar_ti.hash_code() || t_hc == ushort_ti.hash_code() || t_hc == uint_ti.hash_code() || 
+            t_hc == uint8_ti.hash_code() || t_hc == uint16_ti.hash_code() || t_hc == uint32_ti.hash_code())
+   {
+      return _getArrayUInt<T>(value);
+   }
+   else if (t_hc == long_ti.hash_code() || t_hc == long_long_ti.hash_code() || t_hc == int64_ti.hash_code())
+   {
+      return _getArrayInt64<T>(value);
+   }
+   else if (t_hc == ulong_ti.hash_code() || t_hc == ulong_long_ti.hash_code() || t_hc == uint64_ti.hash_code())
+   {
+      return _getArrayUInt64<T>(value);
+   }
+   else if (t_hc == float_ti.hash_code())
+   {
+      return _getArrayFloat<T>(value);
+   }
+   else if (t_hc == double_ti.hash_code())
+   {
+      return _getArrayDouble<T>(value);
+   }
+   else
+   {
+      throw EGetOptError_UnsupportedArrayType(t_name);
+   }
+}
+
+template<>
+std::vector<std::string> EGetOpt::getArray(cpStr path) const
+{
+   EString pth = _combinePath(m_prefix.c_str(), path);
+   RAPIDJSON_NAMESPACE::Document &root = ((_EGetOpt *)m_json)->s_json;
+   RAPIDJSON_NAMESPACE::Pointer ptr(pth.c_str());
+   RAPIDJSON_NAMESPACE::Value *value = RAPIDJSON_NAMESPACE::GetValueByPointer(root, ptr);
+
+   if (value == nullptr || !value->IsArray())
+      throw EGetOptError_NotArray();
+
+   return _getArrayString<std::string>(value);
+}
+
+template<>
+std::vector<EString> EGetOpt::getArray(cpStr path) const
+{
+   EString pth = _combinePath(m_prefix.c_str(), path);
+   RAPIDJSON_NAMESPACE::Document &root = ((_EGetOpt *)m_json)->s_json;
+   RAPIDJSON_NAMESPACE::Pointer ptr(pth.c_str());
+   RAPIDJSON_NAMESPACE::Value *value = RAPIDJSON_NAMESPACE::GetValueByPointer(root, ptr);
+
+   if (value == nullptr || !value->IsArray())
+      throw EGetOptError_NotArray();
+
+   return _getArrayString<EString>(value);
+}
+
+template std::vector<bool> EGetOpt::getArray<bool>(cpStr path) const;
+template std::vector<char> EGetOpt::getArray<char>(cpStr path) const;
+template std::vector<int8_t> EGetOpt::getArray<int8_t>(cpStr path) const;
+template std::vector<int16_t> EGetOpt::getArray<int16_t>(cpStr path) const;
+template std::vector<int32_t> EGetOpt::getArray<int32_t>(cpStr path) const;
+template std::vector<int64_t> EGetOpt::getArray<int64_t>(cpStr path) const;
+template std::vector<unsigned char> EGetOpt::getArray<unsigned char>(cpStr path) const;
+// template std::vector<uint8_t> EGetOpt::getArray<uint8_t>(cpStr path) const;
+template std::vector<uint16_t> EGetOpt::getArray<uint16_t>(cpStr path) const;
+template std::vector<uint32_t> EGetOpt::getArray<uint32_t>(cpStr path) const;
+template std::vector<uint64_t> EGetOpt::getArray<uint64_t>(cpStr path) const;
+template std::vector<long long> EGetOpt::getArray<long long>(cpStr path) const;
+template std::vector<unsigned long long> EGetOpt::getArray<unsigned long long>(cpStr path) const;
+template std::vector<std::string> EGetOpt::getArray<std::string>(cpStr path) const;
+template std::vector<EString> EGetOpt::getArray<EString>(cpStr path) const;
 
 const EGetOpt::Option *EGetOpt::findOption(cpStr name, const EGetOpt::Option *options)
 {

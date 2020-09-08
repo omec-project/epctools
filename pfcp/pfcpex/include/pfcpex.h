@@ -61,21 +61,20 @@ public:
    ExamplePfcpApplicationWorkGroup &group(ExamplePfcpApplicationWorkGroup &group)
       { return *(group_ = &group); }
 
-   Void onInit();
-   Void onQuit();
-   Void onTimer(EThreadEventTimer *pTimer);
+   Void onInit() override;
+   Void onQuit() override;
+   Void onTimer(EThreadEventTimer *pTimer) override;
 
-   Void onRcvdReq(PFCP::AppMsgReqPtr req);
-   Void onRcvdRsp(PFCP::AppMsgRspPtr rsp);
-   Void onReqTimeout(PFCP::AppMsgReqPtr req);
-   Void onRemoteNodeAdded(PFCP::RemoteNodeSPtr &rmtNode);
-   Void onRemoteNodeFailure(PFCP::RemoteNodeSPtr &rmtNode);
-   Void onRemoteNodeRestart(PFCP::RemoteNodeSPtr &rmtNode);
-   Void onRemoteNodeRemoved(PFCP::RemoteNodeSPtr &rmtNode);
-   Void onSndReqError(PFCP::AppMsgReqPtr req, PFCP::SndReqException &err);
-   Void onSndRspError(PFCP::AppMsgRspPtr rsp, PFCP::SndRspException &err);
-   Void onEncodeReqError(PFCP::AppMsgReqPtr req, PFCP::EncodeReqException &err);
-   Void onEncodeRspError(PFCP::AppMsgRspPtr rsp, PFCP::EncodeRspException &err);
+   Void onRcvdReq(PFCP::AppMsgReqPtr req) override;
+   Void onRcvdRsp(PFCP::AppMsgRspPtr rsp) override;
+   Void onReqTimeout(PFCP::AppMsgReqPtr req) override;
+   Void onLocalNodeStateChange(PFCP::LocalNodeSPtr &ln, PFCP::LocalNode::State oldState, PFCP::LocalNode::State newState) override;
+   Void onRemoteNodeStateChange(PFCP::RemoteNodeSPtr &rn, PFCP::RemoteNode::State oldState, PFCP::RemoteNode::State newState) override;
+   Void onRemoteNodeRestart(PFCP::RemoteNodeSPtr &rn, const ETime &restartTime) override;
+   Void onSndReqError(PFCP::AppMsgReqPtr req, PFCP::SndReqException &err) override;
+   Void onSndRspError(PFCP::AppMsgRspPtr rsp, PFCP::SndRspException &err) override;
+   Void onEncodeReqError(PFCP::AppMsgReqPtr req, PFCP::EncodeReqException &err) override;
+   Void onEncodeRspError(PFCP::AppMsgRspPtr rsp, PFCP::EncodeRspException &err) override;
 
    BEGIN_MESSAGE_MAP2(ExamplePfcpApplicationWorker, PFCP::ApplicationWorker)
    END_MESSAGE_MAP2()

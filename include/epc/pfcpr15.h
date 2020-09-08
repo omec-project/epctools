@@ -4584,7 +4584,7 @@ struct __attribute((__may_alias__)) _HeartbeatReq
 class HeartbeatReq : public PFCP::AppMsgNodeReq
 {
 public:
-   HeartbeatReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   HeartbeatReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr = True);
    uint16_t length() const;
    RecoveryTimeStampIE &rcvry_time_stmp(Bool forceInit = False);
    HeartbeatReq &encode(uint8_t *dest);
@@ -4627,7 +4627,7 @@ private:
 class PfdMgmtReq : public PFCP::AppMsgNodeReq
 {
 public:
-   PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   PfdMgmtReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr = True);
    uint16_t length() const;
    ApplicationIdsPfdsIE &app_ids_pfds(uint8_t idx);
    int next_app_ids_pfds();
@@ -4681,7 +4681,7 @@ struct __attribute((__may_alias__)) _AssnSetupReq
 class AssnSetupReq : public PFCP::AppMsgNodeReq
 {
 public:
-   AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   AssnSetupReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr = True);
    uint16_t length() const;
    NodeIdIE &node_id(Bool forceInit = False);
    RecoveryTimeStampIE &rcvry_time_stmp(Bool forceInit = False);
@@ -4750,7 +4750,7 @@ struct __attribute((__may_alias__)) _AssnUpdateReq
 class AssnUpdateReq : public PFCP::AppMsgNodeReq
 {
 public:
-   AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   AssnUpdateReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr = True);
    uint16_t length() const;
    NodeIdIE &node_id(Bool forceInit = False);
    UpFunctionFeaturesIE &up_func_feat(Bool forceInit = False);
@@ -4811,7 +4811,7 @@ struct __attribute((__may_alias__)) _AssnReleaseReq
 class AssnReleaseReq : public PFCP::AppMsgNodeReq
 {
 public:
-   AssnReleaseReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   AssnReleaseReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr = True);
    uint16_t length() const;
    NodeIdIE &node_id(Bool forceInit = False);
    AssnReleaseReq &encode(uint8_t *dest);
@@ -4879,7 +4879,7 @@ struct __attribute((__may_alias__)) _NodeReportReq
 class NodeReportReq : public PFCP::AppMsgNodeReq
 {
 public:
-   NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   NodeReportReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr = True);
    uint16_t length() const;
    NodeIdIE &node_id(Bool forceInit = False);
    NodeReportTypeIE &node_rpt_type(Bool forceInit = False);
@@ -4939,7 +4939,7 @@ struct __attribute((__may_alias__)) _SessionSetDeletionReq
 class SessionSetDeletionReq : public PFCP::AppMsgNodeReq
 {
 public:
-   SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn);
+   SessionSetDeletionReq(PFCP::LocalNodeSPtr &ln, PFCP::RemoteNodeSPtr &rn, Bool allocSeqNbr = True);
    uint16_t length() const;
    SessionSetDeletionReq &seid(uint64_t val);
    NodeIdIE &node_id(Bool forceInit = False);
@@ -5011,7 +5011,7 @@ struct __attribute((__may_alias__)) _SessionEstablishmentReq
 class SessionEstablishmentReq : public PFCP::AppMsgSessionReq
 {
 public:
-   SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses);
+   SessionEstablishmentReq(PFCP::SessionBaseSPtr &ses, Bool allocSeqNbr = True);
    uint16_t length() const;
    NodeIdIE &node_id(Bool forceInit = False);
    FSeidIE &cp_fseid(Bool forceInit = False);
@@ -5121,7 +5121,7 @@ struct __attribute((__may_alias__)) _SessionModificationReq
 class SessionModificationReq : public PFCP::AppMsgSessionReq
 {
 public:
-   SessionModificationReq(PFCP::SessionBaseSPtr &ses);
+   SessionModificationReq(PFCP::SessionBaseSPtr &ses, Bool allocSeqNbr = True);
    uint16_t length() const;
    FSeidIE &cp_fseid(Bool forceInit = False);
    RemoveBarIE &remove_bar(Bool forceInit = False);
@@ -5235,7 +5235,7 @@ private:
 class SessionDeletionReq : public PFCP::AppMsgSessionReq
 {
 public:
-   SessionDeletionReq(PFCP::SessionBaseSPtr &ses);
+   SessionDeletionReq(PFCP::SessionBaseSPtr &ses, Bool allocSeqNbr = True);
    uint16_t length() const;
    SessionDeletionReq &encode(uint8_t *dest);
    pfcp_sess_del_req_t &data();
@@ -5293,7 +5293,7 @@ struct __attribute((__may_alias__)) _SessionReportReq
 class SessionReportReq : public PFCP::AppMsgSessionReq
 {
 public:
-   SessionReportReq(PFCP::SessionBaseSPtr &ses);
+   SessionReportReq(PFCP::SessionBaseSPtr &ses, Bool allocSeqNbr = True);
    uint16_t length() const;
    ReportTypeIE &report_type(Bool forceInit = False);
    DownlinkDataReportIE &dnlnk_data_rpt(Bool forceInit = False);

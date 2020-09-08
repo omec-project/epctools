@@ -415,6 +415,20 @@ namespace ESocket
          return *this;
       }
 
+      /// @brief Determines the address family.
+      /// @return the address family.
+      static Family getFamily(cpStr addr)
+      {
+         in_addr ipv4;
+         in6_addr ipv6;
+
+         if (inet_pton(AF_INET,addr,&ipv4) == 1)
+            return Family::INET;
+         if (inet_pton(AF_INET6,addr,&ipv6) == 1)
+            return Family::INET6;
+         return Family::Undefined;
+      }
+
    private:
       struct sockaddr_storage m_addr;
    };

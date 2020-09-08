@@ -90,7 +90,7 @@ public:
    ///
    /// @param path The prefix path.
    ///
-   Void setPrefix(cpStr path) { m_prefix = path; }
+   Void setPrefix(cpStr path = "") { m_prefix = path; }
 
    /// @brief Parses and loads the command line arguments.
    ///
@@ -160,6 +160,11 @@ public:
    /// @brief Returns a std::vector containing the "raw" string command line arguments.
    std::vector<EString> getCmdLineRaw() const;
 
+   /// @brief Returns a std::vector containing the member names based on the provided path.
+   std::vector<EString> getMembers(cpStr path) const;
+   /// @brief Returns a std::vector containing the member names based on the provided path.
+   std::vector<EString> getMembers(UInt idx, cpStr path, cpStr member) const;
+
    /// @brief Returns the value of the specified configuration value as a 32-bit integer.
    ///
    /// @param path The path of the requested configuration parameter.
@@ -223,6 +228,27 @@ public:
       EString pth = combinePath(path, mbr.c_str());
       return get(pth, def);
    }
+   /// @brief Returns the values of an array.
+   ///
+   /// @param path The path of the parent object of the requested configuration value.
+   /// 
+   template<typename T>
+   std::vector<T> getArray(cpStr path) const;
+   /// @brief Returns the values of an array.
+   ///
+   /// @param idx The index associated with the parent JSON object.
+   /// @param path The path of the parent object of the requested configuration value.
+   /// @param member The member name of the requested configurtion value.
+   /// @param def The value to return if the requested path/member is not found.
+   /// 
+   template<typename T>
+   std::vector<T> getArray(UInt idx, cpStr path, cpStr member) const
+   {
+      EString mbr;
+      mbr.format("%u/%s", idx, member);
+      EString pth = combinePath(path, mbr.c_str());
+      return getArray<T>(pth);
+   }
 
    /// @brief Prints the current loaded values (command line and file).
    Void print() const;
@@ -272,6 +298,27 @@ class EGetOptError_FileParsing : public EError
 public:
    EGetOptError_FileParsing(cpStr val);
    virtual const cpStr Name() const { return "EGetOptError_FileParsing"; }
+};
+
+class EGetOptError_UnsupportedArrayType : public EError
+{
+public:
+   EGetOptError_UnsupportedArrayType(cpStr val);
+   virtual const cpStr Name() const { return "EGetOptError_UnsupportedArrayType"; }
+};
+
+class EGetOptError_UnexpectedArrayElementType : public EError
+{
+public:
+   EGetOptError_UnexpectedArrayElementType(cpStr rcvd, cpStr expctd);
+   virtual const cpStr Name() const { return "EGetOptError_UnexpectedArrayElementType"; }
+};
+
+class EGetOptError_NotArray : public EError
+{
+public:
+   EGetOptError_NotArray();
+   virtual const cpStr Name() const { return "EGetOptError_NotArray"; }
 };
 /// @endcond
 

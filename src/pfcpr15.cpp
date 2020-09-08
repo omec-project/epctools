@@ -146,9 +146,10 @@ PFCP::ReqOutPtr Translator::encodeHeartbeatReq(PFCP::SndHeartbeatReqData &hb)
    ro->setRemoteNode(hb.remoteNode());
    ro->setN1(PFCP::Configuration::heartbeatN1());
    ro->setT1(PFCP::Configuration::heartbeatT1());
-   ro->setSeqNbr(hb.localNode()->allocSeqNbr());
+   // ro->setSeqNbr(hb.localNode()->allocSeqNbr());
 
    HeartbeatReq *req = new HeartbeatReq(ro->localNode(), ro->remoteNode());
+   ro->setSeqNbr(req->seqNbr());
    req->rcvry_time_stmp().rcvry_time_stmp_val(ro->localNode()->startTime());
    req->encode(data());
 
@@ -427,14 +428,14 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
    {
       case PFCP_HRTBEAT_REQ:
       {
-         HeartbeatReq *tmp = new HeartbeatReq(req->localNode(), req->remoteNode());
+         HeartbeatReq *tmp = new HeartbeatReq(req->localNode(), req->remoteNode(), False);
          decode_pfcp_hrtbeat_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          break;
       }
       case PFCP_PFD_MGMT_REQ:
       {
-         PfdMgmtReq *tmp = new PfdMgmtReq(req->localNode(), req->remoteNode());
+         PfdMgmtReq *tmp = new PfdMgmtReq(req->localNode(), req->remoteNode(), False);
          decode_pfcp_pfd_mgmt_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -442,7 +443,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_ASSN_SETUP_REQ:
       {
-         AssnSetupReq *tmp = new AssnSetupReq(req->localNode(), req->remoteNode());
+         AssnSetupReq *tmp = new AssnSetupReq(req->localNode(), req->remoteNode(), False);
          decode_pfcp_assn_setup_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -452,7 +453,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_ASSN_UPD_REQ:
       {
-         AssnUpdateReq *tmp = new AssnUpdateReq(req->localNode(), req->remoteNode());
+         AssnUpdateReq *tmp = new AssnUpdateReq(req->localNode(), req->remoteNode(), False);
          decode_pfcp_assn_upd_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -460,7 +461,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_ASSN_REL_REQ:
       {
-         AssnReleaseReq *tmp = new AssnReleaseReq(req->localNode(), req->remoteNode());
+         AssnReleaseReq *tmp = new AssnReleaseReq(req->localNode(), req->remoteNode(), False);
          decode_pfcp_assn_rel_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -468,7 +469,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_NODE_RPT_REQ:
       {
-         NodeReportReq *tmp = new NodeReportReq(req->localNode(), req->remoteNode());
+         NodeReportReq *tmp = new NodeReportReq(req->localNode(), req->remoteNode(), False);
          decode_pfcp_node_rpt_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -476,7 +477,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_SESS_SET_DEL_REQ:
       {
-         SessionSetDeletionReq *tmp = new SessionSetDeletionReq(req->localNode(), req->remoteNode());
+         SessionSetDeletionReq *tmp = new SessionSetDeletionReq(req->localNode(), req->remoteNode(), False);
          decode_pfcp_sess_set_del_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -484,7 +485,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_SESS_ESTAB_REQ:
       {
-         SessionEstablishmentReq *tmp = new SessionEstablishmentReq(req->session());
+         SessionEstablishmentReq *tmp = new SessionEstablishmentReq(req->session(), False);
          decode_pfcp_sess_estab_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -494,7 +495,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_SESS_MOD_REQ:
       {
-         SessionModificationReq *tmp = new SessionModificationReq(req->session());
+         SessionModificationReq *tmp = new SessionModificationReq(req->session(), False);
          decode_pfcp_sess_mod_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -502,7 +503,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_SESS_DEL_REQ:
       {
-         SessionDeletionReq *tmp = new SessionDeletionReq(req->session());
+         SessionDeletionReq *tmp = new SessionDeletionReq(req->session(), False);
          decode_pfcp_sess_del_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -510,7 +511,7 @@ PFCP::AppMsgReqPtr Translator::decodeReq(PFCP::ReqInPtr req)
       }
       case PFCP_SESS_RPT_REQ:
       {
-         SessionReportReq *tmp = new SessionReportReq(req->session());
+         SessionReportReq *tmp = new SessionReportReq(req->session(), False);
          decode_pfcp_sess_rpt_req_t((pUChar)req->data(), &tmp->data());
          am = tmp;
          am->postDecode();
@@ -680,6 +681,8 @@ PFCP::RcvdHeartbeatRspDataPtr Translator::decodeHeartbeatRsp(PFCP::RspInPtr msg)
    PFCP::RcvdHeartbeatRspDataPtr hb = new PFCP::RcvdHeartbeatRspData();
    PFCP_R15::HeartbeatRsp *rsp = static_cast<PFCP_R15::HeartbeatRsp *>(decodeRsp(msg));
    hb->setReq(static_cast<PFCP::AppMsgNodeReqPtr>(msg->req()));
+   // clear the request pointer in the response object so it does not get released when the rsp is deleted
+   rsp->setReq(nullptr);
 
    if (rsp->data().rcvry_time_stmp.header.len)
    {
