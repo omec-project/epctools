@@ -27,6 +27,8 @@
 
 /// @cond DOXYGEN_EXCLUDE
 DECLARE_ERROR_ADVANCED4(EPathError_ArgumentException);
+DECLARE_ERROR_ADVANCED3(EPathError_VerifyCreatePath);
+DECLARE_ERROR_ADVANCED4(EPathError_VerifyNotDirectory);
 /// @endcond
 
 /// @brief A path manipulation helper class.
@@ -99,6 +101,11 @@ public:
    /// @param path2 the second path name.
    /// @return the combined path name.
    static EString combine(cpStr path1, cpStr path2);
+
+   /// @brief Verifies that a path exists, creating directories as needed.
+   /// @param path the full path.
+   /// @param mode the directory creation mode.
+   static Void verify(cpStr path, mode_t mode = 0777);
 
    /// @brief Retrieves the directory name from a file name.
    /// @param path the original file name.

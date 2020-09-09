@@ -29,6 +29,7 @@
 #include "eatomic.h"
 #include "esynch.h"
 #include "etevent.h"
+#include "eip.h"
 
 namespace DNS
 {
@@ -100,6 +101,9 @@ namespace DNS
 
       QueryProcessorThread *getQueryProcessorThread() { return &m_qpt; }
 
+      Void setLocalIpAddress(const char *address) { m_localip = address; }
+      const EIpAddress &getLocalIp() { return m_localip; }
+
       Void addNamedServer(const char *address, int udp_port, int tcp_port);
       Void removeNamedServer(const char *address);
       Void applyNamedServers();
@@ -119,6 +123,7 @@ namespace DNS
       Cache &m_cache;
       QueryProcessorThread m_qpt;
       ares_channel m_channel;
+      EIpAddress m_localip;
       std::map<const char *,NamedServer> m_servers;
       EMutexPrivate m_mutex;
    };
@@ -139,9 +144,9 @@ namespace DNS
    protected:
       CacheRefresher(Cache &cache, unsigned int maxconcur, int percent, long interval);
 
-      virtual Void onInit();
-      virtual Void onQuit();
-      virtual Void onTimer( EThreadEventTimer &timer );
+      virtual Void onInit() override;
+      virtual Void onQuit() override;
+      virtual Void onTimer( EThreadEventTimer *timer ) override;
       Void saveQueries( EThreadMessage &msg ) { _saveQueries(); }
       Void forceRefresh( EThreadMessage &msg ) { _forceRefresh(); }
 
@@ -227,6 +232,22 @@ namespace DNS
       /// @return the refresh interval.
       static long setRefreshInterval(long interval) { return m_interval = interval; }
 
+      /// @brief Retrieves the query timeout setting.
+      /// @return the query timeout setting.
+      static int getQueryTimeoutMS() { return m_querytimeout; }
+      /// @brief Assigns the query timeout value.
+      /// @param timeout the timeout value in milliseconds.
+      /// @return the timeout value in milliseconds.
+      static int setQueryTimeoutMS(int timeout) { return m_querytimeout = timeout; }
+
+      /// @brief Retrives the query "tries" (attempts) value.
+      /// @return the query "tries" (attempts) value.
+      static int getQueryTries() { return m_querytries; }
+      /// @brief Assigns the query "tries" (attempts) value.
+      /// @param timeout the query "tries" (attempts) value.
+      /// @return the query "tries" (attempts) value.
+      static int setQueryTries(int tries) { return m_querytries = tries; }
+
       /// @brief Adds a named server to this DNS cache object.
       /// @param address the address of the named server.
       /// @param udp_port the UDP port to communicate with the DNS server on.
@@ -237,6 +258,9 @@ namespace DNS
       Void removeNamedServer(const char *address);
       /// @brief Updates the named servers as a set in the underlying c-ares library.
       Void applyNamedServers();
+      /// @brief Sets the local IP address to use for DNS queries.
+      /// @param address a string representing the IPv4 or IPv6 address;
+      Void setLocalIpAddress(const char *address);
 
       /// @brief Performs a DNS query synchronously.
       /// @param rtype the named server type of the query.
@@ -292,6 +316,8 @@ namespace DNS
       static unsigned int m_concur;
       static int m_percent;
       static long m_interval;
+      static int m_querytimeout;
+      static int m_querytries;
 
       QueryProcessor m_qp;
       CacheRefresher m_refresher;

@@ -18,6 +18,9 @@
 #ifndef __eqpub_h_included
 #define __eqpub_h_included
 
+/// @file
+/// @brief Contains the public queue class definition
+
 #include "eqbase.h"
 #include "eshmem.h"
 #include "esynch2.h"

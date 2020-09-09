@@ -242,11 +242,12 @@ namespace DNS
       if ( (status = ares_init(&m_channel)) == ARES_SUCCESS )
       {
          struct ares_options opt;
-         opt.timeout = 1000;
+         opt.timeout = m_cache.getQueryTimeoutMS();
+         opt.tries = m_cache.getQueryTries();
          opt.ndots = 0;
          opt.flags = ARES_FLAG_EDNS;
          opt.ednspsz = 8192;
-         ares_init_options( &m_channel, &opt, ARES_OPT_TIMEOUTMS | ARES_OPT_NDOTS | ARES_OPT_EDNSPSZ | ARES_OPT_FLAGS );
+         ares_init_options( &m_channel, &opt, ARES_OPT_TIMEOUTMS | ARES_OPT_TRIES | ARES_OPT_NDOTS | ARES_OPT_EDNSPSZ | ARES_OPT_FLAGS );
       }
       else
       {
@@ -327,6 +328,12 @@ namespace DNS
          msg.format( "QueryProcessor::updateNamedServers() - ares_set_servers_ports() failed status = %d", status );
          throw EError( EError::Warning, msg );
       }
+
+      // apply the local ip address
+      if (getLocalIp().family() == AF_INET)
+         ares_set_local_ip4( m_channel, ntohl(getLocalIp().ipv4Address().s_addr) );
+      else if (getLocalIp().family() == AF_INET6)
+         ares_set_local_ip6( m_channel, getLocalIp().ipv6Address().__in6_u.__u6_addr8 );
    }
 
    Void QueryProcessor::beginQuery( QueryPtr &q )
@@ -368,6 +375,8 @@ namespace DNS
    unsigned int Cache::m_concur = 10;
    int Cache::m_percent = 80;
    long Cache::m_interval = 60;
+   int Cache::m_querytimeout = 500;
+   int Cache::m_querytries = 1;
 
    Cache::Cache()
       : m_qp( *this ),
@@ -461,6 +470,11 @@ namespace DNS
    Void Cache::applyNamedServers()
    {
       m_qp.applyNamedServers();
+   }
+
+   Void Cache::setLocalIpAddress(const char *address)
+   {
+      m_qp.setLocalIpAddress(address);
    }
 
    QueryPtr Cache::query( ns_type rtype, const std::string & domain, Bool &cacheHit, Bool ignorecache )
@@ -613,11 +627,11 @@ namespace DNS
       m_timer.stop();
    }
 
-   Void CacheRefresher::onTimer( EThreadEventTimer &timer)
+   Void CacheRefresher::onTimer( EThreadEventTimer *timer)
    {
-      if (timer.getId() == m_timer.getId())
+      if (timer->getId() == m_timer.getId())
          _refreshQueries();
-      else if (timer.getId() == m_qst.getId())
+      else if (timer->getId() == m_qst.getId())
          _saveQueries();
    }
 

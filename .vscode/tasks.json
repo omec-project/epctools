@@ -1,0 +1,152 @@
+{
+   // See https://go.microsoft.com/fwlink/?LinkId=733558
+   // for the documentation about the tasks.json format
+   "version": "2.0.0",
+   "tasks": [
+      {
+         "label": "build epctools",
+         "type": "shell",
+         "command": "make",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "build epctest",
+         "type": "shell",
+         "command": "make",
+         "options": {
+            "cwd": "${workspaceFolder}/exampleProgram"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "build pfcpex",
+         "type": "shell",
+         "command": "make",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcp/pfcpex"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "build pfcptest",
+         "type": "shell",
+         "command": "make",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcp/pfcptest"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "clean epctools",
+         "type": "shell",
+         "command": "make clean",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         }
+      },
+      {
+         "label": "clean epctest",
+         "type": "shell",
+         "command": "make clean",
+         "options": {
+            "cwd": "${workspaceFolder}/exampleProgram"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         }
+      },
+      {
+         "label": "clean pfcpex",
+         "type": "shell",
+         "command": "make clean",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcp/pfcpex"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": []
+      },
+      {
+         "label": "rebuild epctools",
+         "type": "shell",
+         "command": "make clean; make",
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "rebuild epctest",
+         "type": "shell",
+         "command": "make clean; make",
+         "options": {
+            "cwd": "${workspaceFolder}/exampleProgram"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "rebuild pfcpex",
+         "type": "shell",
+         "command": "make clean; make",
+         "options": {
+            "cwd": "${workspaceFolder}/pfcp/pfcpex"
+         },
+         "group": {
+            "kind": "build",
+            "isDefault": true
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      },
+      {
+         "label": "install epctools",
+         "type": "shell",
+         "command": "make && sudo make install",
+         "group": {
+            "kind": "build",
+            "isDefault": false
+         },
+         "problemMatcher": [
+            "$gcc"
+         ]
+      }
+   ]
+}

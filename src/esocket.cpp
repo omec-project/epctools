@@ -133,6 +133,18 @@ TcpTalkerError_InvalidSendState::TcpTalkerError_InvalidSendState(cpStr msg)
    setTextf("%s: Invalid state while sending: %s", Name(), msg);
 }
 
+TcpTalkerError_InvalidReadState::TcpTalkerError_InvalidReadState(cpStr msg)
+{
+   setSevere();
+   setTextf("%s: Invalid state while reading: %s", Name(), msg);
+}
+
+TcpTalkerError_InvalidWriteState::TcpTalkerError_InvalidWriteState(cpStr msg)
+{
+   setSevere();
+   setTextf("%s: Invalid state while writing: %s", Name(), msg);
+}
+
 TcpTalkerError_ReadingWritePacketLength::TcpTalkerError_ReadingWritePacketLength(cpStr msg)
 {
    setSevere();

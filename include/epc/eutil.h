@@ -51,7 +51,7 @@ public:
    /// @param s the string to split.
    /// @param delims the list of delimiting characters.
    /// @return a vector (array) of the resulting strings.
-   static std::vector<EString> split(cpStr s, cpStr delims);
+   static EStringVec split(cpStr s, cpStr delims);
    /// @brief replaces all occurances of the search string in the provided string with the replacement
    ///   string.
    /// @param str the string to make the replacements in.
@@ -93,9 +93,10 @@ public:
 
    /// @brief Deletes the supplied file.
    /// @param fn the file name to delete.
-   static Void delete_file( const std::string &fn ) { delete_file( fn.c_str() ); }
+   /// @return True if the file was deleted, otherwise False.
+   static Bool delete_file( const std::string &fn ) { return delete_file( fn.c_str() ); }
    /// @copydoc delete_file(const std::string &)
-   static Void delete_file( const char *fn );
+   static Bool delete_file( const char *fn );
 
    /// @brief Determines if the supplied file exists.
    /// @return True if the file exists, otherwise False.

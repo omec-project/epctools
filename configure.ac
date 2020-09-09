@@ -25,7 +25,7 @@ AC_PROG_CXX
 dnl AC_CANONICAL_SYSTEM
 
 dnl Initialize automake
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(subdir-objects)
 
 dnl this allows us specify individual liking flags for each target
 AM_PROG_CC_C_O 
@@ -42,7 +42,10 @@ AC_PROG_RANLIB
 AC_CONFIG_FILES(Makefile
                 src/Makefile
                 include/Makefile
-		exampleProgram/Makefile)
+                exampleProgram/Makefile
+                pfcp/pfcpr15/Makefile
+                pfcp/pfcpex/Makefile
+                pfcp/pfcptest/Makefile)
 
 #AC_CONFIG_COMMANDS([submodules],[git submodule update --init --recursive])
 AC_CONFIG_COMMANDS([submodules],[git submodule update --init])
@@ -101,6 +104,23 @@ AC_CONFIG_COMMANDS([freeDiameter],[
 AC_CONFIG_COMMANDS([bzip2],[
     if [[ ! -f modules/bzip2/libbz2.a ]]; then
         pushd modules/bzip2
+        make
+        sudo make install
+        popd
+    fi
+])
+AC_CONFIG_COMMANDS([PcapPlusPlus],[
+    if [[ ! -d modules/PcapPlusPlus/Dist ]]; then
+        pushd modules/PcapPlusPlus
+        ./configure-linux.sh --default
+        make
+        sudo make install
+        popd
+    fi
+])
+AC_CONFIG_COMMANDS([libpfcp],[
+    if [[ ! -d modules/libpfcp/lib ]]; then
+        pushd modules/libpfcp
         make
         sudo make install
         popd

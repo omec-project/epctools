@@ -17,3 +17,9 @@
 	path = modules/freeDiameter
 	url = https://github.com/omec-project/freediameter.git
 	branch = master
+[submodule "modules/PcapPlusPlus"]
+	path = modules/PcapPlusPlus
+	url = https://github.com/seladb/PcapPlusPlus.git
+[submodule "modules/libpfcp"]
+	path = modules/libpfcp
+	url = https://github.com/omec-project/libpfcp.git

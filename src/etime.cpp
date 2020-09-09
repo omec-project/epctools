@@ -1154,14 +1154,14 @@ ETime ETime::Now()
    return ETime(tv.tv_sec, tv.tv_usec);
 }
 
-void ETime::Format(EString &dest, cpStr fmt, Bool local)
+void ETime::Format(EString &dest, cpStr fmt, Bool local) const
 {
    Char buf[2048];
    Format(buf, sizeof(buf), fmt, local);
    dest.assign(buf);
 }
 
-void ETime::Format(pStr dest, Int maxsize, cpStr fmt, Bool local)
+void ETime::Format(pStr dest, Int maxsize, cpStr fmt, Bool local) const
 {
    struct tm ts;
    time_t t = m_time.tv_sec;

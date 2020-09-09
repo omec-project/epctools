@@ -32,6 +32,12 @@ EThreadTimerError_NotInitialized::EThreadTimerError_NotInitialized()
    setTextf("%s: Error timer not initialized - ", Name());
 }
 
+EThreadTimerError_AlreadyInitialized::EThreadTimerError_AlreadyInitialized()
+{
+   setSevere();
+   setTextf("%s: Error timer has already been initialized - ", Name());
+}
+
 EThreadTimerError_UnableToStart::EThreadTimerError_UnableToStart()
 {
    setSevere();

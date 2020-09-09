@@ -33,6 +33,12 @@
 						</ol>
 					</li>
 					<li>[Public Event Threads](#feature-overview-threads-public-event-threads)</li>
+					<li>[Work Groups](#feature-overview-threads-work-groups)
+					    <ol>
+							<li>[Worker Threads](#feature-overview-threads-event-work-groups-worker-threads)</li>
+							<li>[Example](#feature-overview-threads-event-work-groups-example)</li>
+					    </ol>
+					</li>
 				</ol>
 			</li>
 			<li>[Message Queue](#feature-overview-message-queue)
@@ -80,6 +86,18 @@
 			<li>[freeDiameter](#feature-overview-freediameter)</li>
 			<li>[Interface Statistics](#feature-overview-statistics)</li>
 			<li>[Timer Pool](#feature-overview-timer-pool)</li>
+			<li>[Communication Stacks](#feature-overview-communication-stacks)
+			    <ol>
+					<li>[PFCP](#feature-overview-communication-stacks-pfcp)
+					    <ol>
+					        <li>[Application Layer](#feature-overview-communication-stacks-pfcp-application-layer)</li>
+					        <li>[Translation Layer](#feature-overview-communication-stacks-pfcp-translation-layer)</li>
+					        <li>[Communication Layer](#feature-overview-communication-stacks-pfcp-communication-layer)</li>
+					        <li>[PFCP Unit Tests](#feature-overview-communication-stacks-pfcp-unit-tests)</li>
+					    </ol>
+					</li>
+			    </ol>
+			</li>
 			<li>[Miscellaneous Classes](#feature-overview-miscellaneous-classes)
 			</li>
 		</ol>
@@ -103,11 +121,11 @@ $ sudo apt-get update
 ```
 ***Install Ubuntu 16.04 prerequisites.***
 ```sh
-sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnutls-dev libgcrypt-dev libidn11-dev m4 automake libtool
+sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnutls-dev libgcrypt-dev libidn11-dev libpcap-dev m4 automake libtool
 ```
 ***Install Ubuntu 18.04 prerequisites.***
 ```sh
-sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnutls28-dev libgcrypt-dev libidn11-dev m4 automake libtool
+sudo apt-get install mercurial cmake make gcc g++ bison flex libsctp-dev libgnutls28-dev libgcrypt-dev libidn11-dev libpcap-dev m4 automake libtool
 ```
 ***Clone the project, install the dependencies (via configure), build the static library and install.***
 ```sh
@@ -671,7 +689,8 @@ Void  threadExample()
 	std::cout << ETime::Now().Format("%i",True) << " Thread example complete" << std::endl;
 }
 ```
-  
+
+<a  name="feature-overview-threads-public-event-threads"></a>
 ### Public Event Threads
 The benefit of a public event thread over a private event thread is that thread event messages can be sent from a thread in one process to a thread in another process. This is achieved by storing the event message queue in shared memory. When a process creates an instance of a thread class that has a event message queue derived from [EThreadQueuePublic](@ref EThreadQueuePublic) the event message queue will be stored in shared memory. The application ID and thread ID that the thread is initialized with are used to uniquely identify the event message queue in shared memory.
   
@@ -740,7 +759,129 @@ for (Int idx=0; idx<msgcnt; idx++)
 You will notice that application that will send the messages creates an instance of the thread queue object and the application that will host the thread and process the thread events creates an instance of the thread class.
   
 ***NOTE:*** Timing is important. The application that starts first will create the event message queue in shared memory. If this is the application that only sends messages, then it is possible that this application can start posting messages to the event queue before the thread has started. When the application where the thread will exist starts, it will post an `EM_INIT` message to the thread's event message queue which will trigger the [onInit()](@ref EThreadPublic::onInit) method to be called. Depending on which application starts first, it is possible that other events will be processed by the thread before the `EM_INIT` event is processed.
-  
+
+<a  name="feature-overview-threads-work-groups"></a>
+### Work Groups
+A work group represents a group of worker threads that all process events from a single event queue located in the work group object.  Worker threads can be added and removed from a work group at run time.  This allows for increasing and decreasing the number of threads at runtime to meet the processing demands.  [EThreadWorkGroupPublic](@ref EThreadWorkGroupPublic) and [EThreadWorkGroupPrivate](@ref EThreadWorkGroupPrivate) utilize public and private event queues respectively.  Both of these templates utilize the standard EThreadMessage object as the event message and take a class derived from [EThreadWorkerPublic](@ref EThreadWorkerPublic) or [EThreadWorkerPrivate](@ref EThreadWorkerPrivate) as an argument.  It is possible to utilize a customer event queue message by implementing classes from EThreadEventWorkGroup and EThreadEventWorker directly.
+
+Event messages are posted to the event queue in the work group.  Since each worker thread is reads the same event queue, the first available thread will process the event.  Similarly, a timer can be associated with a work group.  When the timer expires a timer expiration event will be posted to the work groups event queue and the first worker thread available will process the event.
+
+<a  name="feature-overview-threads-event-work-groups-worker-threads"></a>
+#### Worker Threads
+The worker thread processes the event messages from the work group's event queue.  
+
+<a  name="feature-overview-threads-event-work-groups-example"></a>
+#### Example
+```cpp
+class TestWorker : public EThreadWorkerPrivate
+{
+public:
+   TestWorker() : m_twg(nullptr), m_val(0) {}
+   
+   Void onInit() {
+      std::cout << "TestWorker::onInit() workerId=" << this->workerId() << std::endl;
+   }
+
+   Void onQuit() {
+      std::cout << "TestWorker::onQuit() workerId=" << this->workerId() << std::endl;
+   }
+
+   Void onTimer(EThreadEventTimer *pTimer) {
+      myOnTimer(pTimer);
+   }
+
+   Void onMessageQueued(const EThreadMessage &msg) {
+   }
+
+   Void handler(EThreadMessage &msg) {
+      std::cout << "TestWorker::handler() workerId=" << this->workerId() << " data=" << msg.data().data().int32[0] << std::endl;
+      m_val++;
+
+      EThreadMessage m(EM_USER1, this->workerId() * 1000 + m_val);
+      group().sendMessage(m);
+      sleep(100);
+   }
+
+   TestWorkGroup &group() {
+      return *m_twg;
+   }
+
+   TestWorker &group(TestWorkGroup &twg) {
+      m_twg = &twg;
+      return *this;
+   }
+
+   BEGIN_MESSAGE_MAP2(TestWorker, EThreadWorkerPrivate)
+      ON_MESSAGE2(EM_USER1, TestWorker::handler)
+   END_MESSAGE_MAP2()
+
+private:
+   Void myOnTimer(EThreadEventTimer *pTimer) {
+      std::cout << "TestWorker::onTimer() workerId=" << workerId() << " timerId=" << pTimer->getId() << std::endl;
+      if (!group().keepGoing())
+         group().quit();
+   }
+
+   TestWorkGroup *m_twg;
+   Int m_val;
+};
+
+class TestWorkGroup : public EThreadWorkGroupPrivate<TestWorker>
+{
+public:
+   TestWorkGroup() { m_cnt = 0; }
+
+   Bool keepGoing() {
+      m_cnt++;
+      return m_cnt < 200;
+   }
+
+protected:
+   Void onCreateWorker(TestWorker &worker) {
+      worker.group(*this);
+   }
+
+   Void onMessageQueued(const EThreadMessage &msg) {
+   }
+
+private:
+   Int m_cnt;
+};
+
+Void workGroup_test()
+{
+   static int numWorkers = 1;
+   char buffer[128];
+   TestWorkGroup wg;
+
+   cout << "Enter the number of workers threads for this work group [" << numWorkers << "]: ";
+   cout.imbue(mylocale);
+   cin.getline(buffer, sizeof(buffer));
+   if (buffer[0])
+      numWorkers = std::stoi(buffer);
+
+   std::cout << "workGroup_test() initializing the work group " << std::endl;
+   wg.init(1, 1, numWorkers);
+
+   std::cout << "workGroup_test() posting messages" << std::endl;
+   for (int i=0; i<numWorkers; i++)
+   {
+      EThreadMessage msg(EM_USER1,i+1);
+      wg.sendMessage(msg);
+   }
+
+   EThreadEventTimer tmr;
+   tmr.setOneShot(False);
+   tmr.setInterval(10);
+   wg.initTimer(tmr);
+   tmr.start();
+   
+   std::cout << "workGroup_test() joining" << std::endl;
+   wg.join();
+   std::cout << "workGroup_test() complete" << std::endl;
+}
+```
+
 <a  name="feature-overview-message-queue"></a>
 ## Message Queue
   
@@ -1985,6 +2126,87 @@ Content-Length: 211
 <a  name="feature-overview-timer-pool"></a>
 ## Timer Pool
 
+<a  name="feature-overview-communication-stacks"></a>
+## Communication Stacks
+
+<a  name="feature-overview-communication-stacks-pfcp"></a>
+### PFCP - Packet Forwarding Control Protocol
+The Packet Forwarding Control Protocol (PFCP) is defined in [3GPP TS 29.244](https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3111).  PFCP is a UDP based protocol that has message and information element struct similar to GTPv2-C.  The stack implementation is composed of 3 layers.
+**PFCP Stack Layers**
+| Layer  | Description |
+| :--------- | :----------- |
+| Application Layer | Various virtual methods of a class derived from [PFCP::ApplicationWorker](@ref PFCP::ApplicationWorker) are called by the lower layers when messages are received or other processing events occur.  The application layer is implemented as a work group which allows for there to be multiple worker threads to process the application events. |
+| Translation Layer | Responsible for the encoding and decoding of the release specific messages. |
+| Communication Layer | Handles the socket communications with the peer nodes.  Additionally responsible for managing the health of the peer nodes, duplicate message detection and filtering, request message retransmission, etc. |
+
+Here is a [PFCP example](../../exampleProgram/pfcp/src/main.cpp) program.  Take a look at [pfcpex.cpp](../../exampleProgram/pfcp/src/pfcpex.cpp) for the details of the implementation.
+
+<a  name="feature-overview-communication-stacks-pfcp-application-layer"></a>
+#### Application Layer
+The application layer is where the application developer will be primarily focused.  Deriving a class From [PFCP::ApplicationWorker](@ref PFCP::ApplicationWorker) overriding the various virtual methods allows the developer to handle the following events:
+
+| Virtual Method | Description |
+| :-------------- | :----------- |
+| [onRcvdReq()](@ref PFCP::ApplicationWorker::onRcvdReq) | Called when a PFCP request message has been received. |
+| [onRcvdRsp()](@ref PFCP::ApplicationWorker::onRcvdRsp) | Called when a PFCP response message has been received. |
+| [onReqTimeout()](@ref PFCP::ApplicationWorker::onReqTimeout) | Called when a PFCP request message has not received a response within the configured time frame. |
+| [onRemoteNodeAdded()](@ref PFCP::ApplicationWorker::onRemoteNodeAdded) | Called when the communications layer receives a message from a PFCP peer that for the first time. |
+| [onRemoteNodeFailure()](@ref PFCP::ApplicationWorker::onRemoteNodeFailure) | Called when communications has been lost with a remote PFCP peer/node. |
+| [onRemoteNodeRestart()](@ref PFCP::ApplicationWorker::onRemoteNodeRestart) | Called when the communications layer detects that a PFCP peer has restarted. |
+| [onRemoteNodeRemoved()](@ref PFCP::ApplicationWorker::onRemoteNodeRemoved) | Called when a remote PFCP peer is removed from the list of peers that the local node communicates with. |
+| [onSndReqError()](@ref PFCP::ApplicationWorker::onSndReqError) | Called when the communications layer is not able to send a PFCP request message. |
+| [onSndRspError()](@ref PFCP::ApplicationWorker::onSndRspError) | Called when the communications layer is not able to send a PFCP response message. |
+| [onEncodeReqError()](@ref PFCP::ApplicationWorker::onEncodeReqError) | Called when the translation layer encounters an error encoding a PFCP request message. |
+| [onEncodeRspError()](@ref PFCP::ApplicationWorker::onEncodeRspError) | Called when the translation layer encounters an error encoding a PFCP response message. |
+
+<a  name="feature-overview-communication-stacks-pfcp-translation-layer"></a>
+#### Translation Layer
+The translation layer is responsible for converting the application representation of the PFCP message to the binary representation (encoding) and for converting the binary representation of a PFCP message to the application representation (decoding).  The actual translation is performed by a class derived from [PFCP::Translator](@ref PFCP::Translator).  The translator object defines the version specific encoding/decoding of the messages and information elements.  [PFCP_R15::Translator](@ref PFCP_R15::Translator) is the release 15 translator.  The PFCP_R15 namespace contains all of the support classes that represent the messages, information elements and enumerations.
+
+<a  name="feature-overview-communication-stacks-pfcp-communication-layer"></a>
+#### Communication Layer
+The communications layer handles the UDP communications with the PFCP peers.  This layer is responsible for the sending and receiving of messages, path mangement, duplicate checking and filtering for received request messages and request message retransmission.
+
+A socket object is associated with a local node.  It is possible to have multiple local node objects process messages on different local interfaces/IP addresses.
+
+<a  name="feature-overview-communication-stacks-pfcp-unit-tests"></a>
+#### PFCP Unit Tests
+A test application named pfcptest contains code to test the encoding and decoding of PFCP messages and informational elements. There are currently two categories of tests: pcap and wrapper tests.
+
+##### Test System Overview
+The test system is a simple application that contains test code organized in functions in various files. It associates a test function with its name as a string in a collection (map) as part of the test suite. Calling pfcptest without any arguments will run all the tests in the test suite. 
+```sh
+$ ./pfcptest
+```
+
+You can optionally provide a list of test names as arguments and it will run only those tests. 
+```sh
+$ ./pfcptest pfcp_assn_setup_req pfcp_assn_setup_rsp ...
+```
+
+Tests are added by using the `TEST()` macro which accepts a single parameter which is the name of the test and is followed by the body of the test function which returns a boolean value indicating whether the test passed or failed. The test names must be unique across all the files in the test suite as they are currently stored in the same collection. The `TEST()` macro defines a function which passes in a `Test` object as a parameter named `test` which contains a function `name()` which can be used to get the name of the test.
+
+**Example test**
+```cpp
+TEST(pfcp_assn_setup_req)
+{
+    EString originalPcap = "./pcaps/originals/" + test.name() + ".pcap";
+    EString baselinePcap = "./pcaps/baselines/" + test.name() + ".pcap";
+    EString resultPcap = "./pcaps/results/" + test.name() + ".pcap";
+    
+    // Decode and re-encode the PFCP messages in each packet
+    ...
+    
+    return ComparePackets(baselinePcap, resultPcap);
+}
+```
+
+##### Pcap Tests
+The pcap tests take an input pcap which contains one or more packets with PFCP messages. Using the *PcapPlusPlus* library, the PFCP messages are extracted from each packet, decoded by the library, and then re-encoded from the class object model and replaced back into the packet. The pcap tests are found under the pfcp/pfcptest/pcaps folder. To add a new test, simply copy a pcap containing PFCP packets into the pfcp/pfcptest/pcaps/originals and pfcp/pfcptest/pcaps/baselines folders. The test system automatically searches for pcap files in these directories and adds them to the test suite. The original and baseline files are not modified and the results are placed in the results folder for easy side-by-side comparison in Wireshark. Currently, the basic pcap test doesn't do any extra processing to the packets besides simple decoding and encoding, but the system is flexible enough to allow the original file and baseline to differ with some intermediate processing done in code. To do this, a new test function would need to be added to the pcaps.cpp file. To rebaseline an existing test, simply copy the pcap from the results folder to the baseline folder.
+
+##### Wrapper Tests
+The wrapper tests create the PFCP messages directly in code without a source packet using the library provided wrapper interfaces for PFCP objects. The results are then placed in a pcap by replacing the PFCP message in a template.pcap and placed into the results folder. Like the pcap tests, the results are compared to the pcaps in the baseline folder.
+
 <a  name="feature-overview-miscellaneous-classes"></a>
 ## Miscellaneous Classes
 | Class | Description |
@@ -1999,4 +2221,10 @@ Content-Length: 211
 | [EHash](@ref EHash) | Calculates a hash value for a string or byte array. |
 | [EBzip2](@ref EBzip2) | Writes and reads bzip compressed files. |
 | [ECircularBuffer](@ref ECircularBuffer) | Implements a thread safe circular buffer over a byte array. |
+| [EIpAddress](@ref EIpAddress) | Represents an IPv4 or IPv6 IP address with associated mask. |
+| [EIpFilterRule](@ref EIpFilterRule) | Represents an IPFilterRule as defined in RFC 6733. |
+| [EOctetString](@ref EOctetString) | Represents an octet string as defined in RFC 6733. |
+| [ETbcdString](@ref ETbcdString) | Represents a TBCD String (Telephony Binary Coded Decimal String) as defined by ITU-T Recommendation Q.825. |
+| [ETeidManager](@ref ETeidManager) | Assigns TEID's from the specified range/pool. |
+
 

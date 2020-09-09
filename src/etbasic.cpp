@@ -151,8 +151,7 @@ Void EThreadBasic::sleep(Int milliseconds)
    timespec tmReq;
    tmReq.tv_sec = (time_t)(milliseconds / 1000);
    tmReq.tv_nsec = (milliseconds % 1000) * 1000 * 1000;
-   // we're not interested in remaining time nor in return value
-   (Void) nanosleep(&tmReq, (timespec *)NULL);
+   while (nanosleep(&tmReq, &tmReq) == -1 && errno == EINTR);
 }
 
 Void EThreadBasic::yield()

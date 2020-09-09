@@ -113,9 +113,9 @@ public:
    /// @brief Registers an expiration timer.
    /// @param ms the length of the timer in milliseconds.
    /// @param msg the thread message to post when the timer expires.
-   /// @param thread the thread to post the message to when the timer expires.
+   /// @param notify a reference to the event notification object.
    /// @return the ID for this timer.
-   ULong registerTimer(LongLong ms, _EThreadEventMessageBase *msg, _EThreadEventBase &thread);
+   ULong registerTimer(LongLong ms, _EThreadEventMessageBase *msg, _EThreadEventNotification &notify);
    /// @brief Registers an expiration timer.
    /// @param ms the length of the timer in milliseconds.
    /// @param func a callback function pointer that will be called when the timer expires.
@@ -225,7 +225,7 @@ protected:
    {
       Unknown,
       Callback,
-      Thread
+      Queue
    };
 
    struct ExpirationInfo
@@ -236,11 +236,11 @@ protected:
          memset(&u, 0, sizeof(u));
       }
 
-      ExpirationInfo(_EThreadEventBase &thread, _EThreadEventMessageBase *msg)
+      ExpirationInfo(_EThreadEventNotification &notify, _EThreadEventMessageBase *msg)
       {
-         type = ExpirationInfoType::Thread;
-         u.thrd.thread = &thread;
-         u.thrd.msg = msg;
+         type = ExpirationInfoType::Queue;
+         u.queue.notify = &notify;
+         u.queue.msg = msg;
       }
 
       ExpirationInfo(ETimerPoolExpirationCallback func, pVoid data)
@@ -259,9 +259,9 @@ protected:
       {
          switch (type)
          {
-            case ExpirationInfoType::Thread:
-               if (u.thrd.msg)
-                  delete u.thrd.msg;
+            case ExpirationInfoType::Queue:
+               if (u.queue.msg)
+                  delete u.queue.msg;
                break;
             case ExpirationInfoType::Callback:
                break;
@@ -275,9 +275,9 @@ protected:
          type = info.type;
          switch (type)
          {
-            case ExpirationInfoType::Thread:
-               u.thrd.thread = info.u.thrd.thread;
-               u.thrd.msg = info.u.thrd.msg;
+            case ExpirationInfoType::Queue:
+               u.queue.notify = info.u.queue.notify;
+               u.queue.msg = info.u.queue.msg;
                break;
             case ExpirationInfoType::Callback:
                u.cb.func = info.u.cb.func;
@@ -303,9 +303,9 @@ protected:
       {
          struct
          {
-            _EThreadEventBase *thread;
+            _EThreadEventNotification *notify;
             _EThreadEventMessageBase *msg;
-         } thrd;
+         } queue;
          struct
          {
             ETimerPoolExpirationCallback func;

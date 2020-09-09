@@ -18,6 +18,9 @@
 #ifndef __ehash_h_included
 #define __ehash_h_included
 
+#include <limits>
+#include <bits/hash_bytes.h>
+
 #include "ebase.h"
 #include "estring.h"
 #include "eerror.h"
@@ -145,6 +148,20 @@ public:
    /// @param key The key to be used to calculate the hash.
    /// @return True
    static Bool getHash32(cpUChar in, const size_t inlen, pUChar out, const size_t outlen, const Key &key=key_);
+   /// @brief Returns the 32-bit hash associated with the unsigned character buffer.
+   /// @param val The value to calculate the hash for.
+   /// @param key The key to be used to calculate the hash.
+   /// @return The 32-bit hash value.
+   /// @{
+   static ULong getHash32(cShort val, const Key &key=key_)     { return getHash32(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULong getHash32(cUShort val, const Key &key=key_)    { return getHash32(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULong getHash32(cLong val, const Key &key=key_)      { return getHash32(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULong getHash32(cULong val, const Key &key=key_)     { return getHash32(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULong getHash32(cLongLong val, const Key &key=key_)  { return getHash32(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULong getHash32(cULongLong val, const Key &key=key_) { return getHash32(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULong getHash32(cFloat val, const Key &key=key_)     { return getHash32(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULong getHash32(cDouble val, const Key &key=key_)    { return getHash32(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   /// @}
 
    /// @brief Returns the 64-bit hash associated with the string.
    /// @param str The string to calculate the hash for.
@@ -177,6 +194,19 @@ public:
    /// @param key The key to be used to calculate the hash.
    /// @return True
    static Bool getHash64(cpUChar in, size_t inlen, pUChar out, const size_t outlen, const Key &key=key_);
+   /// @brief Returns the 64-bit hash associated with the unsigned character buffer.
+   /// @param val The value to calculate the hash for.
+   /// @param key The key to be used to calculate the hash.
+   /// @return The 64-bit hash value.
+   static ULongLong getHash64(cShort val, const Key &key=key_)       { return getHash64(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULongLong getHash64(cUShort val, const Key &key=key_)      { return getHash64(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULongLong getHash64(cLong val, const Key &key=key_)        { return getHash64(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULongLong getHash64(cULong val, const Key &key=key_)       { return getHash64(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULongLong getHash64(cLongLong val, const Key &key=key_)    { return getHash64(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULongLong getHash64(cULongLong val, const Key &key=key_)   { return getHash64(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULongLong getHash64(cFloat val, const Key &key=key_)       { return getHash64(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   static ULongLong getHash64(cDouble val, const Key &key=key_)      { return getHash64(reinterpret_cast<cpUChar>(&val), sizeof(val), key); }
+   /// @}
 
    /// @brief Calculates the 128-bit hash associated with the string.
    /// @param str The string to calculate the hash for.
@@ -207,12 +237,88 @@ public:
    /// @param key The key to be used to calculate the hash.
    /// @return True
    static Bool getHash128(cpUChar in, size_t inlen, pUChar out, const size_t outlen, const Key &key=key_);
+   /// @brief Calculates the 128-bit hash associated with the unsigned character buffer.
+   /// @param val The value to calculate the hash for.
+   /// @param out The output buffer for the resulting hash.
+   /// @param outlen The length of the output buffer.
+   /// @param key The key to be used to calculate the hash.
+   /// @return True
+   /// @{
+   static Bool getHash128(cShort val, pUChar out, const size_t outlen, const Key &key=key_)     { return getHash128(reinterpret_cast<cpUChar>(&val), sizeof(val), out, outlen, key); }
+   static Bool getHash128(cUShort val, pUChar out, const size_t outlen, const Key &key=key_)    { return getHash128(reinterpret_cast<cpUChar>(&val), sizeof(val), out, outlen, key); }
+   static Bool getHash128(cLong val, pUChar out, const size_t outlen, const Key &key=key_)      { return getHash128(reinterpret_cast<cpUChar>(&val), sizeof(val), out, outlen, key); }
+   static Bool getHash128(cULong val, pUChar out, const size_t outlen, const Key &key=key_)     { return getHash128(reinterpret_cast<cpUChar>(&val), sizeof(val), out, outlen, key); }
+   static Bool getHash128(cLongLong val, pUChar out, const size_t outlen, const Key &key=key_)  { return getHash128(reinterpret_cast<cpUChar>(&val), sizeof(val), out, outlen, key); }
+   static Bool getHash128(cULongLong val, pUChar out, const size_t outlen, const Key &key=key_) { return getHash128(reinterpret_cast<cpUChar>(&val), sizeof(val), out, outlen, key); }
+   static Bool getHash128(cFloat val, pUChar out, const size_t outlen, const Key &key=key_)     { return getHash128(reinterpret_cast<cpUChar>(&val), sizeof(val), out, outlen, key); }
+   static Bool getHash128(cDouble val, pUChar out, const size_t outlen, const Key &key=key_)    { return getHash128(reinterpret_cast<cpUChar>(&val), sizeof(val), out, outlen, key); }
+   /// @}
 
 private:
    static Bool getFullHash(cpUChar in, size_t inlen, cpUChar k, pUChar out, const size_t outlen);
    static Bool getHalfHash(cpUChar in, size_t inlen, cpUChar k, pUChar out, const size_t outlen);
 
    static Key key_;
+};
+
+/// @brief Calcuates a 64-bit murmur hash for the specified value.
+class EMurmurHash64
+{
+public:
+   /// @brief Calculates a 64-bit murmur hash for the value.
+   /// @param val The value to calculate the hash for.
+   /// @param seed The seed to be used for the hash calculation.
+   /// @return The 64-but murmur hash value.
+   /// @{
+   static size_t getHash(cChar val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cUChar val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cShort val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cUShort val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cLong val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cULong val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cLongLong val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cULongLong val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cFloat val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(cDouble val, size_t seed=0xc70f6907UL) { return _Hash_bytes(&val,sizeof(val),seed); }
+   static size_t getHash(const EString &val, size_t seed=0xc70f6907UL) { return _Hash_bytes(val.c_str(),val.size(),seed); }
+   /// @}
+
+   /// @brief Calculates a 64-bit murmur hash for the value.
+   /// @param val The value to calculate the hash for.
+   /// @param len The length of the value in bytes.
+   /// @param seed The seed to be used for the hash calculation.
+   /// @return The 64-bit murmur hash value.
+   /// @{
+   static size_t getHash(cpChar val, size_t len, size_t seed=0xc70f6907UL) { return _Hash_bytes(val,len,seed); }
+   static size_t getHash(cpUChar val, size_t len, size_t seed=0xc70f6907UL) { return _Hash_bytes(val,len,seed); }
+   /// @}
+
+   /// @brief Combines 2 64-bit hash values.
+   /// @param h1 The first 64-bit hash value.
+   /// @param h2 The second 64-bit hash value.
+   /// @return The rsulting 64-bit combined hash value.
+   static size_t combine(size_t h1, size_t h2)
+   {
+      return rotateLeft(circularAdd(h1,h2), 19) ^ circularSubtract(h1,h2);
+   }
+
+private:
+   static size_t rotateLeft(const size_t val, const size_t bits)
+   {
+      return (size_t)((val << bits) | (val >> (64 - bits)));
+   }
+
+   static size_t circularAdd(size_t val1, size_t val2)
+   {
+      size_t result = val1 + val2;
+      return result + (result < val1);
+   }
+
+   static size_t circularSubtract(size_t val1, size_t val2)
+   {
+      size_t result = val1 - val2;
+      return result - (result > val1);
+   }
 };
 
 #endif // #define __ehash_h_included

@@ -3974,7 +3974,7 @@ else
 fi
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile include/Makefile exampleProgram/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile include/Makefile exampleProgram/Makefile pfcp/pfcpr15/Makefile pfcp/pfcpex/Makefile pfcp/pfcptest/Makefile"
 
 
 #AC_CONFIG_COMMANDS([submodules],[git submodule update --init --recursive])
@@ -3991,6 +3991,10 @@ ac_config_commands="$ac_config_commands pistache"
 ac_config_commands="$ac_config_commands freeDiameter"
 
 ac_config_commands="$ac_config_commands bzip2"
+
+ac_config_commands="$ac_config_commands PcapPlusPlus"
+
+ac_config_commands="$ac_config_commands libpfcp"
 
 
 cat >confcache <<\_ACEOF
@@ -4743,6 +4747,9 @@ do
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
     "exampleProgram/Makefile") CONFIG_FILES="$CONFIG_FILES exampleProgram/Makefile" ;;
+    "pfcp/pfcpr15/Makefile") CONFIG_FILES="$CONFIG_FILES pfcp/pfcpr15/Makefile" ;;
+    "pfcp/pfcpex/Makefile") CONFIG_FILES="$CONFIG_FILES pfcp/pfcpex/Makefile" ;;
+    "pfcp/pfcptest/Makefile") CONFIG_FILES="$CONFIG_FILES pfcp/pfcptest/Makefile" ;;
     "submodules") CONFIG_COMMANDS="$CONFIG_COMMANDS submodules" ;;
     "rapidjson") CONFIG_COMMANDS="$CONFIG_COMMANDS rapidjson" ;;
     "spdlog") CONFIG_COMMANDS="$CONFIG_COMMANDS spdlog" ;;
@@ -4750,6 +4757,8 @@ do
     "pistache") CONFIG_COMMANDS="$CONFIG_COMMANDS pistache" ;;
     "freeDiameter") CONFIG_COMMANDS="$CONFIG_COMMANDS freeDiameter" ;;
     "bzip2") CONFIG_COMMANDS="$CONFIG_COMMANDS bzip2" ;;
+    "PcapPlusPlus") CONFIG_COMMANDS="$CONFIG_COMMANDS PcapPlusPlus" ;;
+    "libpfcp") CONFIG_COMMANDS="$CONFIG_COMMANDS libpfcp" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -5328,6 +5337,23 @@ $as_echo X"$file" |
     "bzip2":C)
     if [ ! -f modules/bzip2/libbz2.a ]; then
         pushd modules/bzip2
+        make
+        sudo make install
+        popd
+    fi
+ ;;
+    "PcapPlusPlus":C)
+    if [ ! -d modules/PcapPlusPlus/Dist ]; then
+        pushd modules/PcapPlusPlus
+        ./configure-linux.sh --default
+        make
+        sudo make install
+        popd
+    fi
+ ;;
+    "libpfcp":C)
+    if [ ! -d modules/libpfcp/lib ]; then
+        pushd modules/libpfcp
         make
         sudo make install
         popd

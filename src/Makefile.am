@@ -19,7 +19,7 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example #usr#lib
-lib_LIBRARIES = libepc.a
+lib_LIBRARIES = libepc.a libpfcpr15.a
 
 #######################################
 # Build information for each library
@@ -36,10 +36,12 @@ libepc_a_SOURCES =   \
    efdjson.cpp       \
    egetopt.cpp       \
    ehash.cpp         \
+   eip.cpp           \
    elogger.cpp       \
    emsg.cpp          \
    epath.cpp         \
    epcdns.cpp        \
+   epfcp.cpp         \
    eqbase.cpp        \
    eqpriv.cpp        \
    eqpub.cpp         \
@@ -58,9 +60,8 @@ libepc_a_SOURCES =   \
    dnscache.cpp      \
    dnsparser.cpp 
 
-#   etbase.cpp        
-#   ethread.cpp
-#   etq.cpp
+libpfcpr15_a_SOURCES =   \
+   pfcpr15.cpp
 
 
 # Linker options libTestProgram
@@ -68,4 +69,5 @@ libepc_a_SOURCES =   \
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-libepc_a_CPPFLAGS = -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares
+libepc_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares
+libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares -I$(top_srcdir)/modules/libpfcp/include
