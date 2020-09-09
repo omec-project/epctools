@@ -4,6 +4,8 @@ var searchData=
   ['redirectinformationie',['RedirectInformationIE',['../classPFCP__R15_1_1RedirectInformationIE.html',1,'PFCP_R15']]],
   ['remotegtpupeerie',['RemoteGTPUPeerIE',['../classPFCP__R15_1_1RemoteGTPUPeerIE.html',1,'PFCP_R15']]],
   ['remotenode',['RemoteNode',['../classPFCP_1_1RemoteNode.html',1,'PFCP']]],
+  ['remotenoderestartevent',['RemoteNodeRestartEvent',['../classPFCP_1_1RemoteNodeRestartEvent.html',1,'PFCP']]],
+  ['remotenodestatechangeevent',['RemoteNodeStateChangeEvent',['../classPFCP_1_1RemoteNodeStateChangeEvent.html',1,'PFCP']]],
   ['removebarie',['RemoveBarIE',['../classPFCP__R15_1_1RemoveBarIE.html',1,'PFCP_R15']]],
   ['removefarie',['RemoveFarIE',['../classPFCP__R15_1_1RemoveFarIE.html',1,'PFCP_R15']]],
   ['removepdrie',['RemovePdrIE',['../classPFCP__R15_1_1RemovePdrIE.html',1,'PFCP_R15']]],

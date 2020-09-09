@@ -13,7 +13,7 @@ var searchData=
   ['timethresholdie',['TimeThresholdIE',['../classPFCP__R15_1_1TimeThresholdIE.html',1,'PFCP_R15']]],
   ['traceinformationie',['TraceInformationIE',['../classPFCP__R15_1_1TraceInformationIE.html',1,'PFCP_R15']]],
   ['trafficendpointidie',['TrafficEndpointIdIE',['../classPFCP__R15_1_1TrafficEndpointIdIE.html',1,'PFCP_R15']]],
-  ['translator',['Translator',['../classPFCP__R15_1_1Translator.html',1,'PFCP_R15']]],
   ['translator',['Translator',['../classPFCP_1_1Translator.html',1,'PFCP']]],
+  ['translator',['Translator',['../classPFCP__R15_1_1Translator.html',1,'PFCP_R15']]],
   ['transportlevelmarkingie',['TransportLevelMarkingIE',['../classPFCP__R15_1_1TransportLevelMarkingIE.html',1,'PFCP_R15']]]
 ];

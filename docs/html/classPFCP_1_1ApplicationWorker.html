@@ -130,20 +130,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a33689fbb9eb86a5a7ca244b258b8b83f"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#a33689fbb9eb86a5a7ca244b258b8b83f">onReqTimeout</a> (<a class="el" href="namespacePFCP.html#a94d22208d999a9d0ca9d50703aac49d8">AppMsgReqPtr</a> req)</td></tr>
 <tr class="memdesc:a33689fbb9eb86a5a7ca244b258b8b83f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a <a class="el" href="namespacePFCP.html" title="PFCP stack namespace. ">PFCP</a> request message has timed out waiting for the associated response message.  <a href="#a33689fbb9eb86a5a7ca244b258b8b83f">More...</a><br /></td></tr>
 <tr class="separator:a33689fbb9eb86a5a7ca244b258b8b83f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d6e7543571af8da5c2fe18e88afb8d2"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#a6d6e7543571af8da5c2fe18e88afb8d2">onRemoteNodeAdded</a> (RemoteNodeSPtr &amp;rmtNode)</td></tr>
-<tr class="memdesc:a6d6e7543571af8da5c2fe18e88afb8d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a new remote node/peer has been added.  <a href="#a6d6e7543571af8da5c2fe18e88afb8d2">More...</a><br /></td></tr>
-<tr class="separator:a6d6e7543571af8da5c2fe18e88afb8d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adcbeadf9b89991a346280abf8bed35b1"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#adcbeadf9b89991a346280abf8bed35b1">onRemoteNodeFailure</a> (RemoteNodeSPtr &amp;rmtNode)</td></tr>
-<tr class="memdesc:adcbeadf9b89991a346280abf8bed35b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a remote node/peer has failed to respond.  <a href="#adcbeadf9b89991a346280abf8bed35b1">More...</a><br /></td></tr>
-<tr class="separator:adcbeadf9b89991a346280abf8bed35b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ffc3127838bf79f47882b5eef725726"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#a7ffc3127838bf79f47882b5eef725726">onRemoteNodeRestart</a> (RemoteNodeSPtr &amp;rmtNode)</td></tr>
-<tr class="memdesc:a7ffc3127838bf79f47882b5eef725726"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a remote node/peer restart has been detected.  <a href="#a7ffc3127838bf79f47882b5eef725726">More...</a><br /></td></tr>
-<tr class="separator:a7ffc3127838bf79f47882b5eef725726"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adaf3e1e14fb65279451ea7b7a76f2ba1"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#adaf3e1e14fb65279451ea7b7a76f2ba1">onRemoteNodeRemoved</a> (RemoteNodeSPtr &amp;rmtNode)</td></tr>
-<tr class="memdesc:adaf3e1e14fb65279451ea7b7a76f2ba1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a remote node/peer object is removed.  <a href="#adaf3e1e14fb65279451ea7b7a76f2ba1">More...</a><br /></td></tr>
-<tr class="separator:adaf3e1e14fb65279451ea7b7a76f2ba1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2e5142f4fdd93a7516d4e9365fbebee"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#aa2e5142f4fdd93a7516d4e9365fbebee">onLocalNodeStateChange</a> (LocalNodeSPtr &amp;ln, <a class="el" href="classPFCP_1_1LocalNode.html#a2e95b7327374994b95410196f40e7187">LocalNode::State</a> oldState, <a class="el" href="classPFCP_1_1LocalNode.html#a2e95b7327374994b95410196f40e7187">LocalNode::State</a> newState)</td></tr>
+<tr class="memdesc:aa2e5142f4fdd93a7516d4e9365fbebee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the local node state changes.  <a href="#aa2e5142f4fdd93a7516d4e9365fbebee">More...</a><br /></td></tr>
+<tr class="separator:aa2e5142f4fdd93a7516d4e9365fbebee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33f6edb6559be19265b6b6f7923c5e18"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#a33f6edb6559be19265b6b6f7923c5e18">onRemoteNodeStateChange</a> (RemoteNodeSPtr &amp;rn, <a class="el" href="classPFCP_1_1RemoteNode.html#aae1b3a44b0e88e5da758a45d2cfefe65">RemoteNode::State</a> oldState, <a class="el" href="classPFCP_1_1RemoteNode.html#aae1b3a44b0e88e5da758a45d2cfefe65">RemoteNode::State</a> newState)</td></tr>
+<tr class="memdesc:a33f6edb6559be19265b6b6f7923c5e18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a new remote node/peer has been added.  <a href="#a33f6edb6559be19265b6b6f7923c5e18">More...</a><br /></td></tr>
+<tr class="separator:a33f6edb6559be19265b6b6f7923c5e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3c2636a90ca0ba0eb4bb624542f64ef"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#ab3c2636a90ca0ba0eb4bb624542f64ef">onRemoteNodeRestart</a> (RemoteNodeSPtr &amp;rn, const <a class="el" href="classETime.html">ETime</a> &amp;restartTime)</td></tr>
+<tr class="memdesc:ab3c2636a90ca0ba0eb4bb624542f64ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a new remote node/peer has been added.  <a href="#ab3c2636a90ca0ba0eb4bb624542f64ef">More...</a><br /></td></tr>
+<tr class="separator:ab3c2636a90ca0ba0eb4bb624542f64ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12a3d81acf2d1567e3aff361ea01fe51"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#a12a3d81acf2d1567e3aff361ea01fe51">onSndReqError</a> (<a class="el" href="namespacePFCP.html#a94d22208d999a9d0ca9d50703aac49d8">AppMsgReqPtr</a> req, SndReqException &amp;err)</td></tr>
-<tr class="memdesc:a12a3d81acf2d1567e3aff361ea01fe51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when an error is encountered while sending a request message.  <a href="#a12a3d81acf2d1567e3aff361ea01fe51">More...</a><br /></td></tr>
+<tr class="memdesc:a12a3d81acf2d1567e3aff361ea01fe51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a remote node/peer object is removed.  <a href="#a12a3d81acf2d1567e3aff361ea01fe51">More...</a><br /></td></tr>
 <tr class="separator:a12a3d81acf2d1567e3aff361ea01fe51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e0960236f27268b835306c9fd689aea"><td class="memItemLeft" align="right" valign="top">virtual Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorker.html#a0e0960236f27268b835306c9fd689aea">onSndRspError</a> (<a class="el" href="namespacePFCP.html#aaad4800dafaf8b54c489328d6a534b56">AppMsgRspPtr</a> rsp, SndRspException &amp;err)</td></tr>
 <tr class="memdesc:a0e0960236f27268b835306c9fd689aea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when an error is encountered while sending a response message.  <a href="#a0e0960236f27268b835306c9fd689aea">More...</a><br /></td></tr>
@@ -380,6 +377,56 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aa2e5142f4fdd93a7516d4e9365fbebee"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Void PFCP::ApplicationWorker::onLocalNodeStateChange </td>
+          <td>(</td>
+          <td class="paramtype">LocalNodeSPtr &amp;&#160;</td>
+          <td class="paramname"><em>ln</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classPFCP_1_1LocalNode.html#a2e95b7327374994b95410196f40e7187">LocalNode::State</a>&#160;</td>
+          <td class="paramname"><em>oldState</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classPFCP_1_1LocalNode.html#a2e95b7327374994b95410196f40e7187">LocalNode::State</a>&#160;</td>
+          <td class="paramname"><em>newState</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when the local node state changes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ln</td><td>a shared pointer to the local node object. </td></tr>
+    <tr><td class="paramname">oldState</td><td>the previous state of the local node. </td></tr>
+    <tr><td class="paramname">newState</td><td>the new state of the local node. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a8405c53ec500314494cc387296331150"></a>
 <div class="memitem">
 <div class="memproto">
@@ -471,7 +518,7 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a6d6e7543571af8da5c2fe18e88afb8d2"></a>
+<a class="anchor" id="ab3c2636a90ca0ba0eb4bb624542f64ef"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -479,11 +526,21 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">Void PFCP::ApplicationWorker::onRemoteNodeAdded </td>
+          <td class="memname">Void PFCP::ApplicationWorker::onRemoteNodeRestart </td>
           <td>(</td>
           <td class="paramtype">RemoteNodeSPtr &amp;&#160;</td>
-          <td class="paramname"><em>rmtNode</em></td><td>)</td>
+          <td class="paramname"><em>rn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const <a class="el" href="classETime.html">ETime</a> &amp;&#160;</td>
+          <td class="paramname"><em>restartTime</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -503,7 +560,7 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="adcbeadf9b89991a346280abf8bed35b1"></a>
+<a class="anchor" id="a33f6edb6559be19265b6b6f7923c5e18"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -511,11 +568,27 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">Void PFCP::ApplicationWorker::onRemoteNodeFailure </td>
+          <td class="memname">Void PFCP::ApplicationWorker::onRemoteNodeStateChange </td>
           <td>(</td>
           <td class="paramtype">RemoteNodeSPtr &amp;&#160;</td>
-          <td class="paramname"><em>rmtNode</em></td><td>)</td>
+          <td class="paramname"><em>rn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="classPFCP_1_1RemoteNode.html#aae1b3a44b0e88e5da758a45d2cfefe65">RemoteNode::State</a>&#160;</td>
+          <td class="paramname"><em>oldState</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classPFCP_1_1RemoteNode.html#aae1b3a44b0e88e5da758a45d2cfefe65">RemoteNode::State</a>&#160;</td>
+          <td class="paramname"><em>newState</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -525,74 +598,12 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Called when a remote node/peer has failed to respond. </p>
+<p>Called when a new remote node/peer has been added. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">rmtNode</td><td>a shared pointer to the remote node object. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="adaf3e1e14fb65279451ea7b7a76f2ba1"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">Void PFCP::ApplicationWorker::onRemoteNodeRemoved </td>
-          <td>(</td>
-          <td class="paramtype">RemoteNodeSPtr &amp;&#160;</td>
-          <td class="paramname"><em>rmtNode</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Called when a remote node/peer object is removed. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">rmtNode</td><td>a shared pointer to the remote node object. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a7ffc3127838bf79f47882b5eef725726"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">Void PFCP::ApplicationWorker::onRemoteNodeRestart </td>
-          <td>(</td>
-          <td class="paramtype">RemoteNodeSPtr &amp;&#160;</td>
-          <td class="paramname"><em>rmtNode</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Called when a remote node/peer restart has been detected. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">rmtNode</td><td>a shared pointer to the remote node object. </td></tr>
+    <tr><td class="paramname">rn</td><td>a shared pointer to the remote node object. </td></tr>
+    <tr><td class="paramname">oldState</td><td>the previous state of the remote node. </td></tr>
+    <tr><td class="paramname">newState</td><td>the new state of the remote node. </td></tr>
   </table>
   </dd>
 </dl>
@@ -663,11 +674,11 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Called when an error is encountered while sending a request message. </p>
+<p>Called when a remote node/peer object is removed. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">req</td><td>the appication request message that failed. </td></tr>
-    <tr><td class="paramname">err</td><td>a reference to the associated exception. </td></tr>
+    <tr><td class="paramname">rn</td><td>a shared pointer to the remote node object. </td></tr>
+    <tr><td class="paramname">restartTime</td><td>the time the remote node restarted. </td></tr>
   </table>
   </dd>
 </dl>

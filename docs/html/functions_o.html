@@ -144,6 +144,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>OffendingIeIE()
 : <a class="el" href="classPFCP__R15_1_1OffendingIeIE.html#a8fcb07f5dd599ae55f27bd8d19801368">PFCP_R15::OffendingIeIE</a>
 </li>
+<li>oldState()
+: <a class="el" href="classPFCP_1_1LocalNodeStateChangeEvent.html#a5d0ed69e48706a2eae361eff712397a3">PFCP::LocalNodeStateChangeEvent</a>
+, <a class="el" href="classPFCP_1_1RemoteNodeRestartEvent.html#ad5419dd36e723b725bc9ce6871e44cce">PFCP::RemoteNodeRestartEvent</a>
+, <a class="el" href="classPFCP_1_1RemoteNodeStateChangeEvent.html#a81e2d1f1e724607032e50507f209c585">PFCP::RemoteNodeStateChangeEvent</a>
+</li>
 <li>onClose()
 : <a class="el" href="classESocket_1_1TCP_1_1Listener.html#a2f9b721b8075770566ca000626d2f03f">ESocket::TCP::Listener&lt; TQueue, TMessage &gt;</a>
 , <a class="el" href="classESocket_1_1TCP_1_1Talker.html#ab3fbfcfbd4fc5378966ad4362779006c">ESocket::TCP::Talker&lt; TQueue, TMessage &gt;</a>
@@ -174,6 +179,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classEThreadEventWorker.html#ad4530fdcc9576b5e122015bb9dd72569">EThreadEventWorker&lt; TQueue, TMessage &gt;</a>
 , <a class="el" href="classPFCP_1_1ApplicationWorker.html#a100ae5dbfcabebad8f7675ad0f12baa5">PFCP::ApplicationWorker</a>
 </li>
+<li>onLocalNodeStateChange()
+: <a class="el" href="classPFCP_1_1ApplicationWorker.html#aa2e5142f4fdd93a7516d4e9365fbebee">PFCP::ApplicationWorker</a>
+</li>
 <li>onMessageQueued()
 : <a class="el" href="classEThreadEvent.html#a00b71ae6e4f0a208dde323e0ccaef6a8">EThreadEvent&lt; TQueue, TMessage &gt;</a>
 , <a class="el" href="classEThreadEventWorker.html#ab9e459a4c1f04b9298b639a311a4e7f9">EThreadEventWorker&lt; TQueue, TMessage &gt;</a>
@@ -195,17 +203,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classESocket_1_1UDP.html#a8876baff427b94352449b1eea8ba722e">ESocket::UDP&lt; TQueue, TMessage &gt;</a>
 , <a class="el" href="classPFCP_1_1NodeSocket.html#a648489b2da6a7a22ded25ceef460fc3d">PFCP::NodeSocket</a>
 </li>
-<li>onRemoteNodeAdded()
-: <a class="el" href="classPFCP_1_1ApplicationWorker.html#a6d6e7543571af8da5c2fe18e88afb8d2">PFCP::ApplicationWorker</a>
-</li>
-<li>onRemoteNodeFailure()
-: <a class="el" href="classPFCP_1_1ApplicationWorker.html#adcbeadf9b89991a346280abf8bed35b1">PFCP::ApplicationWorker</a>
-</li>
-<li>onRemoteNodeRemoved()
-: <a class="el" href="classPFCP_1_1ApplicationWorker.html#adaf3e1e14fb65279451ea7b7a76f2ba1">PFCP::ApplicationWorker</a>
-</li>
 <li>onRemoteNodeRestart()
-: <a class="el" href="classPFCP_1_1ApplicationWorker.html#a7ffc3127838bf79f47882b5eef725726">PFCP::ApplicationWorker</a>
+: <a class="el" href="classPFCP_1_1ApplicationWorker.html#ab3c2636a90ca0ba0eb4bb624542f64ef">PFCP::ApplicationWorker</a>
+</li>
+<li>onRemoteNodeStateChange()
+: <a class="el" href="classPFCP_1_1ApplicationWorker.html#a33f6edb6559be19265b6b6f7923c5e18">PFCP::ApplicationWorker</a>
 </li>
 <li>onReqTimeout()
 : <a class="el" href="classPFCP_1_1ApplicationWorker.html#a33689fbb9eb86a5a7ca244b258b8b83f">PFCP::ApplicationWorker</a>
@@ -237,6 +239,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>operator EMutexDataPublic &amp;()
 : <a class="el" href="classEMutexPublic.html#a200669dfa6c29959d58893fae39cbe95">EMutexPublic</a>
+</li>
+<li>operator EOctetString()
+: <a class="el" href="classEFqdn.html#a3fa3bb265362510dc57e49c050fdb8cb">EFqdn</a>
 </li>
 <li>operator epctime_t()
 : <a class="el" href="classETimer.html#a8cbb278ccafa688812be8e6964a2e32e">ETimer</a>
@@ -291,18 +296,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>operator=()
 : <a class="el" href="classEError.html#a105091e2b54abb1dfad78aba71d979f3">EError</a>
+, <a class="el" href="classEFqdn.html#ab033a285571cc0da46dbf692f841d536">EFqdn</a>
 , <a class="el" href="classEIpAddress.html#a738d535aad11b38585fae611a7deda76">EIpAddress</a>
 , <a class="el" href="classEIpFilterRule.html#a603d39feb659984696f53046d5a9eeb6">EIpFilterRule</a>
-, <a class="el" href="classEOctetString.html#a509c5214e3d4dbe12a718e875307c807">EOctetString</a>
+, <a class="el" href="classEOctetString.html#af072f90fef2b73f1fab93eae4b76f0a7">EOctetString</a>
 , <a class="el" href="classEQueueMessage.html#ae6c6479b85fe9d55752bfed034780516">EQueueMessage</a>
 , <a class="el" href="classESocket_1_1Address.html#a51bcc8698de1de33625055f47f97c388">ESocket::Address</a>
 , <a class="el" href="classEString.html#a478063a3c93c2a49494f37f515e43be1">EString</a>
 , <a class="el" href="classETbcdString.html#a1a741bef4752f73d2b83c2cf43a1f2c3">ETbcdString</a>
 , <a class="el" href="classEThreadEventMessageBase.html#a2109f232b88941ef1c5e72c8d0af7028">EThreadEventMessageBase&lt; T &gt;</a>
 , <a class="el" href="classEThreadMessage.html#a4c41eef6211023da6dd0f2e80d7ae917">EThreadMessage</a>
-, <a class="el" href="classETime.html#adaf756903a8b8a3633cbfda7c7962462">ETime</a>
+, <a class="el" href="classETime.html#abe47eb23a519dd7232e1e931df48705d">ETime</a>
 , <a class="el" href="classETimer.html#a898468d6b168ed278aca83b9acf14abe">ETimer</a>
-, <a class="el" href="classFDAvp.html#aac0567706c568d7edec844418a67807a">FDAvp</a>
+, <a class="el" href="classFDAvp.html#a32eaa38333dcc4ed3fb615fe9ea84662">FDAvp</a>
 , <a class="el" href="classPFCP_1_1FqSeid.html#a50f02ea39053adfbc0b002aef2d430c2">PFCP::FqSeid</a>
 </li>
 <li>operator==()
@@ -315,14 +321,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="classETime.html#a348142efc3953ab1e0df7d4d2e47e30b">ETime</a>
 </li>
 <li>operator&gt;=()
-: <a class="el" href="classEOctetString.html#adeef9ea19d94dcf7e7a06db870a741ee">EOctetString</a>
+: <a class="el" href="classEOctetString.html#aacf6af09d0a1cda41be44be22999d916">EOctetString</a>
 , <a class="el" href="classETime.html#aac8c33d1f8d03d780813089b4279b2dc">ETime</a>
 </li>
 <li>operator[]()
-: <a class="el" href="classEOctetString.html#a6869de2132dca0a561c3ed4837cafb47">EOctetString</a>
+: <a class="el" href="classEOctetString.html#ac9bd720dbc95241b5ad5f4f918d5f5da">EOctetString</a>
 </li>
 <li>Option()
-: <a class="el" href="classEIpFilterRule_1_1Option.html#a8024504c379955736eafd8b1a06ec244">EIpFilterRule::Option</a>
+: <a class="el" href="classEIpFilterRule_1_1Option.html#ab2f8e74a80896fbb930700e236edbb62">EIpFilterRule::Option</a>
 </li>
 <li>optional_argument
 : <a class="el" href="classEGetOpt.html#ad9e954c679c0c23a70dc67539876f9eea83d78ea1f595b9b569663f9294a7ffce">EGetOpt</a>

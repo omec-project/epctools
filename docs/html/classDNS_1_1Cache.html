@@ -120,6 +120,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a47de773c1f31fd2436af7b4503664e3c"><td class="memItemLeft" align="right" valign="top">Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDNS_1_1Cache.html#a47de773c1f31fd2436af7b4503664e3c">applyNamedServers</a> ()</td></tr>
 <tr class="memdesc:a47de773c1f31fd2436af7b4503664e3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the named servers as a set in the underlying c-ares library.  <a href="#a47de773c1f31fd2436af7b4503664e3c">More...</a><br /></td></tr>
 <tr class="separator:a47de773c1f31fd2436af7b4503664e3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ea7a955e46cd0274e6be527f4d12fc5"><td class="memItemLeft" align="right" valign="top">Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDNS_1_1Cache.html#a3ea7a955e46cd0274e6be527f4d12fc5">setLocalIpAddress</a> (const char *address)</td></tr>
+<tr class="memdesc:a3ea7a955e46cd0274e6be527f4d12fc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the local IP address to use for <a class="el" href="namespaceDNS.html">DNS</a> queries.  <a href="#a3ea7a955e46cd0274e6be527f4d12fc5">More...</a><br /></td></tr>
+<tr class="separator:a3ea7a955e46cd0274e6be527f4d12fc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae81c17af7bc8660d5e3bc56b526fce8e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespaceDNS.html#aba0490320a5daa94b1852f3eac56882e">QueryPtr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDNS_1_1Cache.html#ae81c17af7bc8660d5e3bc56b526fce8e">query</a> (ns_type rtype, const std::string &amp;domain, Bool &amp;cacheHit, Bool ignorecache=false)</td></tr>
 <tr class="memdesc:ae81c17af7bc8660d5e3bc56b526fce8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs a <a class="el" href="namespaceDNS.html">DNS</a> query synchronously.  <a href="#ae81c17af7bc8660d5e3bc56b526fce8e">More...</a><br /></td></tr>
 <tr class="separator:ae81c17af7bc8660d5e3bc56b526fce8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -776,6 +779,30 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Saves the <a class="el" href="namespaceDNS.html">DNS</a> queries that are part of the cache. </p>
+
+</div>
+</div>
+<a class="anchor" id="a3ea7a955e46cd0274e6be527f4d12fc5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Void DNS::Cache::setLocalIpAddress </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>address</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the local IP address to use for <a class="el" href="namespaceDNS.html">DNS</a> queries. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">address</td><td>a string representing the IPv4 or IPv6 address; </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

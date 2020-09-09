@@ -114,15 +114,21 @@ Inheritance diagram for PFCP::ApplicationWorkGroup&lt; TWorker &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a59bb34d1f20869d06804066679df4360"><td class="memItemLeft" align="right" valign="top">LocalNodeSPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorkGroup.html#a59bb34d1f20869d06804066679df4360">createLocalNode</a> (<a class="el" href="classESocket_1_1Address.html">ESocket::Address</a> &amp;addr)</td></tr>
-<tr class="memdesc:a59bb34d1f20869d06804066679df4360"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a local node.  <a href="#a59bb34d1f20869d06804066679df4360">More...</a><br /></td></tr>
-<tr class="separator:a59bb34d1f20869d06804066679df4360"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe26a46a61d2efb312303d6e8938d1bc"><td class="memItemLeft" align="right" valign="top">LocalNodeSPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorkGroup.html#abe26a46a61d2efb312303d6e8938d1bc">createLocalNode</a> (<a class="el" href="classESocket_1_1Address.html">ESocket::Address</a> &amp;addr, Bool <a class="el" href="classEThreadEventWorkGroup.html#ac89175b41c2b8412ee1b12c2d5ad8339">start</a>=<a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</td></tr>
+<tr class="memdesc:abe26a46a61d2efb312303d6e8938d1bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a local node.  <a href="#abe26a46a61d2efb312303d6e8938d1bc">More...</a><br /></td></tr>
+<tr class="separator:abe26a46a61d2efb312303d6e8938d1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa85d87d6c588f611bd196c5bf99d058c"><td class="memItemLeft" align="right" valign="top">Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorkGroup.html#aa85d87d6c588f611bd196c5bf99d058c">startLocalNode</a> (LocalNodeSPtr &amp;ln)</td></tr>
+<tr class="memdesc:aa85d87d6c588f611bd196c5bf99d058c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Startes an externally constructed local node.  <a href="#aa85d87d6c588f611bd196c5bf99d058c">More...</a><br /></td></tr>
+<tr class="separator:aa85d87d6c588f611bd196c5bf99d058c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75dacfb21fbe068d875bdbd2b49c8cd3"><td class="memItemLeft" align="right" valign="top">Void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorkGroup.html#a75dacfb21fbe068d875bdbd2b49c8cd3">stopLocalNode</a> (LocalNodeSPtr &amp;ln)</td></tr>
+<tr class="memdesc:a75dacfb21fbe068d875bdbd2b49c8cd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the local node.  <a href="#a75dacfb21fbe068d875bdbd2b49c8cd3">More...</a><br /></td></tr>
+<tr class="separator:a75dacfb21fbe068d875bdbd2b49c8cd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader"></div></td></tr>
-<tr class="memitem:a227f36f69ae5733e47cd5db2a47ec5fe"><td class="memItemLeft" align="right" valign="top">LocalNodeSPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorkGroup.html#a227f36f69ae5733e47cd5db2a47ec5fe">createLocalNode</a> (cpStr ipaddr, UShort port=<a class="el" href="classPFCP_1_1Configuration.html#ac6ab353c985449571f3b5318c87b72e7">PFCP::Configuration::port</a>())</td></tr>
-<tr class="memdesc:a227f36f69ae5733e47cd5db2a47ec5fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a local node.  <a href="#a227f36f69ae5733e47cd5db2a47ec5fe">More...</a><br /></td></tr>
-<tr class="separator:a227f36f69ae5733e47cd5db2a47ec5fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af2c77520f2c3f4a7c2aff065729da5a0"><td class="memItemLeft" align="right" valign="top">LocalNodeSPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorkGroup.html#af2c77520f2c3f4a7c2aff065729da5a0">createLocalNode</a> (const <a class="el" href="classEIpAddress.html">EIpAddress</a> &amp;ipaddr, UShort port=<a class="el" href="classPFCP_1_1Configuration.html#ac6ab353c985449571f3b5318c87b72e7">PFCP::Configuration::port</a>())</td></tr>
-<tr class="separator:af2c77520f2c3f4a7c2aff065729da5a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b21436acae8b66bc8a70a62ab704e2e"><td class="memItemLeft" align="right" valign="top">LocalNodeSPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorkGroup.html#a0b21436acae8b66bc8a70a62ab704e2e">createLocalNode</a> (cpStr ipaddr, UShort port=<a class="el" href="classPFCP_1_1Configuration.html#ac6ab353c985449571f3b5318c87b72e7">PFCP::Configuration::port</a>(), Bool <a class="el" href="classEThreadEventWorkGroup.html#ac89175b41c2b8412ee1b12c2d5ad8339">start</a>=<a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</td></tr>
+<tr class="memdesc:a0b21436acae8b66bc8a70a62ab704e2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a local node.  <a href="#a0b21436acae8b66bc8a70a62ab704e2e">More...</a><br /></td></tr>
+<tr class="separator:a0b21436acae8b66bc8a70a62ab704e2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4b6f610c9e3e8696e1f0bbb8467a198"><td class="memItemLeft" align="right" valign="top">LocalNodeSPtr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1ApplicationWorkGroup.html#ae4b6f610c9e3e8696e1f0bbb8467a198">createLocalNode</a> (const <a class="el" href="classEIpAddress.html">EIpAddress</a> &amp;ipaddr, UShort port=<a class="el" href="classPFCP_1_1Configuration.html#ac6ab353c985449571f3b5318c87b72e7">PFCP::Configuration::port</a>(), Bool <a class="el" href="classEThreadEventWorkGroup.html#ac89175b41c2b8412ee1b12c2d5ad8339">start</a>=<a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a>)</td></tr>
+<tr class="separator:ae4b6f610c9e3e8696e1f0bbb8467a198"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classEThreadEventWorkGroup"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classEThreadEventWorkGroup')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classEThreadEventWorkGroup.html">EThreadEventWorkGroup&lt; TQueue, TMessage, TWorker &gt;</a></td></tr>
 <tr class="memitem:a555f62bcc44afad35885e6627989e517 inherit pub_methods_classEThreadEventWorkGroup"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEThreadEventWorkGroup.html#a555f62bcc44afad35885e6627989e517">EThreadEventWorkGroup</a> ()</td></tr>
 <tr class="memdesc:a555f62bcc44afad35885e6627989e517 inherit pub_methods_classEThreadEventWorkGroup"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default class constructor.  <a href="#a555f62bcc44afad35885e6627989e517">More...</a><br /></td></tr>
@@ -190,7 +196,7 @@ class PFCP::ApplicationWorkGroup&lt; TWorker &gt;</h3>
 
 <p>The <a class="el" href="namespacePFCP.html" title="PFCP stack namespace. ">PFCP</a> application work group template. This template contains the common event queue for the application worker threads. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a227f36f69ae5733e47cd5db2a47ec5fe"></a>
+<a class="anchor" id="a0b21436acae8b66bc8a70a62ab704e2e"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -209,7 +215,13 @@ template&lt;class TWorker&gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">UShort&#160;</td>
-          <td class="paramname"><em>port</em> = <code><a class="el" href="classPFCP_1_1Configuration.html#ac6ab353c985449571f3b5318c87b72e7">PFCP::Configuration::port</a>()</code>&#160;</td>
+          <td class="paramname"><em>port</em> = <code><a class="el" href="classPFCP_1_1Configuration.html#ac6ab353c985449571f3b5318c87b72e7">PFCP::Configuration::port</a>()</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Bool&#160;</td>
+          <td class="paramname"><em>start</em> = <code><a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a></code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -236,7 +248,7 @@ template&lt;class TWorker&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="af2c77520f2c3f4a7c2aff065729da5a0"></a>
+<a class="anchor" id="ae4b6f610c9e3e8696e1f0bbb8467a198"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -255,7 +267,13 @@ template&lt;class TWorker&gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">UShort&#160;</td>
-          <td class="paramname"><em>port</em> = <code><a class="el" href="classPFCP_1_1Configuration.html#ac6ab353c985449571f3b5318c87b72e7">PFCP::Configuration::port</a>()</code>&#160;</td>
+          <td class="paramname"><em>port</em> = <code><a class="el" href="classPFCP_1_1Configuration.html#ac6ab353c985449571f3b5318c87b72e7">PFCP::Configuration::port</a>()</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Bool&#160;</td>
+          <td class="paramname"><em>start</em> = <code><a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a></code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -272,7 +290,7 @@ template&lt;class TWorker&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a59bb34d1f20869d06804066679df4360"></a>
+<a class="anchor" id="abe26a46a61d2efb312303d6e8938d1bc"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -282,8 +300,18 @@ template&lt;class TWorker&gt; </div>
           <td class="memname">LocalNodeSPtr <a class="el" href="classPFCP_1_1ApplicationWorkGroup.html">PFCP::ApplicationWorkGroup</a>&lt; TWorker &gt;::createLocalNode </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classESocket_1_1Address.html">ESocket::Address</a> &amp;&#160;</td>
-          <td class="paramname"><em>addr</em></td><td>)</td>
+          <td class="paramname"><em>addr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">Bool&#160;</td>
+          <td class="paramname"><em>start</em> = <code><a class="el" href="ebase_8h.html#add3ca9eefe3b5b754426f51d3043e579">True</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -296,6 +324,58 @@ template&lt;class TWorker&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a shared pointer to hte local node. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa85d87d6c588f611bd196c5bf99d058c"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TWorker&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">Void <a class="el" href="classPFCP_1_1ApplicationWorkGroup.html">PFCP::ApplicationWorkGroup</a>&lt; TWorker &gt;::startLocalNode </td>
+          <td>(</td>
+          <td class="paramtype">LocalNodeSPtr &amp;&#160;</td>
+          <td class="paramname"><em>ln</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Startes an externally constructed local node. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ln</td><td>a shared pointer to the <a class="el" href="classPFCP_1_1LocalNode.html" title="Represents the local PFCP node. ">LocalNode</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a75dacfb21fbe068d875bdbd2b49c8cd3"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TWorker&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">Void <a class="el" href="classPFCP_1_1ApplicationWorkGroup.html">PFCP::ApplicationWorkGroup</a>&lt; TWorker &gt;::stopLocalNode </td>
+          <td>(</td>
+          <td class="paramtype">LocalNodeSPtr &amp;&#160;</td>
+          <td class="paramname"><em>ln</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stops the local node. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ln</td><td>a shared pointer to the <a class="el" href="classPFCP_1_1LocalNode.html" title="Represents the local PFCP node. ">LocalNode</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

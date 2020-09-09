@@ -46,6 +46,9 @@ var searchData=
   ['st',['ST',['../classEIpFilterRule.html#abbcce7120f0f2b76865cd22ca6d9122baec8e57d71f07e31203035548b79d03c8',1,'EIpFilterRule']]],
   ['stag',['stag',['../namespacePFCP__R15.html#aa073bb476ba5fa030e762b86e6e11cd3a64414f23baed90db1e20de4011131328',1,'PFCP_R15']]],
   ['stag_5fctag',['stag_ctag',['../namespacePFCP__R15.html#aa073bb476ba5fa030e762b86e6e11cd3a276cec9378032ab10aeb2166aed03bdf',1,'PFCP_R15']]],
+  ['started',['Started',['../classPFCP_1_1RemoteNode.html#aae1b3a44b0e88e5da758a45d2cfefe65a8428552d86c0d262a542a528af490afa',1,'PFCP::RemoteNode::Started()'],['../classPFCP_1_1LocalNode.html#a2e95b7327374994b95410196f40e7187a8428552d86c0d262a542a528af490afa',1,'PFCP::LocalNode::Started()']]],
+  ['stopped',['Stopped',['../classPFCP_1_1RemoteNode.html#aae1b3a44b0e88e5da758a45d2cfefe65ac23e2b09ebe6bf4cb5e2a9abe85c0be2',1,'PFCP::RemoteNode::Stopped()'],['../classPFCP_1_1LocalNode.html#a2e95b7327374994b95410196f40e7187ac23e2b09ebe6bf4cb5e2a9abe85c0be2',1,'PFCP::LocalNode::Stopped()']]],
+  ['stopping',['Stopping',['../classPFCP_1_1RemoteNode.html#aae1b3a44b0e88e5da758a45d2cfefe65a7b7ecb39b9e110c2a31409a1672bad23',1,'PFCP::RemoteNode::Stopping()'],['../classPFCP_1_1LocalNode.html#a2e95b7327374994b95410196f40e7187a7b7ecb39b9e110c2a31409a1672bad23',1,'PFCP::LocalNode::Stopping()']]],
   ['svmtp',['SVMTP',['../classEIpFilterRule.html#abbcce7120f0f2b76865cd22ca6d9122ba6228fc323d87793c46508b974057cfb5',1,'EIpFilterRule']]],
   ['swipe',['SWIPE',['../classEIpFilterRule.html#abbcce7120f0f2b76865cd22ca6d9122ba4312751253972df7513f14dab5bc05e6',1,'EIpFilterRule']]],
   ['systemfailure',['SystemFailure',['../namespacePFCP__R15.html#a500f6cec0be7931994d5af422cd28032afe0a5f9428993e798c216fd663221269',1,'PFCP_R15']]]

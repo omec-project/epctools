@@ -138,8 +138,14 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1RemoteNode.html">PFCP::RemoteNode</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a remote or peer <a class="el" href="namespacePFCP.html" title="PFCP stack namespace. ">PFCP</a> node or host.  <a href="classPFCP_1_1RemoteNode.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1RemoteNodeStateChangeEvent.html">PFCP::RemoteNodeStateChangeEvent</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1RemoteNodeRestartEvent.html">PFCP::RemoteNodeRestartEvent</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1LocalNode.html">PFCP::LocalNode</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the local <a class="el" href="namespacePFCP.html" title="PFCP stack namespace. ">PFCP</a> node.  <a href="classPFCP_1_1LocalNode.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1LocalNodeStateChangeEvent.html">PFCP::LocalNodeStateChangeEvent</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPFCP_1_1AppMsg.html">PFCP::AppMsg</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains the base functionality for all aplication messages.  <a href="classPFCP_1_1AppMsg.html#details">More...</a><br /></td></tr>
@@ -219,19 +225,17 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a02e2cd7a9ae3c07baf4bf4ed254e9002">PFCP::ApplicationEvents::RcvdReq</a> = (APPLICATION_BASE_EVENT + 1), 
 <a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a62a9e0869082c3209d0ad51f8d36a175">PFCP::ApplicationEvents::RcvdRsp</a> = (APPLICATION_BASE_EVENT + 2), 
 <a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59ae8b9561ecf7477d5bf43ed0ae59d500a">PFCP::ApplicationEvents::ReqTimeout</a> = (APPLICATION_BASE_EVENT + 3), 
-<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a19c6d3a8f3e182b8b5970b23ff86f65e">PFCP::ApplicationEvents::RemoteNodeAdded</a> = (APPLICATION_BASE_EVENT + 4), 
+<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a6678827b1a009cbbcd24f784f7739146">PFCP::ApplicationEvents::LocalNodeStateChange</a> = (APPLICATION_BASE_EVENT + 4), 
 <br />
-&#160;&#160;<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a89f9e8aaf33c162cf0de97cd2d48334a">PFCP::ApplicationEvents::RemoteNodeFailure</a> = (APPLICATION_BASE_EVENT + 5), 
+&#160;&#160;<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59aa3bd80199805b018df8be18d03cc3ad3">PFCP::ApplicationEvents::RemoteNodeStateChange</a> = (APPLICATION_BASE_EVENT + 5), 
 <a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a23b87253cef205fa30103a60eac9d385">PFCP::ApplicationEvents::RemoteNodeRestart</a> = (APPLICATION_BASE_EVENT + 6), 
-<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59ac9b278fa09cf69948ea3dcc5a025b08a">PFCP::ApplicationEvents::RemoteNodeRemoved</a> = (APPLICATION_BASE_EVENT + 7), 
-<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a61796e910ea7b0128a96b5972f44666d">PFCP::ApplicationEvents::SndReqError</a> = (APPLICATION_BASE_EVENT + 8), 
+<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a61796e910ea7b0128a96b5972f44666d">PFCP::ApplicationEvents::SndReqError</a> = (APPLICATION_BASE_EVENT + 9), 
+<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a37101579f0df0a6c7a3fa7637656885e">PFCP::ApplicationEvents::SndRspError</a> = (APPLICATION_BASE_EVENT + 8), 
 <br />
-&#160;&#160;<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a37101579f0df0a6c7a3fa7637656885e">PFCP::ApplicationEvents::SndRspError</a> = (APPLICATION_BASE_EVENT + 9), 
-<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a4ba61d630c6db1b54026f61637a5104c">PFCP::ApplicationEvents::EncodeReqError</a> = (APPLICATION_BASE_EVENT + 10), 
-<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a8239d63cb7ec393244d9e3b86de9e41a">PFCP::ApplicationEvents::EncodeRspError</a> = (APPLICATION_BASE_EVENT + 11), 
-<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a2beaab99343922aba5ec47fddb8aed1e">PFCP::ApplicationEvents::DecodeReqError</a> = (APPLICATION_BASE_EVENT + 12), 
-<br />
-&#160;&#160;<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59aa7ee59f669deb05f8061c77392401a81">PFCP::ApplicationEvents::DecodeRspError</a> = (APPLICATION_BASE_EVENT + 13)
+&#160;&#160;<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a4ba61d630c6db1b54026f61637a5104c">PFCP::ApplicationEvents::EncodeReqError</a> = (APPLICATION_BASE_EVENT + 9), 
+<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a8239d63cb7ec393244d9e3b86de9e41a">PFCP::ApplicationEvents::EncodeRspError</a> = (APPLICATION_BASE_EVENT + 10), 
+<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59a2beaab99343922aba5ec47fddb8aed1e">PFCP::ApplicationEvents::DecodeReqError</a> = (APPLICATION_BASE_EVENT + 11), 
+<a class="el" href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59aa7ee59f669deb05f8061c77392401a81">PFCP::ApplicationEvents::DecodeRspError</a> = (APPLICATION_BASE_EVENT + 12)
 <br />
  }<tr class="memdesc:aab1ef4a51f76b0a01613c40772a6dc59"><td class="mdescLeft">&#160;</td><td class="mdescRight">The events that will be received by the application work group.  <a href="namespacePFCP.html#aab1ef4a51f76b0a01613c40772a6dc59">More...</a><br /></td></tr>
 </td></tr>

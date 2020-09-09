@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['communicationthread',['CommunicationThread',['../classPFCP_1_1RemoteNode.html#ae09c6ff7fdddbb323fbda00c6c5d53d6',1,'PFCP::RemoteNode']]],
   ['createbarie',['CreateBarIE',['../classPFCP__R15_1_1DownlinkDataNotificationDelayIE.html#a7024fd697f2b15a316f844db4da79ddd',1,'PFCP_R15::DownlinkDataNotificationDelayIE::CreateBarIE()'],['../classPFCP__R15_1_1BarIdIE.html#a7024fd697f2b15a316f844db4da79ddd',1,'PFCP_R15::BarIdIE::CreateBarIE()'],['../classPFCP__R15_1_1SuggestedBufferingPacketsCountIE.html#a7024fd697f2b15a316f844db4da79ddd',1,'PFCP_R15::SuggestedBufferingPacketsCountIE::CreateBarIE()']]],
   ['createdpdrie',['CreatedPdrIE',['../classPFCP__R15_1_1FTeidIE.html#add0ae5a5361828a54a87971e953c834b',1,'PFCP_R15::FTeidIE::CreatedPdrIE()'],['../classPFCP__R15_1_1PdrIdIE.html#add0ae5a5361828a54a87971e953c834b',1,'PFCP_R15::PdrIdIE::CreatedPdrIE()']]],
   ['createdtrafficendpointie',['CreatedTrafficEndpointIE',['../classPFCP__R15_1_1FTeidIE.html#a4cc1797ca7ac876e3d371b4bafb8b7ea',1,'PFCP_R15::FTeidIE::CreatedTrafficEndpointIE()'],['../classPFCP__R15_1_1TrafficEndpointIdIE.html#a4cc1797ca7ac876e3d371b4bafb8b7ea',1,'PFCP_R15::TrafficEndpointIdIE::CreatedTrafficEndpointIE()']]],
