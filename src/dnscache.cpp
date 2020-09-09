@@ -331,7 +331,7 @@ namespace DNS
 
       // apply the local ip address
       if (getLocalIp().family() == AF_INET)
-         ares_set_local_ip4( m_channel, getLocalIp().ipv4Address().s_addr );
+         ares_set_local_ip4( m_channel, ntohl(getLocalIp().ipv4Address().s_addr) );
       else if (getLocalIp().family() == AF_INET6)
          ares_set_local_ip6( m_channel, getLocalIp().ipv6Address().__in6_u.__u6_addr8 );
    }
