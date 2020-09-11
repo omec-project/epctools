@@ -30,6 +30,7 @@
 #include "eteid.h"
 #include "etimerpool.h"
 #include "ememory.h"
+#include "ejsonbuilder.h"
 
 /// @brief PFCP stack namespace
 namespace PFCP
@@ -134,6 +135,24 @@ namespace PFCP
    };
 
    using MessageStatsMap = std::unordered_map<MessageId, MessageStats>;
+
+   /////////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
+
+   /// @cond DOXYGEN_EXCLUDE
+   class StatsCollector
+   {
+   public:
+      StatsCollector() = default;
+
+      Void collectNodeStats();
+      EJsonBuilder &builder() { return builder_; }
+      EString printStats();
+
+   private:
+      EJsonBuilder builder_;
+   };
+   /// @endcond
 
    /////////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////////
@@ -724,6 +743,8 @@ private:                                                 \
 
       Stats &stats() { return stats_; }
 
+      virtual Void collectStats(StatsCollector &collector);
+
       /// @brief Disconnects the remote peer and deletes all associated sessions.
       /// @param rn a reference to the RemoteNode shared pointer to this object.
       /// @return a reference to this object.
@@ -872,6 +893,8 @@ private:                                                 \
       RemoteNodeUMap &remoteNodes() { return rns_; }
 
       ERWLock &remoteNodesLock() { return rnslck_; }
+
+      virtual Void collectStats(StatsCollector &collector);
 
       /// @brief Creates a new Session object and registers it with the local
       ///   and remote nodes.

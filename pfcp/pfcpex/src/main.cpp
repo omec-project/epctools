@@ -17,7 +17,6 @@
 #include <signal.h>
 #include "epctools.h"
 #include "epfcp.h"
-#include "ejsonbuilder.h"
 
 #include "pfcpex.h"
 using namespace PFCP;
@@ -84,104 +83,6 @@ Void usage()
    std::cout << "USAGE:  pfcpex [--help] [--file optionfile]" << std::endl;
 }
 
-EString collectStats()
-{
-   EJsonBuilder builder;
-
-   try
-   {
-      EJsonBuilder::StackString pushReportTime(builder, ETime::Now().Format("%i",True), "reporttime");
-
-      std::vector<LocalNodeSPtr> localNodes;
-      {
-         ERDLock lck(CommunicationThread::Instance().localNodesLock());
-         localNodes.reserve(CommunicationThread::Instance().localNodes().size());
-         for (auto &iln : CommunicationThread::Instance().localNodes())
-            localNodes.emplace_back(iln.second);
-      }
-
-      std::sort(localNodes.begin(), localNodes.end(),
-         [](const LocalNodeSPtr &a, const LocalNodeSPtr &b) -> bool
-         {
-            return a->ipAddress().address().compare(b->ipAddress().address()) == 0;
-         }
-      );
-
-      EJsonBuilder::StackArray pushLocalNodes(builder, "local_nodes");
-
-      for (auto &localNodeSPtr : localNodes)
-      {
-         auto &localNode = *localNodeSPtr.get();
-
-         EJsonBuilder::StackObject pushLocalNode(builder);
-         EJsonBuilder::StackString pushLocalAddress(builder, localNode.ipAddress().address(), "local_address");
-
-         std::vector<RemoteNodeSPtr> remoteNodes;
-         {
-            ERDLock lck(localNode.remoteNodesLock());
-            remoteNodes.reserve(localNode.remoteNodes().size());
-            for (auto &irn : localNode.remoteNodes())
-               remoteNodes.emplace_back(irn.second);
-         }
-
-         std::sort(remoteNodes.begin(), remoteNodes.end(),
-            [](const RemoteNodeSPtr &a, const RemoteNodeSPtr &b) -> bool
-            {
-               return a->ipAddress().address().compare(b->ipAddress().address()) == 0;
-            }
-         );
-
-         EJsonBuilder::StackArray pushRemoteNodes(builder, "remote_nodes");
-
-         for (auto &remoteNodeSPtr : remoteNodes)
-         {
-            auto &remoteNode = *remoteNodeSPtr.get();
-
-            EJsonBuilder::StackObject pushRemoteNode(builder);
-            EJsonBuilder::StackString pushRemoteAddress(builder, remoteNode.ipAddress().address(), "remote_address");            
-            EJsonBuilder::StackString pushLastActivity(builder, remoteNode.stats().getLastActivity().Format("%i",True), "last_activity");
-
-            std::vector<UInt> messages;
-            {
-               ERDLock lck(remoteNode.stats().getLock());
-               for (auto imsg : remoteNode.stats().messageStats())
-                  messages.push_back(imsg.first);
-            }
-
-            std::sort(messages.begin(), messages.end());
-
-            EJsonBuilder::StackObject pushMessages(builder, "messages");
-            for (auto msg : messages)
-            {
-               MessageStats *m = nullptr;
-               {
-                  ERDLock l(remoteNode.stats().getLock());
-                  auto found = remoteNode.stats().messageStats().find(msg);
-                  m = &found->second;
-               }
-
-               if (m == nullptr)
-                  continue;
-
-               EJsonBuilder::StackObject pushMsgObj(builder, m->getName());
-               EJsonBuilder::StackUInt pushId(builder, m->getId(), "id");
-               EJsonBuilder::StackUInt pushReceived(builder, m->getReceived(), "received");
-               EJsonBuilder::StackUInt pushTimeout(builder, m->getTimeout(), "timeout");
-               EJsonBuilder::StackArray pushSentArray(builder, "sent");
-               for (auto sent : m->getSent())
-                  EJsonBuilder::StackUInt pushSent(builder, sent);
-            }
-         }
-      }
-   }
-   catch(std::exception &e)
-   {
-      ELogger::log(LOG_SYSTEM).major("Unhandled exception in collectStats()");
-   }
-
-   return builder.toString();
-}
-
 int main(int argc, char *argv[])
 {
    EGetOpt::Option options[] = {
@@ -232,8 +133,9 @@ int main(int argc, char *argv[])
 
          wg.startup(opt);
          wg.waitForShutdown();
-         EString stats = collectStats();
-         ELogger::log(LOG_SYSTEM).info("Collected stats: {}", stats);
+         StatsCollector statsCollector;
+         statsCollector.collectNodeStats();
+         ELogger::log(LOG_SYSTEM).info("Collected stats: {}", statsCollector.printStats());
          wg.shutdown();
       }
       catch(const std::exception& e)
