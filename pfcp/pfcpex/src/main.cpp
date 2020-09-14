@@ -19,7 +19,6 @@
 #include "epfcp.h"
 
 #include "pfcpex.h"
-using namespace PFCP;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +132,7 @@ int main(int argc, char *argv[])
 
          wg.startup(opt);
          wg.waitForShutdown();
-         StatsCollector statsCollector;
+         PFCP::StatsCollector statsCollector;
          statsCollector.collectNodeStats();
          ELogger::log(LOG_SYSTEM).info("Collected stats: {}", statsCollector.printStats());
          wg.shutdown();

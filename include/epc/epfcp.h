@@ -143,7 +143,7 @@ namespace PFCP
    class StatsCollector
    {
    public:
-      StatsCollector() = default;
+      StatsCollector();
 
       Void collectNodeStats();
       EJsonBuilder &builder() { return builder_; }
@@ -1557,8 +1557,17 @@ private:                                                 \
          return *this;
       }
 
-      AppMsgRspPtr rsp() const         { return am_; }
-      RspOut &setRsp(AppMsgRspPtr am)  { am_ = am; return *this; }
+      AppMsgRspPtr appMsg() { return am_; }
+      RspOut &setAppMsg(AppMsgRspPtr am)
+      {
+         am_ = am;
+         if (am)
+         {
+            setMsgType(am->msgType());
+            setMsgClass(am->msgClass());
+         }
+         return *this;
+      }
 
    private:
       AppMsgRspPtr am_;

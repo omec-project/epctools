@@ -72,12 +72,15 @@ UInt MessageStats::incSent(UInt attempt)
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @cond DOXYGEN_EXCLUDE
+StatsCollector::StatsCollector()
+{
+   EJsonBuilder::StackString pushReportTime(builder_, ETime::Now().Format("%i",True), "reporttime");
+}
+
 Void StatsCollector::collectNodeStats()
 {
    try
    {
-      EJsonBuilder::StackString pushReportTime(builder_, ETime::Now().Format("%i",True), "reporttime");
-
       std::vector<LocalNodeSPtr> localNodes;
       {
          ERDLock lck(CommunicationThread::Instance().localNodesLock());
@@ -836,21 +839,6 @@ SessionBaseSPtr LocalNode::createSession(LocalNodeSPtr &ln, Seid rs, RemoteNodeS
 }
 
 /// @cond DOXYGEN_EXCLUDE
-#define INCREMENT_MESSAGE_STAT(__rn,__id,__func,...)           \
-{                                                              \
-   MessageStats *msgstats = nullptr;                           \
-   {                                                           \
-      ERDLock l(__rn->stats().getLock());                      \
-      auto found = __rn->stats().messageStats().find(__id);    \
-      if (found != __rn->stats().messageStats().end())         \
-         msgstats = &found->second;                            \
-   }                                                           \
-   if (msgstats != nullptr)                                    \
-      msgstats->__func(__VA_ARGS__);                           \
-}
-/// @endcond
-
-/// @cond DOXYGEN_EXCLUDE
 Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const ESocket::Address &dst, cpUChar msg, Int len)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -890,7 +878,8 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
       // increment the activity for the RemoteNode
       rn->incrementActivity();
 
-      INCREMENT_MESSAGE_STAT(rn, tmi.msgType(), incReceived)
+      // increment the stats for the RemoteNode
+      rn->stats().incReceived(tmi.msgType());
 
       if (tmi.isReq())
       {
@@ -1063,7 +1052,7 @@ Bool LocalNode::onReqOutTimeout(ReqOutPtr ro)
          __method__, ipAddress().address(), ro->remoteNode()->address().getAddress());
    }
 
-   INCREMENT_MESSAGE_STAT(ro->remoteNode(), ro->msgType(), incTimeout)
+   ro->remoteNode()->stats().incTimeout(ro->msgType());
 
    return False;
 }
@@ -1146,8 +1135,8 @@ Bool LocalNode::sndReq(ReqOutPtr ro)
       socket_.write(ro->remoteNode()->address(), ro->data(), ro->len());
       ro->startT1();
 
-      UInt attempt = Configuration::n1() - (ro->n1() + 1);
-      INCREMENT_MESSAGE_STAT(ro->remoteNode(), ro->msgType(), incSent, attempt)
+      UInt attempt = (ro->msgType() == Configuration::pfcpHeartbeatReq ? Configuration::heartbeatN1() : Configuration::n1()) - (ro->n1() + 1);
+      ro->remoteNode()->stats().incSent(ro->msgType(), attempt);
 
       return True;
    }
@@ -1184,19 +1173,17 @@ Void LocalNode::sndRsp(RspOutPtr ro)
       // snd the data
       socket_.write(ro->remoteNode()->address(), ro->data(), ro->len());
 
-      INCREMENT_MESSAGE_STAT(ro->remoteNode(), ro->msgType(), incSent, 0)
+      ro->remoteNode()->stats().incSent(ro->msgType());
    }
    else
    {
       // the corresponding req does not exist, so don't snd the rsp
-      SEND_TO_APPLICATION(SndRspError, ro->rsp());
-      ro->setRsp(nullptr);
+      SEND_TO_APPLICATION(SndRspError, ro->appMsg());
+      ro->setAppMsg(nullptr);
    }
    // delete the RspOut object
    delete ro;
 }
-
-#undef INCREMENT_MESSAGE_STAT
 /// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
