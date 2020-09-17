@@ -132,9 +132,10 @@ int main(int argc, char *argv[])
 
          wg.startup(opt);
          wg.waitForShutdown();
-         PFCP::StatsCollector statsCollector;
-         statsCollector.collectNodeStats();
-         ELogger::log(LOG_SYSTEM).info("Collected stats: {}", statsCollector.printStats());
+         EJsonBuilder stats;
+         EJsonBuilder::StackString pushReportTime(stats, ETime::Now().Format("%i",True), "reporttime");
+         PFCP::Stats::collectNodeStats(stats);
+         ELogger::log(LOG_SYSTEM).info("Collected stats: {}", stats.toString());
          wg.shutdown();
       }
       catch(const std::exception& e)

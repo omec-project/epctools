@@ -72,13 +72,10 @@ UInt MessageStats::incSent(UInt attempt)
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @cond DOXYGEN_EXCLUDE
-StatsCollector::StatsCollector()
+Void Stats::collectNodeStats(EJsonBuilder &builder)
 {
-   EJsonBuilder::StackString pushReportTime(builder_, ETime::Now().Format("%i",True), "reporttime");
-}
+   static EString __method__ = __METHOD_NAME__;
 
-Void StatsCollector::collectNodeStats()
-{
    try
    {
       std::vector<LocalNodeSPtr> localNodes;
@@ -96,15 +93,15 @@ Void StatsCollector::collectNodeStats()
          }
       );
 
-      EJsonBuilder::StackArray pushLocalNodes(builder_, "local_nodes");
+      EJsonBuilder::StackArray pushLocalNodes(builder, "local_nodes");
 
       for (auto &localNodeSPtr : localNodes)
       {
          auto &localNode = *localNodeSPtr.get();
 
-         EJsonBuilder::StackObject pushLocalNode(builder_);
+         EJsonBuilder::StackObject pushLocalNode(builder);
 
-         localNode.collectStats(*this);
+         localNode.collectStats(builder);
 
          std::vector<RemoteNodeSPtr> remoteNodes;
          {
@@ -121,15 +118,15 @@ Void StatsCollector::collectNodeStats()
             }
          );
 
-         EJsonBuilder::StackArray pushRemoteNodes(builder_, "remote_nodes");
+         EJsonBuilder::StackArray pushRemoteNodes(builder, "remote_nodes");
 
          for (auto &remoteNodeSPtr : remoteNodes)
          {
             auto &remoteNode = *remoteNodeSPtr.get();
 
-            EJsonBuilder::StackObject pushRemoteNode(builder_);
+            EJsonBuilder::StackObject pushRemoteNode(builder);
 
-            remoteNode.collectStats(*this);
+            remoteNode.collectStats(builder);
 
             std::vector<UInt> messages;
             {
@@ -140,7 +137,7 @@ Void StatsCollector::collectNodeStats()
 
             std::sort(messages.begin(), messages.end());
 
-            EJsonBuilder::StackObject pushMessages(builder_, "messages");
+            EJsonBuilder::StackObject pushMessages(builder, "messages");
             for (auto msg : messages)
             {
                MessageStats *m = nullptr;
@@ -153,26 +150,21 @@ Void StatsCollector::collectNodeStats()
                if (m == nullptr)
                   continue;
 
-               EJsonBuilder::StackObject pushMsgObj(builder_, m->getName());
-               EJsonBuilder::StackUInt pushId(builder_, m->getId(), "id");
-               EJsonBuilder::StackUInt pushReceived(builder_, m->getReceived(), "received");
-               EJsonBuilder::StackUInt pushTimeout(builder_, m->getTimeout(), "timeout");
-               EJsonBuilder::StackArray pushSentArray(builder_, "sent");
+               EJsonBuilder::StackObject pushMsgObj(builder, m->getName());
+               EJsonBuilder::StackUInt pushId(builder, m->getId(), "id");
+               EJsonBuilder::StackUInt pushReceived(builder, m->getReceived(), "received");
+               EJsonBuilder::StackUInt pushTimeout(builder, m->getTimeout(), "timeout");
+               EJsonBuilder::StackArray pushSentArray(builder, "sent");
                for (auto sent : m->getSent())
-                  EJsonBuilder::StackUInt pushSent(builder_, sent);
+                  EJsonBuilder::StackUInt pushSent(builder, sent);
             }
          }
       }
    }
    catch(std::exception &e)
    {
-      Configuration::logger().major("Unhandled exception in StatsCollector::collectNodeStats()");
+      Configuration::logger().major("{} - Unhandled exception", __method__);
    }
-}
-
-EString StatsCollector::printStats()
-{
-   return builder_.toString();
 }
 
 /// @endcond
@@ -536,10 +528,19 @@ UInt RemoteNode::Stats::incTimeout(MessageId msgid)             { INCREMENT_MESS
 
 #undef INCREMENT_MESSAGE_STAT
 
-Void RemoteNode::collectStats(StatsCollector &collector)
+Void RemoteNode::collectStats(EJsonBuilder &builder)
 {
-   EJsonBuilder::StackString pushRemoteAddress(collector.builder(), ipAddress().address(), "remote_address");            
-   EJsonBuilder::StackString pushLastActivity(collector.builder(), stats().getLastActivity().Format("%i",True), "last_activity");
+   static EString __method__ = __METHOD_NAME__;
+
+   try
+   {
+      EJsonBuilder::StackString pushRemoteAddress(builder, ipAddress().address(), "remote_address");            
+      EJsonBuilder::StackString pushLastActivity(builder, stats().getLastActivity().Format("%i",True), "last_activity");
+   }
+   catch(std::exception &e)
+   {
+      Configuration::logger().major("{} - Unhandled exception", __method__);
+   }
 }
 
 Void RemoteNode::nextActivityWnd(Int wnd)
@@ -819,9 +820,18 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
    }
 }
 
-Void LocalNode::collectStats(StatsCollector &collector)
+Void LocalNode::collectStats(EJsonBuilder &builder)
 {
-   EJsonBuilder::StackString pushLocalAddress(collector.builder(), ipAddress().address(), "local_address");
+   static EString __method__ = __METHOD_NAME__;
+
+   try
+   {
+      EJsonBuilder::StackString pushLocalAddress(builder, ipAddress().address(), "local_address");
+   }
+   catch(std::exception &e)
+   {
+      Configuration::logger().major("{} - Unhandled exception", __method__);
+   }
 }
 
 SessionBaseSPtr LocalNode::createSession(LocalNodeSPtr &ln, RemoteNodeSPtr &rn)

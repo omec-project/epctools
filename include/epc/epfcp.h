@@ -140,17 +140,10 @@ namespace PFCP
    /////////////////////////////////////////////////////////////////////////////
 
    /// @cond DOXYGEN_EXCLUDE
-   class StatsCollector
+   class Stats
    {
    public:
-      StatsCollector();
-
-      Void collectNodeStats();
-      EJsonBuilder &builder() { return builder_; }
-      EString printStats();
-
-   private:
-      EJsonBuilder builder_;
+      static Void collectNodeStats(EJsonBuilder &builder);
    };
    /// @endcond
 
@@ -743,7 +736,7 @@ private:                                                 \
 
       Stats &stats() { return stats_; }
 
-      virtual Void collectStats(StatsCollector &collector);
+      virtual Void collectStats(EJsonBuilder &builder);
 
       /// @brief Disconnects the remote peer and deletes all associated sessions.
       /// @param rn a reference to the RemoteNode shared pointer to this object.
@@ -894,7 +887,7 @@ private:                                                 \
 
       ERWLock &remoteNodesLock() { return rnslck_; }
 
-      virtual Void collectStats(StatsCollector &collector);
+      virtual Void collectStats(EJsonBuilder &builder);
 
       /// @brief Creates a new Session object and registers it with the local
       ///   and remote nodes.
