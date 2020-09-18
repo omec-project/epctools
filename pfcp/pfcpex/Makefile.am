@@ -40,5 +40,5 @@ bin_pfcpex_LDFLAGS = -Wl,-rpath,../../modules/libpfcp/lib
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-bin_pfcpex_CPPFLAGS = -Wall -std=c++11 -I./include -I../../include/epc -I../../modules/spdlog/include -I../../modules/libpfcp/include
+bin_pfcpex_CPPFLAGS = -Wall -std=c++14 -I./include -I../../include/epc -I../../modules/spdlog/include -I../../modules/libpfcp/include
 bin_pfcpex_LDADD = -L../../modules/libpfcp/lib -L../../src -lpfcpr15 -lpfcp -lepc -lpthread -lrt

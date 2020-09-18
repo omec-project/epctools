@@ -108,7 +108,7 @@ public:
    /// @brief HTTP handler that will be called by the Pistache framework.
    /// @param request HTTP request object.
    /// @param response HTTP response object.
-   Void handler(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter response);
+   Void handler(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
 
    /// @brief Returns the route path for this HTTP handler.
    const EString &path() { return m_path; }

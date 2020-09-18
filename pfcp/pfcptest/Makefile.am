@@ -40,6 +40,6 @@ pfcptest_SOURCES =     \
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-pfcptest_CPPFLAGS = -Wall -std=c++11 $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -I$(top_builddir)/pfcp/pfcpex/include -I$(top_builddir)/include/epc -I$(top_builddir)/modules/libpfcp/include
+pfcptest_CPPFLAGS = -Wall -std=c++14 $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -I$(top_builddir)/pfcp/pfcpex/include -I$(top_builddir)/include/epc -I$(top_builddir)/modules/libpfcp/include
 pfcptest_LDFLAGS = -Wl,-rpath='$(top_builddir)/modules/libpfcp/lib' -static-libstdc++ 
 pfcptest_LDADD = $(PCAPPP_LIBS_DIR) -L$(top_builddir)/src -L$(top_builddir)/modules/libpfcp/lib -L$(top_builddir)/pfcp/pfcpr15 $(PCAPPP_LIBS) -lpfcpr15 -lepc -lpfcp -lrt -lpthread

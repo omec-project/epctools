@@ -33,5 +33,5 @@ epctest_SOURCES = test.cpp
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-epctest_CPPFLAGS = -Wall -std=c++11 -I../include -I../modules/spdlog/include
+epctest_CPPFLAGS = -Wall -std=c++14 -I../include -I../modules/spdlog/include
 epctest_LDADD = -L../src -lepc -lcares -lpthread -lrt
