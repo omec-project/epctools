@@ -166,6 +166,36 @@ Void Stats::collectNodeStats(EJsonBuilder &builder)
    }
 }
 
+Void Stats::reset()
+{
+   std::vector<LocalNodeSPtr> localNodes;
+   {
+      ERDLock lck(CommunicationThread::Instance().localNodesLock());
+      localNodes.reserve(CommunicationThread::Instance().localNodes().size());
+      for (auto &iln : CommunicationThread::Instance().localNodes())
+         localNodes.emplace_back(iln.second);
+   }
+
+   for (auto &localNodeSPtr : localNodes)
+   {
+      auto &localNode = *localNodeSPtr.get();
+      
+      std::vector<RemoteNodeSPtr> remoteNodes;
+      {
+         ERDLock lck(localNode.remoteNodesLock());
+         remoteNodes.reserve(localNode.remoteNodes().size());
+         for (auto &irn : localNode.remoteNodes())
+            remoteNodes.emplace_back(irn.second);
+      }
+
+      for (auto &remoteNodeSPtr : remoteNodes)
+      {
+         auto &remoteNode = *remoteNodeSPtr.get();
+         remoteNode.stats().reset();
+      }
+   }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 

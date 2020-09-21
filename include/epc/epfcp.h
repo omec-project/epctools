@@ -198,6 +198,9 @@ namespace PFCP
       ///   which should be the current item on the top of the json builder stack.
       /// @param builder the JsonBuilder to populate with stats
       static Void collectNodeStats(EJsonBuilder &builder);
+
+      /// @brief Resets all the stats counters to zero.
+      static Void reset();
    };
 
    /////////////////////////////////////////////////////////////////////////////
