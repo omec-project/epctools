@@ -71,7 +71,6 @@ UInt MessageStats::incSent(UInt attempt)
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @cond DOXYGEN_EXCLUDE
 Void Stats::collectNodeStats(EJsonBuilder &builder)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -166,8 +165,6 @@ Void Stats::collectNodeStats(EJsonBuilder &builder)
       Configuration::logger().major("{} - Unhandled exception", __method__);
    }
 }
-
-/// @endcond
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -402,64 +399,6 @@ RemoteNode::~RemoteNode()
    static EString __method__ = __METHOD_NAME__;
 }
 
-/// @cond DOXYGEN_EXCLUDE
-RemoteNode &RemoteNode::changeState(RemoteNodeSPtr &rn, State state)
-{
-   RemoteNodeStateChangeEvent *evnt = new RemoteNodeStateChangeEvent(
-      rn, state_, state);
-   state_ = state;
-   SEND_TO_APPLICATION(RemoteNodeStateChange, evnt);
-   return *this;
-}
-
-RemoteNode &RemoteNode::restarted(RemoteNodeSPtr &rn, const ETime &restartTime)
-{
-   RemoteNodeRestartEvent *evnt = new RemoteNodeRestartEvent(
-      rn, state_, RemoteNode::State::Restarted, restartTime);
-   state_ = RemoteNode::State::Restarted;
-   SEND_TO_APPLICATION(RemoteNodeRestart, evnt);
-   return *this;
-}
-
-Bool RemoteNode::addRcvdReq(ULong sn)
-{
-   static EString __method__ = __METHOD_NAME__;
-
-   if (rcvdReqExists(sn))
-      return False;
-
-   RcvdReq rr(sn);
-
-   auto result = rrumap_.insert(std::make_pair(rr.seqNbr(), rr));
-
-   return result.second;
-}
-
-Bool RemoteNode::setRcvdReqRspWnd(ULong sn, Int wnd)
-{
-   static EString __method__ = __METHOD_NAME__;
-
-   auto it = rrumap_.find(sn);
-   if (it == rrumap_.end())
-      return False;
-   it->second.setRspWnd(wnd);
-   return True;
-}
-
-Void RemoteNode::removeRcvdRqstEntries(Int wnd)
-{
-   static EString __method__ = __METHOD_NAME__;
-
-   auto it = rrumap_.begin();
-   while (it != rrumap_.end())
-   {
-      if (it->second.rspWnd() == wnd)
-         it = rrumap_.erase(it);
-      else
-         it++;
-   }
-}
-
 RemoteNode &RemoteNode::setNbrActivityWnds(size_t nbr)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -469,13 +408,6 @@ RemoteNode &RemoteNode::setNbrActivityWnds(size_t nbr)
       awnds_.push_back(0);
    awnds_.shrink_to_fit();
    awndcnt_ = 0;
-   return *this;
-}
-
-RemoteNode &RemoteNode::disconnect(RemoteNodeSPtr &rn)
-{
-   changeState(rn, RemoteNode::State::Stopping);
-   deleteAllSesssions(rn);
    return *this;
 }
 
@@ -540,6 +472,71 @@ Void RemoteNode::collectStats(EJsonBuilder &builder)
    catch(std::exception &e)
    {
       Configuration::logger().major("{} - Unhandled exception", __method__);
+   }
+}
+
+RemoteNode &RemoteNode::disconnect(RemoteNodeSPtr &rn)
+{
+   changeState(rn, RemoteNode::State::Stopping);
+   deleteAllSesssions(rn);
+   return *this;
+}
+
+/// @cond DOXYGEN_EXCLUDE
+RemoteNode &RemoteNode::changeState(RemoteNodeSPtr &rn, State state)
+{
+   RemoteNodeStateChangeEvent *evnt = new RemoteNodeStateChangeEvent(
+      rn, state_, state);
+   state_ = state;
+   SEND_TO_APPLICATION(RemoteNodeStateChange, evnt);
+   return *this;
+}
+
+RemoteNode &RemoteNode::restarted(RemoteNodeSPtr &rn, const ETime &restartTime)
+{
+   RemoteNodeRestartEvent *evnt = new RemoteNodeRestartEvent(
+      rn, state_, RemoteNode::State::Restarted, restartTime);
+   state_ = RemoteNode::State::Restarted;
+   SEND_TO_APPLICATION(RemoteNodeRestart, evnt);
+   return *this;
+}
+
+Bool RemoteNode::addRcvdReq(ULong sn)
+{
+   static EString __method__ = __METHOD_NAME__;
+
+   if (rcvdReqExists(sn))
+      return False;
+
+   RcvdReq rr(sn);
+
+   auto result = rrumap_.insert(std::make_pair(rr.seqNbr(), rr));
+
+   return result.second;
+}
+
+Bool RemoteNode::setRcvdReqRspWnd(ULong sn, Int wnd)
+{
+   static EString __method__ = __METHOD_NAME__;
+
+   auto it = rrumap_.find(sn);
+   if (it == rrumap_.end())
+      return False;
+   it->second.setRspWnd(wnd);
+   return True;
+}
+
+Void RemoteNode::removeRcvdRqstEntries(Int wnd)
+{
+   static EString __method__ = __METHOD_NAME__;
+
+   auto it = rrumap_.begin();
+   while (it != rrumap_.end())
+   {
+      if (it->second.rspWnd() == wnd)
+         it = rrumap_.erase(it);
+      else
+         it++;
    }
 }
 

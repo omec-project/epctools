@@ -21,6 +21,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
+/// @cond DOXYGEN_EXCLUDE
 class EJsonBuilder::Impl
 {
 public:
@@ -125,6 +126,7 @@ cpStr EJsonBuilder::Impl::toString()
    m_doc.Accept( writer );
    return m_buf.GetString();
 }
+/// @endcond
 
 EJsonBuilder::EJsonBuilder()
    : m_impl(new EJsonBuilder::Impl())
@@ -140,11 +142,6 @@ EJsonBuilder::StackValue<T>::StackValue(EJsonBuilder &builder, const T &value, c
 {
    m_builder.push(value);
    builder.pop(m_name);
-}
-
-template<typename T>
-EJsonBuilder::StackValue<T>::~StackValue()
-{
 }
 
 // Explicit Instantiations
