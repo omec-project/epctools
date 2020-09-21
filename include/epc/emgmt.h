@@ -25,11 +25,6 @@
 #include <pistache/http_header.h>
 #include <pistache/router.h>
 
-#define RAPIDJSON_NAMESPACE epctoolsrapidjson
-
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/document.h"
-
 #include "elogger.h"
 #include "estring.h"
 #include "etime.h"

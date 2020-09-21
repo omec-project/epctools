@@ -30,6 +30,7 @@
 #include "eteid.h"
 #include "etimerpool.h"
 #include "ememory.h"
+#include "ejsonbuilder.h"
 
 /// @brief PFCP stack namespace
 namespace PFCP
@@ -92,6 +93,111 @@ namespace PFCP
       Unknown,
       Node,
       Session
+   };
+
+   /////////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
+
+   /// @brief A message identifier. Typically, the message type enum.
+   using MessageId = UInt;
+
+   /// @brief The number of separate attempts to track in the stats.
+   ///   Additional attempts are pooled into the last bucket.
+   #define MAX_ATTEMPS 8
+
+   /// @brief A class to hold statistics about messages
+   class MessageStats
+   {
+   public:
+      /// @brief Tracks attempts to send this message (e.g. the first attempt
+      ///   is stored at index 0, the second attempt at index 1). Attempts 
+      ///   greater than MAX_ATTEMPTS are combined in the last index (i.e. at
+      ///   index MAX_ATTEMPTS).
+      using SentArray = std::array<UInt, MAX_ATTEMPS + 1>;
+
+      /// @brief Constructor
+      /// @param id the message identifier
+      /// @param name the message name (used in stats output)
+      MessageStats(MessageId id, cpStr name);
+
+      /// @brief Constructor
+      /// @param id the message identifier
+      /// @param name the message name (used in stats output)
+      MessageStats(MessageId id, const EString &name);
+
+      /// @brief Copy constructor
+      /// @param m the MessageStats object to copy
+      MessageStats(const MessageStats &m);
+
+      /// @brief Resets all counters to zero
+      Void reset();
+
+      /// @brief Returns the message identifier
+      /// @return the message identifier
+      MessageId getId() const { return id_; }
+
+      /// @brief Returns the message name
+      /// @return the message name
+      const EString &getName() const { return name_; }
+
+      /// @brief Returns the current number of times this message was received.
+      ///   This is thread-safe.
+      /// @return received count
+      UInt getReceived() const { return received_; }
+
+      /// @brief Returns the array tracking the number of times this message was
+      ///   sent grouped by attempt. Attempts greater than MAX_ATTEMPTS are grouped
+      ///   in the last index (i.e. MAX_ATTEMPTS). This is thread-safe.
+      /// @return received count
+      const SentArray &getSent() const { return sent_; }
+
+      /// @brief Returns the current number of times this message was timed out.
+      ///   This is thread-safe.
+      /// @return timeout count
+      UInt getTimeout() const { return timeout_; }
+
+      /// @brief Increments the received count
+      /// @return the incremented received count
+      UInt incReceived() { return ++received_; }
+
+      /// @brief Increments the sent count for the provided attempt
+      /// @param attempt the sent attempt index to increment. attempt values greater
+      ///   than MAX_ATTEMPTS are grouped at the MAX_ATTEMPTS index.
+      /// @return the incremented sent count
+      UInt incSent(UInt attempt = 0);
+
+      /// @brief Increments the timeout count
+      /// @return the incremented timeout count
+      UInt incTimeout() { return ++timeout_; }
+
+   private:
+      MessageStats();
+
+      MessageId id_;
+      EString name_;
+      std::atomic<UInt> received_;
+      SentArray sent_;
+      std::atomic<UInt> timeout_;
+   };
+
+   using MessageStatsMap = std::unordered_map<MessageId, MessageStats>;
+
+   /////////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////
+
+   /// @brief A class to hold logic to collect stats from the PFCP stack
+   class Stats
+   {
+   public:
+      /// @brief Collects the stats from the nodes in the PFCP stack. This
+      ///   function will iterate through each local node, nested remote node
+      ///   and nested message stats to populate the json builder. The collectStats()
+      ///   virtual functions on the LocalNode class and RemoteNode class are called
+      ///   which allows custom subclasses of those objects to add any custom stats.
+      ///   This function expects to push the array of local nodes into an object
+      ///   which should be the current item on the top of the json builder stack.
+      /// @param builder the JsonBuilder to populate with stats
+      static Void collectNodeStats(EJsonBuilder &builder);
    };
 
    /////////////////////////////////////////////////////////////////////////////
@@ -176,6 +282,14 @@ namespace PFCP
       template<class TWorker>
       static Void setApplication(ApplicationWorkGroup<TWorker> &app) { app_ = &app; baseapp_ = &app; }
 
+      /// @brief Returns a reference to the message stats template map. Derived
+      ///   applications should populate this with entries for each message type
+      ///   they want to track statistics for. To populate entries, emplace()
+      ///   a MessageStats object in the map with the current message type returned
+      ///   by the Translator object in use (e.g. Configuration::translator().pfcp*Req())
+      /// @return a reference to the messages stats template map
+      static MessageStatsMap &messageStatsTemplate()                 { return msgstats_template_; }
+
       static MsgType pfcpHeartbeatReq;
       static MsgType pfcpHeartbeatRsp;
       static MsgType pfcpSessionEstablishmentReq;
@@ -206,6 +320,7 @@ namespace PFCP
       static Int tmaxw_;
       static _EThreadEventNotification *app_;
       static ApplicationWorkGroupBase *baseapp_;
+      static MessageStatsMap msgstats_template_;
    };
 
    /////////////////////////////////////////////////////////////////////////////
@@ -626,8 +741,10 @@ private:                                                 \
    public:
       enum class State { Initialized, Started, Stopping, Stopped, Failed, Restarted };
 
-      /// @brief Defalut constructor.
+      /// @brief Default constructor.
       RemoteNode();
+      /// @brief Disabled copy constructor
+      RemoteNode(const RemoteNode &) = delete;
       /// @brief Class destructor.
       virtual ~RemoteNode();
 
@@ -649,6 +766,79 @@ private:                                                 \
       /// @param rn a reference to the RemoteNode shared pointer to this object.
       /// @return a reference to this object.
       RemoteNode &deleteAllSesssions(RemoteNodeSPtr &rn);
+
+      /// @brief A class to hold message statistics for the remote node
+      class Stats
+      {
+      public:
+         /// @brief Returns the read/write lock protecting the message stats
+         ///   map and access to last activity.
+         /// @return a reference to the read/write lock
+         ERWLock &getLock() { return lock_; }
+
+         /// @brief Returns the message stats map for this remote node. Access to
+         ///   this reference must be protected with the lock returned by getLock()
+         ///   for thread-safety.
+         /// @return a reference to the message stats map
+         MessageStatsMap &messageStats() { return msgstats_; }
+
+         /// @brief Retrieves the time stamp of the last activity. This method is
+         ///   thread-safe.
+         /// @return the time stamp of the last activity.
+         ETime getLastActivity();
+
+         /// @brief Assigns the time stamp of the last activity. This method is
+         ///   thread-safe.
+         Void setLastActivity();
+
+         /// @brief Sets all message statistics counters to zero. This method is
+         ///   thread-safe.
+         Void reset();
+
+         /// @brief Increments the received count for the given message identifier.
+         ///   If the message identifier cannot be found in the map (see Configuration::MessageStatsTemplate())
+         ///   then this is a no-op. This function also updates the last activity. 
+         ///   This method is thread-safe.
+         /// @param msgid the message identifier
+         /// @returns the incremented received count or zero if the message wasn't found
+         UInt incReceived(MessageId msgid);
+
+         /// @brief Increments the sent count for the given message identifier.
+         ///   If the message identifier cannot be found in the map (see Configuration::MessageStatsTemplate())
+         ///   then this is a no-op. This function also updates the last activity. 
+         ///   This method is thread-safe.
+         /// @param msgid the message identifier
+         /// @param attempt the sent attempt index to increment. attempt values greater
+         ///   than MAX_ATTEMPTS are grouped at the MAX_ATTEMPTS index.
+         /// @returns the incremented sent count or zero if the message wasn't found
+         UInt incSent(MessageId msgid, UInt attempt = 0);
+
+         /// @brief Increments the received count for the given message identifier.
+         ///   If the message identifier cannot be found in the map (see Configuration::MessageStatsTemplate())
+         ///   then this is a no-op. This function also updates the last activity. 
+         ///   This method is thread-safe.
+         /// @param msgid the message identifier
+         /// @returns the incremented received count or zero if the message wasn't found
+         UInt incTimeout(MessageId msgid);
+
+      private:
+         ERWLock lock_;
+         MessageStatsMap msgstats_;
+         ETime lastactivity_;
+      };
+
+      /// @brief Returns the stats object for this remote node.
+      /// @return a reference to the stats object
+      Stats &stats() { return stats_; }
+
+      /// @brief Appends stats about the current remote node object to the provided
+      ///   json builder. Derived classes can override this function with additional
+      ///   information to append. This function is called during a call to Stats::collectNodeStats().
+      ///   Derived implementations should call this base method in their implementation
+      ///   (e.g. RemoteNode::collectStats(builder)). Derived implementations should
+      ///   ensure thread-safety for accessed members. This function is thread-safe.
+      /// @param builder the json builder to populate
+      virtual Void collectStats(EJsonBuilder &builder);
 
       /// @brief Disconnects the remote peer and deletes all associated sessions.
       /// @param rn a reference to the RemoteNode shared pointer to this object.
@@ -688,6 +878,7 @@ private:                                                 \
       std::vector<ULong> awnds_;
       size_t awndcnt_;
       size_t aw_;
+      Stats stats_;
    };
    typedef std::unordered_map<EIpAddress,RemoteNodeSPtr> RemoteNodeUMap;
    typedef std::pair<EIpAddress,RemoteNodeSPtr> RemoteNodeUMapPair;
@@ -794,6 +985,25 @@ private:                                                 \
       /// @return a reference to this object.
       RemoteNodeSPtr createRemoteNode(EIpAddress &address, UShort port);
 
+      /// @brief Returns the map of current remote nodes. Access to this map
+      ///   must be protected with the read/write lock returned by remoteNodesLock()
+      ///   for thread-safety.
+      /// @return a reference to the remote nodes map
+      RemoteNodeUMap &remoteNodes() { return rns_; }
+
+      /// @brief Returns a lock protected access to the remote nodes map.
+      /// @return a reference to the read/write lock
+      ERWLock &remoteNodesLock() { return rnslck_; }
+
+      /// @brief Appends stats about the current local node object to the provided
+      ///   json builder. Derived classes can override this function with additional
+      ///   information to append. This function is called during a call to Stats::collectNodeStats().
+      ///   Derived implementations should call this base method in their implementation
+      ///   (e.g. LocalNode::collectStats(builder)). Derived implementations should
+      ///   ensure thread-safety for accessed members. This function is thread-safe.
+      /// @param builder the json builder to populate
+      virtual Void collectStats(EJsonBuilder &builder);
+
       /// @brief Creates a new Session object and registers it with the local
       ///   and remote nodes.
       /// @param ln the local node shared pointer.
@@ -852,6 +1062,7 @@ private:                                                 \
       NodeSocket socket_;
       ReqOutUMap roumap_;
       RemoteNodeUMap rns_;
+      ERWLock rnslck_;
    };
 
    typedef std::unordered_map<EIpAddress,LocalNodeSPtr> LocalNodeUMap;
@@ -1454,8 +1665,17 @@ private:                                                 \
          return *this;
       }
 
-      AppMsgRspPtr rsp() const         { return am_; }
-      RspOut &setRsp(AppMsgRspPtr am)  { am_ = am; return *this; }
+      AppMsgRspPtr appMsg() { return am_; }
+      RspOut &setAppMsg(AppMsgRspPtr am)
+      {
+         am_ = am;
+         if (am)
+         {
+            setMsgType(am->msgType());
+            setMsgClass(am->msgClass());
+         }
+         return *this;
+      }
 
    private:
       AppMsgRspPtr am_;
@@ -2293,6 +2513,7 @@ Receiving a msg
       LocalNodeSPtr registerLocalNode(ESocket::Address &addr);
 
       LocalNodeUMap &localNodes()                                       { return lns_; }
+      ERWLock &localNodesLock()                                         { return lnslck_; }
 
       Void setNbrActivityWnds(size_t nbr);
       Void nextActivityWnd();

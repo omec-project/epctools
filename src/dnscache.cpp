@@ -32,7 +32,7 @@
 
 using namespace DNS;
 
-#define RAPIDJSON_NAMESPACE dnsrapidjson
+#define RAPIDJSON_NAMESPACE epctoolsrapidjson
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"

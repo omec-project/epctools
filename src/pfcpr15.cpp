@@ -171,7 +171,7 @@ PFCP::RspOutPtr Translator::encodeHeartbeatRsp(PFCP::SndHeartbeatRspData &hb)
    rsp->rcvry_time_stmp().rcvry_time_stmp_val(ro->localNode()->startTime());
    rsp->encode(data());
 
-   ro->setRsp(rsp);
+   ro->setAppMsg(rsp);
    ro->assign(data(), rsp->length());
 
    return ro;
@@ -190,8 +190,7 @@ PFCP::RspOutPtr Translator::encodeVersionNotSupportedRsp(PFCP::ReqInPtr msg)
    rsp->data().message_type = rsp->msgType();
    rsp->data().seid_seqno.no_seid.seq_no = ro->seqNbr();
 
-   ro->setMsgType(rsp->msgType());
-   ro->setRsp(rsp);
+   ro->setAppMsg(rsp);
 
    UShort len = encode_pfcp_header_t(&rsp->data(), data());
    reinterpret_cast<pfcp_header_t*>(data())->message_len = htons(len - 4);
@@ -212,8 +211,6 @@ PFCP::ReqOutPtr Translator::encodeReq(PFCP::AppMsgReqPtr req)
    ro->setN1(PFCP::Configuration::n1());
    ro->setT1(PFCP::Configuration::t1());
    ro->setSeqNbr(req->seqNbr());
-   ro->setMsgType(req->msgType());
-   ro->setMsgClass(req->msgClass());
    ro->setAppMsg(req);
 
    switch (req->msgType())
@@ -319,9 +316,7 @@ PFCP::RspOutPtr Translator::encodeRsp(PFCP::AppMsgRspPtr rsp)
    ro->setLocalNode(rsp->localNode());
    ro->setRemoteNode(rsp->remoteNode());
    ro->setSeqNbr(rsp->req()->seqNbr());
-   ro->setMsgType(rsp->msgType());
-   ro->setMsgClass(rsp->msgClass());
-   ro->setRsp(rsp);
+   ro->setAppMsg(rsp);
 
    switch (rsp->msgType())
    {

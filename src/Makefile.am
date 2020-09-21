@@ -37,6 +37,7 @@ libepc_a_SOURCES =   \
    egetopt.cpp       \
    ehash.cpp         \
    eip.cpp           \
+   ejsonbuilder.cpp  \
    elogger.cpp       \
    emsg.cpp          \
    epath.cpp         \
