@@ -198,6 +198,17 @@ namespace PFCP
       ///   which should be the current item on the top of the json builder stack.
       /// @param builder the JsonBuilder to populate with stats
       static Void collectNodeStats(EJsonBuilder &builder);
+
+      /// @brief Resets all the stats counters to zero.
+      static Void reset();
+
+      /// @brief Returns the time of the last reset or if reset hasn't been called,
+      ///   the time the static class was initialized (i.e. the application start time)
+      /// @return the time of the last reset or application start time
+      static ETime lastReset() { return lastreset_; }
+
+   private:
+      static ETime lastreset_;
    };
 
    /////////////////////////////////////////////////////////////////////////////

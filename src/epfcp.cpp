@@ -71,6 +71,8 @@ UInt MessageStats::incSent(UInt attempt)
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+ETime Stats::lastreset_;
+
 Void Stats::collectNodeStats(EJsonBuilder &builder)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -163,6 +165,38 @@ Void Stats::collectNodeStats(EJsonBuilder &builder)
    catch(std::exception &e)
    {
       Configuration::logger().major("{} - Unhandled exception", __method__);
+   }
+}
+
+Void Stats::reset()
+{
+   lastreset_ = ETime::Now();
+
+   std::vector<LocalNodeSPtr> localNodes;
+   {
+      ERDLock lck(CommunicationThread::Instance().localNodesLock());
+      localNodes.reserve(CommunicationThread::Instance().localNodes().size());
+      for (auto &iln : CommunicationThread::Instance().localNodes())
+         localNodes.emplace_back(iln.second);
+   }
+
+   for (auto &localNodeSPtr : localNodes)
+   {
+      auto &localNode = *localNodeSPtr.get();
+
+      std::vector<RemoteNodeSPtr> remoteNodes;
+      {
+         ERDLock lck(localNode.remoteNodesLock());
+         remoteNodes.reserve(localNode.remoteNodes().size());
+         for (auto &irn : localNode.remoteNodes())
+            remoteNodes.emplace_back(irn.second);
+      }
+
+      for (auto &remoteNodeSPtr : remoteNodes)
+      {
+         auto &remoteNode = *remoteNodeSPtr.get();
+         remoteNode.stats().reset();
+      }
    }
 }
 

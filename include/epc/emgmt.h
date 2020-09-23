@@ -95,6 +95,9 @@ public:
    /// @param audit a reference to the ELogger object that will log all management operations.
    EManagementHandler(HttpMethod mthd, const std::string &pth, ELogger &audit);
 
+   /// @brief Destructor
+   virtual ~EManagementHandler() = default;
+
    /// @brief Pure virtual method that will be called by handler() to perform the processing.
    /// @param request HTTP request object.
    /// @param response HTTP response object.
