@@ -71,6 +71,8 @@ UInt MessageStats::incSent(UInt attempt)
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+ETime Stats::lastreset_;
+
 Void Stats::collectNodeStats(EJsonBuilder &builder)
 {
    static EString __method__ = __METHOD_NAME__;
@@ -168,6 +170,8 @@ Void Stats::collectNodeStats(EJsonBuilder &builder)
 
 Void Stats::reset()
 {
+   lastreset_ = ETime::Now();
+
    std::vector<LocalNodeSPtr> localNodes;
    {
       ERDLock lck(CommunicationThread::Instance().localNodesLock());
@@ -179,7 +183,7 @@ Void Stats::reset()
    for (auto &localNodeSPtr : localNodes)
    {
       auto &localNode = *localNodeSPtr.get();
-      
+
       std::vector<RemoteNodeSPtr> remoteNodes;
       {
          ERDLock lck(localNode.remoteNodesLock());

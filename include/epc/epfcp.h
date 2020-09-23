@@ -201,6 +201,14 @@ namespace PFCP
 
       /// @brief Resets all the stats counters to zero.
       static Void reset();
+
+      /// @brief Returns the time of the last reset or if reset hasn't been called,
+      ///   the time the static class was initialized (i.e. the application start time)
+      /// @return the time of the last reset or application start time
+      static ETime lastReset() { return lastreset_; }
+
+   private:
+      static ETime lastreset_;
    };
 
    /////////////////////////////////////////////////////////////////////////////
