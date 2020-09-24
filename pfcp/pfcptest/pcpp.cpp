@@ -150,7 +150,7 @@ namespace PFCPTest
       if (appMsg->isReq())
          static_cast<PFCP::ReqOutPtr>(msg)->setAppMsg(nullptr);
       else
-         static_cast<PFCP::RspOutPtr>(msg)->setRsp(nullptr);
+         static_cast<PFCP::RspOutPtr>(msg)->setAppMsg(nullptr);
 
       delete msg;
 

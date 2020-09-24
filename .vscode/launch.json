@@ -27,10 +27,29 @@
          "name": "debug pfcpex (local)",
          "type": "cppdbg",
          "request": "launch",
-         "program": "${workspaceFolder}/exampleProgram/pfcp/bin/pfcpex",
+         "program": "${workspaceFolder}/pfcp/pfcpex/bin/pfcpex",
          "args": ["-f", "conf/pfcpex.local.json"],
          "stopAtEntry": false,
-         "cwd": "${workspaceFolder}/exampleProgram/pfcp",
+         "cwd": "${workspaceFolder}/pfcp/pfcpex",
+         "environment": [],
+         "externalConsole": false,
+         "MIMode": "gdb",
+         "setupCommands": [
+            {
+               "description": "Enable pretty-printing for gdb",
+               "text": "-enable-pretty-printing",
+               "ignoreFailures": true
+            }
+         ]
+      },
+      {
+         "name": "debug pfcpex (remote)",
+         "type": "cppdbg",
+         "request": "launch",
+         "program": "${workspaceFolder}/pfcp/pfcpex/bin/pfcpex",
+         "args": ["-f", "conf/pfcpex.remote.json"],
+         "stopAtEntry": false,
+         "cwd": "${workspaceFolder}/pfcp/pfcpex",
          "environment": [],
          "externalConsole": false,
          "MIMode": "gdb",

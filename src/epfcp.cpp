@@ -28,6 +28,181 @@ Analysis *analysis = nullptr;
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+MessageStats::MessageStats(MessageId id, cpStr name)
+   : id_( id ),
+     name_( name )
+{
+   reset();
+}
+
+MessageStats::MessageStats(MessageId id, const EString &name)
+   : id_( id ),
+     name_( name )
+{
+   reset();
+}
+
+MessageStats::MessageStats(const MessageStats &m)
+   : id_( m.id_ ),
+     name_( m.name_ ),
+     received_( m.received_.load() ),
+     timeout_( m.timeout_.load() )
+{
+   sent_ = m.sent_;
+}
+
+Void MessageStats::reset()
+{
+   for (auto &sent : sent_)
+      sent = 0;
+
+   received_ = 0;
+   timeout_ = 0;
+}
+
+UInt MessageStats::incSent(UInt attempt)
+{
+   if (attempt > MAX_ATTEMPS)
+      attempt = MAX_ATTEMPS;
+
+   return ++sent_[attempt];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+ETime Stats::lastreset_;
+
+Void Stats::collectNodeStats(EJsonBuilder &builder)
+{
+   static EString __method__ = __METHOD_NAME__;
+
+   try
+   {
+      std::vector<LocalNodeSPtr> localNodes;
+      {
+         ERDLock lck(CommunicationThread::Instance().localNodesLock());
+         localNodes.reserve(CommunicationThread::Instance().localNodes().size());
+         for (auto &iln : CommunicationThread::Instance().localNodes())
+            localNodes.emplace_back(iln.second);
+      }
+
+      std::sort(localNodes.begin(), localNodes.end(),
+         [](const LocalNodeSPtr &a, const LocalNodeSPtr &b) -> bool
+         {
+            return a->ipAddress().address().compare(b->ipAddress().address()) == 0;
+         }
+      );
+
+      EJsonBuilder::StackArray pushLocalNodes(builder, "local_nodes");
+
+      for (auto &localNodeSPtr : localNodes)
+      {
+         auto &localNode = *localNodeSPtr.get();
+
+         EJsonBuilder::StackObject pushLocalNode(builder);
+
+         localNode.collectStats(builder);
+
+         std::vector<RemoteNodeSPtr> remoteNodes;
+         {
+            ERDLock lck(localNode.remoteNodesLock());
+            remoteNodes.reserve(localNode.remoteNodes().size());
+            for (auto &irn : localNode.remoteNodes())
+               remoteNodes.emplace_back(irn.second);
+         }
+
+         std::sort(remoteNodes.begin(), remoteNodes.end(),
+            [](const RemoteNodeSPtr &a, const RemoteNodeSPtr &b) -> bool
+            {
+               return a->ipAddress().address().compare(b->ipAddress().address()) == 0;
+            }
+         );
+
+         EJsonBuilder::StackArray pushRemoteNodes(builder, "remote_nodes");
+
+         for (auto &remoteNodeSPtr : remoteNodes)
+         {
+            auto &remoteNode = *remoteNodeSPtr.get();
+
+            EJsonBuilder::StackObject pushRemoteNode(builder);
+
+            remoteNode.collectStats(builder);
+
+            std::vector<UInt> messages;
+            {
+               ERDLock lck(remoteNode.stats().getLock());
+               for (auto imsg : remoteNode.stats().messageStats())
+                  messages.push_back(imsg.first);
+            }
+
+            std::sort(messages.begin(), messages.end());
+
+            EJsonBuilder::StackObject pushMessages(builder, "messages");
+            for (auto msg : messages)
+            {
+               MessageStats *m = nullptr;
+               {
+                  ERDLock l(remoteNode.stats().getLock());
+                  auto found = remoteNode.stats().messageStats().find(msg);
+                  m = &found->second;
+               }
+
+               if (m == nullptr)
+                  continue;
+
+               EJsonBuilder::StackObject pushMsgObj(builder, m->getName());
+               EJsonBuilder::StackUInt pushId(builder, m->getId(), "id");
+               EJsonBuilder::StackUInt pushReceived(builder, m->getReceived(), "received");
+               EJsonBuilder::StackUInt pushTimeout(builder, m->getTimeout(), "timeout");
+               EJsonBuilder::StackArray pushSentArray(builder, "sent");
+               for (auto sent : m->getSent())
+                  EJsonBuilder::StackUInt pushSent(builder, sent);
+            }
+         }
+      }
+   }
+   catch(std::exception &e)
+   {
+      Configuration::logger().major("{} - Unhandled exception", __method__);
+   }
+}
+
+Void Stats::reset()
+{
+   lastreset_ = ETime::Now();
+
+   std::vector<LocalNodeSPtr> localNodes;
+   {
+      ERDLock lck(CommunicationThread::Instance().localNodesLock());
+      localNodes.reserve(CommunicationThread::Instance().localNodes().size());
+      for (auto &iln : CommunicationThread::Instance().localNodes())
+         localNodes.emplace_back(iln.second);
+   }
+
+   for (auto &localNodeSPtr : localNodes)
+   {
+      auto &localNode = *localNodeSPtr.get();
+
+      std::vector<RemoteNodeSPtr> remoteNodes;
+      {
+         ERDLock lck(localNode.remoteNodesLock());
+         remoteNodes.reserve(localNode.remoteNodes().size());
+         for (auto &irn : localNode.remoteNodes())
+            remoteNodes.emplace_back(irn.second);
+      }
+
+      for (auto &remoteNodeSPtr : remoteNodes)
+      {
+         auto &remoteNode = *remoteNodeSPtr.get();
+         remoteNode.stats().reset();
+      }
+   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 UShort Configuration::port_                        = 8805;
 Int Configuration::bufsize_                        = 2097152;
 LongLong Configuration::t1_                        = 3000;
@@ -46,6 +221,7 @@ Int Configuration::tminw_                          = 1;
 Int Configuration::tmaxw_                          = 1;
 _EThreadEventNotification *Configuration::app_     = nullptr;
 ApplicationWorkGroupBase *Configuration::baseapp_  = nullptr;
+MessageStatsMap Configuration::msgstats_template_;
 MsgType Configuration::pfcpHeartbeatReq            = 1;
 MsgType Configuration::pfcpHeartbeatRsp            = 2;
 MsgType Configuration::pfcpSessionEstablishmentReq = 50;
@@ -248,11 +424,96 @@ RemoteNode::RemoteNode()
 {
    static EString __method__ = __METHOD_NAME__;
    setStartTime(ETime(0));
+   stats_.messageStats() = Configuration::messageStatsTemplate();
+   stats_.reset();
 }
 
 RemoteNode::~RemoteNode()
 {
    static EString __method__ = __METHOD_NAME__;
+}
+
+RemoteNode &RemoteNode::setNbrActivityWnds(size_t nbr)
+{
+   static EString __method__ = __METHOD_NAME__;
+
+   awnds_.clear();
+   for (size_t idx=0; idx<nbr; idx++)
+      awnds_.push_back(0);
+   awnds_.shrink_to_fit();
+   awndcnt_ = 0;
+   return *this;
+}
+
+RemoteNode &RemoteNode::deleteAllSesssions(RemoteNodeSPtr &rn)
+{
+   auto rn2 = new RemoteNodeSPtr(rn);
+   SEND_TO_COMMUNICATION(DelNxtRmtSession, rn2);
+   return *this;
+}
+
+ETime RemoteNode::Stats::getLastActivity()
+{
+   ERDLock l(lock_);
+   return lastactivity_;
+}
+
+Void RemoteNode::Stats::setLastActivity()
+{
+   EWRLock l(lock_);
+   lastactivity_ = ETime::Now();
+}
+
+Void RemoteNode::Stats::reset()
+{
+   EWRLock l(lock_);
+   for (auto &msgstats : msgstats_)
+      msgstats.second.reset();
+}
+
+/// @cond DOXYGEN_EXCLUDE
+#define INCREMENT_MESSAGE_STAT(__id,__func,...) \
+{                                               \
+   MessageStats *msgstats = nullptr;            \
+   {                                            \
+      ERDLock l(lock_);                         \
+      auto found = msgstats_.find(__id);        \
+      if (found != msgstats_.end())             \
+         msgstats = &found->second;             \
+   }                                            \
+   if (msgstats == nullptr)                     \
+      return 0;                                 \
+   setLastActivity();                           \
+   return msgstats->__func(__VA_ARGS__);        \
+}
+/// @endcond
+
+UInt RemoteNode::Stats::incReceived(MessageId msgid)            { INCREMENT_MESSAGE_STAT(msgid, incReceived) }
+UInt RemoteNode::Stats::incSent(MessageId msgid, UInt attempt)  { INCREMENT_MESSAGE_STAT(msgid, incSent, attempt) }
+UInt RemoteNode::Stats::incTimeout(MessageId msgid)             { INCREMENT_MESSAGE_STAT(msgid, incTimeout)}
+
+#undef INCREMENT_MESSAGE_STAT
+
+Void RemoteNode::collectStats(EJsonBuilder &builder)
+{
+   static EString __method__ = __METHOD_NAME__;
+
+   try
+   {
+      EJsonBuilder::StackString pushRemoteAddress(builder, ipAddress().address(), "remote_address");            
+      EJsonBuilder::StackString pushLastActivity(builder, stats().getLastActivity().Format("%i",True), "last_activity");
+   }
+   catch(std::exception &e)
+   {
+      Configuration::logger().major("{} - Unhandled exception", __method__);
+   }
+}
+
+RemoteNode &RemoteNode::disconnect(RemoteNodeSPtr &rn)
+{
+   changeState(rn, RemoteNode::State::Stopping);
+   deleteAllSesssions(rn);
+   return *this;
 }
 
 /// @cond DOXYGEN_EXCLUDE
@@ -311,32 +572,6 @@ Void RemoteNode::removeRcvdRqstEntries(Int wnd)
       else
          it++;
    }
-}
-
-RemoteNode &RemoteNode::setNbrActivityWnds(size_t nbr)
-{
-   static EString __method__ = __METHOD_NAME__;
-
-   awnds_.clear();
-   for (size_t idx=0; idx<nbr; idx++)
-      awnds_.push_back(0);
-   awnds_.shrink_to_fit();
-   awndcnt_ = 0;
-   return *this;
-}
-
-RemoteNode &RemoteNode::disconnect(RemoteNodeSPtr &rn)
-{
-   changeState(rn, RemoteNode::State::Stopping);
-   deleteAllSesssions(rn);
-   return *this;
-}
-
-RemoteNode &RemoteNode::deleteAllSesssions(RemoteNodeSPtr &rn)
-{
-   auto rn2 = new RemoteNodeSPtr(rn);
-   SEND_TO_COMMUNICATION(DelNxtRmtSession, rn2);
-   return *this;
 }
 
 Void RemoteNode::nextActivityWnd(Int wnd)
@@ -521,6 +756,7 @@ Void LocalNode::setNbrActivityWnds(size_t nbr)
 {
    static EString __method__ = __METHOD_NAME__;
 
+   ERDLock lck(rnslck_);
    for (auto &kv : rns_)
       kv.second->setNbrActivityWnds(nbr);
 }
@@ -530,6 +766,7 @@ Void LocalNode::nextActivityWnd(Int wnd)
 {
    static EString __method__ = __METHOD_NAME__;
 
+   ERDLock lck(rnslck_);
    for (auto &kv : rns_)
       kv.second->nextActivityWnd(wnd);
 }
@@ -539,6 +776,7 @@ Void LocalNode::checkActivity(LocalNodeSPtr &ln)
    static EString __method__ = __METHOD_NAME__;
 
    // check for activity from all of the RemoteNode's
+   ERDLock lck(rnslck_);
    for (auto &kv : rns_)
    {
       if (kv.second->state() == RemoteNode::State::Started && !kv.second->checkActivity())
@@ -561,6 +799,8 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
 
    try
    {
+      EWRLock lck(rnslck_);
+
       // if the remote node exists and is in a non-started state, start it
       RemoteNodeUMap::iterator rnit = rns_.find(address);
       if (rnit != rns_.end())
@@ -601,13 +841,27 @@ RemoteNodeSPtr LocalNode::createRemoteNode(EIpAddress &address, UShort port)
       
       rn->changeState(rn, RemoteNode::State::Started);
 
-      return result.first->second;
+      return rn;
    }
    catch (const std::exception &e)
    {
       Configuration::logger().minor("{} - address={} exception - {}",
          __method__, address.address(), e.what());
       throw LocalNodeException_UnableToCreateRemoteNode();
+   }
+}
+
+Void LocalNode::collectStats(EJsonBuilder &builder)
+{
+   static EString __method__ = __METHOD_NAME__;
+
+   try
+   {
+      EJsonBuilder::StackString pushLocalAddress(builder, ipAddress().address(), "local_address");
+   }
+   catch(std::exception &e)
+   {
+      Configuration::logger().major("{} - Unhandled exception", __method__);
    }
 }
 
@@ -638,24 +892,35 @@ Void LocalNode::onReceive(LocalNodeSPtr &ln, const ESocket::Address &src, const 
       Configuration::translator().getMsgInfo(tmi, msg, len);
 
       // lookup the remote node and create it if it does not exist
-      EIpAddress remoteIpAddress(src.getSockAddrStorage());
-      RemoteNodeUMap::iterator rnit = rns_.find(remoteIpAddress);
-      // Configuration::logger().debug("{} - looking up remoteNode {}", __method__, remoteIpAddress.address());
-      if (rnit != rns_.end())
       {
-         // Configuration::logger().debug("{} - remoteNode {} found", __method__, remoteIpAddress.address());
-         rn = rnit->second;
-         if (rn->state() != RemoteNode::State::Started)
-            rn->changeState(rn, RemoteNode::State::Started);
-      }
-      else
-      {
-         // Configuration::logger().debug("{} - remoteNode {} NOT found", __method__, remoteIpAddress.address());
-         rn = createRemoteNode(remoteIpAddress, Configuration::port());
+         EIpAddress remoteIpAddress(src.getSockAddrStorage());
+         Bool exists = False;
+         {
+            ERDLock lck(rnslck_);
+            RemoteNodeUMap::iterator rnit = rns_.find(remoteIpAddress);
+            // Configuration::logger().debug("{} - looking up remoteNode {}", __method__, remoteIpAddress.address());
+            if (rnit != rns_.end())
+            {
+               // Configuration::logger().debug("{} - remoteNode {} found", __method__, remoteIpAddress.address());
+               rn = rnit->second;
+               if (rn->state() != RemoteNode::State::Started)
+                  rn->changeState(rn, RemoteNode::State::Started);
+               exists = True;
+            }
+         }
+         
+         if (!exists)
+         {
+            // Configuration::logger().debug("{} - remoteNode {} NOT found", __method__, remoteIpAddress.address());
+            rn = createRemoteNode(remoteIpAddress, Configuration::port());
+         }
       }
 
       // increment the activity for the RemoteNode
       rn->incrementActivity();
+
+      // increment the stats for the RemoteNode
+      rn->stats().incReceived(tmi.msgType());
 
       if (tmi.isReq())
       {
@@ -828,6 +1093,8 @@ Bool LocalNode::onReqOutTimeout(ReqOutPtr ro)
          __method__, ipAddress().address(), ro->remoteNode()->address().getAddress());
    }
 
+   ro->remoteNode()->stats().incTimeout(ro->msgType());
+
    return False;
 }
 
@@ -852,6 +1119,7 @@ Void LocalNode::removeOldReqs(Int rw)
    }
 
    // remove the old RcvdReq entries
+   ERDLock lck(rnslck_);
    for (auto &kv : rns_)
       kv.second->removeOldReqs(rw);
 }
@@ -907,6 +1175,10 @@ Bool LocalNode::sndReq(ReqOutPtr ro)
       // snd the data
       socket_.write(ro->remoteNode()->address(), ro->data(), ro->len());
       ro->startT1();
+
+      UInt attempt = (ro->msgType() == Configuration::pfcpHeartbeatReq ? Configuration::heartbeatN1() : Configuration::n1()) - (ro->n1() + 1);
+      ro->remoteNode()->stats().incSent(ro->msgType(), attempt);
+
       return True;
    }
 
@@ -941,12 +1213,14 @@ Void LocalNode::sndRsp(RspOutPtr ro)
    {
       // snd the data
       socket_.write(ro->remoteNode()->address(), ro->data(), ro->len());
+
+      ro->remoteNode()->stats().incSent(ro->msgType());
    }
    else
    {
       // the corresponding req does not exist, so don't snd the rsp
-      SEND_TO_APPLICATION(SndRspError, ro->rsp());
-      ro->setRsp(nullptr);
+      SEND_TO_APPLICATION(SndRspError, ro->appMsg());
+      ro->setAppMsg(nullptr);
    }
    // delete the RspOut object
    delete ro;
@@ -1706,6 +1980,7 @@ Void CommunicationThread::onTimer(EThreadEventTimer *ptimer)
    if (ptimer->getId() == atmr_.getId())
    {
       // Configuration::logger().debug("{} - checking LocalNode activity", __method__);
+      ERDLock lck(lnslck_);
       for (auto &kv : lns_)
          kv.second->checkActivity(kv.second);
       nextActivityWnd();
@@ -1713,6 +1988,7 @@ Void CommunicationThread::onTimer(EThreadEventTimer *ptimer)
    else if (ptimer->getId() == rsptmr_.getId())
    {
       crw_ ^= rwToggle_;
+      ERDLock lck(lnslck_);
       for (auto &kv : lns_)
          kv.second->removeOldReqs(crw_);
    }
@@ -1759,6 +2035,7 @@ LocalNodeSPtr CommunicationThread::createLocalNode(ESocket::Address &addr, Bool 
 
 Void CommunicationThread::startLocalNode(LocalNodeSPtr &ln)
 {
+   EWRLock lck(lnslck_);
    auto it = lns_.find(ln->ipAddress());
    if (it == lns_.end())
       lns_.insert(std::make_pair(ln->ipAddress(),ln));
@@ -1773,6 +2050,7 @@ Void CommunicationThread::stopLocalNode(LocalNodeSPtr &ln)
 Void CommunicationThread::releaseLocalNodes()
 {
    static EString __method__ = __METHOD_NAME__;
+   EWRLock lck(lnslck_);
    auto entry = lns_.begin();
    while (entry != lns_.end())
    {
@@ -1792,6 +2070,7 @@ Void CommunicationThread::setNbrActivityWnds(size_t nbr)
 
    caw_ = 0;
 
+   ERDLock lck(lnslck_);
    for (auto &kv : lns_)
       kv.second->setNbrActivityWnds(nbr);
 }

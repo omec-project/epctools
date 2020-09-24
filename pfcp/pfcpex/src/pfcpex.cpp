@@ -148,6 +148,13 @@ Void ExamplePfcpApplicationWorkGroup::startup(EGetOpt &opt)
    PFCP::Configuration::setApplication(*this);
    PFCP::Configuration::setTranslator(xlator_);
 
+   PFCP::Configuration::messageStatsTemplate().emplace(xlator_.pfcpAssociationSetupReq(),     PFCP::MessageStats(xlator_.pfcpAssociationSetupReq(),     "pfcp_assn_setup_req"));
+   PFCP::Configuration::messageStatsTemplate().emplace(xlator_.pfcpAssociationSetupRsp(),     PFCP::MessageStats(xlator_.pfcpAssociationSetupRsp(),     "pfcp_assn_setup_rsp"));
+   PFCP::Configuration::messageStatsTemplate().emplace(xlator_.pfcpHeartbeatReq(),            PFCP::MessageStats(xlator_.pfcpHeartbeatReq(),            "pfcp_heartbeat_req"));
+   PFCP::Configuration::messageStatsTemplate().emplace(xlator_.pfcpHeartbeatRsp(),            PFCP::MessageStats(xlator_.pfcpHeartbeatRsp(),            "pfcp_heartbeat_rsp"));
+   PFCP::Configuration::messageStatsTemplate().emplace(xlator_.pfcpSessionEstablishmentReq(), PFCP::MessageStats(xlator_.pfcpSessionEstablishmentReq(), "pfcp_sess_estab_req"));
+   PFCP::Configuration::messageStatsTemplate().emplace(xlator_.pfcpSessionEstablishmentRsp(), PFCP::MessageStats(xlator_.pfcpSessionEstablishmentRsp(), "pfcp_sess_estab_rsp"));
+
    PFCP::Initialize();
 
    Int minWorkers = opt.get("/PfcpExample/minApplicationWorkers", 1);

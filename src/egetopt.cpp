@@ -20,7 +20,7 @@
 #include "epctools.h"
 #include "egetopt.h"
 
-#define RAPIDJSON_NAMESPACE egetoptrapidjson
+#define RAPIDJSON_NAMESPACE epctoolsrapidjson
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
