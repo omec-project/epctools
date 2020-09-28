@@ -25,11 +25,6 @@
 #include <pistache/http_header.h>
 #include <pistache/router.h>
 
-#define RAPIDJSON_NAMESPACE epctoolsrapidjson
-
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/document.h"
-
 #include "elogger.h"
 #include "estring.h"
 #include "etime.h"
@@ -100,6 +95,9 @@ public:
    /// @param audit a reference to the ELogger object that will log all management operations.
    EManagementHandler(HttpMethod mthd, const std::string &pth, ELogger &audit);
 
+   /// @brief Destructor
+   virtual ~EManagementHandler() = default;
+
    /// @brief Pure virtual method that will be called by handler() to perform the processing.
    /// @param request HTTP request object.
    /// @param response HTTP response object.
@@ -108,7 +106,7 @@ public:
    /// @brief HTTP handler that will be called by the Pistache framework.
    /// @param request HTTP request object.
    /// @param response HTTP response object.
-   Void handler(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter response);
+   Void handler(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
 
    /// @brief Returns the route path for this HTTP handler.
    const EString &path() { return m_path; }

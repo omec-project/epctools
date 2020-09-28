@@ -31,7 +31,7 @@ EManagementHandler::EManagementHandler(HttpMethod mthd, const std::string &pth, 
 {
 }
 
-Void EManagementHandler::handler(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter response)
+Void EManagementHandler::handler(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
 {
    try
    {
@@ -87,7 +87,7 @@ Void EManagementEndpoint::start()
 {
    if (!m_username_header_registered)
    {
-      Pistache::Http::Header::Registry::registerHeader<EManagementUserNameHeader>();
+      Pistache::Http::Header::Registry::instance().registerHeader<EManagementUserNameHeader>();
       m_username_header_registered = True;
    }
 

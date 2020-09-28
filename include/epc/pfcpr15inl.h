@@ -228,6 +228,7 @@ inline FTeidIE::FTeidIE(pfcp_fteid_ie_t &ie, LengthCalculator *parent)
 inline uint16_t FTeidIE::calculateLength()
 {
    return
+      1 /* octet 5, bits */ +
       (ie_.ch ? 0 : sizeof(ie_.teid)) +
       (ie_.chid ? 1 : 0) +
       (ie_.v6 ? sizeof(in6_addr) : 0) +

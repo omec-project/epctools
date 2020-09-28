@@ -36,6 +36,7 @@ nobase_include_HEADERS =   \
    epc/ehash.h             \
    epc/einternal.h         \
    epc/eip.h               \
+   epc/ejsonbuilder.h      \
    epc/elogger.h           \
    epc/ememory.h           \
    epc/emsg.h              \

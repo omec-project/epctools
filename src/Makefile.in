@@ -155,17 +155,18 @@ am_libepc_a_OBJECTS = libepc_a-ebase.$(OBJEXT) \
 	libepc_a-eerror.$(OBJEXT) libepc_a-efd.$(OBJEXT) \
 	libepc_a-efdjson.$(OBJEXT) libepc_a-egetopt.$(OBJEXT) \
 	libepc_a-ehash.$(OBJEXT) libepc_a-eip.$(OBJEXT) \
-	libepc_a-elogger.$(OBJEXT) libepc_a-emsg.$(OBJEXT) \
-	libepc_a-epath.$(OBJEXT) libepc_a-epcdns.$(OBJEXT) \
-	libepc_a-epfcp.$(OBJEXT) libepc_a-eqbase.$(OBJEXT) \
-	libepc_a-eqpriv.$(OBJEXT) libepc_a-eqpub.$(OBJEXT) \
-	libepc_a-eshmem.$(OBJEXT) libepc_a-esocket.$(OBJEXT) \
-	libepc_a-estatic.$(OBJEXT) libepc_a-estats.$(OBJEXT) \
-	libepc_a-estring.$(OBJEXT) libepc_a-esynch.$(OBJEXT) \
-	libepc_a-etbasic.$(OBJEXT) libepc_a-etevent.$(OBJEXT) \
-	libepc_a-etime.$(OBJEXT) libepc_a-etimer.$(OBJEXT) \
-	libepc_a-etimerpool.$(OBJEXT) libepc_a-eutil.$(OBJEXT) \
-	libepc_a-dnscache.$(OBJEXT) libepc_a-dnsparser.$(OBJEXT)
+	libepc_a-ejsonbuilder.$(OBJEXT) libepc_a-elogger.$(OBJEXT) \
+	libepc_a-emsg.$(OBJEXT) libepc_a-epath.$(OBJEXT) \
+	libepc_a-epcdns.$(OBJEXT) libepc_a-epfcp.$(OBJEXT) \
+	libepc_a-eqbase.$(OBJEXT) libepc_a-eqpriv.$(OBJEXT) \
+	libepc_a-eqpub.$(OBJEXT) libepc_a-eshmem.$(OBJEXT) \
+	libepc_a-esocket.$(OBJEXT) libepc_a-estatic.$(OBJEXT) \
+	libepc_a-estats.$(OBJEXT) libepc_a-estring.$(OBJEXT) \
+	libepc_a-esynch.$(OBJEXT) libepc_a-etbasic.$(OBJEXT) \
+	libepc_a-etevent.$(OBJEXT) libepc_a-etime.$(OBJEXT) \
+	libepc_a-etimer.$(OBJEXT) libepc_a-etimerpool.$(OBJEXT) \
+	libepc_a-eutil.$(OBJEXT) libepc_a-dnscache.$(OBJEXT) \
+	libepc_a-dnsparser.$(OBJEXT)
 libepc_a_OBJECTS = $(am_libepc_a_OBJECTS)
 libpfcpr15_a_AR = $(AR) $(ARFLAGS)
 libpfcpr15_a_LIBADD =
@@ -345,6 +346,7 @@ libepc_a_SOURCES = \
    egetopt.cpp       \
    ehash.cpp         \
    eip.cpp           \
+   ejsonbuilder.cpp  \
    elogger.cpp       \
    emsg.cpp          \
    epath.cpp         \
@@ -377,8 +379,8 @@ libpfcpr15_a_SOURCES = \
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
-libepc_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares
-libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++11 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares -I$(top_srcdir)/modules/libpfcp/include
+libepc_a_CPPFLAGS = -fPIC -Wall -std=c++14 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares
+libpfcpr15_a_CPPFLAGS = -fPIC -Wall -std=c++14 -I$(top_srcdir)/include/epc -I$(top_srcdir)/modules/rapidjson/include -I$(top_srcdir)/modules/spdlog/include -I$(top_srcdir)/modules/c-ares -I$(top_srcdir)/modules/libpfcp/include
 all: all-am
 
 .SUFFIXES:
@@ -472,6 +474,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepc_a-egetopt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepc_a-ehash.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepc_a-eip.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepc_a-ejsonbuilder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepc_a-elogger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepc_a-emgmt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libepc_a-emsg.Po@am__quote@
@@ -664,6 +667,20 @@ libepc_a-eip.obj: eip.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='eip.cpp' object='libepc_a-eip.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libepc_a-eip.obj `if test -f 'eip.cpp'; then $(CYGPATH_W) 'eip.cpp'; else $(CYGPATH_W) '$(srcdir)/eip.cpp'; fi`
+
+libepc_a-ejsonbuilder.o: ejsonbuilder.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libepc_a-ejsonbuilder.o -MD -MP -MF $(DEPDIR)/libepc_a-ejsonbuilder.Tpo -c -o libepc_a-ejsonbuilder.o `test -f 'ejsonbuilder.cpp' || echo '$(srcdir)/'`ejsonbuilder.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libepc_a-ejsonbuilder.Tpo $(DEPDIR)/libepc_a-ejsonbuilder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ejsonbuilder.cpp' object='libepc_a-ejsonbuilder.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libepc_a-ejsonbuilder.o `test -f 'ejsonbuilder.cpp' || echo '$(srcdir)/'`ejsonbuilder.cpp
+
+libepc_a-ejsonbuilder.obj: ejsonbuilder.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libepc_a-ejsonbuilder.obj -MD -MP -MF $(DEPDIR)/libepc_a-ejsonbuilder.Tpo -c -o libepc_a-ejsonbuilder.obj `if test -f 'ejsonbuilder.cpp'; then $(CYGPATH_W) 'ejsonbuilder.cpp'; else $(CYGPATH_W) '$(srcdir)/ejsonbuilder.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libepc_a-ejsonbuilder.Tpo $(DEPDIR)/libepc_a-ejsonbuilder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ejsonbuilder.cpp' object='libepc_a-ejsonbuilder.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libepc_a-ejsonbuilder.obj `if test -f 'ejsonbuilder.cpp'; then $(CYGPATH_W) 'ejsonbuilder.cpp'; else $(CYGPATH_W) '$(srcdir)/ejsonbuilder.cpp'; fi`
 
 libepc_a-elogger.o: elogger.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libepc_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libepc_a-elogger.o -MD -MP -MF $(DEPDIR)/libepc_a-elogger.Tpo -c -o libepc_a-elogger.o `test -f 'elogger.cpp' || echo '$(srcdir)/'`elogger.cpp

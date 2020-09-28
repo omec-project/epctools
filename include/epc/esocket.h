@@ -429,6 +429,12 @@ namespace ESocket
          return Family::Undefined;
       }
 
+      /// @brief Returns True if the address is valid otherwise False.
+      Bool isValid() const
+      {
+         return m_addr.ss_family == AF_INET ||m_addr.ss_family == AF_INET6;
+      }
+
    private:
       struct sockaddr_storage m_addr;
    };
@@ -768,6 +774,7 @@ namespace ESocket
             Int protocol = this->getProtocol();
 
             this->createSocket( family, type, protocol );
+            bind(); // binds the local socket to the specified address if the local address is defined
 
             int result = ::connect(this->getHandle(), getRemote().getSockAddr(), getRemote().getSockAddrLen());
 
@@ -785,9 +792,6 @@ namespace ESocket
                setState( SocketState::Connecting );
 
                this->getThread().bump();
-
-
-
             }
          }
          /// @brief Initiates an IP connection.
@@ -1029,6 +1033,20 @@ namespace ESocket
             }
 
             return result;
+         }
+
+         Void bind()
+         {
+            if (m_local.isValid())
+            {
+               int result = ::bind(this->getHandle(), m_local.getSockAddr(), m_local.getSockAddrLen());
+               if (result == -1)
+               {
+                  TcpListenerError_UnableToBindSocket err;
+                  this->close();
+                  throw err;
+               }
+            }
          }
 
          SocketState m_state;
